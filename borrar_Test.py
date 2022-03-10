@@ -1,0 +1,333 @@
+from scipy import optimize
+import itertools as it
+import math
+import numpy as np
+import pyomo.environ as pe
+from pyomo.opt.base.solvers import SolverFactory
+import os
+from decimal import Decimal
+from gdp_mathprob import build_math
+from cuts_functions import convex_clousure,initialization_sampling
+from dsda_functions import neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem, solve_with_dsda,solve_with_gdpopt,solve_with_minlp
+import copy
+import time
+from feasibility_functions import feasibility_1,feasibility_2
+import logging
+
+def problem_logic_math(m):
+    logic_expr = []
+    for n in m.set1:
+        logic_expr.append([m.Y1[n],m.Y1_disjunct[n].indicator_var])
+    for n in m.set2:
+        logic_expr.append([m.Y2[n],m.Y2_disjunct[n].indicator_var])
+    return logic_expr
+
+def solve_subproblem_and_neighborhood_FEAS1(x,neigh,Internaldata,infinity_val,Adjustable_val,reformulation_dict,logic_fun):
+    """
+    Function that solves the NLP subproblem for a point and its neighborhood. 
+    Args:
+        x: central point (list) where the subproblem and the neighborhood solutions are going to be calcualted
+        neigh: dictionary with directions.
+        model: GDP model to be solved
+        Internaldat: Contains the objective function information of those subproblems that were already solved (It is the same as D during the solution procedure)
+        infinity_val: value of infinity
+        Adjustable_val: distance from central point at which the points used to calculated convex hull will be located (usually 0.5)
+        reformulation_dict: directory with reformualtion info
+    Returns:
+        generated_dict: A dictionary with the points evaluated and their objective function value (central point and neighborhood).
+        generated_list_feasible: A list with lists: central point and neighborhood but at a infinity (i think) distance of 0.5 (only feasible).
+    """
+    generated_dict={}
+    generated_list_feasible=[] #if required
+    status=[None]*(len(neigh.keys())+1)   #status of the solution obtained: 1 if feasible, 0 if infeasible. Status[0] correspond to x and the subsequent positions to its neighbors
+
+    #solve subproblem
+    if tuple(x) in Internaldata: #If subproblem was already solved
+        if Internaldata[tuple(x)]!=infinity_val:
+            status[0]=1 #feasible
+        else:
+            status[0]=0 #infeasible
+        generated_dict[tuple(x)]=Internaldata[tuple(x)] #THIS IS A TEST
+    else: #If subproblem has not been solved yet
+        #1: fix external variables
+        model = build_math()
+        m_fixed = external_ref(m=model,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+        m_solved,_=feasibility_1(m_fixed)
+        #print(m_solved.dsda_status)
+        #if m_solved.dsda_status=='Optimal':
+        status[0]=1
+        generated_dict[tuple(x)]=m_solved
+        #else:
+        #    status[0]=0
+        #    generated_dict[tuple(x)]=infinity_val
+
+
+    generated_list_feasible=generated_list_feasible+[x] 
+    if generated_dict[tuple(x)]!=0:
+        #solve neighborhood (only if central point was INfeasible)
+        if status[0]==1:
+            count=0 #count to add elements to status
+            for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+                count=count+1
+                current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
+                #print(current_value)
+                if tuple(current_value) in Internaldata: #If subproblem was already solved
+                    if Internaldata[tuple(current_value)]!=infinity_val:
+                        status[count]=1
+                    else:
+                        status[count]=0
+                    generated_dict[tuple(current_value)]=Internaldata[tuple(current_value)]
+                else: #If subproblem has not been solved yet
+                    #1: fix external variables
+                    #print(current_value)
+                    model = build_math()
+                    m_fixed2 = external_ref(m=model,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+                    m_solved2,_=feasibility_1(m_fixed2)
+
+
+                    #print(m_solved2.dsda_status)
+    #                if m_solved2.dsda_status=='Optimal':
+                    status[count]=1
+                    generated_dict[tuple(current_value)]=m_solved2
+                    # else:
+                    #     status[count]=0
+                    #     generated_dict[tuple(current_value)]=infinity_val   #THIS LAINE ACTUALLY HELPS A LOT TO FIND LOCAL SOLUTIONS FASTER!!!!!
+                    #print(pe.value(m_solved2.obj))
+                    if m_solved2==0: #stop if a feasible solution is found
+                        break        
+                if status[count]==1:
+                    generated_list_feasible=generated_list_feasible+[list((np.array(x)+Adjustable_val*np.array(neigh[j])))]
+
+    return generated_dict,generated_list_feasible
+
+def solve_subproblem_and_neighborhood_FEAS2(x,neigh,Internaldata,infinity_val,Adjustable_val,reformulation_dict,logic_fun,sub_solver,first_path):
+    """
+    Function that solves the NLP subproblem for a point and its neighborhood. 
+    Args:
+        x: central point (list) where the subproblem and the neighborhood solutions are going to be calcualted
+        neigh: dictionary with directions.
+        model: GDP model to be solved
+        Internaldata: Contains the objective function information of those subproblems that were already solved (It is the same as D during the solution procedure)
+        infinity_val: value of infinity
+        Adjustable_val: distance from central point at which the points used to calculated convex hull will be located (usually 0.5)
+        reformulation_dict: directory with reformualtion info
+    Returns:
+        generated_dict: A dictionary with the points evaluated and their objective function value (central point and neighborhood).
+        generated_list_feasible: A list with lists: central point and neighborhood but at a infinity (i think) distance of 0.5 (only feasible).
+    """
+    generated_dict={}
+    generated_list_feasible=[] #if required
+    status=[None]*(len(neigh.keys())+1)   #status of the solution obtained: 1 if feasible, 0 if infeasible. Status[0] correspond to x and the subsequent positions to its neighbors
+    init_path=''
+    #solve subproblem
+    if tuple(x) in Internaldata: #If subproblem was already solved
+        if Internaldata[tuple(x)]!=infinity_val:
+            status[0]=1 #feasible
+        else:
+            status[0]=0 #infeasible
+        generated_dict[tuple(x)]=Internaldata[tuple(x)] #THIS IS A TEST
+    else: #If subproblem has not been solved yet
+        #1: fix external variables
+        model = build_math()
+        model=initialize_model(m=model,json_path=first_path)
+        m_fixed = external_ref(m=model,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+        m_solved,_,return_path=feasibility_2(m_fixed,sub_solver,infinity_val)
+        if return_path!='':
+            init_path=return_path 
+        #print(m_solved.dsda_status)
+        #if m_solved.dsda_status=='Optimal':
+        status[0]=1
+        generated_dict[tuple(x)]=m_solved
+        # else:
+        #     status[0]=0
+        #     generated_dict[tuple(x)]=infinity_val
+
+
+    generated_list_feasible=generated_list_feasible+[x] 
+    if generated_dict[tuple(x)]!=0:
+        #solve neighborhood (only if central point was infeasible)
+        if status[0]==1:
+            count=0 #count to add elements to status
+            for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+                count=count+1
+                current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
+                #print(current_value)
+                if tuple(current_value) in Internaldata: #If subproblem was already solved
+                    if Internaldata[tuple(current_value)]!=infinity_val:
+                        status[count]=1
+                    else:
+                        status[count]=0
+                    generated_dict[tuple(current_value)]=Internaldata[tuple(current_value)]
+                else: #If subproblem has not been solved yet
+                    #1: fix external variables
+                    #print(current_value)
+                    model2 = build_math()
+                    model2=initialize_model(m=model2,json_path=first_path)
+                    m_fixed2 = external_ref(m=model2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+                    m_solved2,_,return_path2=feasibility_2(m_fixed2,sub_solver,infinity_val)
+                    if return_path2!='':
+                        init_path=return_path2
+                    #print(m_solved2.dsda_status)
+                    # if m_solved2.dsda_status=='Optimal':
+                    status[count]=1
+                    generated_dict[tuple(current_value)]=m_solved2
+                    # else:
+                    #     status[count]=0
+                    #     generated_dict[tuple(current_value)]=infinity_val   #THIS LAINE ACTUALLY HELPS A LOT TO FIND LOCAL SOLUTIONS FASTER!!!!!
+                    #print(pe.value(m_solved2.obj))
+                
+                    if m_solved2==0: #stop if a feasible solution is found
+                        break            
+                
+                if status[count]==1:
+                    generated_list_feasible=generated_list_feasible+[list((np.array(x)+Adjustable_val*np.array(neigh[j])))]
+
+    return generated_dict,generated_list_feasible,init_path
+def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,Adjustable_val,reformulation_dict,logic_fun,sub_solver,init_path):
+    """
+    Function that solves the NLP subproblem for a point and its neighborhood. 
+    Args:
+        x: central point (list) where the subproblem and the neighborhood solutions are going to be calcualted
+        neigh: dictionary with directions.
+        model: GDP model to be solved
+        Internaldat: Contains the objective function information of those subproblems that were already solved (It is the same as D during the solution procedure)
+        infinity_val: value of infinity
+        Adjustable_val: distance from central point at which the points used to calculated convex hull will be located (usually 0.5)
+        reformulation_dict: directory with reformualtion info
+    Returns:
+        generated_dict: A dictionary with the points evaluated and their objective function value (central point and neighborhood).
+        generated_list_feasible: A list with lists: central point and neighborhood but at a infinity (i think) distance of 0.5 (only feasible).
+    """
+    generated_dict={}
+    generated_list_feasible=[] #if required
+    status=[None]*(len(neigh.keys())+1)   #status of the solution obtained: 1 if feasible, 0 if infeasible. Status[0] correspond to x and the subsequent positions to its neighbors
+
+    #solve subproblem
+    if tuple(x) in Internaldata: #If subproblem was already solved
+        if Internaldata[tuple(x)]!=infinity_val:
+            status[0]=1 #feasible
+        else:
+            status[0]=0 #infeasible
+        generated_dict[tuple(x)]=Internaldata[tuple(x)] #THIS IS A TEST
+    else: #If subproblem has not been solved yet
+        #1: fix external variables
+        model = build_math()
+        #2: Initialize model
+        m_initialized=initialize_model(m=model,json_path=init_path)
+        m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+        m_solved=solve_subproblem(m=m_fixed, subproblem_solver=sub_solver, timelimit=10000, tee=False)
+        #print(m_solved.dsda_status)
+        if m_solved.dsda_status=='Optimal':
+            status[0]=1
+            generated_dict[tuple(x)]=pe.value(m_solved.obj)
+            init_path = generate_initialization(m=m_solved)
+        else:
+            status[0]=0
+            generated_dict[tuple(x)]=infinity_val
+
+
+    generated_list_feasible=generated_list_feasible+[x] 
+
+    #solve neighborhood (only if central point was feasible)
+    if status[0]==1:
+        count=0 #count to add elements to status
+        for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+            count=count+1
+            current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
+            #print(current_value)
+            if tuple(current_value) in Internaldata: #If subproblem was already solved
+                if Internaldata[tuple(current_value)]!=infinity_val:
+                    status[count]=1
+                else:
+                    status[count]=0
+                generated_dict[tuple(current_value)]=Internaldata[tuple(current_value)]
+            else: #If subproblem has not been solved yet
+                #1: fix external variables
+                #print(current_value)
+                model = build_math()
+                m_initialized2=initialize_model(m=model,json_path=init_path)
+                m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+                m_solved2=solve_subproblem(m=m_fixed2, subproblem_solver=sub_solver, timelimit=10000, tee=False)
+                #print(m_solved2.dsda_status)
+                if m_solved2.dsda_status=='Optimal':
+                    status[count]=1
+                    generated_dict[tuple(current_value)]=pe.value(m_solved2.obj)
+                else:
+                    status[count]=0
+                    generated_dict[tuple(current_value)]=infinity_val   #THIS LAINE ACTUALLY HELPS A LOT TO FIND LOCAL SOLUTIONS FASTER!!!!!
+                #print(pe.value(m_solved2.obj))
+            
+           
+            
+            if status[count]==1:
+                generated_list_feasible=generated_list_feasible+[list((np.array(x)+Adjustable_val*np.array(neigh[j])))]
+
+    return generated_dict,generated_list_feasible,init_path
+
+
+
+def build_master():
+
+    """
+    Function that builds the master problem
+        
+    """
+    #Model
+    m=pe.ConcreteModel(name='Master_problem')
+
+    #External variables (THIS SHOULD BE AUTOMATIC)
+    m.x1=pe.Var(within=pe.Integers, bounds=(1,15),initialize=1)
+    m.x2=pe.Var(within=pe.Integers, bounds=(1,21),initialize=1)
+
+    #Known constraints (assumption!!! I know constraints a priori)
+    #m.known=pe.Constraint(expr=m.x2-m.x1<=0)
+
+    #Cuts
+    m.cuts=pe.ConstraintList()
+
+    #Objective function
+    m.zobj=pe.Var()
+
+    def obj_rule(m):
+        return m.zobj
+    
+    m.fobj=pe.Objective(rule=obj_rule,sense=pe.minimize)
+
+    return m
+
+
+
+
+
+if __name__ == "__main__":
+    #Do not show warnings
+    logging.getLogger('pyomo').setLevel(logging.ERROR)
+    
+    ###REFORMUALTION EXTERNAL VARIABLES
+    model =build_math()
+    ext_ref = {model.Y1: model.set1, model.Y2: model.set2} #reformulation sets and variables
+    reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) 
+    print('-------------------------------------------------------------------------- \n \n')
+    #INIT_VALUES
+    initialization=[0,0] 
+    infinity_val=1e+9
+    Adjustable_val=0.5
+    tol=1E-6
+    fobj_actual=infinity_val
+    nlp_solver='knitro'
+    neigh=neighborhood_k_eq_inf(2)
+    maxiter=100
+    iterations=range(1,maxiter+1)
+
+    #No random sampling here: TODO WE HAVE TO THINK HOW CAN WE INTEGRATE THIS
+    D_random={}
+
+
+    #TEST 5: Solve using cuts: first idea
+    #GENERATE INITIALIZATION
+    model = build_math()
+    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_math,dict_extvar=reformulation_dict,tee=False)
+    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+    init_path = generate_initialization(m=m_init_solved)
+
+
