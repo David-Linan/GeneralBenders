@@ -717,6 +717,8 @@ if __name__ == "__main__":
         iteration=0
         while True:
             iteration=iteration+1
+            print("---------------------------------------------------- \n")
+            print("number of points sampled=",points, "__iteration=",iteration)
             for runs in range(1,size_of_batches+1):
                 try:
                     info_solver,info_preprocess,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=True,n_points_multstart=points)
@@ -728,20 +730,20 @@ if __name__ == "__main__":
                         objective_found=info_solver['m3_s3'][0]
                     except:
                         objective_found=infinity_val
-                    runs_dict[(points,iteration,runs)]=[objective_found,total_cpu,cpu_time_multi,cpu_time_solver,1]  #objective function,total cpu time,cpu time multis,cpu time solver
+                    runs_dict[(points,iteration,runs)]=[objective_found,total_cpu,cpu_time_multi,cpu_time_solver,1,actual_number_sampled_points]  #objective function,total cpu time,cpu time multis,cpu time solver
                 except:
-                    runs_dict[(points,iteration,runs)]=[infinity_val,infinity_val,infinity_val,infinity_val,0]
+                    runs_dict[(points,iteration,runs)]=[infinity_val,infinity_val,infinity_val,infinity_val,0,actual_number_sampled_points]
                 #print(runs_dict[(points,iteration,runs)])
             accum_average_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][1] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][1] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])
             accum_multi_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])            
             accum_solver_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])  
             accum_probability[(points,iteration)]=sum([     runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][0]<=value_slightly_greater_than_global_opt   ]   )/len([  runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])    
-            print(accum_probability[(points,iteration)])
-            print(accum_average_cpu[(points,iteration)])
+            print("accumulated probability",accum_probability[(points,iteration)])
+            print("accumulated average cpu time",accum_average_cpu[(points,iteration)])
             if iteration>=3:
                 criter1=abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-1)])/abs(accum_probability[(points,iteration)])
                 criter2=abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-2)])/abs(accum_probability[(points,iteration)])
-                print(criter1,criter2)
+                print("stopping criteria",criter1,criter2)
                 if criter1<=tolerance and criter2<=tolerance:
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
@@ -750,7 +752,9 @@ if __name__ == "__main__":
     pickle.dump(probability_data, a_file)
     a_file.close()
 
-
+    a_file = open("test_probabilities_secondary_info.pkl", "wb")
+    pickle.dump(runs_dict, a_file)
+    a_file.close()
 
 
 

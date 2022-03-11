@@ -1,21 +1,21 @@
 {
   "__metadata__": {
     "format_version": 4,
-    "date": "2022-03-09",
-    "time": "16:49:07.553546",
+    "date": "2022-03-11",
+    "time": "03:27:12.686608",
     "other": {},
     "__performance__": {
-      "n_components": 201,
-      "etime_make_dict": 0.0010843276977539062
+      "n_components": 399,
+      "etime_make_dict": 0.004465818405151367
     }
   },
-  "gdp_math": {
+  "gdp_reactors": {
     "__type__": "<class 'pyomo.core.base.PyomoModel.ConcreteModel'>",
     "data": {
       "None": {
         "__type__": "<class 'pyomo.core.base.PyomoModel.ConcreteModel'>",
         "__pyomo_components__": {
-          "pi": {
+          "k": {
             "__type__": "<class 'pyomo.core.base.param.ScalarParam'>",
             "data": {
               "None": {
@@ -23,7 +23,53 @@
               }
             }
           },
-          "Y1": {
+          "order1": {
+            "__type__": "<class 'pyomo.core.base.param.ScalarParam'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.param.ScalarParam'>"
+              }
+            }
+          },
+          "order2": {
+            "__type__": "<class 'pyomo.core.base.param.ScalarParam'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.param.ScalarParam'>"
+              }
+            }
+          },
+          "QF0": {
+            "__type__": "<class 'pyomo.core.base.param.ScalarParam'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.param.ScalarParam'>"
+              }
+            }
+          },
+          "C0": {
+            "__type__": "<class 'pyomo.core.base.param.IndexedParam'>",
+            "data": {
+              "'A'": {
+                "__type__": "<class 'float'>"
+              },
+              "'B'": {
+                "__type__": "<class 'float'>"
+              }
+            }
+          },
+          "F0": {
+            "__type__": "<class 'pyomo.core.base.param.IndexedParam'>",
+            "data": {
+              "'A'": {
+                "__type__": "<class 'float'>"
+              },
+              "'B'": {
+                "__type__": "<class 'float'>"
+              }
+            }
+          },
+          "YF": {
             "__type__": "<class 'pyomo.core.base.boolean_var.IndexedBooleanVar'>",
             "data": {
               "1": {
@@ -40,40 +86,10 @@
               },
               "5": {
                 "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "6": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "7": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "8": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "9": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "10": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "11": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "12": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "13": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "14": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "15": {
-                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
               }
             }
           },
-          "Y2": {
+          "YR": {
             "__type__": "<class 'pyomo.core.base.boolean_var.IndexedBooleanVar'>",
             "data": {
               "1": {
@@ -90,30 +106,1481 @@
               },
               "5": {
                 "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
-              },
-              "6": {
+              }
+            }
+          },
+          "YP": {
+            "__type__": "<class 'pyomo.core.base.boolean_var.IndexedBooleanVar'>",
+            "data": {
+              "1": {
                 "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
               },
-              "7": {
+              "2": {
+                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
+              },
+              "5": {
                 "__type__": "<class 'pyomo.core.base.boolean_var._GeneralBooleanVarData'>"
               }
             }
           },
-          "alpha": {
-            "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
+          "Q": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
             "data": {
-              "None": {
-                "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 0.0
+              "1": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
               }
             }
           },
-          "beta": {
+          "QFR": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "F": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "('A', 1)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 2)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 3)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 4)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 5)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 1)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 2)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 3)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 4)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 5)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "FR": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "('A', 1)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 2)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 3)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 4)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 5)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 1)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 2)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 3)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 4)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 5)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "rate": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "('A', 1)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 2)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 3)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 4)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('A', 5)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 1)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 2)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 3)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 4)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "('B', 5)": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "V": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "c": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "QR": {
             "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": -0.4
+                "value": 0
+              }
+            }
+          },
+          "QP": {
+            "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
+                "value": 0
+              }
+            }
+          },
+          "R": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "'A'": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "'B'": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "P": {
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
+            "data": {
+              "'A'": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              },
+              "'B'": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0
+              }
+            }
+          },
+          "unreact_mole": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "('A', 5)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('B', 5)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "unreact_cont": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "5": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "react_mole": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "('A', 1)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('A', 2)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('A', 3)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('A', 4)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('B', 1)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('B', 2)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('B', 3)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "('B', 4)": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "react_cont": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "split_mole": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "'A'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'B'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "split_cont": {
+            "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+              }
+            }
+          },
+          "split_add": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "'A'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'B'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "prod_spec": {
+            "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+              }
+            }
+          },
+          "vol_cons": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "2": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              }
+            }
+          },
+          "YR_is_recycle": {
+            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunct'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YRD_FR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "YRD_QFR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "2": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YRD_FR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "YRD_QFR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "3": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YRD_FR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "YRD_QFR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "4": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YRD_FR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "YRD_QFR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "5": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YRD_FR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "YRD_QFR_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "YR_is_not_recycle": {
+            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunct'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YRD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YRD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "2": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YRD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YRD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "3": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YRD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YRD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "4": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YRD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YRD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "5": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YRD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YRD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "YP_is_cstr": {
+            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunct'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YPD_rate_calc": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_rate_rel": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_vol_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "2": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YPD_rate_calc": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_rate_rel": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_vol_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "3": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YPD_rate_calc": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_rate_rel": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_vol_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "4": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YPD_rate_calc": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_rate_rel": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_vol_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "5": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "YPD_rate_calc": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_rate_rel": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "YPD_vol_act": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "YP_is_bypass": {
+            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunct'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YPD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_rate_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_vol_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "2": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YPD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_rate_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_vol_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "3": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YPD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_rate_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_vol_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "4": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YPD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_rate_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_vol_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              },
+              "5": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
+                "__pyomo_components__": {
+                  "indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
+                      }
+                    }
+                  },
+                  "binary_indicator_var": {
+                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
+                        "value": null
+                      }
+                    }
+                  },
+                  "neg_YPD_FR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_rate_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+                    "data": {
+                      "'A'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      },
+                      "'B'": {
+                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_QFR_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  },
+                  "neg_YPD_vol_desact": {
+                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
+                    "data": {
+                      "None": {
+                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "YP_is_cstr_or_bypass": {
+            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunction'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "2": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "5": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              }
+            }
+          },
+          "YR_is_recycle_or_not": {
+            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunction'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "2": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              },
+              "5": {
+                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctionData'>"
+              }
+            }
+          },
+          "cstr_if_recycle": {
+            "__type__": "<class 'pyomo.core.base.logical_constraint.IndexedLogicalConstraint'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              }
+            }
+          },
+          "one_unreacted_feed": {
+            "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>"
+              }
+            }
+          },
+          "one_recycle": {
+            "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>",
+            "data": {
+              "None": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>"
+              }
+            }
+          },
+          "unit_in_n": {
+            "__type__": "<class 'pyomo.core.base.logical_constraint.IndexedLogicalConstraint'>",
+            "data": {
+              "1": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "2": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "3": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "4": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
+              },
+              "5": {
+                "__type__": "<class 'pyomo.core.base.logical_constraint._GeneralLogicalConstraintData'>"
               }
             }
           },
@@ -122,721 +1589,6 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.objective.ScalarObjective'>"
-              }
-            }
-          },
-          "Y1_disjunct": {
-            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunct'>",
-            "data": {
-              "1": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "2": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "3": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "4": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "5": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "6": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "7": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "8": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "9": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "10": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "11": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "12": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "13": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "14": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "15": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint1": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "Y2_disjunct": {
-            "__type__": "<class 'pyomo.gdp.disjunct.IndexedDisjunct'>",
-            "data": {
-              "1": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "2": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "3": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "4": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "5": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "6": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              },
-              "7": {
-                "__type__": "<class 'pyomo.gdp.disjunct._DisjunctData'>",
-                "__pyomo_components__": {
-                  "indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBooleanVar'>"
-                      }
-                    }
-                  },
-                  "binary_indicator_var": {
-                    "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
-                      }
-                    }
-                  },
-                  "constraint2": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>",
-                    "data": {
-                      "None": {
-                        "__type__": "<class 'pyomo.core.base.constraint.ScalarConstraint'>"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "oneY1": {
-            "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>",
-            "data": {
-              "None": {
-                "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>"
-              }
-            }
-          },
-          "oneY2": {
-            "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>",
-            "data": {
-              "None": {
-                "__type__": "<class 'pyomo.core.base.logical_constraint.ScalarLogicalConstraint'>"
-              }
-            }
-          },
-          "logic_to_linear": {
-            "__type__": "<class 'pyomo.core.base.block.ScalarBlock'>",
-            "data": {
-              "None": {
-                "__type__": "<class 'pyomo.core.base.block.ScalarBlock'>",
-                "__pyomo_components__": {
-                  "transformed_constraints": {
-                    "__type__": "<class 'pyomo.core.base.constraint.ConstraintList'>",
-                    "data": {
-                      "1": {
-                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
-                      },
-                      "2": {
-                        "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
-                      }
-                    }
-                  },
-                  "augmented_vars": {
-                    "__type__": "<class 'pyomo.core.base.boolean_var.BooleanVarList'>",
-                    "data": {}
-                  },
-                  "augmented_vars_asbinary": {
-                    "__type__": "<class 'pyomo.core.base.var.VarList'>",
-                    "data": {}
-                  }
-                }
               }
             }
           }
