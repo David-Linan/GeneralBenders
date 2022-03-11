@@ -748,11 +748,11 @@ if __name__ == "__main__":
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
-    a_file = open("test_probabilities.pkl", "wb")
+    a_file = open("test_probabilities_more_rigurous.pkl", "wb")
     pickle.dump(probability_data, a_file)
     a_file.close()
 
-    a_file = open("test_probabilities_secondary_info.pkl", "wb")
+    a_file = open("test_probabilities_secondary_info_more_rigurous.pkl", "wb")
     pickle.dump(runs_dict, a_file)
     a_file.close()
 
