@@ -704,6 +704,7 @@ if __name__ == "__main__":
     max_number_sampled_points=30
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.05
+    number_of_iter_where_probability_must_remain_constant=10
 
 
     runs_dict={}
@@ -740,11 +741,10 @@ if __name__ == "__main__":
             accum_probability[(points,iteration)]=sum([     runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][0]<=value_slightly_greater_than_global_opt   ]   )/len([  runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])    
             print("accumulated probability",accum_probability[(points,iteration)])
             print("accumulated average cpu time",accum_average_cpu[(points,iteration)])
-            if iteration>=3:
-                criter1=abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-1)])/abs(accum_probability[(points,iteration)])
-                criter2=abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-2)])/abs(accum_probability[(points,iteration)])
-                print("stopping criteria",criter1,criter2)
-                if criter1<=tolerance and criter2<=tolerance:
+            if iteration>=number_of_iter_where_probability_must_remain_constant:
+                criter=[abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-j)])/abs(accum_probability[(points,iteration)])<=tolerance for j in range(1,number_of_iter_where_probability_must_remain_constant) ]
+                print("stopping criteria:",criter)
+                if all(criter):
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
