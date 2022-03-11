@@ -736,6 +736,7 @@ if __name__ == "__main__":
             accum_multi_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])            
             accum_solver_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])  
             accum_probability[(points,iteration)]=sum([     runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][0]<=value_slightly_greater_than_global_opt   ]   )/len([  runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])    
+            print(accum_probability[(points,iteration)])
             print(accum_average_cpu[(points,iteration)])
             if iteration>=3:
                 criter1=abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-1)])/abs(accum_probability[(points,iteration)])
