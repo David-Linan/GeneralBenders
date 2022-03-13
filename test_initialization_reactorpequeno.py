@@ -703,9 +703,9 @@ if __name__ == "__main__":
     size_of_batches=10
     max_number_sampled_points=30
     value_slightly_greater_than_global_opt=3.08
-    tolerance=0.001
-    number_of_iter_where_probability_must_remain_constant=10
-
+    tolerance=0.01
+    number_of_iter_where_probability_must_remain_constant=5
+    print(tolerance)
 
     runs_dict={}
 
