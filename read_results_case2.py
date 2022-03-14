@@ -3,7 +3,7 @@ import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 
-a_file = open("test_probabilities.pkl", "rb")
+a_file = open("test_probabilities_more_rigurous.pkl", "rb")
 results = pickle.load(a_file)
 #print(results[0])
 

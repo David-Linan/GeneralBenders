@@ -697,15 +697,30 @@ if __name__ == "__main__":
     ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
     initialization=[1,1] 
     infinity_val=1e+5
-    nlp_solver='msnlp'
+    nlp_solver='conopt4'
     neigh=neighborhood_k_eq_inf(2)
     maxiter=100
+    ##used in second test test_probabilities_more_rigurous
+    # size_of_batches=10
+    # max_number_sampled_points=30
+    # value_slightly_greater_than_global_opt=3.08
+    # tolerance=0.01
+    # number_of_iter_where_probability_must_remain_constant=5
+    # print(tolerance)
+    ##used in second test test_probabilities_more_rigurous2
     size_of_batches=10
-    max_number_sampled_points=30
+    max_number_sampled_points=17
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.01
-    number_of_iter_where_probability_must_remain_constant=5
-    print(tolerance)
+    number_of_iter_where_probability_must_remain_constant=10
+    
+    
+    
+    print("size_of_batches",size_of_batches)
+    print("max_number_sampled_points",max_number_sampled_points)
+    print("tolerance",tolerance)
+    print("number_of_iter_where_probability_must_remain_constant",number_of_iter_where_probability_must_remain_constant)
+
 
     runs_dict={}
 
@@ -748,11 +763,11 @@ if __name__ == "__main__":
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
-    a_file = open("test_probabilities_more_rigurous.pkl", "wb")
+    a_file = open("test_probabilities_more_rigurous2.pkl", "wb")
     pickle.dump(probability_data, a_file)
     a_file.close()
 
-    a_file = open("test_probabilities_secondary_info_more_rigurous.pkl", "wb")
+    a_file = open("test_probabilities_secondary_info_more_rigurous2.pkl", "wb")
     pickle.dump(runs_dict, a_file)
     a_file.close()
 
