@@ -697,7 +697,7 @@ if __name__ == "__main__":
     ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
     initialization=[1,1] 
     infinity_val=1e+5
-    nlp_solver='conopt4'
+    nlp_solver='msnlp'
     neigh=neighborhood_k_eq_inf(2)
     maxiter=100
     ##used in second test test_probabilities_more_rigurous
@@ -709,7 +709,7 @@ if __name__ == "__main__":
     # print(tolerance)
     ##used in second test test_probabilities_more_rigurous2
     size_of_batches=10
-    max_number_sampled_points=17
+    max_number_sampled_points=4
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.01
     number_of_iter_where_probability_must_remain_constant=10
