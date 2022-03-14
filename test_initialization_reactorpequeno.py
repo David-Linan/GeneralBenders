@@ -725,7 +725,7 @@ if __name__ == "__main__":
     number_of_iter_where_probability_must_remain_constant=10
     
     
-    
+    print("initial_sampled_points",initial_sampled_points)
     print("size_of_batches",size_of_batches)
     print("max_number_sampled_points",max_number_sampled_points)
     print("tolerance",tolerance)
