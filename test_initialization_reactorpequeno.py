@@ -702,14 +702,24 @@ if __name__ == "__main__":
     maxiter=100
     ##used in second test test_probabilities_more_rigurous
     # size_of_batches=10
+    # initial_sampled_points=2
     # max_number_sampled_points=30
     # value_slightly_greater_than_global_opt=3.08
     # tolerance=0.01
     # number_of_iter_where_probability_must_remain_constant=5
     # print(tolerance)
     ##used in second test test_probabilities_more_rigurous2
+    # size_of_batches=10
+    # initial_sampled_points=2
+    # max_number_sampled_points=4
+    # value_slightly_greater_than_global_opt=3.08
+    # tolerance=0.01
+    # number_of_iter_where_probability_must_remain_constant=10
+
+    ##used in second test test_probabilities_more_rigurous2_5_to_7
     size_of_batches=10
-    max_number_sampled_points=4
+    initial_sampled_points=5
+    max_number_sampled_points=7
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.01
     number_of_iter_where_probability_must_remain_constant=10
@@ -729,7 +739,7 @@ if __name__ == "__main__":
     accum_multi_cpu={}
     accum_solver_cpu={}
     
-    for points in range(2,max_number_sampled_points+1):
+    for points in range(initial_sampled_points,max_number_sampled_points+1):
         iteration=0
         while True:
             iteration=iteration+1
@@ -763,11 +773,11 @@ if __name__ == "__main__":
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
-    a_file = open("test_probabilities_more_rigurous2.pkl", "wb")
+    a_file = open("test_probabilities_more_rigurous2_5_to_7.pkl", "wb")
     pickle.dump(probability_data, a_file)
     a_file.close()
 
-    a_file = open("test_probabilities_secondary_info_more_rigurous2.pkl", "wb")
+    a_file = open("test_probabilities_secondary_info_more_rigurous2_5_to_7.pkl", "wb")
     pickle.dump(runs_dict, a_file)
     a_file.close()
 
