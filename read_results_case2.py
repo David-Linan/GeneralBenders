@@ -2,7 +2,7 @@ from __future__ import division
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-f_name="test_probabilities_more_rigurous2_5_to_7"
+f_name="test_probabilities_more_rigurous2_20_to_22"
 a_file = open(f_name+".pkl", "rb")
 results = pickle.load(a_file)
 #print(results[0])
