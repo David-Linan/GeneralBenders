@@ -2,8 +2,8 @@ from __future__ import division
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-
-a_file = open("test_probabilities_more_rigurous.pkl", "rb")
+f_name="test_probabilities_more_rigurous2_20_to_22"
+a_file = open(f_name+".pkl", "rb")
 results = pickle.load(a_file)
 #print(results[0])
 
@@ -22,19 +22,26 @@ plt.plot(list(updated_Results.keys()),list(updated_Results.values()))
 plt.show()
 
 #average cpu time
-updated_Results={}
+updated_Results_cpu_time={}
 for i in range(min( [list(results[1].keys())[j][0] for j in range(len(list(results[1].keys()))) ]   )  ,max(     [list(results[1].keys())[j][0] for j in range(len(list(results[1].keys()))) ]   )  +1):
     partial={}
     for j in results[1].keys():
         if j[0]==i:
             partial[j]=results[1][j]
     max_index=max([list(partial.keys())[j][1] for j in range(len(list(partial.keys())))])
-    updated_Results[i]=results[1][(i,max_index)]
-print(updated_Results)
+    updated_Results_cpu_time[i]=results[1][(i,max_index)]
+print(updated_Results_cpu_time)
 
-plt.plot(list(updated_Results.keys()),list(updated_Results.values()))
+plt.plot(list(updated_Results_cpu_time.keys()),list(updated_Results_cpu_time.values()))
 plt.show()
-        
+
+pd_data_proba=pd.DataFrame.from_dict(data=updated_Results,orient='index',columns=['probability'])
+pd_data_time=pd.DataFrame.from_dict(data=updated_Results_cpu_time,orient='index',columns=['time'])
+with pd.ExcelWriter(f_name+'.xlsx') as writer:
+    pd_data_proba.to_excel(writer, sheet_name='Sheet1',startcol=1)
+    pd_data_time.to_excel(writer, sheet_name='Sheet1',startcol=3)
+
+
 
 
 
