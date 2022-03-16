@@ -593,7 +593,7 @@ if __name__ == "__main__":
     logic_fun=problem_logic_math
     model=model_fun(**kwargs)
     ext_ref = {model.Y1: model.set1, model.Y2: model.set2} #reformulation sets and variables
-    initialization=[1,1] 
+    initialization=[5,5] 
     infinity_val=1e+5
     nlp_solver='MSNLP'
     neigh=neighborhood_k_eq_inf(2)
