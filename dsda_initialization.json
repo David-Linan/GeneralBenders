@@ -2,11 +2,11 @@
   "__metadata__": {
     "format_version": 4,
     "date": "2022-03-16",
-    "time": "08:33:08.231287",
+    "time": "15:44:36.775308",
     "other": {},
     "__performance__": {
       "n_components": 436,
-      "etime_make_dict": 0.0036039352416992188
+      "etime_make_dict": 0.00455927848815918
     }
   },
   "gdp_reactors": {
