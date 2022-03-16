@@ -13,10 +13,10 @@ def build_math():
     m.pi=pe.Param(initialize=math.pi)
 
     #-----Sets
-    m.set1=pe.RangeSet(1,15,doc= "set of first group of Boolean variables")
-    m.set2=pe.RangeSet(1,7,doc= "set of first group of Boolean variables")
+    m.set1=pe.RangeSet(1,5,doc= "set of first group of Boolean variables")
+    m.set2=pe.RangeSet(1,5,doc= "set of first group of Boolean variables")
 
-    #m.sub1 = pe.Set(initialize=[1,2,3,4],within=m.set1)
+    m.sub1 = pe.Set(initialize=[3],within=m.set1)
 
     #-----Variables
     m.Y1=pe.BooleanVar(m.set1,doc="Boolean variable associated to set 1")
@@ -42,7 +42,7 @@ def build_math():
     def build_disjuncts1(m,set1):  #Disjuncts for first Boolean variable
 
         def constraint1(m):
-            return m.model().alpha==-0.7+0.1*(set1-1) #.model() is required when writing constraints inside disjuncts
+            return m.model().alpha==-0.1+0.1*(set1-1) #.model() is required when writing constraints inside disjuncts
         m.constraint1=pe.Constraint(rule=constraint1)
     
     m.Y1_disjunct=Disjunct(m.set1,rule=build_disjuncts1,doc="each disjunct is defined over set 1")
@@ -60,7 +60,7 @@ def build_math():
     def build_disjuncts2(m,set2):  #Disjuncts for second Boolean variable
 
         def constraint2(m):
-            return m.model().beta==-1+0.1*(set2-1) #.model() is required when writing constraints inside disjuncts
+            return m.model().beta==-0.9+0.1*(set2-1) #.model() is required when writing constraints inside disjuncts
         m.constraint2=pe.Constraint(rule=constraint2)
     
     m.Y2_disjunct=Disjunct(m.set2,rule=build_disjuncts2,doc="each disjunct is defined over set 2")
@@ -90,9 +90,9 @@ def build_math():
 
     #Constraint that define an infeasible region with respect to Boolean variables
 
-    #def infeasR_rule(m):
-    #    return pe.land([pe.lnot(m.Y1[j]) for j in m.sub1])
-    #m.infeasR=pe.LogicalConstraint(rule=infeasR_rule)
+    def infeasR_rule(m):
+        return pe.land([pe.lnot(m.Y1[j]) for j in m.sub1])
+    m.infeasR=pe.LogicalConstraint(rule=infeasR_rule)
 
 
     #-----Return model
