@@ -22,7 +22,7 @@ from itertools import product
 import warnings
 
 #Random seed for master problem initializations (if required)
-random.seed(30)
+#random.seed(30)
 
 def problem_logic_cstr(m):
     logic_expr = []
@@ -727,7 +727,7 @@ if __name__ == "__main__":
     ##used in third test test_probabilities_more_rigurous3
     size_of_batches=10
     initial_sampled_points=2
-    max_number_sampled_points=5
+    max_number_sampled_points=10
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.01
     number_of_iter_where_probability_must_remain_constant=20
@@ -781,11 +781,11 @@ if __name__ == "__main__":
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
-    a_file = open("test_probabilities_more_rigurous3_2_to_5_naive.pkl", "wb")
+    a_file = open("test_probabilities_more_rigurous3_2_to_10_naive.pkl", "wb")
     pickle.dump(probability_data, a_file)
     a_file.close()
 
-    a_file = open("test_probabilities_secondary_info_more_rigurous3_2_to_5_naive.pkl", "wb")
+    a_file = open("test_probabilities_secondary_info_more_rigurous3_2_to_10_naive.pkl", "wb")
     pickle.dump(runs_dict, a_file)
     a_file.close()
 
