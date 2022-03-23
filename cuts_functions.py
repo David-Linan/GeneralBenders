@@ -1,4 +1,4 @@
-from scipy import optimize
+from scipy import optimize 
 import itertools as it
 import math
 import numpy as np
@@ -49,7 +49,8 @@ def initialization_sampling(number_points,lower_bounds,upper_bounds,input_criter
     """
     Function that returns the points to be evaluated in the random sampling step
     """
-
+    if number_points<=0:
+        number_points=1
     list_of_limits=[]
 
     for i in lower_bounds:
@@ -68,11 +69,78 @@ def initialization_sampling(number_points,lower_bounds,upper_bounds,input_criter
     newx.sort(reverse=True)
     return newx   #list with discrete randomly sampled values (without repetition)
 
+def initialization_sampling_naive(number_points,lower_bounds,upper_bounds):
 
+    """
+    Function that returns the points to be evaluated in the random sampling step
+    """
+    if number_points<=0:
+        number_points=1
+    dimension=len(lower_bounds.keys())
+    multip=1
+    for i in lower_bounds.keys():
+        partial_lower=lower_bounds[i]
+        partial_upper=upper_bounds[i]
+        multip=multip*(partial_upper-partial_lower+1)
+    if number_points>=multip:
+        number_points=multip
+    rng=np.random.default_rng()
+    newx=[]
+    contador=0
+    while True:
+        current_random=[]
+        for j in range(1,dimension+1):
+            current_random_value=rng.integers(lower_bounds[j],high=upper_bounds[j],size=None,endpoint=True)
+            current_random.append(current_random_value)
+        #print(current_random)
+        if number_points==1:
+            newx.append(current_random)
+            break
+        else:
+            if contador==0:
+                contador=contador+1
+                newx.append(current_random)
+            else:                
+                #print([current_random!=newx[k] for k in range(len(newx))])
+                if all([current_random!=newx[k] for k in range(len(newx))]):
+                    contador=contador+1
+                    newx.append(current_random)
+                    #print(contador)
+                    #print(number_points)
+                    
+                    if contador==number_points:
+                        break
+     #   print(contador)
+    newx.sort(reverse=True)
+
+    return newx   #list with discrete randomly sampled values (without repetition)
 ###TESTS
+
+
+
+
 # respuesta=initialization_sampling(2,{1: 1, 2: 1, 3: 1},{1: 5, 2: 5, 3:5})
-# print(respuesta)
-# print(len(respuesta))
+# print('LHS',respuesta)
+# #print(len(respuesta))
+
+
+# respuesta=initialization_sampling_naive(2,{1: 1, 2: 1, 3: 1},{1: 5, 2: 5, 3:5})
+# print('Naive',respuesta)
+# #print(len(respuesta))
+
+
+# respuesta=initialization_sampling(25,{1: 1, 2: 1},{1: 5, 2: 5})
+# print('LHS',respuesta)
+# #print(len(respuesta))
+
+
+# respuesta=initialization_sampling_naive(24,{1: 1, 2: 1},{1: 5, 2: 5})
+# print('Naive',respuesta)
+# #print(len(respuesta))
+
+
+
+
 
 
 
