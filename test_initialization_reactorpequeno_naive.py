@@ -734,8 +734,8 @@ if __name__ == "__main__":
     
     ##used in third test test_probabilities_more_rigurous4
     size_of_batches=10
-    initial_sampled_points=8
-    max_number_sampled_points=10
+    initial_sampled_points=11
+    max_number_sampled_points=13
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.01
     number_of_iter_where_probability_must_remain_constant=40
@@ -788,11 +788,11 @@ if __name__ == "__main__":
                     break        
     probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
-    a_file = open("test_probabilities_more_rigurous4_8_to_10_naive.pkl", "wb")
+    a_file = open("test_probabilities_more_rigurous4_11_to_13_naive.pkl", "wb")
     pickle.dump(probability_data, a_file)
     a_file.close()
 
-    a_file = open("test_probabilities_secondary_info_more_rigurous4_8_to_10_naive.pkl", "wb")
+    a_file = open("test_probabilities_secondary_info_more_rigurous4_11_to_13_naive.pkl", "wb")
     pickle.dump(runs_dict, a_file)
     a_file.close()
 
