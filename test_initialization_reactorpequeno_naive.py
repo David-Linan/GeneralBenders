@@ -734,11 +734,11 @@ if __name__ == "__main__":
     
     ##used in third test test_probabilities_more_rigurous4
     size_of_batches=10
-    initial_sampled_points=25
-    max_number_sampled_points=26
+    initial_sampled_points=23
+    max_number_sampled_points=24
     value_slightly_greater_than_global_opt=3.08
     tolerance=0.01
-    number_of_iter_where_probability_must_remain_constant=2
+    number_of_iter_where_probability_must_remain_constant=40
     
     print("initial_sampled_points",initial_sampled_points)
     print("size_of_batches",size_of_batches)
