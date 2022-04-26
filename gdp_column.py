@@ -499,7 +499,7 @@ def build_column_minlp_gdp(x_initial,min_trays, max_trays, xD, xB):
                      [m.condens_tray, m.reboil_tray], doc='Interior trays of the column')
 
     def YB_init(m,intTrays):
-        if m.intTrays == x_initial[0]+1:
+        if m.intTrays == x_initial[1]+1:
             return True
         else:
             return False
@@ -508,16 +508,16 @@ def build_column_minlp_gdp(x_initial,min_trays, max_trays, xD, xB):
 
 
     def YR_init(m,intTrays):
-        if m.intTrays == x_initial[1]+1:
+        if m.intTrays == x_initial[0]+1:
             return True
         else:
             return False
     m.YR = BooleanVar(m.intTrays, initialize=YR_init,
                       doc='Existence of reflux flow in stage n')
 
-    # Initialize at least one reflux and boilup trays to avoid errors in MINLP solvers
-    m.YB[m.reboil_tray+1].set_value(True)
-    m.YR[m.max_trays-1].set_value(True)
+    # # Initialize at least one reflux and boilup trays to avoid errors in MINLP solvers
+    # m.YB[m.reboil_tray+1].set_value(True)
+    # m.YR[m.max_trays-1].set_value(True)
 
     m.YP = BooleanVar(
         m.intTrays, doc='Boolean var associated with tray and no_tray')
