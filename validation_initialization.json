@@ -2,11 +2,11 @@
   "__metadata__": {
     "format_version": 4,
     "date": "2022-05-12",
-    "time": "15:30:11.327361",
+    "time": "15:31:05.863167",
     "other": {},
     "__performance__": {
       "n_components": 2070,
-      "etime_make_dict": 0.00595402717590332
+      "etime_make_dict": 0.0063512325286865234
     }
   },
   "benzene-toluene column": {
@@ -487,7 +487,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
+                        "value": 1
                       }
                     }
                   },
@@ -638,7 +638,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
+                        "value": 1
                       }
                     }
                   },
@@ -789,7 +789,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
+                        "value": 1
                       }
                     }
                   },
@@ -940,7 +940,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
+                        "value": 1
                       }
                     }
                   },
@@ -1846,7 +1846,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
+                        "value": 0
                       }
                     }
                   },
@@ -1997,7 +1997,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
+                        "value": 0
                       }
                     }
                   },
@@ -2417,7 +2417,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
+                        "value": 0
                       }
                     }
                   },
@@ -2505,7 +2505,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
+                        "value": 0
                       }
                     }
                   },
@@ -2593,7 +2593,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
+                        "value": 0
                       }
                     }
                   },
@@ -2681,7 +2681,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 1
+                        "value": 0
                       }
                     }
                   },
@@ -3209,7 +3209,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
+                        "value": 1
                       }
                     }
                   },
@@ -3297,7 +3297,7 @@
                     "data": {
                       "None": {
                         "__type__": "<class 'pyomo.gdp.disjunct.AutoLinkedBinaryVar'>",
-                        "value": 0
+                        "value": 1
                       }
                     }
                   },
@@ -3462,139 +3462,139 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.049999999674623
+                "value": 0.050000000001857
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.092666287544555
               },
               "('benzene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.092666287544555
               },
               "('benzene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.092666287544555
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.092666287544555
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.152235811024722
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.226493062199083
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.30687417120351
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.108565053339597
+                "value": 0.381415488928258
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.22598176339527
+                "value": 0.447856715378957
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.271515629844662
+                "value": 0.543180048173383
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.350029690800801
+                "value": 0.660779049549018
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.469610255488955
+                "value": 0.780654134111383
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.620038955601866
+                "value": 0.880453310116501
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.767885925223127
+                "value": 0.949999999998209
               },
               "('benzene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.880453312724421
+                "value": 0.949999999998209
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.950000001866181
+                "value": 0.949999999998209
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.950000000325982
+                "value": 0.949999999998143
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.907333712455445
               },
               "('toluene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.907333712455445
               },
               "('toluene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.907333712455445
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.907333712455445
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.847764188975278
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.773506937800917
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.69312582879649
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891434946660417
+                "value": 0.618584511071742
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.774018236604734
+                "value": 0.552143284621043
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.72848437015534
+                "value": 0.456819951826617
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.6499703091992
+                "value": 0.339220950450982
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.530389744511045
+                "value": 0.219345865888617
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.379961044398134
+                "value": 0.119546689883499
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.232114074776872
+                "value": 0.050000000001791
               },
               "('toluene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.119546687275578
+                "value": 0.050000000001791
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0499999981339
+                "value": 0.050000000001791
               }
             }
           },
@@ -3603,139 +3603,139 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.110739580432226
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.110739580432226
               },
               "('benzene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.110739580432226
               },
               "('benzene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.110739580432226
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.195527265611701
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.301031727689024
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.414779316654492
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.124295339234243
+                "value": 0.519641160209065
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.377813081796109
+                "value": 0.603024501294284
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.414055573866161
+                "value": 0.668031986590895
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.475610513415763
+                "value": 0.748627850226544
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.569374163977615
+                "value": 0.831445526446799
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.687648531688141
+                "value": 0.901058709969944
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.804575021175918
+                "value": 0.949999999998209
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.894249073334705
+                "value": 0.949999999996236
               },
               "('benzene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.950000001752525
+                "value": 0.949999999997112
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.839478081791939
+                "value": 1.0
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.889260419567774
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.889260419567774
               },
               "('toluene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.889260419567774
               },
               "('toluene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.889260419567774
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.804472734388299
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.698968272310976
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.585220683345508
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.875704660765741
+                "value": 0.480358839790935
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.622186918203888
+                "value": 0.396975498705716
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.585944426133839
+                "value": 0.331968013409105
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.524389486584237
+                "value": 0.251372149773456
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.430625836022386
+                "value": 0.168554473553201
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.312351468311859
+                "value": 0.098941290030056
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.195424978824083
+                "value": 0.050000000001791
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.105750926665297
+                "value": 0.050000000005679
               },
               "('toluene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.04999999824748
+                "value": 0.050000000002901
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.016717671883194
+                "value": 0.020340555046436
               }
             }
           },
@@ -3744,139 +3744,139 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.499999987977513
+                "value": 2.500000000093033
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124082561
+                "value": 15.57135011444531
               },
               "('benzene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124083079
+                "value": 15.57135011444531
               },
               "('benzene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124083598
+                "value": 15.57135011444531
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124084116
+                "value": 15.57135011444531
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124084634
+                "value": 25.58756862952552
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124085152
+                "value": 38.13922904259015
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.6380512408567
+                "value": 51.87025604854956
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 25.63805124086189
+                "value": 64.79563856752014
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.5814022856148
+                "value": 50.07331458969871
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 51.04438958495899
+                "value": 61.33641217237376
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 66.1129630382674
+                "value": 75.7338157752422
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 89.58439949795832
+                "value": 91.107996492909
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 120.299623742429
+                "value": 104.5612342231613
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 152.183901996861
+                "value": 114.7198570106302
               },
               "('benzene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 177.9028029534703
+                "value": 114.7198570106302
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 189.9999938069785
+                "value": 114.7198570106302
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 47.5000000975779
+                "value": 47.49999999991064
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712336
+                "value": 152.4654896797286
               },
               "('toluene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712334
+                "value": 152.4654896797286
               },
               "('toluene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712331
+                "value": 152.4654896797286
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712328
+                "value": 152.4654896797286
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712325
+                "value": 142.4909436291328
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712322
+                "value": 130.2510460161066
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.515761171232
+                "value": 117.1575114078087
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 210.5157611712317
+                "value": 105.0863941459122
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 145.8470870130429
+                "value": 61.73323618922363
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 136.9535890734437
+                "value": 51.58454723811479
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 122.7651943746479
+                "value": 38.87910336456791
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 101.1788950657089
+                "value": 25.59925260994373
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 73.71983689880673
+                "value": 14.19717468023171
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 46.00165786040616
+                "value": 6.037887211312963
               },
               "('toluene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 24.15538727921661
+                "value": 6.037887211312963
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.99999931107825
+                "value": 6.037887211312963
               }
             }
           },
@@ -3885,67 +3885,67 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125287409
+                "value": 13.07135011435229
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125287224
+                "value": 13.07135011435229
               },
               "('benzene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125287039
+                "value": 13.07135011435229
               },
               "('benzene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125286853
+                "value": 13.07135011435229
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125286668
+                "value": 23.08756862943249
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125286483
+                "value": 35.63922904249712
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125286297
+                "value": 49.37025604845653
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 23.13805125286112
+                "value": 62.29563856742713
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 90.08140229761224
+                "value": 97.57331458960569
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 98.5443895969558
+                "value": 108.8364121722807
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 113.6129630502642
+                "value": 123.2338157751492
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 137.0843995099554
+                "value": 138.607996492816
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 167.7996237544265
+                "value": 152.0612342230682
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 199.6839020088592
+                "value": 162.2198570105371
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 225.4028029654691
+                "value": 162.2198570105371
               },
               "('benzene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 237.499993818978
+                "value": 162.2198570105371
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3953,67 +3953,67 @@
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.0157610736544
+                "value": 104.965489679818
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.0157610736542
+                "value": 104.965489679818
               },
               "('toluene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.015761073654
+                "value": 104.965489679818
               },
               "('toluene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.0157610736538
+                "value": 104.965489679818
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.0157610736536
+                "value": 94.99094362922214
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.0157610736534
+                "value": 82.75104601619599
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.0157610736532
+                "value": 69.65751140789808
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 163.015761073653
+                "value": 57.58639414600157
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 148.347086915464
+                "value": 64.233236189313
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 139.4535889758645
+                "value": 54.08454723820417
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 125.2651942770681
+                "value": 41.37910336465729
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 103.6788949681285
+                "value": 28.0992526100331
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 76.21983680122555
+                "value": 16.69717468032108
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.50165776282398
+                "value": 8.537887211402333
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 26.6553871816332
+                "value": 8.537887211402333
               },
               "('toluene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.49999921349317
+                "value": 8.537887211402333
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4026,71 +4026,71 @@
             "data": {
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 50.00000008555518
+                "value": 50.00000000000367
               },
               "2": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120593
+                "value": 168.0368397941739
               },
               "3": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120642
+                "value": 168.0368397941739
               },
               "4": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120691
+                "value": 168.0368397941739
               },
               "5": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.153812412074
+                "value": 168.0368397941739
               },
               "6": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120789
+                "value": 168.0785122586584
               },
               "7": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120838
+                "value": 168.3902750586968
               },
               "8": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120887
+                "value": 169.0277674563583
               },
               "9": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 236.1538124120935
+                "value": 169.8820327134324
               },
               "10": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 188.4284892986577
+                "value": 111.8065507789223
               },
               "11": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 187.9979786584027
+                "value": 112.9209594104886
               },
               "12": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 188.8781574129153
+                "value": 114.6129191398101
               },
               "13": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 190.7632945636672
+                "value": 116.7072491028528
               },
               "14": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 194.0194606412358
+                "value": 118.758408903393
               },
               "15": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 198.1855598572671
+                "value": 120.7577442219431
               },
               "16": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 202.0581902326869
+                "value": 120.7577442219431
               },
               "17": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 199.9999931180568
+                "value": 120.7577442219431
               }
             }
           },
@@ -4099,67 +4099,67 @@
             "data": {
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265285
+                "value": 118.0368397941702
               },
               "2": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265264
+                "value": 118.0368397941702
               },
               "3": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265243
+                "value": 118.0368397941702
               },
               "4": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265223
+                "value": 118.0368397941702
               },
               "5": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265203
+                "value": 118.0785122586547
               },
               "6": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265182
+                "value": 118.3902750586931
               },
               "7": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265162
+                "value": 119.0277674563546
               },
               "8": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 186.1538123265141
+                "value": 119.8820327134287
               },
               "9": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 238.4284892130764
+                "value": 161.8065507789187
               },
               "10": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 237.9979785728203
+                "value": 162.9209594104849
               },
               "11": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 238.8781573273323
+                "value": 164.6129191398065
               },
               "12": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 240.7632944780839
+                "value": 166.7072491028491
               },
               "13": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 244.0194605556521
+                "value": 168.7584089033893
               },
               "14": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 248.1855597716831
+                "value": 170.7577442219395
               },
               "15": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 252.0581901471023
+                "value": 170.7577442219395
               },
               "16": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 249.9999930324707
+                "value": 170.7577442219395
               },
               "17": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4172,11 +4172,11 @@
             "data": {
               "'benzene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.499999987946338
+                "value": 2.500000000093033
               },
               "'toluene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 47.50000009757954
+                "value": 47.49999999991064
               }
             }
           },
@@ -4185,11 +4185,11 @@
             "data": {
               "'benzene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 47.50000001200024
+                "value": 47.499999999907
               },
               "'toluene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.499999902413236
+                "value": 2.500000000089372
               }
             }
           },
@@ -4198,7 +4198,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 50.00000008548951
+                "value": 50.00000000000367
               }
             }
           },
@@ -4207,7 +4207,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 49.99999991440943
+                "value": 49.99999999999637
               }
             }
           },
@@ -4216,7 +4216,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 3.999999869084542
+                "value": 2.415154884439037
               }
             }
           },
@@ -4225,7 +4225,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 3.72307624016572
+                "value": 2.360736795883232
               }
             }
           },
@@ -4234,7 +4234,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 0.799999994768337
+                "value": 0.707187511595318
               }
             }
           },
@@ -4243,7 +4243,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 0.788273585021631
+                "value": 0.702446201313664
               }
             }
           },
@@ -4252,7 +4252,7 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.48590678263114
+                "value": 2.214791608562262
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4268,43 +4268,43 @@
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 2.110015096026035
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.97740417095514
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.831311355090905
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.693336256261378
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.480061676628657
+                "value": 1.581017338831012
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.832252158460897
+                "value": 1.491619894603199
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.751687420818846
+                "value": 1.378231495696584
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.626645335825095
+                "value": 1.258280702171567
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.464296240609907
+                "value": 1.154235493796003
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.297620115460858
+                "value": 1.078989639862341
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4316,11 +4316,11 @@
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.883661136992493
+                "value": 1.052631578915558
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.921794379517491
+                "value": 0.936063599546855
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4336,43 +4336,43 @@
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 0.886633796744109
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 0.824484309906796
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 0.756581039866679
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 0.693032664249444
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.69796110264305
+                "value": 0.641748203520207
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.757016305947086
+                "value": 0.601235263844507
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.719836290414265
+                "value": 0.550265260456187
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.662531549476334
+                "value": 0.496886979796249
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.588909328645164
+                "value": 0.451074332443988
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.514328986540962
+                "value": 0.418246628580993
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4384,7 +4384,7 @@
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.334353450142612
+                "value": 0.406811100914154
               }
             }
           },
@@ -4393,71 +4393,71 @@
             "data": {
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 386.012092872498
+                "value": 381.4638529407707
               },
               "2": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 384.2992893884394
+                "value": 380.8431010037561
               },
               "3": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 382.7109904529763
+                "value": 380.3455915265504
               },
               "4": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 381.2004574713234
+                "value": 379.9458877161295
               },
               "5": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 379.7508659681515
+                "value": 379.591554106543
               },
               "6": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 378.3502723342663
+                "value": 377.1167869981743
               },
               "7": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 376.9877941902964
+                "value": 374.2381597111069
               },
               "8": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 375.6477196181675
+                "value": 371.3522769540322
               },
               "9": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 374.2572985525328
+                "value": 368.8658376696737
               },
               "10": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 374.2572528365804
+                "value": 366.787259198555
               },
               "11": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 372.5940809702963
+                "value": 364.0072133714767
               },
               "12": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 369.8918747640973
+                "value": 360.8657479884986
               },
               "13": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 366.1327340383442
+                "value": 357.9460172629731
               },
               "14": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 361.9207619286192
+                "value": 355.7037060226865
               },
               "15": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 358.2447010015103
+                "value": 355.1958556128195
               },
               "16": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 355.7037058958169
+                "value": 354.9184087382412
               },
               "17": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 349.2504913278077
+                "value": 354.8893169804819
               }
             }
           },
@@ -4491,19 +4491,19 @@
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4559,19 +4559,19 @@
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 1.0
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4616,7 +4616,7 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.510765850426173
+                "value": 2.236939524647885
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4632,43 +4632,43 @@
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 2.131115246986295
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 1.997178212664691
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 1.849624468641815
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 1.710269618823991
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.51486229336945
+                "value": 1.596827512219322
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.850574680020591
+                "value": 1.506536093549231
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.769204295010636
+                "value": 1.39201381065355
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.642911789170814
+                "value": 1.270863509193282
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.478939203004941
+                "value": 1.165777848733963
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.310596316604667
+                "value": 1.089779536260964
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4680,11 +4680,11 @@
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.892497748362417
+                "value": 1.063157894704714
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.931012323384456
+                "value": 0.945424235542324
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4700,43 +4700,43 @@
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.89550013471155
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.832729153005864
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.764146850265346
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.699962990891938
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.704940713759139
+                "value": 0.648165685555409
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.764586469064963
+                "value": 0.607247616482952
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.727034653356707
+                "value": 0.555767913060749
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.669156865000013
+                "value": 0.501855849594211
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.594798421957011
+                "value": 0.455585075768428
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.519472276431224
+                "value": 0.422429094866803
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4748,7 +4748,7 @@
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.337696984644038
+                "value": 0.410879211923296
               }
             }
           },
@@ -4757,7 +4757,7 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.509765850394894
+                "value": 2.235939524647885
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4773,43 +4773,43 @@
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 2.130115246986295
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 1.996178212664692
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 1.848624468641814
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 1.709269618823991
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.513862293343957
+                "value": 1.595827512219322
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.849574679995675
+                "value": 1.505536093549231
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.768204294994238
+                "value": 1.39101381065355
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.641911789158283
+                "value": 1.269863509193282
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.477939202993875
+                "value": 1.164777848733963
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.309596316593867
+                "value": 1.088779536260964
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4821,11 +4821,11 @@
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.891497748362417
+                "value": 1.062157894704714
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.930012323456247
+                "value": 0.944424235542324
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4841,43 +4841,43 @@
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.89450013471155
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.831729153005864
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.763146850265346
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.698962990891938
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.703940713848798
+                "value": 0.647165685555409
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.76358646912337
+                "value": 0.606247616482952
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.726034653395006
+                "value": 0.554767913060749
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.668156865028928
+                "value": 0.500855849594211
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.593798421982405
+                "value": 0.454585075768428
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.518472276456077
+                "value": 0.421429094866803
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4889,7 +4889,7 @@
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.336696984644038
+                "value": 0.409879211923295
               }
             }
           },
@@ -4898,7 +4898,7 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.313390068468323
+                "value": 0.321480161969458
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4914,43 +4914,43 @@
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.324810469394267
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.329212403062657
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.33433269350568
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.33946588944498
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.288509454113302
+                "value": 0.34388858472132
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.334298730944593
+                "value": 0.347585807188625
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.337257059295774
+                "value": 0.352530748183073
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.342063545074096
+                "value": 0.358118555694595
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.348750028116656
+                "value": 0.363311957910044
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.356241974271948
+                "value": 0.367300416181632
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4962,11 +4962,11 @@
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.378778919729976
+                "value": 0.368748991496831
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.356317117790878
+                "value": 0.355417619228167
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4982,43 +4982,43 @@
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.358581355007531
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.362763117610385
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.367627307010634
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.4
+                "value": 0.372503756414275
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.372113151201649
+                "value": 0.37670524219386
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.367595045755057
+                "value": 0.380217541063611
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.370405406213883
+                "value": 0.384915151450698
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.374971486089988
+                "value": 0.390223474166106
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.381323531835766
+                "value": 0.395157118514746
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.388440754014961
+                "value": 0.39894608647738
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -5030,7 +5030,7 @@
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.409850470889139
+                "value": 0.400322208549371
               }
             }
           },
@@ -5039,139 +5039,139 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.9237834722189
+                "value": 12.19976374498776
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 11.90367514284268
               },
               "('benzene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 11.90367514284268
               },
               "('benzene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 11.90367514284268
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 11.90367514284268
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 11.51404152607977
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 11.06327777874493
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 10.61399810058379
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.0662660724438
+                "value": 10.22898467118778
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.06625893433381
+                "value": 9.908588911430474
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.80700492425769
+                "value": 9.482127940852806
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.38762975764715
+                "value": 9.003030147348309
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.807972920166709
+                "value": 8.56038350173396
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.163598312227633
+                "value": 8.222139853359492
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 8.605549953466197
+                "value": 8.099655493151658
               },
               "('benzene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 8.22213983426327
+                "value": 8.099655493151658
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 7.256811662097784
+                "value": 8.099655493151658
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 14.91716421995513
+                "value": 14.08021923787767
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 13.73796878022632
               },
               "('toluene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 13.73796878022632
               },
               "('toluene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 13.73796878022632
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 13.73796878022632
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 13.28760799836431
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 12.76661868614243
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 12.24737877020233
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77007242389279
+                "value": 11.80244195310365
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.77006417397944
+                "value": 11.43220224708292
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 12.47043555404171
+                "value": 10.93943053333432
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.98577507039542
+                "value": 10.38588684349379
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.31593783603007
+                "value": 9.874508419994507
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.57139925360386
+                "value": 9.483778780854175
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.926685765882805
+                "value": 9.34229601629835
               },
               "('toluene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.48377875879561
+                "value": 9.34229601629835
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 8.368839028945814
+                "value": 9.34229601629835
               }
             }
           },
@@ -5180,67 +5180,67 @@
             "data": {
               "('benzene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.1691394472692
+                "value": 41.68004340921917
               },
               "('benzene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726915
+                "value": 41.68004340921917
               },
               "('benzene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726912
+                "value": 41.68004340921917
               },
               "('benzene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726908
+                "value": 41.68004340921917
               },
               "('benzene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726904
+                "value": 41.48035497292641
               },
               "('benzene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726901
+                "value": 41.21789412757665
               },
               "('benzene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726896
+                "value": 40.91473500249379
               },
               "('benzene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 42.16913944726892
+                "value": 40.61312450187252
               },
               "('benzene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 40.91674298970693
+                "value": 40.35512599344037
               },
               "('benzene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 40.91673819321906
+                "value": 40.14077821469074
               },
               "('benzene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 40.74262389325321
+                "value": 39.85599439351796
               },
               "('benzene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 40.46138018881742
+                "value": 39.53681628181445
               },
               "('benzene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 40.0735335474938
+                "value": 39.24267954777788
               },
               "('benzene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 39.64369556006269
+                "value": 39.01843745976149
               },
               "('benzene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 39.27265776572065
+                "value": 39.01843745976149
               },
               "('benzene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 39.01843744711532
+                "value": 39.01843745976149
               },
               "('benzene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -5248,67 +5248,67 @@
               },
               "('toluene', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099372
+                "value": 48.23216011362492
               },
               "('toluene', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099345
+                "value": 48.23216011362492
               },
               "('toluene', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099318
+                "value": 48.23216011362492
               },
               "('toluene', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099291
+                "value": 48.23216011362492
               },
               "('toluene', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099264
+                "value": 47.98250999419886
               },
               "('toluene', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099235
+                "value": 47.65426973739694
               },
               "('toluene', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099208
+                "value": 47.27496750344806
               },
               "('toluene', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 48.84332732099181
+                "value": 46.89742238367794
               },
               "('toluene', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 47.27748041848505
+                "value": 46.57432108822552
               },
               "('toluene', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 47.27747441588295
+                "value": 46.30577796148669
               },
               "('toluene', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 47.05954753072531
+                "value": 45.9488342903712
               },
               "('toluene', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 46.70740409305344
+                "value": 45.54856281146659
               },
               "('toluene', 13)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 46.22151073017441
+                "value": 45.17948231868307
               },
               "('toluene', 14)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 45.68262311479924
+                "value": 44.8979629451669
               },
               "('toluene', 15)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 45.21710832876226
+                "value": 44.8979629451669
               },
               "('toluene', 16)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 44.89796292928613
+                "value": 44.8979629451669
               },
               "('toluene', 17)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -5321,11 +5321,11 @@
             "data": {
               "'benzene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.095361858131
+                "value": 10.095361858131003
               },
               "'toluene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 11.64802889890979
+                "value": 11.648028898909795
               }
             }
           },
@@ -5338,7 +5338,7 @@
               },
               "'toluene'": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 46.46228596773012
+                "value": 46.46228596773013
               }
             }
           },
@@ -5347,7 +5347,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 6.706799633714259
+                "value": 4.026914137407012
               }
             }
           },
@@ -5356,7 +5356,7 @@
             "data": {
               "None": {
                 "__type__": "<class 'pyomo.core.base.var.ScalarVar'>",
-                "value": 8.0
+                "value": 5.319210663528289
               }
             }
           },
@@ -6481,7 +6481,7 @@
               },
               "13": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0
+                "value": 1
               },
               "14": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -6489,7 +6489,7 @@
               },
               "15": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 0
               }
             }
           },
@@ -7589,7 +7589,7 @@
               },
               "4": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0
+                "value": 1
               },
               "5": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -7609,7 +7609,7 @@
               },
               "9": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1
+                "value": 0
               },
               "10": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",

@@ -1,0 +1,566 @@
+T_feed : Feed temperature [K]
+    Size=1, Index=None
+    Key  : Lower : Value : Upper : Fixed : Stale : Domain
+    None :   300 :   368 :   400 :  True : False : NonNegativeReals
+
+feed_vap_frac : Vapor fraction of feed
+    Size=1, Index=None
+    Key  : Lower : Value   : Upper : Fixed : Stale : Domain
+    None :     0 : 0.40395 :     1 :  True : False :  Reals
+
+feed : Total component feed flow [mol/s]
+    Size=2, Index=comps
+    Key     : Lower : Value : Upper : Fixed : Stale : Domain
+    benzene :  None :    50 :  None :  True : False :  Reals
+    toluene :  None :    50 :  None :  True : False :  Reals
+
+x : Liquid mole fraction
+    Size=34, Index=x_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 : 0.050000000001857 :     1 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 : 0.092666287544555 :     1 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 : 0.092666287544555 :     1 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 : 0.092666287544555 :     1 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 : 0.092666287544555 :     1 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 : 0.152235811024722 :     1 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 : 0.226493062199083 :     1 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 :  0.30687417120351 :     1 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 : 0.381415488928258 :     1 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 : 0.447856715378957 :     1 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 : 0.543180048173383 :     1 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 : 0.660779049549018 :     1 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 : 0.780654134111383 :     1 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 : 0.880453310116501 :     1 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 : 0.949999999998209 :     1 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 : 0.949999999998209 :     1 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 : 0.949999999998209 :     1 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 : 0.949999999998143 :     1 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 : 0.907333712455445 :     1 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 : 0.907333712455445 :     1 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 : 0.907333712455445 :     1 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 : 0.907333712455445 :     1 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 : 0.847764188975278 :     1 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 : 0.773506937800917 :     1 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 :  0.69312582879649 :     1 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 : 0.618584511071742 :     1 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 : 0.552143284621043 :     1 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 : 0.456819951826617 :     1 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 : 0.339220950450982 :     1 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 : 0.219345865888617 :     1 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 : 0.119546689883499 :     1 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 : 0.050000000001791 :     1 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 : 0.050000000001791 :     1 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 : 0.050000000001791 :     1 : False : False : NonNegativeReals
+
+y : Vapor mole fraction
+    Size=34, Index=y_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 : 0.110739580432226 :     1 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 : 0.110739580432226 :     1 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 : 0.110739580432226 :     1 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 : 0.110739580432226 :     1 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 : 0.195527265611701 :     1 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 : 0.301031727689024 :     1 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 : 0.414779316654492 :     1 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 : 0.519641160209065 :     1 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 : 0.603024501294284 :     1 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 : 0.668031986590895 :     1 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 : 0.748627850226544 :     1 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 : 0.831445526446799 :     1 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 : 0.901058709969944 :     1 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 : 0.949999999998209 :     1 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 : 0.949999999996236 :     1 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 : 0.949999999997112 :     1 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 :               1.0 :     1 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 : 0.889260419567774 :     1 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 : 0.889260419567774 :     1 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 : 0.889260419567774 :     1 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 : 0.889260419567774 :     1 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 : 0.804472734388299 :     1 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 : 0.698968272310976 :     1 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 : 0.585220683345508 :     1 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 : 0.480358839790935 :     1 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 : 0.396975498705716 :     1 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 : 0.331968013409105 :     1 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 : 0.251372149773456 :     1 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 : 0.168554473553201 :     1 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 : 0.098941290030056 :     1 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 : 0.050000000001791 :     1 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 : 0.050000000005679 :     1 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 : 0.050000000002901 :     1 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 : 0.020340555046436 :     1 : False : False : NonNegativeReals
+
+L : component liquid flows from tray in kmol
+    Size=34, Index=L_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 : 2.500000000093033 :   500 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 : 15.57135011444531 :   500 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 : 15.57135011444531 :   500 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 : 15.57135011444531 :   500 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 : 15.57135011444531 :   500 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 : 25.58756862952552 :   500 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 : 38.13922904259015 :   500 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 : 51.87025604854956 :   500 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 : 64.79563856752014 :   500 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 : 50.07331458969871 :   500 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 : 61.33641217237376 :   500 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 :  75.7338157752422 :   500 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 :   91.107996492909 :   500 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 : 104.5612342231613 :   500 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 : 114.7198570106302 :   500 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 : 114.7198570106302 :   500 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 : 114.7198570106302 :   500 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 : 47.49999999991064 :   500 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 : 152.4654896797286 :   500 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 : 152.4654896797286 :   500 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 : 152.4654896797286 :   500 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 : 152.4654896797286 :   500 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 : 142.4909436291328 :   500 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 : 130.2510460161066 :   500 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 : 117.1575114078087 :   500 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 : 105.0863941459122 :   500 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 : 61.73323618922363 :   500 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 : 51.58454723811479 :   500 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 : 38.87910336456791 :   500 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 : 25.59925260994373 :   500 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 : 14.19717468023171 :   500 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 : 6.037887211312963 :   500 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 : 6.037887211312963 :   500 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 : 6.037887211312963 :   500 : False : False : NonNegativeReals
+
+V : component vapor flows from tray in kmol
+    Size=34, Index=V_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 : 13.07135011435229 :   500 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 : 13.07135011435229 :   500 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 : 13.07135011435229 :   500 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 : 13.07135011435229 :   500 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 : 23.08756862943249 :   500 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 : 35.63922904249712 :   500 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 : 49.37025604845653 :   500 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 : 62.29563856742713 :   500 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 : 97.57331458960569 :   500 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 : 108.8364121722807 :   500 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 : 123.2338157751492 :   500 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 :  138.607996492816 :   500 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 : 152.0612342230682 :   500 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 : 162.2198570105371 :   500 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 : 162.2198570105371 :   500 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 : 162.2198570105371 :   500 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 :               0.0 :   500 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 :  104.965489679818 :   500 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 :  104.965489679818 :   500 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 :  104.965489679818 :   500 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 :  104.965489679818 :   500 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 : 94.99094362922214 :   500 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 : 82.75104601619599 :   500 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 : 69.65751140789808 :   500 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 : 57.58639414600157 :   500 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 :   64.233236189313 :   500 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 : 54.08454723820417 :   500 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 : 41.37910336465729 :   500 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 :  28.0992526100331 :   500 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 : 16.69717468032108 :   500 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 : 8.537887211402333 :   500 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 : 8.537887211402333 :   500 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 : 8.537887211402333 :   500 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 :               0.0 :   500 : False : False : NonNegativeReals
+
+liq : liquid flows from tray in kmol
+    Size=17, Index=trays
+    Key : Lower : Value             : Upper : Fixed : Stale : Domain
+      1 :     0 : 50.00000000000367 :   500 : False : False : NonNegativeReals
+      2 :     0 : 168.0368397941739 :   500 : False : False : NonNegativeReals
+      3 :     0 : 168.0368397941739 :   500 : False : False : NonNegativeReals
+      4 :     0 : 168.0368397941739 :   500 : False : False : NonNegativeReals
+      5 :     0 : 168.0368397941739 :   500 : False : False : NonNegativeReals
+      6 :     0 : 168.0785122586584 :   500 : False : False : NonNegativeReals
+      7 :     0 : 168.3902750586968 :   500 : False : False : NonNegativeReals
+      8 :     0 : 169.0277674563583 :   500 : False : False : NonNegativeReals
+      9 :     0 : 169.8820327134324 :   500 : False : False : NonNegativeReals
+     10 :     0 : 111.8065507789223 :   500 : False : False : NonNegativeReals
+     11 :     0 : 112.9209594104886 :   500 : False : False : NonNegativeReals
+     12 :     0 : 114.6129191398101 :   500 : False : False : NonNegativeReals
+     13 :     0 : 116.7072491028528 :   500 : False : False : NonNegativeReals
+     14 :     0 :  118.758408903393 :   500 : False : False : NonNegativeReals
+     15 :     0 : 120.7577442219431 :   500 : False : False : NonNegativeReals
+     16 :     0 : 120.7577442219431 :   500 : False : False : NonNegativeReals
+     17 :     0 : 120.7577442219431 :   500 : False : False : NonNegativeReals
+
+vap : vapor flows from tray in kmol
+    Size=17, Index=trays
+    Key : Lower : Value             : Upper : Fixed : Stale : Domain
+      1 :     0 : 118.0368397941702 :   500 : False : False : NonNegativeReals
+      2 :     0 : 118.0368397941702 :   500 : False : False : NonNegativeReals
+      3 :     0 : 118.0368397941702 :   500 : False : False : NonNegativeReals
+      4 :     0 : 118.0368397941702 :   500 : False : False : NonNegativeReals
+      5 :     0 : 118.0785122586547 :   500 : False : False : NonNegativeReals
+      6 :     0 : 118.3902750586931 :   500 : False : False : NonNegativeReals
+      7 :     0 : 119.0277674563546 :   500 : False : False : NonNegativeReals
+      8 :     0 : 119.8820327134287 :   500 : False : False : NonNegativeReals
+      9 :     0 : 161.8065507789187 :   500 : False : False : NonNegativeReals
+     10 :     0 : 162.9209594104849 :   500 : False : False : NonNegativeReals
+     11 :     0 : 164.6129191398065 :   500 : False : False : NonNegativeReals
+     12 :     0 : 166.7072491028491 :   500 : False : False : NonNegativeReals
+     13 :     0 : 168.7584089033893 :   500 : False : False : NonNegativeReals
+     14 :     0 : 170.7577442219395 :   500 : False : False : NonNegativeReals
+     15 :     0 : 170.7577442219395 :   500 : False : False : NonNegativeReals
+     16 :     0 : 170.7577442219395 :   500 : False : False : NonNegativeReals
+     17 :     0 :               0.0 :   500 : False : False : NonNegativeReals
+
+B : bottoms component flows in kmol
+    Size=2, Index=comps
+    Key     : Lower : Value             : Upper : Fixed : Stale : Domain
+    benzene :     0 : 2.500000000093033 :   500 : False : False : NonNegativeReals
+    toluene :     0 : 47.49999999991064 :   500 : False : False : NonNegativeReals
+
+D : distillate component flows in kmol
+    Size=2, Index=comps
+    Key     : Lower : Value             : Upper : Fixed : Stale : Domain
+    benzene :     0 :   47.499999999907 :   500 : False : False : NonNegativeReals
+    toluene :     0 : 2.500000000089372 :   500 : False : False : NonNegativeReals
+
+bot : bottoms flow in kmol
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :     0 : 50.00000000000367 :   100 : False : False : NonNegativeReals
+
+dis : distillate flow in kmol
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :     0 : 49.99999999999637 :   100 : False : False : NonNegativeReals
+
+reflux_ratio : reflux ratio
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :   0.5 : 2.415154884439037 :     4 : False : False : NonNegativeReals
+
+reboil_ratio : reboil ratio
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :   1.3 : 2.360736795883232 :     4 : False : False : NonNegativeReals
+
+reflux_frac : reflux fractions
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper    : Fixed : Stale : Domain
+    None :     0 : 0.707187511595318 : 0.999999 : False : False : NonNegativeReals
+
+boilup_frac : boilup fraction
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper    : Fixed : Stale : Domain
+    None :     0 : 0.702446201313664 : 0.999999 : False : False : NonNegativeReals
+
+Kc : Phase equilibrium constant
+    Size=34, Index=Kc_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 : 2.214791608562262 :  1000 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 :                 1 :  1000 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 :                 1 :  1000 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 :                 1 :  1000 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 : 2.110015096026035 :  1000 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 :  1.97740417095514 :  1000 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 : 1.831311355090905 :  1000 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 : 1.693336256261378 :  1000 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 : 1.581017338831012 :  1000 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 : 1.491619894603199 :  1000 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 : 1.378231495696584 :  1000 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 : 1.258280702171567 :  1000 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 : 1.154235493796003 :  1000 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 : 1.078989639862341 :  1000 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 : 1.164559791951655 :  1000 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 : 1.078989638648022 :  1000 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 : 1.052631578915558 :  1000 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 : 0.936063599546855 :  1000 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 :                 1 :  1000 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 :                 1 :  1000 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 :                 1 :  1000 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 : 0.886633796744109 :  1000 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 : 0.824484309906796 :  1000 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 : 0.756581039866679 :  1000 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 : 0.693032664249444 :  1000 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 : 0.641748203520207 :  1000 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 : 0.601235263844507 :  1000 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 : 0.550265260456187 :  1000 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 : 0.496886979796249 :  1000 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 : 0.451074332443988 :  1000 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 : 0.418246628580993 :  1000 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 : 0.455598941500281 :  1000 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 : 0.418246624865374 :  1000 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 : 0.406811100914154 :  1000 : False : False : NonNegativeReals
+
+T : Temperature [K]
+    Size=17, Index=trays
+    Key : Lower : Value             : Upper : Fixed : Stale : Domain
+      1 :   300 : 381.4638529407707 :   400 : False : False : NonNegativeReals
+      2 :   300 : 380.8431010037561 :   400 : False : False : NonNegativeReals
+      3 :   300 : 380.3455915265504 :   400 : False : False : NonNegativeReals
+      4 :   300 : 379.9458877161295 :   400 : False : False : NonNegativeReals
+      5 :   300 :  379.591554106543 :   400 : False : False : NonNegativeReals
+      6 :   300 : 377.1167869981743 :   400 : False : False : NonNegativeReals
+      7 :   300 : 374.2381597111069 :   400 : False : False : NonNegativeReals
+      8 :   300 : 371.3522769540322 :   400 : False : False : NonNegativeReals
+      9 :   300 : 368.8658376696737 :   400 : False : False : NonNegativeReals
+     10 :   300 :  366.787259198555 :   400 : False : False : NonNegativeReals
+     11 :   300 : 364.0072133714767 :   400 : False : False : NonNegativeReals
+     12 :   300 : 360.8657479884986 :   400 : False : False : NonNegativeReals
+     13 :   300 : 357.9460172629731 :   400 : False : False : NonNegativeReals
+     14 :   300 : 355.7037060226865 :   400 : False : False : NonNegativeReals
+     15 :   300 : 355.1958556128195 :   400 : False : False : NonNegativeReals
+     16 :   300 : 354.9184087382412 :   400 : False : False : NonNegativeReals
+     17 :   300 : 354.8893169804819 :   400 : False : False : NonNegativeReals
+
+P : Pressure [bar]
+    Size=1, Index=None
+    Key  : Lower : Value : Upper : Fixed : Stale : Domain
+    None :     0 :  1.01 :     5 :  True : False :  Reals
+
+gamma : liquid activity coefficent of component on tray
+    Size=34, Index=gamma_index
+    Key             : Lower : Value : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 :     1 :    10 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 :     1 :    10 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 :     1 :    10 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 :     1 :    10 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 :     1 :    10 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 :     1 :    10 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 :   1.0 :    10 : False : False : NonNegativeReals
+
+Pvap : pure component vapor pressure of component on tray in bar
+    Size=34, Index=Pvap_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) : 0.001 : 2.236939524647885 :     5 : False : False : NonNegativeReals
+     ('benzene', 2) : 0.001 :               0.4 :     5 : False : False : NonNegativeReals
+     ('benzene', 3) : 0.001 :               0.4 :     5 : False : False : NonNegativeReals
+     ('benzene', 4) : 0.001 :               0.4 :     5 : False : False : NonNegativeReals
+     ('benzene', 5) : 0.001 : 2.131115246986295 :     5 : False : False : NonNegativeReals
+     ('benzene', 6) : 0.001 : 1.997178212664691 :     5 : False : False : NonNegativeReals
+     ('benzene', 7) : 0.001 : 1.849624468641815 :     5 : False : False : NonNegativeReals
+     ('benzene', 8) : 0.001 : 1.710269618823991 :     5 : False : False : NonNegativeReals
+     ('benzene', 9) : 0.001 : 1.596827512219322 :     5 : False : False : NonNegativeReals
+    ('benzene', 10) : 0.001 : 1.506536093549231 :     5 : False : False : NonNegativeReals
+    ('benzene', 11) : 0.001 :  1.39201381065355 :     5 : False : False : NonNegativeReals
+    ('benzene', 12) : 0.001 : 1.270863509193282 :     5 : False : False : NonNegativeReals
+    ('benzene', 13) : 0.001 : 1.165777848733963 :     5 : False : False : NonNegativeReals
+    ('benzene', 14) : 0.001 : 1.089779536260964 :     5 : False : False : NonNegativeReals
+    ('benzene', 15) : 0.001 : 1.176205389860334 :     5 : False : False : NonNegativeReals
+    ('benzene', 16) : 0.001 : 1.089779535026178 :     5 : False : False : NonNegativeReals
+    ('benzene', 17) : 0.001 : 1.063157894704714 :     5 : False : False : NonNegativeReals
+     ('toluene', 1) : 0.001 : 0.945424235542324 :     5 : False : False : NonNegativeReals
+     ('toluene', 2) : 0.001 :               0.4 :     5 : False : False : NonNegativeReals
+     ('toluene', 3) : 0.001 :               0.4 :     5 : False : False : NonNegativeReals
+     ('toluene', 4) : 0.001 :               0.4 :     5 : False : False : NonNegativeReals
+     ('toluene', 5) : 0.001 :  0.89550013471155 :     5 : False : False : NonNegativeReals
+     ('toluene', 6) : 0.001 : 0.832729153005864 :     5 : False : False : NonNegativeReals
+     ('toluene', 7) : 0.001 : 0.764146850265346 :     5 : False : False : NonNegativeReals
+     ('toluene', 8) : 0.001 : 0.699962990891938 :     5 : False : False : NonNegativeReals
+     ('toluene', 9) : 0.001 : 0.648165685555409 :     5 : False : False : NonNegativeReals
+    ('toluene', 10) : 0.001 : 0.607247616482952 :     5 : False : False : NonNegativeReals
+    ('toluene', 11) : 0.001 : 0.555767913060749 :     5 : False : False : NonNegativeReals
+    ('toluene', 12) : 0.001 : 0.501855849594211 :     5 : False : False : NonNegativeReals
+    ('toluene', 13) : 0.001 : 0.455585075768428 :     5 : False : False : NonNegativeReals
+    ('toluene', 14) : 0.001 : 0.422429094866803 :     5 : False : False : NonNegativeReals
+    ('toluene', 15) : 0.001 : 0.460154930940425 :     5 : False : False : NonNegativeReals
+    ('toluene', 16) : 0.001 : 0.422429091139106 :     5 : False : False : NonNegativeReals
+    ('toluene', 17) : 0.001 : 0.410879211923296 :     5 : False : False : NonNegativeReals
+
+Pvap_rel : pure component relative vapor pressure of component on tray in bar (to avoid numerical problems)
+    Size=34, Index=Pvap_rel_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :     0 : 2.235939524647885 :     5 : False : False : NonNegativeReals
+     ('benzene', 2) :     0 :               0.4 :     5 : False : False : NonNegativeReals
+     ('benzene', 3) :     0 :               0.4 :     5 : False : False : NonNegativeReals
+     ('benzene', 4) :     0 :               0.4 :     5 : False : False : NonNegativeReals
+     ('benzene', 5) :     0 : 2.130115246986295 :     5 : False : False : NonNegativeReals
+     ('benzene', 6) :     0 : 1.996178212664692 :     5 : False : False : NonNegativeReals
+     ('benzene', 7) :     0 : 1.848624468641814 :     5 : False : False : NonNegativeReals
+     ('benzene', 8) :     0 : 1.709269618823991 :     5 : False : False : NonNegativeReals
+     ('benzene', 9) :     0 : 1.595827512219322 :     5 : False : False : NonNegativeReals
+    ('benzene', 10) :     0 : 1.505536093549231 :     5 : False : False : NonNegativeReals
+    ('benzene', 11) :     0 :  1.39101381065355 :     5 : False : False : NonNegativeReals
+    ('benzene', 12) :     0 : 1.269863509193282 :     5 : False : False : NonNegativeReals
+    ('benzene', 13) :     0 : 1.164777848733963 :     5 : False : False : NonNegativeReals
+    ('benzene', 14) :     0 : 1.088779536260964 :     5 : False : False : NonNegativeReals
+    ('benzene', 15) :     0 : 1.175205389849497 :     5 : False : False : NonNegativeReals
+    ('benzene', 16) :     0 : 1.088779535017854 :     5 : False : False : NonNegativeReals
+    ('benzene', 17) :     0 : 1.062157894704714 :     5 : False : False : NonNegativeReals
+     ('toluene', 1) :     0 : 0.944424235542324 :     5 : False : False : NonNegativeReals
+     ('toluene', 2) :     0 :               0.4 :     5 : False : False : NonNegativeReals
+     ('toluene', 3) :     0 :               0.4 :     5 : False : False : NonNegativeReals
+     ('toluene', 4) :     0 :               0.4 :     5 : False : False : NonNegativeReals
+     ('toluene', 5) :     0 :  0.89450013471155 :     5 : False : False : NonNegativeReals
+     ('toluene', 6) :     0 : 0.831729153005864 :     5 : False : False : NonNegativeReals
+     ('toluene', 7) :     0 : 0.763146850265346 :     5 : False : False : NonNegativeReals
+     ('toluene', 8) :     0 : 0.698962990891938 :     5 : False : False : NonNegativeReals
+     ('toluene', 9) :     0 : 0.647165685555409 :     5 : False : False : NonNegativeReals
+    ('toluene', 10) :     0 : 0.606247616482952 :     5 : False : False : NonNegativeReals
+    ('toluene', 11) :     0 : 0.554767913060749 :     5 : False : False : NonNegativeReals
+    ('toluene', 12) :     0 : 0.500855849594211 :     5 : False : False : NonNegativeReals
+    ('toluene', 13) :     0 : 0.454585075768428 :     5 : False : False : NonNegativeReals
+    ('toluene', 14) :     0 : 0.421429094866803 :     5 : False : False : NonNegativeReals
+    ('toluene', 15) :     0 : 0.459154930965567 :     5 : False : False : NonNegativeReals
+    ('toluene', 16) :     0 : 0.421429091164186 :     5 : False : False : NonNegativeReals
+    ('toluene', 17) :     0 : 0.409879211923295 :     5 : False : False : NonNegativeReals
+
+Pvap_X : Related to fraction of critical temperature (1 - T/Tc)
+    Size=34, Index=Pvap_X_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :  0.25 : 0.321480161969458 :   0.5 : False : False :  Reals
+     ('benzene', 2) :  0.25 :               0.4 :   0.5 : False : False :  Reals
+     ('benzene', 3) :  0.25 :               0.4 :   0.5 : False : False :  Reals
+     ('benzene', 4) :  0.25 :               0.4 :   0.5 : False : False :  Reals
+     ('benzene', 5) :  0.25 : 0.324810469394267 :   0.5 : False : False :  Reals
+     ('benzene', 6) :  0.25 : 0.329212403062657 :   0.5 : False : False :  Reals
+     ('benzene', 7) :  0.25 :  0.33433269350568 :   0.5 : False : False :  Reals
+     ('benzene', 8) :  0.25 :  0.33946588944498 :   0.5 : False : False :  Reals
+     ('benzene', 9) :  0.25 :  0.34388858472132 :   0.5 : False : False :  Reals
+    ('benzene', 10) :  0.25 : 0.347585807188625 :   0.5 : False : False :  Reals
+    ('benzene', 11) :  0.25 : 0.352530748183073 :   0.5 : False : False :  Reals
+    ('benzene', 12) :  0.25 : 0.358118555694595 :   0.5 : False : False :  Reals
+    ('benzene', 13) :  0.25 : 0.363311957910044 :   0.5 : False : False :  Reals
+    ('benzene', 14) :  0.25 : 0.367300416181632 :   0.5 : False : False :  Reals
+    ('benzene', 15) :  0.25 : 0.362780681028337 :   0.5 : False : False :  Reals
+    ('benzene', 16) :  0.25 : 0.367300416249956 :   0.5 : False : False :  Reals
+    ('benzene', 17) :  0.25 : 0.368748991496831 :   0.5 : False : False :  Reals
+     ('toluene', 1) :  0.25 : 0.355417619228167 :   0.5 : False : False :  Reals
+     ('toluene', 2) :  0.25 :               0.4 :   0.5 : False : False :  Reals
+     ('toluene', 3) :  0.25 :               0.4 :   0.5 : False : False :  Reals
+     ('toluene', 4) :  0.25 :               0.4 :   0.5 : False : False :  Reals
+     ('toluene', 5) :  0.25 : 0.358581355007531 :   0.5 : False : False :  Reals
+     ('toluene', 6) :  0.25 : 0.362763117610385 :   0.5 : False : False :  Reals
+     ('toluene', 7) :  0.25 : 0.367627307010634 :   0.5 : False : False :  Reals
+     ('toluene', 8) :  0.25 : 0.372503756414275 :   0.5 : False : False :  Reals
+     ('toluene', 9) :  0.25 :  0.37670524219386 :   0.5 : False : False :  Reals
+    ('toluene', 10) :  0.25 : 0.380217541063611 :   0.5 : False : False :  Reals
+    ('toluene', 11) :  0.25 : 0.384915151450698 :   0.5 : False : False :  Reals
+    ('toluene', 12) :  0.25 : 0.390223474166106 :   0.5 : False : False :  Reals
+    ('toluene', 13) :  0.25 : 0.395157118514746 :   0.5 : False : False :  Reals
+    ('toluene', 14) :  0.25 :  0.39894608647738 :   0.5 : False : False :  Reals
+    ('toluene', 15) :  0.25 : 0.394652414902591 :   0.5 : False : False :  Reals
+    ('toluene', 16) :  0.25 : 0.398946086912193 :   0.5 : False : False :  Reals
+    ('toluene', 17) :  0.25 : 0.400322208549371 :   0.5 : False : False :  Reals
+
+H_L : Liquid molar enthalpy of component in tray (kJ/mol)
+    Size=34, Index=H_L_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :   0.1 : 12.19976374498776 :    16 : False : False :  Reals
+     ('benzene', 2) :   0.1 : 11.90367514284268 :    16 : False : False :  Reals
+     ('benzene', 3) :   0.1 : 11.90367514284268 :    16 : False : False :  Reals
+     ('benzene', 4) :   0.1 : 11.90367514284268 :    16 : False : False :  Reals
+     ('benzene', 5) :   0.1 : 11.90367514284268 :    16 : False : False :  Reals
+     ('benzene', 6) :   0.1 : 11.51404152607977 :    16 : False : False :  Reals
+     ('benzene', 7) :   0.1 : 11.06327777874493 :    16 : False : False :  Reals
+     ('benzene', 8) :   0.1 : 10.61399810058379 :    16 : False : False :  Reals
+     ('benzene', 9) :   0.1 : 10.22898467118778 :    16 : False : False :  Reals
+    ('benzene', 10) :   0.1 : 9.908588911430474 :    16 : False : False :  Reals
+    ('benzene', 11) :   0.1 : 9.482127940852806 :    16 : False : False :  Reals
+    ('benzene', 12) :   0.1 : 9.003030147348309 :    16 : False : False :  Reals
+    ('benzene', 13) :   0.1 :  8.56038350173396 :    16 : False : False :  Reals
+    ('benzene', 14) :   0.1 : 8.222139853359492 :    16 : False : False :  Reals
+    ('benzene', 15) :   0.1 : 8.099655493151658 :    16 : False : False :  Reals
+    ('benzene', 16) :   0.1 : 8.099655493151658 :    16 : False : False :  Reals
+    ('benzene', 17) :   0.1 : 8.099655493151658 :    16 : False : False :  Reals
+     ('toluene', 1) :   0.1 : 14.08021923787767 :    16 : False : False :  Reals
+     ('toluene', 2) :   0.1 : 13.73796878022632 :    16 : False : False :  Reals
+     ('toluene', 3) :   0.1 : 13.73796878022632 :    16 : False : False :  Reals
+     ('toluene', 4) :   0.1 : 13.73796878022632 :    16 : False : False :  Reals
+     ('toluene', 5) :   0.1 : 13.73796878022632 :    16 : False : False :  Reals
+     ('toluene', 6) :   0.1 : 13.28760799836431 :    16 : False : False :  Reals
+     ('toluene', 7) :   0.1 : 12.76661868614243 :    16 : False : False :  Reals
+     ('toluene', 8) :   0.1 : 12.24737877020233 :    16 : False : False :  Reals
+     ('toluene', 9) :   0.1 : 11.80244195310365 :    16 : False : False :  Reals
+    ('toluene', 10) :   0.1 : 11.43220224708292 :    16 : False : False :  Reals
+    ('toluene', 11) :   0.1 : 10.93943053333432 :    16 : False : False :  Reals
+    ('toluene', 12) :   0.1 : 10.38588684349379 :    16 : False : False :  Reals
+    ('toluene', 13) :   0.1 : 9.874508419994507 :    16 : False : False :  Reals
+    ('toluene', 14) :   0.1 : 9.483778780854175 :    16 : False : False :  Reals
+    ('toluene', 15) :   0.1 :  9.34229601629835 :    16 : False : False :  Reals
+    ('toluene', 16) :   0.1 :  9.34229601629835 :    16 : False : False :  Reals
+    ('toluene', 17) :   0.1 :  9.34229601629835 :    16 : False : False :  Reals
+
+H_V : Vapor molar enthalpy of component in tray (kJ/mol)
+    Size=34, Index=H_V_index
+    Key             : Lower : Value             : Upper : Fixed : Stale : Domain
+     ('benzene', 1) :    30 : 41.68004340921917 :    56 : False : False :  Reals
+     ('benzene', 2) :    30 : 41.68004340921917 :    56 : False : False :  Reals
+     ('benzene', 3) :    30 : 41.68004340921917 :    56 : False : False :  Reals
+     ('benzene', 4) :    30 : 41.68004340921917 :    56 : False : False :  Reals
+     ('benzene', 5) :    30 : 41.48035497292641 :    56 : False : False :  Reals
+     ('benzene', 6) :    30 : 41.21789412757665 :    56 : False : False :  Reals
+     ('benzene', 7) :    30 : 40.91473500249379 :    56 : False : False :  Reals
+     ('benzene', 8) :    30 : 40.61312450187252 :    56 : False : False :  Reals
+     ('benzene', 9) :    30 : 40.35512599344037 :    56 : False : False :  Reals
+    ('benzene', 10) :    30 : 40.14077821469074 :    56 : False : False :  Reals
+    ('benzene', 11) :    30 : 39.85599439351796 :    56 : False : False :  Reals
+    ('benzene', 12) :    30 : 39.53681628181445 :    56 : False : False :  Reals
+    ('benzene', 13) :    30 : 39.24267954777788 :    56 : False : False :  Reals
+    ('benzene', 14) :    30 : 39.01843745976149 :    56 : False : False :  Reals
+    ('benzene', 15) :    30 : 39.01843745976149 :    56 : False : False :  Reals
+    ('benzene', 16) :    30 : 39.01843745976149 :    56 : False : False :  Reals
+    ('benzene', 17) :    30 :              None :    56 : False :  True :  Reals
+     ('toluene', 1) :    30 : 48.23216011362492 :    56 : False : False :  Reals
+     ('toluene', 2) :    30 : 48.23216011362492 :    56 : False : False :  Reals
+     ('toluene', 3) :    30 : 48.23216011362492 :    56 : False : False :  Reals
+     ('toluene', 4) :    30 : 48.23216011362492 :    56 : False : False :  Reals
+     ('toluene', 5) :    30 : 47.98250999419886 :    56 : False : False :  Reals
+     ('toluene', 6) :    30 : 47.65426973739694 :    56 : False : False :  Reals
+     ('toluene', 7) :    30 : 47.27496750344806 :    56 : False : False :  Reals
+     ('toluene', 8) :    30 : 46.89742238367794 :    56 : False : False :  Reals
+     ('toluene', 9) :    30 : 46.57432108822552 :    56 : False : False :  Reals
+    ('toluene', 10) :    30 : 46.30577796148669 :    56 : False : False :  Reals
+    ('toluene', 11) :    30 :  45.9488342903712 :    56 : False : False :  Reals
+    ('toluene', 12) :    30 : 45.54856281146659 :    56 : False : False :  Reals
+    ('toluene', 13) :    30 : 45.17948231868307 :    56 : False : False :  Reals
+    ('toluene', 14) :    30 :  44.8979629451669 :    56 : False : False :  Reals
+    ('toluene', 15) :    30 :  44.8979629451669 :    56 : False : False :  Reals
+    ('toluene', 16) :    30 :  44.8979629451669 :    56 : False : False :  Reals
+    ('toluene', 17) :    30 :              None :    56 : False :  True :  Reals
+
+H_L_spec_feed : Component liquid molar enthalpy in feed [kJ/mol]
+    Size=2, Index=comps
+    Key     : Lower : Value              : Upper : Fixed : Stale : Domain
+    benzene :   0.1 : 10.095361858131003 :    16 : False : False :  Reals
+    toluene :   0.1 : 11.648028898909795 :    16 : False : False :  Reals
+
+H_V_spec_feed : Component vapor molar enthalpy in feed [kJ/mol]
+    Size=2, Index=comps
+    Key     : Lower : Value             : Upper : Fixed : Stale : Domain
+    benzene :    30 : 40.26569136667437 :    56 : False : False :  Reals
+    toluene :    30 : 46.46228596773013 :    56 : False : False :  Reals
+
+Qb : reboiler duty (MJ/s)
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :     0 : 4.026914137407012 :     8 : False : False : NonNegativeReals
+
+Qc : condenser duty (MJ/s)
+    Size=1, Index=None
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :     0 : 5.319210663528289 :     8 : False : False : NonNegativeReals
+
