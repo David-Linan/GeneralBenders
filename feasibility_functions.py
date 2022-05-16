@@ -142,7 +142,7 @@ def feasibility_2(m,solver,infty_val, use_multistart: bool=False, tee: bool=Fals
 
 def feasibility_2_modified(m,solver,infty_val, use_multistart: bool=False, tee: bool=False):
     """
-    Same as feasibility 2, but no initialization is enerated
+    Same as feasibility 2, but no initialization is generated
     """
 
     check_feas1,check_infeas1=feasibility_1(m)
