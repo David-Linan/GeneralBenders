@@ -10,13 +10,13 @@ from pyomo.opt.base.solvers import SolverFactory
 import os
 from decimal import Decimal
 from gdp_column import build_column,build_column_minlp_gdp
-from cuts_functions import convex_clousure,initialization_sampling
-from dsda_functions import preprocess_problem,solve_with_gdpopt,solve_with_minlp,solve_with_dsda,neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem
+from functions.cuts_functions import convex_clousure,initialization_sampling
+from functions.dsda_functions import preprocess_problem,solve_with_gdpopt,solve_with_minlp,solve_with_dsda,neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem
 import copy
 import time
 from pyomo.util.infeasible import log_infeasible_constraints,log_infeasible_bounds,log_close_to_bounds,log_active_constraints
 from pyomo.util.blockutil import log_model_constraints
-from feasibility_functions import feasibility_1,feasibility_2
+from functions.feasibility_functions import feasibility_1,feasibility_2
 import random
 import pickle
 import logging

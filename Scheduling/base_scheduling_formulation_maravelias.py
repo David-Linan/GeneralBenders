@@ -1,10 +1,7 @@
 from __future__ import division
 import pyomo.environ as pe
 import math
-# import sys
-# sys.path.append("/home/dadapy")
-from GeneralBenders.dsda_functions import get_external_information
-
+from functions.dsda_functions import get_external_information
 
 
 def bulind_scheduling():

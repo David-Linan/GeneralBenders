@@ -8,7 +8,7 @@ from math import isnan
 import matplotlib.pyplot as plt
 import numpy as np
 import pyomo.environ as pe
-from model_serializer import StoreSpec, from_json, to_json
+from functions.model_serializer import StoreSpec, from_json, to_json
 from pyomo.common.errors import InfeasibleConstraintException
 from pyomo.contrib.fbbt.fbbt import fbbt
 from pyomo.contrib.gdpopt.data_class import MasterProblemResult

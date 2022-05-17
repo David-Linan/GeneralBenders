@@ -10,19 +10,19 @@ from pyomo.opt.base.solvers import SolverFactory
 import os
 from decimal import Decimal
 from gdp_column import build_column,build_column_minlp_gdp
-from cuts_functions import convex_clousure,initialization_sampling
-from dsda_functions import preprocess_problem,solve_with_gdpopt,solve_with_minlp,solve_with_dsda,neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem
+from functions.cuts_functions import convex_clousure,initialization_sampling
+from functions.dsda_functions import preprocess_problem,solve_with_gdpopt,solve_with_minlp,solve_with_dsda,neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem
 import copy
 import time
 from pyomo.util.infeasible import log_infeasible_constraints,log_infeasible_bounds,log_close_to_bounds,log_active_constraints
 from pyomo.util.blockutil import log_model_constraints
-from feasibility_functions import feasibility_1,feasibility_2
+from functions.feasibility_functions import feasibility_1,feasibility_2
 import random
 import pickle
 import logging
 from itertools import product
 import io
-
+import os
 #Random seed for master problem initializations
 random.seed(30)
 
@@ -1297,21 +1297,21 @@ if __name__ == "__main__":
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
     
-    # ###REFORMUALTION EXTERNAL VARIABLES
-    # model =build_column(8, 17, 0.95, 0.95)
-    # ext_ref = {model.YB: model.intTrays, model.YR: model.intTrays} #reformulation sets and variables
-    # reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) 
-    # print('-------------------------------------------------------------------------- \n \n')
+    ###REFORMUALTION EXTERNAL VARIABLES
+    model =build_column(8, 17, 0.95, 0.95)
+    ext_ref = {model.YB: model.intTrays, model.YR: model.intTrays} #reformulation sets and variables
+    reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) 
+    print('-------------------------------------------------------------------------- \n \n')
 
     # #### SOLUTION 
-    # initialization=[15,9] 
-    # infinity_val=1e+5
-    # Adjustable_val=0.5
-    # nlp_solver='knitro'
-    # neigh=neighborhood_k_eq_inf(2)
-    # maxiter=100
-    # m_solved=run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
-    # solved=generate_initialization(m=m_solved,model_name='validation')
+    initialization=[15,9] 
+    infinity_val=1e+5
+    Adjustable_val=0.5
+    nlp_solver='knitro'
+    neigh=neighborhood_k_eq_inf(2)
+    maxiter=100
+    m_solved=run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
+    solved=generate_initialization(m=m_solved,model_name='validation')
 
     ### LOAD RESULTS
     model = build_column(8, 17, 0.95, 0.95)
@@ -1323,7 +1323,9 @@ if __name__ == "__main__":
 
     with open('column_Results.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
-    #.pprint(filename='column_results.txt')
+
+
+
     
     #help(m.component_data_objects)
     #print(dir(m.component_data_objects))
