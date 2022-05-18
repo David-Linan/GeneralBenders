@@ -25,8 +25,7 @@ def feasibility_1(m):
 
         visitorA = _FBBTVisitorLeafToRoot(bnds_dict, feasibility_tol=tol)
         visitorA.dfs_postorder_stack(constr.body)
-
-
+        
         _lb = pe.value(constr.lower)
         _ub = pe.value(constr.upper)
         if _lb is None:
