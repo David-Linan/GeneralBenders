@@ -2,11 +2,13 @@ from __future__ import division
 
 import sys
 sys.path.insert(0, '/home/dadapy/GeneralBenders/')
-from functions.dsda_functions import get_external_information,external_ref,solve_subproblem
+from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model
 import pyomo.environ as pe
 from pyomo.gdp import Disjunct, Disjunction
 import math
 from pyomo.opt.base.solvers import SolverFactory
+import io
+import time
 
 def problem_logic_scheduling(m):
     logic_expr = []
@@ -300,6 +302,7 @@ def build_scheduling():
 
 
 if __name__ == "__main__":
+    start=time.time()
     m=build_scheduling()
     logic_fun=problem_logic_scheduling
     #ext_ref = {m.Z: m.N} #reformulation sets and variables
@@ -315,5 +318,19 @@ if __name__ == "__main__":
         '$onecho > cplex.opt \n'
         '*intsollim 1  \n'
         '$offecho \n']}
-    solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000,gams_output = False,tee= True,rel_tol = 0) 
-    print(solved.dsda_status)
+    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0) 
+    end=time.time()   
+    print(m_solved.dsda_status)
+    print(end-start)    
+    solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_reformualted_profit_max')
+
+    ### LOAD RESULTS
+    # model = build_scheduling()
+    # m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_reformualted_profit_max')
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+
+    # with open('maravelias_cplex_reformualted_profit_max.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
