@@ -259,43 +259,43 @@ def build_scheduling():
 
     #BOOLEAN VARIABLES--------
     #TODO: THIS IS THE CORRECT DEFINITION WHEN USING THE CONTINUOUS TIME FORMULATION !!!!! : ### m.min_taup=pe.Param(initialize=math.floor(m.eta/min([pe.value(m.tau_p[I,J]) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1])),doc='minimum Physical processing time [units of time]')
-    m.maxN=pe.Param(initialize=math.floor((m.T.__len__()-1)/min([pe.value(m.tau[I,J]) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1])),doc='minimum Physical processing time [units of time]')
-    #m.lastN.display()
-    m.N=pe.RangeSet(0,m.maxN,1, doc='ordered set')
-    #m.N.display()
+    # m.maxN=pe.Param(initialize=math.floor((m.T.__len__()-1)/min([pe.value(m.tau[I,J]) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1])),doc='minimum Physical processing time [units of time]')
+    # #m.lastN.display()
+    # m.N=pe.RangeSet(0,m.maxN,1, doc='ordered set')
+    # #m.N.display()
 
-    def _I_J(m):
-        return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
-    m.I_J=pe.Set(dimen=2,initialize=_I_J,doc='task-unit nodes')
-    #m.I_J.display()
-    def _lastN(m,I,J):
-        return math.floor((m.T.__len__()-1)/m.tau[I,J])  #TODO: CHANGE THIS IF I USE MY OWN FORMULATION
-    m.lastN=pe.Param(m.I_J,initialize=_lastN,doc='last element for subsets of ordered set')
-    # m.lastN.display()
+    # def _I_J(m):
+    #     return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
+    # m.I_J=pe.Set(dimen=2,initialize=_I_J,doc='task-unit nodes')
+    # #m.I_J.display()
+    # def _lastN(m,I,J):
+    #     return math.floor((m.T.__len__()-1)/m.tau[I,J])  #TODO: CHANGE THIS IF I USE MY OWN FORMULATION
+    # m.lastN=pe.Param(m.I_J,initialize=_lastN,doc='last element for subsets of ordered set')
+    # # m.lastN.display()
     
-    m.Z=pe.BooleanVar(m.N,m.I_J,doc='Boolean variables that can be reformulated with external variables')
-    m.Z_binary=pe.Var(m.N,m.I_J,within=pe.Binary,doc='Binary variable associated to Z')   #TODO: there are no disjuncts for the moment, so we can do this. In the future we have to create disjuncts
+    # m.Z=pe.BooleanVar(m.N,m.I_J,doc='Boolean variables that can be reformulated with external variables')
+    # m.Z_binary=pe.Var(m.N,m.I_J,within=pe.Binary,doc='Binary variable associated to Z')   #TODO: there are no disjuncts for the moment, so we can do this. In the future we have to create disjuncts
     
-    # Associate boolean to binary variables and fix Boolean and bynary variable that are redundant in the formulation
-    for N in m.N:
-        for I_J in m.I_J:
-                m.Z[N,I_J].associate_binary_var(m.Z_binary[N,I_J])
-                if N>m.lastN[I_J]:
-                    m.Z[N,I_J].fix(False)
-                    m.Z_binary[N,I_J].set_value(0)
+    # # Associate boolean to binary variables and fix Boolean and bynary variable that are redundant in the formulation
+    # for N in m.N:
+    #     for I_J in m.I_J:
+    #             m.Z[N,I_J].associate_binary_var(m.Z_binary[N,I_J])
+    #             if N>m.lastN[I_J]:
+    #                 m.Z[N,I_J].fix(False)
+    #                 m.Z_binary[N,I_J].set_value(0)
         
-    # m.Z.display()
-    def _X_Z_relation(m,I,J):
-        return sum(m.X[I,J,T] for T in m.T)==sum(N*m.Z_binary[N,I,J] for N in m.N if N<=m.lastN[I,J])
-    m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Boolean and binary variables')
-    #m.X_Z_relation.pprint()
+    # # m.Z.display()
+    # def _X_Z_relation(m,I,J):
+    #     return sum(m.X[I,J,T] for T in m.T)==sum(N*m.Z_binary[N,I,J] for N in m.N if N<=m.lastN[I,J])
+    # m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Boolean and binary variables')
+    # #m.X_Z_relation.pprint()
 
 
-    #Exactly k constraints
-    def _EXACTLY_CONST(m,I,J):
-        return pe.exactly(1,[m.Z[N,I,J] for N in m.N if N<=m.lastN[I,J]])
-    m.EXACTLY_CONST=pe.LogicalConstraint(m.I_J,rule=_EXACTLY_CONST)   
-    #m.EXACTLY_CONST.pprint()
+    # #Exactly k constraints
+    # def _EXACTLY_CONST(m,I,J):
+    #     return pe.exactly(1,[m.Z[N,I,J] for N in m.N if N<=m.lastN[I,J]])
+    # m.EXACTLY_CONST=pe.LogicalConstraint(m.I_J,rule=_EXACTLY_CONST)   
+    # #m.EXACTLY_CONST.pprint()
 
     return m
    
@@ -318,16 +318,17 @@ if __name__ == "__main__":
         '$onecho > cplex.opt \n'
         '*intsollim 1  \n'
         '$offecho \n']}
-    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0) 
+    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0) 
     end=time.time()   
     print(m_solved.dsda_status)
     print(end-start)    
-    solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_reformualted_profit_max')
-#Optimal: 14515.5
-#786.0247232913971 secinds 
+    solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_profit_max')
+
+
+
     ### LOAD RESULTS
     # model = build_scheduling()
-    # m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_reformualted_profit_max')
+    # m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_profit_max')
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
     #     v.pprint(textbuffer)
@@ -335,3 +336,4 @@ if __name__ == "__main__":
 
     # with open('maravelias_cplex_reformualted_profit_max.txt', 'w') as outputfile:
     #     outputfile.write(textbuffer.getvalue())
+
