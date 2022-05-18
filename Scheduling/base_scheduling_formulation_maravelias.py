@@ -302,15 +302,17 @@ def build_scheduling():
 
 
 if __name__ == "__main__":
+
+
     start=time.time()
     m=build_scheduling()
     logic_fun=problem_logic_scheduling
-    #ext_ref = {m.Z: m.N} #reformulation sets and variables
-    #[reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+
     pe.TransformationFactory('core.logical_to_linear').apply_to(m)
 
-
-    #external_ref(m,[18,3,31,51,21,69,1,19],logic_fun,reformulation_dict,tee=False)
+    ### ext_ref = {m.Z: m.N} #reformulation sets and variables
+    ### [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    ### external_ref(m,[18,3,31,51,21,69,1,19],logic_fun,reformulation_dict,tee=False)
 
     options=    {'add_options':[
         'GAMS_MODEL.optfile = 1;'
@@ -326,12 +328,16 @@ if __name__ == "__main__":
 #Optimal: 14515.5
 #786.0247232913971 secinds 
     ### LOAD RESULTS
-    # model = build_scheduling()
-    # m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_reformualted_profit_max')
-    # textbuffer = io.StringIO()
-    # for v in m.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-
-    # with open('maravelias_cplex_reformualted_profit_max.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
+    model = build_scheduling()
+    m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_reformualted_profit_max')
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    for v in m.component_data_objects(pe.Objective, descend_into=True):
+        textbuffer.write('Objective value '+str(pe.value(v)))
+        textbuffer.write('\n')
+        # v.pprint(textbuffer)
+        # textbuffer.write('\n')
+    with open('maravelias_cplex_reformualted_profit_max.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())

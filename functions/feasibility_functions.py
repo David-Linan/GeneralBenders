@@ -76,7 +76,9 @@ def feasibility_2(m,solver,infty_val, use_multistart: bool=False, tee: bool=Fals
 
 ###############    Init problem solve
         #Options depending on the solver
-        if solver=='conopt' or solver=='conopt4' or solver=='knitro' or solver=='ipopt' or solver=='ipopth':
+        if solver=='conopt' or solver=='conopt4' or solver=='knitro' or solver=='ipopt' or solver=='ipopth' or solver=='cplex':
+            if solver=='cplex':
+                sub_options=['GAMS_MODEL.optfile = 1;','\n','$onecho > ' +solver+ '.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n'] #feasopt tries to suggest the least change that would achieve feasibility. I limit the number of integer solutions because I do not want to spend too much ime here, varsel -1 leads more quickly to feasible integer solutions
             if solver=='conopt' or solver=='conopt4':
                 sub_options=['GAMS_MODEL.optfile = 1;','\n','$onecho > ' +solver+ '.opt \n','$offecho \n'] #Do nothing
             if solver=='knitro':
