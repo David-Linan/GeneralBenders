@@ -173,7 +173,7 @@ def get_external_information(
 
     return reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds
 
-
+# ------------------------THIS VERSION IS VALID FOR SCHEDULING ONLY---------------------------------------------------------
 def external_ref(
     m: pe.ConcreteModel(),
     x,
@@ -208,49 +208,14 @@ def external_ref(
         terms of the independent Boolean variables are fixed too (depending on the extra_logic_function provided by the user)
 
     """
-    # This part of code is required due to the deep copy issue: we have to compare Boolean variables by name
-    for i in dict_extvar:
-        dict_extvar[i]['Boolean_vars'] = []
-        for j in dict_extvar[i]['Boolean_vars_names']:
-            for boolean in m.component_data_objects(pe.BooleanVar, descend_into=True):
-                if(boolean.name == j):
-                    dict_extvar[i]['Boolean_vars'] = dict_extvar[i]['Boolean_vars']+[boolean]
-        if mip_ref:
-            # This part of code is required due to the deep copy issue: we have to compare binary variables by name
-            # By uncommenting in previous function extvars_gdp_to_mip we would pass directly dict_extvar[i]['Binary_vars']
-            dict_extvar[i]['Binary_vars'] = []
-            for j in dict_extvar[i]['Binary_vars_names']:
-                for binary in m.component_data_objects(pe.Var, descend_into=True):
-                    if(binary.name == j):
-                        dict_extvar[i]['Binary_vars'] = dict_extvar[i]['Binary_vars']+[binary]
-
-# The function would start here if there were no problems with deep copy.
-    ext_var_position = 0
-    for i in dict_extvar:
-        for j in range(dict_extvar[i]['exactly_number']):
-            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                if x[ext_var_position] == k:
-                    if not mip_ref:
-                        # fix True variables: depending on the current value of the external variables, some Independent Boolean variables can be fixed
-                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
-                    else:
-                        # fix 0 variables: depending on the current value of the external variables, some Independent Binary variables can be fixed
-                        dict_extvar[i]['Binary_vars'][k-1].fix(1)
-                        dict_extvar[i]['Boolean_vars'][k-1].set_value(True)
-            ext_var_position = ext_var_position+1
-        # Double loop required from fact that exactly_number >= 1. TODO Is there a better way to do this?
-        for j in range(dict_extvar[i]['exactly_number']):
-            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                if not mip_ref:
-                    # fix False variables: If the independent Boolean variable is not fixed at "True", then it is fixed at "False".
-                    if not dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
-                        dict_extvar[i]['Boolean_vars'][k-1].fix(False)
-                else:
-                    # fix 0 variables: If the independent Boolean variable is not fixed at "1", then it is fixed at "0".
-                    if not dict_extvar[i]['Binary_vars'][k-1].is_fixed():
-                        dict_extvar[i]['Binary_vars'][k-1].fix(0)
-                        dict_extvar[i]['Boolean_vars'][k-1].set_value(False)
-
+    countt=-1
+    for I_J in m.I_J:
+        countt=countt+1
+        for N in m.N:
+            if N<=m.lastN[I_J]:
+                m.Z[N,I_J].fix(False)
+                if x[countt]-1 == N:
+                    m.Z[N,I_J].fix(True)
     # Other Boolean and Indicator variables are fixed depending on the information provided by the user
     logic_expr = extra_logic_function(m)
     for i in logic_expr:
@@ -270,25 +235,126 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     if tee:
-        print('\nFixed variables at current iteration:\n')
-        print('\n Independent Boolean variables\n')
-        for i in dict_extvar:
-            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                print(dict_extvar[i]['Boolean_vars_names'][k-1] +
-                      '='+str(dict_extvar[i]['Boolean_vars'][k-1].value))
-
-        print('\n Dependent Boolean variables and disjunctions\n')
-        for i in logic_expr:
-            print(i[1].name+'='+str(i[1].value))
-
-        if mip_ref:
-            print('\n Independent binary variables\n')
-            for i in dict_extvar:
-                for k in range(1, len(dict_extvar[i]['Binary_vars'])+1):
-                    print(dict_extvar[i]['Binary_vars_names'][k-1] +
-                          '='+str(dict_extvar[i]['Binary_vars'][k-1].value))
-
+        m.Z.pprint()
     return m
+
+
+
+# def external_ref(
+#     m: pe.ConcreteModel(),
+#     x,
+#     extra_logic_function,
+#     dict_extvar: dict = {},
+#     mip_ref: bool = False,
+#     transformation: str = 'bigm',
+#     tee: bool = False
+# ):
+#     """
+#     Function that
+#     Args:
+#         m: GDP model that is going to be reformulated
+#         x: List with current value of the external variables
+#         extra_logic_function: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a)
+#         dict_extvar: A dictionary of dictionaries that looks as follows:
+#             {1:{'exactly_number':Number of external variables for this type,
+#                 'Boolean_vars_names':list with names of the ordered Boolean variables to be reformulated,
+#                 'Boolean_vars_ordered_index': Indexes where the external reformulation is applied,
+#                 'Binary_vars_names':list with names of the ordered Binary variables to be reformulated, [Potentially]
+#                 'Binary_vars_ordered_index': Indexes where the external reformulation is applied, [Potentially]
+#                 'Ext_var_lower_bound': Lower bound for this type of external variable,
+#                 'Ext_var_upper_bound': Upper bound for this type of external variable },
+#              2:{...},...}
+
+#             The first key (positive integer) represent a type of external variable identified in the model. For this type of external variable
+#             a dictionary is created.
+#         mip_ref: whether the reformulation will consider binary variables besides Booleans coming from a GDP->MIP reformulation
+#         tee: Display reformulation
+#     Returns:
+#         m: A model where the independent Boolean variables that were reformulated are fixed and Boolean/indicator variables that are calculated in
+#         terms of the independent Boolean variables are fixed too (depending on the extra_logic_function provided by the user)
+
+#     """
+#     # This part of code is required due to the deep copy issue: we have to compare Boolean variables by name
+#     for i in dict_extvar:
+#         dict_extvar[i]['Boolean_vars'] = []
+#         for j in dict_extvar[i]['Boolean_vars_names']:
+#             for boolean in m.component_data_objects(pe.BooleanVar, descend_into=True):
+#                 if(boolean.name == j):
+#                     dict_extvar[i]['Boolean_vars'] = dict_extvar[i]['Boolean_vars']+[boolean]
+#         if mip_ref:
+#             # This part of code is required due to the deep copy issue: we have to compare binary variables by name
+#             # By uncommenting in previous function extvars_gdp_to_mip we would pass directly dict_extvar[i]['Binary_vars']
+#             dict_extvar[i]['Binary_vars'] = []
+#             for j in dict_extvar[i]['Binary_vars_names']:
+#                 for binary in m.component_data_objects(pe.Var, descend_into=True):
+#                     if(binary.name == j):
+#                         dict_extvar[i]['Binary_vars'] = dict_extvar[i]['Binary_vars']+[binary]
+
+# # The function would start here if there were no problems with deep copy.
+#     ext_var_position = 0
+#     for i in dict_extvar:
+#         for j in range(dict_extvar[i]['exactly_number']):
+#             for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+#                 if x[ext_var_position] == k:
+#                     if not mip_ref:
+#                         # fix True variables: depending on the current value of the external variables, some Independent Boolean variables can be fixed
+#                         dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+#                     else:
+#                         # fix 0 variables: depending on the current value of the external variables, some Independent Binary variables can be fixed
+#                         dict_extvar[i]['Binary_vars'][k-1].fix(1)
+#                         dict_extvar[i]['Boolean_vars'][k-1].set_value(True)
+#             ext_var_position = ext_var_position+1
+#         # Double loop required from fact that exactly_number >= 1. TODO Is there a better way to do this?
+#         for j in range(dict_extvar[i]['exactly_number']):
+#             for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+#                 if not mip_ref:
+#                     # fix False variables: If the independent Boolean variable is not fixed at "True", then it is fixed at "False".
+#                     if not dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
+#                         dict_extvar[i]['Boolean_vars'][k-1].fix(False)
+#                 else:
+#                     # fix 0 variables: If the independent Boolean variable is not fixed at "1", then it is fixed at "0".
+#                     if not dict_extvar[i]['Binary_vars'][k-1].is_fixed():
+#                         dict_extvar[i]['Binary_vars'][k-1].fix(0)
+#                         dict_extvar[i]['Boolean_vars'][k-1].set_value(False)
+
+#     # Other Boolean and Indicator variables are fixed depending on the information provided by the user
+#     logic_expr = extra_logic_function(m)
+#     for i in logic_expr:
+#         if not mip_ref:
+#             i[1].fix(pe.value(i[0]))
+#         else:
+#             i[1].set_value(pe.value(i[0]))
+
+#     pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+#     if mip_ref:  # Transform problem to MINLP
+#         transformation_string = 'gdp.' + transformation
+#         pe.TransformationFactory(transformation_string).apply_to(m)
+#     else:  # Deactivate disjunction's constraints in the case of pure GDP
+#         pe.TransformationFactory('gdp.fix_disjuncts').apply_to(m)
+
+#     pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
+#         m, tmp=False, ignore_infeasible=True)
+
+#     if tee:
+#         print('\nFixed variables at current iteration:\n')
+#         print('\n Independent Boolean variables\n')
+#         for i in dict_extvar:
+#             for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+#                 print(dict_extvar[i]['Boolean_vars_names'][k-1] +
+#                       '='+str(dict_extvar[i]['Boolean_vars'][k-1].value))
+
+#         print('\n Dependent Boolean variables and disjunctions\n')
+#         for i in logic_expr:
+#             print(i[1].name+'='+str(i[1].value))
+
+#         if mip_ref:
+#             print('\n Independent binary variables\n')
+#             for i in dict_extvar:
+#                 for k in range(1, len(dict_extvar[i]['Binary_vars'])+1):
+#                     print(dict_extvar[i]['Binary_vars_names'][k-1] +
+#                           '='+str(dict_extvar[i]['Binary_vars'][k-1].value))
+
+#     return m
 
 
 def extvars_gdp_to_mip(
