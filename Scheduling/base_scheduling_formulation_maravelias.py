@@ -302,12 +302,12 @@ def build_scheduling():
 if __name__ == "__main__":
     m=build_scheduling()
     logic_fun=problem_logic_scheduling
-    ext_ref = {m.Z: m.N} #reformulation sets and variables
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    #ext_ref = {m.Z: m.N} #reformulation sets and variables
+    #[reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
 
 
-
-    ref_model=external_ref(m,[18,3,31,51,21,69,1,19],logic_fun,reformulation_dict,tee=False)
+    #external_ref(m,[18,3,31,51,21,69,1,19],logic_fun,reformulation_dict,tee=False)
 
     options=    {'add_options':[
         'GAMS_MODEL.optfile = 1;'
