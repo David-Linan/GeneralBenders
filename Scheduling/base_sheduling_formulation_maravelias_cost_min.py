@@ -1,7 +1,14 @@
 from __future__ import division
+
+import sys
+sys.path.insert(0, '/home/dadapy/GeneralBenders/')
+from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model
 import pyomo.environ as pe
 from pyomo.gdp import Disjunct, Disjunction
 import math
+from pyomo.opt.base.solvers import SolverFactory
+import io
+import time
 
 def problem_logic_scheduling(m):
     logic_expr = []
@@ -239,7 +246,7 @@ def build_scheduling():
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
 
     #OBJECTIVE----------------
-    #cost minimization
+    # cost minimization
     def _obj(m):
         return sum(sum(sum(  m.cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)
     m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
@@ -291,3 +298,52 @@ def build_scheduling():
     #m.EXACTLY_CONST.pprint()
 
     return m
+   
+
+
+if __name__ == "__main__":
+
+
+    start=time.time()
+    m=build_scheduling()
+    logic_fun=problem_logic_scheduling
+
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+
+    ### ext_ref = {m.Z: m.N} #reformulation sets and variables
+    ### [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    ### external_ref(m,[18,3,31,51,21,69,1,19],logic_fun,reformulation_dict,tee=False)
+
+    options=    {'add_options':[
+        'GAMS_MODEL.optfile = 1;'
+        '\n'
+        '$onecho > cplex.opt \n'
+        '*intsollim 1  \n'
+        '$offecho \n']}
+    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0) 
+    end=time.time()   
+    print(m_solved.dsda_status)
+    print(end-start)    
+    solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_reformualted_const_min')
+#Optimal: 1665
+#42 secinds 
+    ### LOAD RESULTS
+    model = build_scheduling()
+    m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_reformualted_const_min')
+
+    for I_J in m.I_J:
+        for N in m.N:
+            if pe.value(m.Z_binary[N,I_J])==1:
+                print('ext_Var associated to '+str(I_J)+'is '+str(N+1))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # for v in m.component_data_objects(pe.Objective, descend_into=True):
+    #     textbuffer.write('Objective value '+str(pe.value(v)))
+    #     textbuffer.write('\n')
+    #     # v.pprint(textbuffer)
+    #     # textbuffer.write('\n')
+    # with open('maravelias_cplex_reformualted_const_min.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())

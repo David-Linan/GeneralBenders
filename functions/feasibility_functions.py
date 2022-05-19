@@ -22,10 +22,8 @@ def feasibility_1(m):
     infeasible_const=[]  #infeasible constraints
     for constr in m.component_data_objects(pe.Constraint, active=True, descend_into=True):
         bnds_dict = ComponentMap()
-
         visitorA = _FBBTVisitorLeafToRoot(bnds_dict, feasibility_tol=tol)
-        visitorA.dfs_postorder_stack(constr.body)
-        
+        visitorA.dfs_postorder_stack(constr.body) 
         _lb = pe.value(constr.lower)
         _ub = pe.value(constr.upper)
         if _lb is None:
@@ -54,6 +52,7 @@ def feasibility_1(m):
     #Return total sum of infeasibility
     #print([sum_infeasibility,infeasible_const])
     return sum_infeasibility,infeasible_const
+
 
 def feasibility_2(m,solver,infty_val, use_multistart: bool=False, tee: bool=False):
     """

@@ -250,9 +250,11 @@ def build_master(num_ext,lower_b,upper_b,current,stage,D,use_random: bool=False)
             else:
                 #generate nonrandom numbers. It is better to go to the closest point that has not been evaluated (using e.g. a lexicographical ordering).  
                 arrays=[range(lower_b[n_e],upper_b[n_e]+1) for n_e in lower_b.keys()]
-                cart_prduct=list(product(*arrays)) #cartesian product
+
+                cart_prduct=list(product(*arrays)) #cartesian product, this also requires a lot of memory
+
                 #TODO: after the cartesian product, I am organizing this with respect to the current value using a distance metric. Note that I can aslo explore points that are far away in the future.
-                cart_prduct_sorted=sorted(cart_prduct, key=lambda x: np.linalg.norm(np.array(list(x))-np.array(current)      )      ) #I am sorting to evaluate the closests point. I can also sort to evaluate the one that is far away (exploration!!!!!)
+                cart_prduct_sorted=cart_prduct#sorted(cart_prduct, key=lambda x: np.linalg.norm(np.array(list(x))-np.array(current)      )      ) #I am sorting to evaluate the closests point. I can also sort to evaluate the one that is far away (exploration!!!!!)
                 for j in cart_prduct_sorted:
                     non_randomp=list(j)
                     if all([np.linalg.norm(np.array(non_randomp)-np.array(list(i)))>=0.1 for i in list(D.keys())]):
@@ -380,7 +382,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
     #-----------------------------------D-BD ALGORITHM-----------------------------------------------------------------------
     #-----------STAGE 1
     if initial_Stage==1:
-        print('stage 1')
+        #print('stage 1')
         #NOW SOLVE  
         x_actual=initialization
         D={}
@@ -406,6 +408,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #Calculate new convex hull and dd cuts to the current model
             #define model
             m,not_eval=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,1,D,use_random)            
+            #print(not_eval)
             for i in x_dict:
                 cuts=convex_clousure(D,x_dict[i])
                 #print(cuts)
@@ -449,8 +452,8 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
                 D[j]=infinity_val
     #-----------STAGE 2
     if initial_Stage==1 or initial_Stage==2:
-        if initial_Stage==2:
-            print('stage 2')
+        #print('stage 2')
+        if initial_Stage==2:       
             x_actual=initialization
             D={}
             D=D_random.copy()
@@ -459,6 +462,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         fobj_actual=infinity_val
         start = time.time()
         for k in iterations:
+            #print(k)
             #if first iteration, initialize
             #if k==1:
             #    x_actual=initialization
@@ -468,6 +472,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
             new_values,init_path=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs)
+            #print(new_values)
             fobj_actual=list(new_values.values())[0]
             #Add points to D
             D.update(new_values)
@@ -521,8 +526,8 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
                 D[j]=infinity_val
         #-----------STAGE 3
     if initial_Stage==1 or initial_Stage==2 or initial_Stage==3:
+        #print('stage 3')
         if initial_Stage==3:
-            print('stage 3')
             x_actual=initialization
             D={}
             D=D_random.copy()
@@ -530,6 +535,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         fobj_actual=infinity_val
         start = time.time()
         for k in iterations:
+            #print(k)
             #if first iteration, initialize
             #if k==1:
             #    x_actual=initialization
@@ -537,6 +543,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
 
             #update current value of x in the dictionary
             x_dict[k]=x_actual
+            #print(x_actual)
             #calculate objective function for current point and its neighborhood (subproblem)
             new_values,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt)
             fobj_actual=list(new_values.values())[0]
@@ -558,7 +565,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #Stop?
             #print([pe.value(m.x1),pe.value(m.x2)])
             #print(new_values)
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
+            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5 or all(fobj_actual<=val for val in D.values()): # if minimum over D, then it is minimum over neighborhood, plus I guarantee that no other neighbor has a better solution 
             #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
             #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
             #if 
