@@ -578,7 +578,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         #print('Cuts calculated from the central points evaluated so far.')
         print('evaluated stage 3',x_dict,'\n')
         important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
-    return important_info,important_info_preprocessing,D
+    return important_info,important_info_preprocessing,D,x_dict
 
 
 if __name__ == "__main__":
@@ -593,20 +593,31 @@ if __name__ == "__main__":
     logic_fun=problem_logic_math
     model=model_fun(**kwargs)
     ext_ref = {model.Y1: model.set1, model.Y2: model.set2} #reformulation sets and variables
-    initialization=[5,5] 
+    initialization=[5,1] 
     infinity_val=1e+5
-    nlp_solver='MSNLP'
+    nlp_solver='msnlp'
     neigh=neighborhood_k_eq_inf(2)
     maxiter=100
     points=5
 
 
 
-    info_solver,info_preprocess,evaluated=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
+
+
+    info_solver,info_preprocess,evaluated,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
     #print(evaluated)
     print(info_solver)
     print(info_preprocess)
 
+
+    last={}
+    for i in range(1,6):
+        for j in range(1,6):
+            initalization=[i,j]
+            _,_,_,dictt=run_function_dbd(initalization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
+            last[tuple(initalization)]=dictt[list(dictt)[-1]]
+
+    print(last)
 
 
 
