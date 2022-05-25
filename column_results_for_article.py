@@ -1287,7 +1287,7 @@ def run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,max
     m_init=initialize_model(m=model,json_path=init_path)
 
     start = time.time()
-    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='GLOA', mip_output=False, nlp_output=False,rel_tol=0,tee=False)
+    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='LOA', mip_output=False, nlp_output=False,rel_tol=0,tee=True)
     end = time.time()
 
 
@@ -1304,7 +1304,7 @@ if __name__ == "__main__":
     print('-------------------------------------------------------------------------- \n \n')
 
     # #### SOLUTION 
-    initialization=[15,9] 
+    initialization=[13,4] 
     infinity_val=1e+5
     Adjustable_val=0.5
     nlp_solver='knitro'
