@@ -1,12 +1,12 @@
 {
   "__metadata__": {
     "format_version": 4,
-    "date": "2022-05-18",
-    "time": "21:14:19.932384",
+    "date": "2022-05-25",
+    "time": "11:09:16.848516",
     "other": {},
     "__performance__": {
-      "n_components": 1756,
-      "etime_make_dict": 0.009447336196899414
+      "n_components": 1768,
+      "etime_make_dict": 0.007308006286621094
     }
   },
   "scheduling_model_maravelias": {
@@ -364,282 +364,412 @@
             }
           },
           "rho_minus": {
-            "__type__": "<class 'pyomo.core.base.param.IndexedParam'>",
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
             "data": {
               "('T1', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T1', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S2')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T2', 'S3')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
               },
               "('T2', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S4')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T3', 'S5')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
               },
               "('T3', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S3')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T4', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S6')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
               },
               "('T4', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T5', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
+              }
+            }
+          },
+          "rho_minus_sum": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "'T1'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T2'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T3'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T4'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T5'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               }
             }
           },
           "rho_plus": {
-            "__type__": "<class 'pyomo.core.base.param.IndexedParam'>",
+            "__type__": "<class 'pyomo.core.base.var.IndexedVar'>",
             "data": {
               "('T1', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T1', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T1', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T2', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T2', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S6')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.899481038151642
               },
               "('T3', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T3', 'S8')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.100518961848358
               },
               "('T3', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S6')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.0
               },
               "('T4', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T4', 'S9')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S1')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S2')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S3')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S4')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S5')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S6')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.97
               },
               "('T5', 'S7')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S8')": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": null
               },
               "('T5', 'S9')": {
-                "__type__": "<class 'float'>"
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.03
+              }
+            }
+          },
+          "rho_plus_sum": {
+            "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
+            "data": {
+              "'T1'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T2'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T3'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T4'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "'T5'": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               }
             }
           },
@@ -1750,7 +1880,7 @@
               },
               "('T2', 'U2', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 0.0
               },
               "('T2', 'U2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1962,7 +2092,7 @@
               },
               "('T3', 'U2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 0.0
               },
               "('T3', 'U2', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2002,7 +2132,7 @@
               },
               "('T3', 'U2', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1.0
               },
               "('T3', 'U2', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2166,7 +2296,7 @@
               },
               "('T4', 'U2', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1.0
               },
               "('T4', 'U2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2174,7 +2304,7 @@
               },
               "('T4', 'U2', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 0.0
               },
               "('T4', 'U2', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2482,7 +2612,7 @@
               },
               "('T5', 'U4', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1.0
               },
               "('T5', 'U4', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2490,7 +2620,7 @@
               },
               "('T5', 'U4', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 0.0
               },
               "('T5', 'U4', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2535,7 +2665,7 @@
             "data": {
               "('T1', 'U1', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 100.0
+                "value": 13.92772044604517
               },
               "('T1', 'U1', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -2795,7 +2925,7 @@
               },
               "('T2', 'U2', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.0
+                "value": 0.0
               },
               "('T2', 'U2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3007,7 +3137,7 @@
               },
               "('T3', 'U2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 13.33333333333334
+                "value": 0.0
               },
               "('T3', 'U2', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3047,7 +3177,7 @@
               },
               "('T3', 'U2', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 13.92772044604517
               },
               "('T3', 'U2', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3211,7 +3341,7 @@
               },
               "('T4', 'U2', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 50.0
               },
               "('T4', 'U2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3219,7 +3349,7 @@
               },
               "('T4', 'U2', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.0
+                "value": 0.0
               },
               "('T4', 'U2', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3527,7 +3657,7 @@
               },
               "('T5', 'U4', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 50.0
               },
               "('T5', 'U4', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3535,7 +3665,7 @@
               },
               "('T5', 'U4', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.0
+                "value": 0.0
               },
               "('T5', 'U4', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3580,159 +3710,159 @@
             "data": {
               "('S1', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S1', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3900.0
+                "value": 3986.072279553955
               },
               "('S2', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S2', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 4000.0
               },
               "('S3', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 3950.0
               },
               "('S3', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3995.0
+                "value": 3950.0
               },
               "('S3', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S3', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3993.0
+                "value": 3950.0
               },
               "('S4', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3740,51 +3870,51 @@
               },
               "('S4', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 13.92772044604517
               },
               "('S4', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 0.0
               },
               "('S4', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 94.66666666666667
+                "value": 0.0
               },
               "('S5', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3792,51 +3922,51 @@
               },
               "('S5', 1)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S5', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.999999999999998
+                "value": 0.0
               },
               "('S6', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3852,43 +3982,43 @@
               },
               "('S6', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 48.5
               },
               "('S6', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 48.5
               },
               "('S6', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 48.5
               },
               "('S6', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 61.02772044604517
               },
               "('S7', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -3952,47 +4082,47 @@
               },
               "('S8', 2)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 5.333333333333336
+                "value": 0.0
               },
               "('S8', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.933333333333335
+                "value": 0.0
               },
               "('S9', 0)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -4008,43 +4138,43 @@
               },
               "('S9', 3)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1.5
               },
               "('S9', 4)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1.5
               },
               "('S9', 5)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 6)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 7)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 8)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 9)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 10)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 11)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.0
+                "value": 1.5
               },
               "('S9', 12)": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 7.5
+                "value": 0.0
               }
             }
           },
@@ -5575,7 +5705,7 @@
               },
               "(0, 'T2', 'U2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1.0
               },
               "(0, 'T2', 'U3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -5607,7 +5737,7 @@
               },
               "(1, 'T2', 'U2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.0
+                "value": 0.0
               },
               "(1, 'T2', 'U3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
