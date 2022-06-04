@@ -217,7 +217,7 @@ def external_ref(
                 if x[countt]-1 == N:
                     m.Z[N,I_J].fix(True)
     # Other Boolean and Indicator variables are fixed depending on the information provided by the user
-    logic_expr = extra_ic_function(m)
+    logic_expr = extra_logic_function(m)
     for i in logic_expr:
         if not mip_ref:
             i[1].fix(pe.value(i[0]))

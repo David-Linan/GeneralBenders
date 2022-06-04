@@ -15,7 +15,7 @@ def build_scheduling():
     m = pe.ConcreteModel(name='scheduling_model_maravelias')
     #SCALARS---------------------
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid [units of time]')
-    m.lastT=pe.Param(initialize=12,doc='last discrete time value')
+    m.lastT=pe.Param(initialize=120,doc='last discrete time value')
     #SETS------------------------
     m.T=pe.RangeSet(0,m.lastT,1,doc='Discrete time set')
     m.J=pe.Set(initialize=['U1','U2','U3','U4'],doc='Set of Units')
@@ -167,12 +167,12 @@ def build_scheduling():
     m.gamma=pe.Param(m.K,initialize={'S1':4000,'S2':4000,'S3':4000,'S4':1000,'S5':150,'S6':500,'S7':1000,'S8':4000,'S9':4000},default=0,doc="maximum amount of material k that can be stored")
 
     def _demand(m,K,T):
-        if K=='S8' and T==m.lastT:
-            return 1.4
-        elif K=='S9' and T==m.lastT:
-            return 1.5
-        else:
-            return 0 
+        # if K=='S8' and T==m.lastT:
+        #     return 1.4
+        # elif K=='S9' and T==m.lastT:
+        #     return 1.5
+        # else:
+        return 0 
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="demand of material k at time t")
     m.S0=pe.Param(m.K,initialize={'S1':4000,'S2':4000,'S3':4000},default=0,doc="Initial amount of state k")
     # m.S0.display()
@@ -245,14 +245,14 @@ def build_scheduling():
 
     #OBJECTIVE----------------
     #cost minimization
-    def _obj(m):
-        return sum(sum(sum(  m.cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)
-    m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
-
-    #profit maximization
     # def _obj(m):
-    #     return sum(sum(sum(  m.cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)-sum(m.revenue[K]*m.S[K,m.lastT] for K in m.K)
-    # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)   
+    #     return sum(sum(sum(  m.cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)
+    # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+
+    # profit maximization
+    def _obj(m):
+        return sum(sum(sum(  m.cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)-sum(m.revenue[K]*m.S[K,m.lastT] for K in m.K)
+    m.obj=pe.Objective(rule=_obj,sense=pe.minimize)   
 
 
     #BOOLEAN VARIABLES--------
