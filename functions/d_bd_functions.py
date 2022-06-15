@@ -984,7 +984,11 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
                 if nlp_solver=='dicopt':
                     sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
                 elif nlp_solver=='baron':
-                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n',' NumLoc 0\n','$offecho \n']}
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n','$offecho \n']}
+                elif nlp_solver=='lindoglobal':
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > lindoglobal.opt \n',' GOP_OPT_MODE 0\n','$offecho \n']}
+                elif nlp_solver=='antigone':
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > antigone.opt \n','$offecho \n']}
                 pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
                 m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)
                 if m_solution.dsda_status=='Optimal':

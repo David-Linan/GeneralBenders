@@ -2057,55 +2057,69 @@ if __name__ == "__main__":
 
     #relaxed problem
     m=build_scheduling_Boolean_cost_min_relaxed()
-    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    # options={}
-    # start=time.time()
-    # m_solved=solve_subproblem(m,subproblem_solver = 'conopt',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee=True,rel_tol = 0)   
-    # end=time.time()
-    # print('BARON time (reformulated, relaxed)='+str(end-start))
-    # for I_J in m_solved.I_J:
-    #     print(1+pe.value(m_solved.Nref[I_J]))
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    options={}
+    start=time.time()
+    m_solved=solve_subproblem(m,subproblem_solver = 'conopt',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee=True,rel_tol = 1e-6)   
+    end=time.time()
+    print('CONOPT time (reformulated, relaxed)='+str(end-start))
+    for I_J in m_solved.I_J:
+        print(1+pe.value(m_solved.Nref[I_J]))
 
     # ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
-
+    lower_obj=pe.value(m_solved.obj) #initialization of cut
     model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
     model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
     logic_fun=problem_logic_scheduling
 
     # master_max_iter=1000#master iterations
-    # initialization=[15,24,1,52,1,34,1,9]
-    # infinity_val=1e+6
-    # min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
-    # nlp_solver='dicopt'
-    # neigh=neighborhood_k_eq_2(len(initialization))
-    # maxiter=1000 #benders decomposition
-    # mastertee=True
-    # kwargs={}
-    # m=model_fun_simplified(**kwargs)
-    # ext_ref = {m.Z: m.N} #reformulation sets and variables
-
-    # lower_obj=1080.0024479 #initialization of cut
-    # #lower_obj=1664
-    # start=time.time()
-
-    # [important_info,D,x_actual,m_solved]=run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
-
-    # textbuffer = io.StringIO()
-    # for v in m_solved.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-    # for v in m_solved.component_data_objects(pe.Objective, descend_into=True):
-    #     textbuffer.write('Objective value '+str(pe.value(v)))
-    #     textbuffer.write('\n')
-    #     # v.pprint(textbuffer)
-    #     # textbuffer.write('\n')
-    # with open('MINLP_LBBD_solution.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
-    # ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
-
-
-    model_fun =build_scheduling_Original_cost_min
+    initialization=[15,24,1,52,1,34,1,9]
+    infinity_val=1e+6
+    min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
+    nlp_solver='dicopt'
+    neigh=neighborhood_k_eq_2(len(initialization))
+    maxiter=1000 #benders decomposition
+    mastertee=True
     kwargs={}
+    m=model_fun_simplified(**kwargs)
+    ext_ref = {m.Z: m.N} #reformulation sets and variables
+
+
+    #lower_obj=1664
+    start=time.time()
+
+    [important_info,D,x_actual,m_solved]=run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
+
+    textbuffer = io.StringIO()
+    for v in m_solved.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    for v in m_solved.component_data_objects(pe.Objective, descend_into=True):
+        textbuffer.write('Objective value '+str(pe.value(v)))
+        textbuffer.write('\n')
+        # v.pprint(textbuffer)
+        # textbuffer.write('\n')
+    with open('MINLP_LBBD_solution_dicopt.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
+    # ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
+    kwargs={}
+    # # DICOPT solution reformulated
+    model_fun =build_scheduling_Boolean_cost_min
+    m=model_fun(**kwargs)
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    #options=    {'add_options':[
+        # 'GAMS_MODEL.optfile = 1;'
+        # '\n'
+        # '$onecho > baron.opt \n'
+        # '$offecho \n']}
+    options={}
+    start=time.time()
+    m_solved=solve_subproblem(m,subproblem_solver = 'sbb',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
+    end=time.time()
+    print('BARON time (reformulated)='+str(end-start))
+
+
+    # model_fun =build_scheduling_Original_cost_min
     # logic_fun=problem_logic_scheduling
     # #DICOPT solution
     # m=model_fun(**kwargs)
@@ -2121,20 +2135,12 @@ if __name__ == "__main__":
     # end=time.time()
     # print('BARON time ='+str(end-start))
 
-    # # DICOPT solution reformulated
-    model_fun =build_scheduling_Boolean_cost_min
-    m=model_fun(**kwargs)
-    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    #options=    {'add_options':[
-        # 'GAMS_MODEL.optfile = 1;'
-        # '\n'
-        # '$onecho > baron.opt \n'
-        # '$offecho \n']}
-    options={}
-    start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'baron',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
-    end=time.time()
-    print('BARON time (reformulated)='+str(end-start))
+
+
+
+
+
+
 
 
 

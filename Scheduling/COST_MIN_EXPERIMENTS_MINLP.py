@@ -2148,7 +2148,7 @@ if __name__ == "__main__":
     pe.TransformationFactory('core.logical_to_linear').apply_to(m)
     options={}
     start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'baron',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)   
+    m_solved=solve_subproblem(m,subproblem_solver = 'baron',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
     end=time.time()
     print('BARON time (reformulated, relaxed)='+str(end-start))
     for I_J in m_solved.I_J:
@@ -2158,7 +2158,7 @@ if __name__ == "__main__":
                 # m.Z_binary[N,I_J].pprint()
 
     # ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
-
+    lower_obj=pe.value(m_solved.obj) #initialization of cut
     model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
     model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
     logic_fun=problem_logic_scheduling
@@ -2175,7 +2175,6 @@ if __name__ == "__main__":
     m=model_fun_simplified(**kwargs)
     ext_ref = {m.Z: m.N} #reformulation sets and variables
 
-    lower_obj=580 #initialization of cut
     #lower_obj=1664
     start=time.time()
 

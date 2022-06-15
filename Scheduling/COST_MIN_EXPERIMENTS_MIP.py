@@ -1917,7 +1917,7 @@ if __name__ == "__main__":
     #             # m.Z_binary[N,I_J].pprint()
 
     ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
-
+    lower_obj=pe.value(m_solved.obj) #initialization of cut
     model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
     model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
     logic_fun=problem_logic_scheduling
@@ -1933,8 +1933,6 @@ if __name__ == "__main__":
     kwargs={}
     m=model_fun_simplified(**kwargs)
     ext_ref = {m.Z: m.N} #reformulation sets and variables
-
-    lower_obj=1639.375000 #initialization of cut
     #lower_obj=1664
     start=time.time()
 
