@@ -318,7 +318,11 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         #test initialization 
         model=initialize_model(m=model,json_path=init_path)
         m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+        #original line
         m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+        #m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= {'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver conopt4\n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}, timelimit=10000, tee=False)
+        #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: uncomment last line for nonlinear scheduling problem      
+        
         if m_init_solved.dsda_status=='FBBT_Infeasible':
             initial_Stage=1   
         if m_init_solved.dsda_status=='Evaluated_Infeasible':
@@ -646,7 +650,7 @@ def run_function_dbd_scheduling_cost_min(model_fun_feas,minimum_obj,epsilon,init
                 pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
                 m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)
                 if m_solution.dsda_status=='Optimal':
-                    fobj_actual=minimum_obj
+                    fobj_actual=pe.value(m_solution.obj_dummy)#minimum_obj #I should extract the solution of the subproblem, but I know that this is going to be its solution
                 else:
                     fobj_actual=infinity_val
                 if tee==True:
@@ -688,10 +692,124 @@ def run_function_dbd_scheduling_cost_min(model_fun_feas,minimum_obj,epsilon,init
 
             _cost[8]=20
             if k==1:
-                m.cuts.add(minimum_obj<=sum(_cost[posit]*m.x[posit] for posit in m.extset))  
+                m.cuts.add(minimum_obj<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset))  
             else:
-                m.cuts.add(minimum_obj+epsilon<=sum(_cost[posit]*m.x[posit] for posit in m.extset)) #TODO: epsilon must be the minimum coefficient in the objective function
-            m.cuts.add(sum(_cost[posit]*m.x[posit] for posit in m.extset)<=m.zobj)           
+                m.cuts.add(minimum_obj+epsilon<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)) #TODO: epsilon must be the minimum coefficient in the objective function
+            m.cuts.add(sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)<=m.zobj)           
+            #Solve master problem       
+            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+            if tee==True:
+                print('S3--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
+            #Stop?
+            #print([pe.value(m.x1),pe.value(m.x2)])
+            #print(new_values)
+
+            x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+            minimum_obj=pe.value(m.zobj)
+        end = time.time()
+        #print('stage 3: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
+        #print('Cuts calculated from the central points evaluated so far.')
+        #print(x_dict,'\n')
+        important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
+        if tee==True:
+            print('-------------------------------------------')
+            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
+    return important_info,D,x_actual
+
+def run_function_dbd_scheduling_cost_min_nonlinear(model_fun_feas,minimum_obj,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
+# IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
+    #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
+    important_info={}
+    iterations=range(1,maxiter+1)
+    D_random={}
+    initial_Stage=3 #stage where the algorithm will be initialized: 1 is feasibility1, 2 is feasibility2 and 3 is optimality
+    #------------------------------------------REFORMULATION WITH EXTERNAL VARIABLES--------------------------------------------------
+    model = model_fun(**kwargs)
+    _, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=False) 
+    #------------------------------------------PRE PROCESSING-------------------------------------------------------------------------
+    start=time.time()
+    #-----------------------------------D-BD ALGORITHM-----------------------------------------------------------------------
+    if initial_Stage==1 or initial_Stage==2 or initial_Stage==3:
+        if tee==True:
+            print('stage 3...')
+        if initial_Stage==3:
+            x_actual=initialization
+            D={}
+            D=D_random.copy()
+        D.update(known_solutions) # updating dictionary with previously evaluated solutions
+        x_dict={}  #value of x at each iteration
+        fobj_actual=infinity_val
+        start = time.time()
+        for k in iterations:
+            #print(k)
+            #if first iteration, initialize
+            #if k==1:
+            #    x_actual=initialization
+            #print(x_actual)
+            #update current value of x in the dictionary
+            x_dict[k]=x_actual
+            if tee==True and k==1:
+                print('S3---- User provided lower bound= '+str(minimum_obj))
+            #print(x_actual)
+            #calculate objective function for current point and its neighborhood (subproblem)
+            if k!=1:
+                kwargs_Feas={'objective':minimum_obj,'epsilon':0.01}# TODO: use this epsilon as input
+                m_feas=model_fun_feas(**kwargs_Feas)
+                sub_options_feasibility={}
+                # sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','optcr 1\n','optca 1000000000\n','feaspump 2\n','MAXCYCLES 20\n','fp_stalllimit 0\n','$offecho \n']}
+                if nlp_solver=='dicopt':
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
+                elif nlp_solver=='baron':
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n',' NumLoc 0\n','$offecho \n']}
+                pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
+                m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)
+                if m_solution.dsda_status=='Optimal':
+                    fobj_actual=pe.value(m_solution.obj_dummy) #minimum_obj #I should extract the solution of the subproblem, but I know that this is going to be its solution
+                else:
+                    fobj_actual=infinity_val
+                if tee==True:
+                    print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
+                #Add points to D
+                D.update({tuple(x_actual):fobj_actual})
+                #print(D)
+                #Calculate new convex hull and dd cuts to the current model
+                #define model
+                if fabs(fobj_actual-minimum_obj)<=1e-5: #or all(fobj_actual<=val for val in D.values()): # if minimum over D, then it is minimum over neighborhood, plus I guarantee that no other neighbor has a better solution 
+                #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if
+                    final_sol=[]
+                    for I_J in m_solution.I_J:
+                        for N in m_solution.N:
+                            if pe.value(m_solution.Z_binary[N,I_J])==1:
+                                final_sol.append(N+1)    
+                    x_actual=final_sol
+                    D.update({tuple(final_sol):fobj_actual})
+                    break
+            m,_=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,3,D)            
+            # for i in x_dict:
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+                #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+            _cost={}# TODO: GENERALIZE THIS!!!!
+            _cost[1]=10
+
+            _cost[2]=15
+            _cost[3]=30
+
+            _cost[4]=5
+            _cost[5]=25
+
+            _cost[6]=5
+            _cost[7]=20
+
+            _cost[8]=20
+            if k==1:
+                m.cuts.add(minimum_obj<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset))  
+            else:
+                m.cuts.add(minimum_obj+epsilon<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)) #TODO: epsilon must be the minimum coefficient in the objective function
+            m.cuts.add(sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)<=m.zobj)           
             #Solve master problem       
             SolverFactory('gams', solver='cplex').solve(m, tee=False)
             if tee==True:
@@ -714,4 +832,224 @@ def run_function_dbd_scheduling_cost_min(model_fun_feas,minimum_obj,epsilon,init
 
 
 
+def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
+# IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
+    #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
+    important_info={}
+    iterations=range(1,maxiter+1)
+    D_random={}
+    initial_Stage=3 #stage where the algorithm will be initialized: 1 is feasibility1, 2 is feasibility2 and 3 is optimality
+    #------------------------------------------REFORMULATION WITH EXTERNAL VARIABLES--------------------------------------------------
+    model = model_fun(**kwargs)
+    _, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=False) 
+    #------------------------------------------PRE PROCESSING-------------------------------------------------------------------------
+    start=time.time()
+    #-----------------------------------D-BD ALGORITHM-----------------------------------------------------------------------
+    if initial_Stage==1 or initial_Stage==2 or initial_Stage==3:
+        if tee==True:
+            print('stage 3...')
+        if initial_Stage==3:
+            x_actual=initialization
+            D={}
+            D=D_random.copy()
+        D.update(known_solutions) # updating dictionary with previously evaluated solutions
+        x_dict={}  #value of x at each iteration
+        fobj_actual=infinity_val
+        start = time.time()
+        for k in iterations:
+            #print(k)
+            #if first iteration, initialize
+            #if k==1:
+            #    x_actual=initialization
+            #print(x_actual)
+            #update current value of x in the dictionary
+            x_dict[k]=x_actual
+            if tee==True and k==1:
+                print('S3---- User provided lower bound= '+str(minimum_obj))
+            #print(x_actual)
+            #calculate objective function for current point and its neighborhood (subproblem)
+            if k!=1:
+                kwargs_Feas={'objective':minimum_obj,'epsilon':0.01}# TODO: use this epsilon as input
+                m_feas=model_fun_feas(**kwargs_Feas)
+                sub_options_feasibility={}
+                sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > cplex.opt \n','intsollim 1\n','mipemphasis 4\n','$offecho \n']}
+                pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
+                m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)
+                if m_solution.dsda_status=='Optimal':
+                    fobj_actual=pe.value(m_solution.obj_dummy)#minimum_obj #I should extract the solution of the subproblem, but I know that this is going to be its solution
+                else:
+                    fobj_actual=infinity_val
+                if tee==True:
+                    print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
+                #Add points to D
+                D.update({tuple(x_actual):fobj_actual})
+                #print(D)
+                #Calculate new convex hull and dd cuts to the current model
+                #define model
+                if fabs(fobj_actual-minimum_obj)<=1e-5: #or all(fobj_actual<=val for val in D.values()): # if minimum over D, then it is minimum over neighborhood, plus I guarantee that no other neighbor has a better solution 
+                #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if
+                    final_sol=[]
+                    for I_J in m_solution.I_J:
+                            final_sol.append(pe.value(m_solution.Nref[I_J])+1)    
+                    x_actual=final_sol
+                    D.update({tuple(final_sol):fobj_actual})
+                    break
+            m,_=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,3,D)            
+            # for i in x_dict:
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+                #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+            _cost={}# TODO: GENERALIZE THIS!!!!
+            _cost[1]=10
 
+            _cost[2]=15
+            _cost[3]=30
+
+            _cost[4]=5
+            _cost[5]=25
+
+            _cost[6]=5
+            _cost[7]=20
+
+            _cost[8]=20
+            if k==1:
+                m.cuts.add(minimum_obj<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset))  
+            else:
+                m.cuts.add(minimum_obj+epsilon<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)) #TODO: epsilon must be the minimum coefficient in the objective function
+            m.cuts.add(sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)<=m.zobj)           
+            #Solve master problem       
+            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+            if tee==True:
+                print('S3--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
+            #Stop?
+            #print([pe.value(m.x1),pe.value(m.x2)])
+            #print(new_values)
+
+            x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+            minimum_obj=pe.value(m.zobj)
+        end = time.time()
+        #print('stage 3: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
+        #print('Cuts calculated from the central points evaluated so far.')
+        #print(x_dict,'\n')
+        important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
+        if tee==True:
+            print('-------------------------------------------')
+            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
+    return important_info,D,x_actual
+
+def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_obj,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
+# IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
+    #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
+    important_info={}
+    iterations=range(1,maxiter+1)
+    D_random={}
+    initial_Stage=3 #stage where the algorithm will be initialized: 1 is feasibility1, 2 is feasibility2 and 3 is optimality
+    #------------------------------------------REFORMULATION WITH EXTERNAL VARIABLES--------------------------------------------------
+    model = model_fun(**kwargs)
+    _, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=False) 
+    #------------------------------------------PRE PROCESSING-------------------------------------------------------------------------
+    start=time.time()
+    #-----------------------------------D-BD ALGORITHM-----------------------------------------------------------------------
+    if initial_Stage==1 or initial_Stage==2 or initial_Stage==3:
+        if tee==True:
+            print('stage 3...')
+        if initial_Stage==3:
+            x_actual=initialization
+            D={}
+            D=D_random.copy()
+        D.update(known_solutions) # updating dictionary with previously evaluated solutions
+        x_dict={}  #value of x at each iteration
+        fobj_actual=infinity_val
+        start = time.time()
+        for k in iterations:
+            #print(k)
+            #if first iteration, initialize
+            #if k==1:
+            #    x_actual=initialization
+            #print(x_actual)
+            #update current value of x in the dictionary
+            x_dict[k]=x_actual
+            if tee==True and k==1:
+                print('S3---- User provided lower bound= '+str(minimum_obj))
+            #print(x_actual)
+            #calculate objective function for current point and its neighborhood (subproblem)
+            if k!=1:
+                kwargs_Feas={'objective':minimum_obj,'epsilon':0.01}# TODO: use this epsilon as input
+                m_feas=model_fun_feas(**kwargs_Feas)
+                sub_options_feasibility={}
+                # sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','optcr 1\n','optca 1000000000\n','feaspump 2\n','MAXCYCLES 20\n','fp_stalllimit 0\n','$offecho \n']}
+                if nlp_solver=='dicopt':
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
+                elif nlp_solver=='baron':
+                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n',' NumLoc 0\n','$offecho \n']}
+                pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
+                m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)
+                if m_solution.dsda_status=='Optimal':
+                    fobj_actual=pe.value(m_solution.obj_dummy) #minimum_obj #I should extract the solution of the subproblem, but I know that this is going to be its solution
+                else:
+                    fobj_actual=infinity_val
+                if tee==True:
+                    print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
+                #Add points to D
+                D.update({tuple(x_actual):fobj_actual})
+                #print(D)
+                #Calculate new convex hull and dd cuts to the current model
+                #define model
+                if fabs(fobj_actual-minimum_obj)<=1e-5: #or all(fobj_actual<=val for val in D.values()): # if minimum over D, then it is minimum over neighborhood, plus I guarantee that no other neighbor has a better solution 
+                #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if
+                
+                    final_sol=[]
+                    for I_J in m_solution.I_J:
+                            final_sol.append(pe.value(m_solution.Nref[I_J])+1)     
+                    x_actual=final_sol
+                    D.update({tuple(final_sol):fobj_actual})   
+                    m_return= m_solution                 
+                    break
+            m,_=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,3,D)            
+            # for i in x_dict:
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+                #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+            _cost={}# TODO: GENERALIZE THIS!!!!
+            _cost[1]=10
+
+            _cost[2]=15
+            _cost[3]=30
+
+            _cost[4]=5
+            _cost[5]=25
+
+            _cost[6]=5
+            _cost[7]=20
+
+            _cost[8]=20
+            if k==1:
+                m.cuts.add(minimum_obj<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset))  
+            else:
+                m.cuts.add(minimum_obj+epsilon<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)) #TODO: epsilon must be the minimum coefficient in the objective function
+            m.cuts.add(sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset)<=m.zobj)           
+            #Solve master problem       
+            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+            if tee==True:
+                print('S3--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
+            #Stop?
+            #print([pe.value(m.x1),pe.value(m.x2)])
+            #print(new_values)
+
+            x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+            minimum_obj=pe.value(m.zobj)
+        end = time.time()
+        #print('stage 3: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
+        #print('Cuts calculated from the central points evaluated so far.')
+        #print(x_dict,'\n')
+        important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
+        if tee==True:
+            print('-------------------------------------------')
+            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
+    return important_info,D,x_actual,m_return

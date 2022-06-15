@@ -1916,32 +1916,32 @@ if __name__ == "__main__":
     #         # if  pe.value(m_solved.Z_binary[N,I_J])>=0.0000000001:
     #             # m.Z_binary[N,I_J].pprint()
 
-    # ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
+    ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
 
-    # model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
-    # model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
-    # logic_fun=problem_logic_scheduling
+    model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
+    model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
+    logic_fun=problem_logic_scheduling
 
-    # master_max_iter=1000#master iterations
-    # initialization=[15,8,23,71,1,45,1,9]
-    # infinity_val=1e+6
-    # min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
-    # nlp_solver='cplex'
-    # neigh=neighborhood_k_eq_2(len(initialization))
-    # maxiter=1000 #benders decomposition
-    # mastertee=True
-    # kwargs={}
-    # m=model_fun_simplified(**kwargs)
-    # ext_ref = {m.Z: m.N} #reformulation sets and variables
+    master_max_iter=1000#master iterations
+    initialization=[15,8,23,71,1,45,1,9]
+    infinity_val=1e+6
+    min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
+    nlp_solver='cplex'
+    neigh=neighborhood_k_eq_2(len(initialization))
+    maxiter=1000 #benders decomposition
+    mastertee=True
+    kwargs={}
+    m=model_fun_simplified(**kwargs)
+    ext_ref = {m.Z: m.N} #reformulation sets and variables
 
-    # lower_obj=1639.375000 #initialization of cut
-    # #lower_obj=1664
-    # start=time.time()
+    lower_obj=1639.375000 #initialization of cut
+    #lower_obj=1664
+    start=time.time()
 
-    # [important_info,D,x_actual]=run_function_dbd_scheduling_cost_min(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
+    [important_info,D,x_actual]=run_function_dbd_scheduling_cost_min(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
 
 
-    ###-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
+    ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
 
 
     model_fun =build_scheduling_Original_cost_min
@@ -1974,7 +1974,7 @@ if __name__ == "__main__":
         '$offecho \n']}
 
     start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
+    m_solved=solve_subproblem(m,subproblem_solver = 'xpress',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
     end=time.time()
     print('CPLEX time (reformulated)='+str(end-start))
 
