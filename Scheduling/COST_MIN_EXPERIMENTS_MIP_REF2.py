@@ -1856,23 +1856,23 @@ if __name__ == "__main__":
     # ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
 
 
-    # model_fun =build_scheduling_Original_cost_min
-    # kwargs={}
-    # logic_fun=problem_logic_scheduling
-    # # #CPLEX solution
-    # # m=model_fun(**kwargs)
-    # # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    # # options=    {'add_options':[
-    # #     'GAMS_MODEL.optfile = 1;'
-    # #     '\n'
-    # #     '$onecho > cplex.opt \n'
-    # #     'mipemphasis 4\n'
-    # #     '$offecho \n']}
+    model_fun =build_scheduling_Original_cost_min
+    kwargs={}
+    logic_fun=problem_logic_scheduling
+    #CPLEX solution
+    m=model_fun(**kwargs)
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    options=    {'add_options':[
+        'GAMS_MODEL.optfile = 1;'
+        '\n'
+        '$onecho > cplex.opt \n'
+        'mipemphasis 1\n'
+        '$offecho \n']}
 
-    # # start=time.time()
-    # # m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
-    # # end=time.time()
-    # # print('CPLEX time ='+str(end-start))
+    start=time.time()
+    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 18000,gams_output = False,tee= True,rel_tol = 0)   
+    end=time.time()
+    print('CPLEX time ='+str(end-start))
 
     # CPLEX solution reformulated
     model_fun =build_scheduling_Boolean_cost_min
@@ -1882,11 +1882,11 @@ if __name__ == "__main__":
         'GAMS_MODEL.optfile = 1;'
         '\n'
         '$onecho > cplex.opt \n'
-        'mipemphasis 0\n'
+        'mipemphasis 1\n'
         '$offecho \n']}
 
     start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
+    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 18000,gams_output = False,tee= True,rel_tol = 0)   
     end=time.time()
     print('CPLEX time (reformulated)='+str(end-start))
 

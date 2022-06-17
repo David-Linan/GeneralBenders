@@ -2090,33 +2090,33 @@ if __name__ == "__main__":
 
     [important_info,D,x_actual,m_solved]=run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
 
-    textbuffer = io.StringIO()
-    for v in m_solved.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    for v in m_solved.component_data_objects(pe.Objective, descend_into=True):
-        textbuffer.write('Objective value '+str(pe.value(v)))
-        textbuffer.write('\n')
-        # v.pprint(textbuffer)
-        # textbuffer.write('\n')
-    with open('MINLP_LBBD_solution_dicopt.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m_solved.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # for v in m_solved.component_data_objects(pe.Objective, descend_into=True):
+    #     textbuffer.write('Objective value '+str(pe.value(v)))
+    #     textbuffer.write('\n')
+    #     # v.pprint(textbuffer)
+    #     # textbuffer.write('\n')
+    # with open('MINLP_LBBD_solution_dicopt.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
     # ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
     kwargs={}
     # # DICOPT solution reformulated
     model_fun =build_scheduling_Boolean_cost_min
     m=model_fun(**kwargs)
     pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    #options=    {'add_options':[
-        # 'GAMS_MODEL.optfile = 1;'
-        # '\n'
-        # '$onecho > baron.opt \n'
-        # '$offecho \n']}
-    options={}
+    options=    {'add_options':[
+        'GAMS_MODEL.optfile = 1;'
+        '\n'
+        '$onecho > dicopt.opt \n'
+        'feaspump 2\n'
+        '$offecho \n']}
     start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'sbb',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
+    m_solved=solve_subproblem(m,subproblem_solver = 'dicopt',subproblem_solver_options= options,timelimit= 18000,gams_output = False,tee= True,rel_tol = 0)   
     end=time.time()
-    print('BARON time (reformulated)='+str(end-start))
+    print('DICOPT time (reformulated)='+str(end-start))
 
 
     # model_fun =build_scheduling_Original_cost_min
@@ -2128,12 +2128,13 @@ if __name__ == "__main__":
     #     'GAMS_MODEL.optfile = 1;'
     #     '\n'
     #     '$onecho > dicopt.opt \n'
+    #     'feaspump 2\n'        
     #     '$offecho \n']}
 
     # start=time.time()
-    # m_solved=solve_subproblem(m,subproblem_solver = 'baron',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
+    # m_solved=solve_subproblem(m,subproblem_solver = 'dicopt',subproblem_solver_options= options,timelimit= 18000,gams_output = False,tee= True,rel_tol = 0)   
     # end=time.time()
-    # print('BARON time ='+str(end-start))
+    # print('DICOPT time ='+str(end-start))
 
 
 

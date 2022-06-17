@@ -872,7 +872,7 @@ def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilo
                 kwargs_Feas={'objective':minimum_obj,'epsilon':0.01}# TODO: use this epsilon as input
                 m_feas=model_fun_feas(**kwargs_Feas)
                 sub_options_feasibility={}
-                sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > cplex.opt \n','intsollim 1\n','mipemphasis 4\n','$offecho \n']}
+                sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > cplex.opt \n','intsollim 1\n','mipemphasis 1\n','$offecho \n']}
                 pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
                 m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)
                 if m_solution.dsda_status=='Optimal':
