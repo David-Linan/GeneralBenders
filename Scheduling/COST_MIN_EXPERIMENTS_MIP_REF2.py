@@ -1850,8 +1850,8 @@ if __name__ == "__main__":
     #lower_obj=1664
     start=time.time()
 
-    [important_info,D,x_actual]=run_function_dbd_scheduling_cost_min_ref_2(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
-
+    [important_info,D,x_actual,m_solved]=run_function_dbd_scheduling_cost_min_ref_2(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
+    to_gantt=generate_initialization(m=m_solved,model_name='to_gantt_MIP')
 
     # ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
 
@@ -1875,20 +1875,20 @@ if __name__ == "__main__":
     print('CPLEX time ='+str(end-start))
 
     # CPLEX solution reformulated
-    model_fun =build_scheduling_Boolean_cost_min
-    m=model_fun(**kwargs)
-    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    options=    {'add_options':[
-        'GAMS_MODEL.optfile = 1;'
-        '\n'
-        '$onecho > cplex.opt \n'
-        'mipemphasis 1\n'
-        '$offecho \n']}
+    # model_fun =build_scheduling_Boolean_cost_min
+    # m=model_fun(**kwargs)
+    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    # options=    {'add_options':[
+    #     'GAMS_MODEL.optfile = 1;'
+    #     '\n'
+    #     '$onecho > cplex.opt \n'
+    #     'mipemphasis 1\n'
+    #     '$offecho \n']}
 
-    start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 18000,gams_output = False,tee= True,rel_tol = 0)   
-    end=time.time()
-    print('CPLEX time (reformulated)='+str(end-start))
+    # start=time.time()
+    # m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 18000,gams_output = False,tee= True,rel_tol = 0)   
+    # end=time.time()
+    # print('CPLEX time (reformulated)='+str(end-start))
 
 
 

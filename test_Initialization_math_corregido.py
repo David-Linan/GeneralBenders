@@ -308,7 +308,7 @@ def build_master(lower_b,upper_b,current,stage,D,use_random: bool=False):
 
 
 
-def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10):
+def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10, tee: bool=False):
     #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
     important_info={}
     iterations=range(1,maxiter+1)
@@ -316,7 +316,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
     initial_Stage=1 #stage where the algorithm will be initialized: 1 is feasibility1, 2 is feasibility2 and 3 is optimality
     #------------------------------------------REFORMULATION WITH EXTERNAL VARIABLES--------------------------------------------------
     model = model_fun(**kwargs)
-    reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) #TODO: use the number of external variables in functions that requrie it, e.g., master problem function
+    reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=False) #TODO: use the number of external variables in functions that requrie it, e.g., master problem function
 
     #------------------------------------------PRE PROCESSING-------------------------------------------------------------------------
     start=time.time()
@@ -449,7 +449,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         end = time.time()
         #print('stage 1: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
         #print('Cuts calculated from the central points evaluated so far.')
-        print('evaluated stage 1',x_dict,'\n')
+        #print('evaluated stage 1',x_dict,'\n')
         important_info['m3_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
         #rewrite the dictionary for stages 2: infinity value for infieasible values and remove the feasible entry
         for j in D:
@@ -469,6 +469,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         fobj_actual=infinity_val
         start = time.time()
         for k in iterations:
+
             #if first iteration, initialize
             #if k==1:
             #    x_actual=initialization
@@ -519,7 +520,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         end = time.time()
         #print('stage 2: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
         #print('Cuts calculated from the central points evaluated so far.')
-        print('evaluated stage 2',x_dict,'\n')
+        #print('evaluated stage 2',x_dict,'\n')
         important_info['m3_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
         #rewrite the dictionary for stages 3: infinity value for infieasible values and remove the feasible entry
         for j in D:
@@ -538,6 +539,9 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         fobj_actual=infinity_val
         start = time.time()
         for k in iterations:
+            if tee==True:
+                print('--------------Iteration ',str(k),'--------------------------------------------')
+                print('ext_var e_',str(k),'=',str(x_actual))
             #if first iteration, initialize
             #if k==1:
             #    x_actual=initialization
@@ -548,23 +552,32 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #calculate objective function for current point and its neighborhood (subproblem)
             new_values,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs)
             fobj_actual=list(new_values.values())[0]
+            if tee==True:
+                print('Subproblem objective','f*(e_',str(k),')= ',str(fobj_actual))
             #Add points to D
             D.update(new_values)
             #print(D)
             #Calculate new convex hull and dd cuts to the current model
             #define model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)            
+            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)  
+            if tee==True:
+                print('List of updated cuts:')
+            contador=0                          
             for i in x_dict:
+                contador=contador+1
                 cuts=convex_clousure(D,x_dict[i])
                 #print(cuts)
                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
-            
+                if tee==True:
+                    print('Cut ',str(contador),': ',str(float(cuts[0])),'*x1  +  ',str(float(cuts[1])),'*x2  +',str(float(cuts[2])),'  <=  z')
             #Solve master problem       
             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
             #Stop?
             #print([pe.value(m.x1),pe.value(m.x2)])
             #print(new_values)
+            if tee==True:
+                print('Master objective','z_',str(k+1),'= ',str(pe.value(m.zobj)))
             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
             #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
             #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
@@ -576,7 +589,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         end = time.time()
         #print('stage 3: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
         #print('Cuts calculated from the central points evaluated so far.')
-        print('evaluated stage 3',x_dict,'\n')
+        #print('evaluated stage 3',x_dict,'\n')
         important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
     return important_info,important_info_preprocessing,D,x_dict
 
@@ -603,23 +616,38 @@ if __name__ == "__main__":
 
 
 
-
-    info_solver,info_preprocess,evaluated,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
+    solve_with_dsda(model_fun,{},initialization,ext_ref,logic_fun,provide_starting_initialization=True,feasible_model='dsda',subproblem_solver = nlp_solver,global_tee=True,rel_tol = 0)
+    info_solver,info_preprocess,evaluated,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points,tee=True)
     #print(evaluated)
     print(info_solver)
     print(info_preprocess)
 
 
     last={}
+    last_dsda={}
+    req_time_dbd={}
+    req_time_dsda={}
     for i in range(1,6):
         for j in range(1,6):
             initalization=[i,j]
-            _,_,_,dictt=run_function_dbd(initalization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
+            in_time=time.time()
+            _,_,_,dictt=run_function_dbd(initalization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points,tee=False)
+            end_time=time.time()
             last[tuple(initalization)]=dictt[list(dictt)[-1]]
+            req_time_dbd[tuple(initalization)]=end_time-in_time
+
+            in_time=time.time()
+            _,route_dsda,_=solve_with_dsda(model_fun,{},initalization,ext_ref,logic_fun,provide_starting_initialization=True,feasible_model='dsda',subproblem_solver = nlp_solver,global_tee=False,rel_tol = 0)
+            end_time=time.time()
+            last_dsda[tuple(initalization)]=route_dsda[-1]
+            req_time_dsda[tuple(initalization)]=end_time-in_time
 
     print(last)
-
-
+    print(last_dsda)
+    print(req_time_dbd)
+    print(req_time_dsda)
+    print('average time LDBD=',(sum(i for i in req_time_dbd.values()))/(len(req_time_dbd)))
+    print("average time DSDA=",(sum(i for i in req_time_dsda.values()))/(len(req_time_dsda)))
 
 
 

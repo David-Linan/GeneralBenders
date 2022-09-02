@@ -590,8 +590,7 @@ if __name__ == "__main__":
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
-
-    #--------------------one run----------------------------------------------------------------
+    # #--------------------one run with multistart----------------------------------------------------------------
     # #INIT_VALUES
     # kwargs={'NT': 5}
     # model_fun =build_cstrs
@@ -603,7 +602,7 @@ if __name__ == "__main__":
     # nlp_solver='MSNLP'
     # neigh=neighborhood_k_eq_inf(2)
     # maxiter=100
-    # points=5
+    # points=25
 
 
 
@@ -611,49 +610,77 @@ if __name__ == "__main__":
     # #print(evaluated)
     # print(info_solver)
     # print(info_preprocess)
-
-    #-----------------multiple_runs_test-------------------------------------------------------
-
+    #--------------------what if one sampling point----------------------------------------------------------------
     #INIT_VALUES
-    # kwargs={'NT': 5}
-    # model_fun =build_cstrs
-    # logic_fun=problem_logic_cstr
-    # model=model_fun(**kwargs)
-    # ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
-    # initialization=[1,1] 
-    # infinity_val=1e+5
-    # nlp_solver='msnlp'
-    # neigh=neighborhood_k_eq_inf(2)
-    # maxiter=100
+    kwargs={'NT': 5}
+    model_fun =build_cstrs
+    logic_fun=problem_logic_cstr
+    model=model_fun(**kwargs)
+    ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables 
+    infinity_val=1e+5
+    nlp_solver='MSNLP'
+    neigh=neighborhood_k_eq_inf(2)
+    maxiter=100
+    points=1
 
 
-    # runs_dict={}
+    num_global=0
+    for i in range(1,6):
+        for j in range(1,6):
+            initialization=[i,j]
+            start=time.time()
+            info_solver,info_preprocess,evaluated=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
+            end=time.time()
+            #print(evaluated)
+            print('----Init=',initialization)
+            print('objective=',info_solver['m3_s3'][0])
+            print('time=',end-start)
+            if info_solver['m3_s3'][0]<= 3.08:
+                num_global=num_global+1
+            print(num_global,'/25 times that the global optimum was found')
+
+    # #-----------------multiple_runs_test-------------------------------------------------------
+
+    # # INIT_VALUES
+    # # kwargs={'NT': 5}
+    # # model_fun =build_cstrs
+    # # logic_fun=problem_logic_cstr
+    # # model=model_fun(**kwargs)
+    # # ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
+    # # initialization=[1,1] 
+    # # infinity_val=1e+5
+    # # nlp_solver='msnlp'
+    # # neigh=neighborhood_k_eq_inf(2)
+    # # maxiter=100
+
+
+    # # runs_dict={}
 
     
-    # for points in range(2,26):
-    #     print(points)
-    #     for runs in range(15):
-    #         try:
-    #             info_solver,info_preprocess,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=True,n_points_multstart=points)
-    #             cpu_time_solver=sum([info_solver[k][1]   for k in info_solver.keys()])
-    #             cpu_time_multi=info_preprocess[1]
-    #             #print(len(info_preprocess[0])) actual number of random samples evaluated
-    #             total_cpu=cpu_time_solver+cpu_time_multi
-    #             try:
-    #                 objective_found=info_solver['m3_s3'][0]
-    #             except:
-    #                 objective_found=infinity_val
-    #             runs_dict[(points,runs)]=[objective_found,total_cpu,cpu_time_multi,cpu_time_solver]  #objective function,total cpu time,cpu time multis,cpu time solver
-    #         except:
-    #             runs_dict[(points,runs)]=[infinity_val,infinity_val,infinity_val,infinity_val]
-    #         print(runs_dict[(points,runs)])
-    # dictionary_data = runs_dict
+    # # for points in range(2,26):
+    # #     print(points)
+    # #     for runs in range(15):
+    # #         try:
+    # #             info_solver,info_preprocess,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=True,n_points_multstart=points)
+    # #             cpu_time_solver=sum([info_solver[k][1]   for k in info_solver.keys()])
+    # #             cpu_time_multi=info_preprocess[1]
+    # #             #print(len(info_preprocess[0])) actual number of random samples evaluated
+    # #             total_cpu=cpu_time_solver+cpu_time_multi
+    # #             try:
+    # #                 objective_found=info_solver['m3_s3'][0]
+    # #             except:
+    # #                 objective_found=infinity_val
+    # #             runs_dict[(points,runs)]=[objective_found,total_cpu,cpu_time_multi,cpu_time_solver]  #objective function,total cpu time,cpu time multis,cpu time solver
+    # #         except:
+    # #             runs_dict[(points,runs)]=[infinity_val,infinity_val,infinity_val,infinity_val]
+    # #         print(runs_dict[(points,runs)])
+    # # dictionary_data = runs_dict
 
-    # #a_file = open("data_cstr_5_reactors_multistart.pkl", "wb")
-    # #pickle.dump(dictionary_data, a_file)
-    # #a_file.close()
+    # # #a_file = open("data_cstr_5_reactors_multistart.pkl", "wb")
+    # # #pickle.dump(dictionary_data, a_file)
+    # # #a_file.close()
 
-    #-----------------------Solve with GDP solvers----------------------------------
+    # #-----------------------Solve with GDP solvers----------------------------------
 
     #     #GENERATE INITIALIZATION
     # kwargs={'NT': 5}

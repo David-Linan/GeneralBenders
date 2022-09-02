@@ -880,7 +880,7 @@ def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilo
                 else:
                     fobj_actual=infinity_val
                 if tee==True:
-                    print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
+                    print('S3--'+'--iter '+str(k-1)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
                 #Add points to D
                 D.update({tuple(x_actual):fobj_actual})
                 #print(D)
@@ -895,6 +895,7 @@ def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilo
                             final_sol.append(pe.value(m_solution.Nref[I_J])+1)    
                     x_actual=final_sol
                     D.update({tuple(final_sol):fobj_actual})
+                    m_return= m_solution                     
                     break
             m,_=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,3,D)            
             # for i in x_dict:
@@ -923,7 +924,7 @@ def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilo
             #Solve master problem       
             SolverFactory('gams', solver='cplex').solve(m, tee=False)
             if tee==True:
-                print('S3--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
+                print('S3--'+'--iter '+str(k-1)+'---   |   master. obj= '+str(pe.value(m.zobj)))
             #Stop?
             #print([pe.value(m.x1),pe.value(m.x2)])
             #print(new_values)
@@ -938,9 +939,9 @@ def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilo
         if tee==True:
             print('-------------------------------------------')
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
-    return important_info,D,x_actual
+    return important_info,D,x_actual,m_return
 
-def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_obj,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
+def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_obj,absolute_gap,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
     #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
     important_info={}
@@ -964,6 +965,20 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
         x_dict={}  #value of x at each iteration
         fobj_actual=infinity_val
         start = time.time()
+
+        sub_options_feasibility={}
+        if nlp_solver=='dicopt':
+            sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
+        elif nlp_solver=='baron':
+            sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n','$offecho \n']}
+        elif nlp_solver=='lindoglobal':
+            sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > lindoglobal.opt \n',' GOP_OPT_MODE 0\n','$offecho \n']}
+        elif nlp_solver=='antigone':
+            sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > antigone.opt \n','abs_opt_tol 100\n','rel_opt_tol 1\n','$offecho \n']}
+        elif nlp_solver=='sbb':
+            sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > sbb.opt \n','intsollim 1\n','$offecho \n']}                
+        elif nlp_solver=='bonmin':
+            sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > bonmin.opt \n','bonmin.pump_for_minlp yes\n','pump_for_minlp.solution_limit 1\n','solution_limit 1\n','$offecho \n']}   
         for k in iterations:
             #print(k)
             #if first iteration, initialize
@@ -977,32 +992,23 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
             #print(x_actual)
             #calculate objective function for current point and its neighborhood (subproblem)
             if k!=1:
-                kwargs_Feas={'objective':minimum_obj,'epsilon':0.01}# TODO: use this epsilon as input
+                kwargs_Feas={'objective':minimum_obj,'epsilon':absolute_gap}# TODO: use this epsilon as input
                 m_feas=model_fun_feas(**kwargs_Feas)
-                sub_options_feasibility={}
-                # sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','optcr 1\n','optca 1000000000\n','feaspump 2\n','MAXCYCLES 20\n','fp_stalllimit 0\n','$offecho \n']}
-                if nlp_solver=='dicopt':
-                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
-                elif nlp_solver=='baron':
-                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n','$offecho \n']}
-                elif nlp_solver=='lindoglobal':
-                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > lindoglobal.opt \n',' GOP_OPT_MODE 0\n','$offecho \n']}
-                elif nlp_solver=='antigone':
-                    sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > antigone.opt \n','$offecho \n']}
                 pe.TransformationFactory('core.logical_to_linear').apply_to(m_feas)
                 m_solution=solve_subproblem(m_feas,subproblem_solver = nlp_solver,subproblem_solver_options= sub_options_feasibility,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)
+                
                 if m_solution.dsda_status=='Optimal':
                     fobj_actual=pe.value(m_solution.obj_dummy) #minimum_obj #I should extract the solution of the subproblem, but I know that this is going to be its solution
                 else:
                     fobj_actual=infinity_val
                 if tee==True:
-                    print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
+                    print('S3--'+'--iter '+str(k-1)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
                 #Add points to D
                 D.update({tuple(x_actual):fobj_actual})
                 #print(D)
                 #Calculate new convex hull and dd cuts to the current model
                 #define model
-                if fabs(fobj_actual-minimum_obj)<=1e-5: #or all(fobj_actual<=val for val in D.values()): # if minimum over D, then it is minimum over neighborhood, plus I guarantee that no other neighbor has a better solution 
+                if fabs(fobj_actual-minimum_obj)<=absolute_gap: #or all(fobj_actual<=val for val in D.values()): # if minimum over D, then it is minimum over neighborhood, plus I guarantee that no other neighbor has a better solution 
                 #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
                 #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
                 #if
@@ -1012,7 +1018,9 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
                             final_sol.append(pe.value(m_solution.Nref[I_J])+1)     
                     x_actual=final_sol
                     D.update({tuple(final_sol):fobj_actual})   
-                    m_return= m_solution                 
+                    m_return= m_solution 
+                    actual_absolute_gap= fabs(fobj_actual-minimum_obj) 
+                    actual_relative_gap=(actual_absolute_gap/fabs(minimum_obj))*100              
                     break
             m,_=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,3,D)            
             # for i in x_dict:
@@ -1041,7 +1049,7 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
             #Solve master problem       
             SolverFactory('gams', solver='cplex').solve(m, tee=False)
             if tee==True:
-                print('S3--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
+                print('S3--'+'--iter '+str(k-1)+'---   |   master. obj= '+str(pe.value(m.zobj)))
             #Stop?
             #print([pe.value(m.x1),pe.value(m.x2)])
             #print(new_values)
@@ -1056,4 +1064,5 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
         if tee==True:
             print('-------------------------------------------')
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
+            print('optca=',str(actual_absolute_gap),'| optcr=',str(actual_relative_gap),'%')
     return important_info,D,x_actual,m_return

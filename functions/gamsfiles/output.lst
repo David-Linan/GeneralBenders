@@ -1,0 +1,70 @@
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 06/20/22 16:15:15 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+
+
+COMPILATION TIME     =        0.028 SECONDS      4 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 06/20/22 16:15:15 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 12420
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS       3,537     SINGLE EQUATIONS        3,537
+BLOCKS OF VARIABLES       3,049     SINGLE VARIABLES        3,049  141 projected
+NON ZERO ELEMENTS        14,743     NON LINEAR N-Z          4,809
+CODE LENGTH               9,617     CONSTANT POOL              16     DISCRETE VARIABLES        976
+
+
+GENERATION TIME      =        0.055 SECONDS      7 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 06/20/22 16:15:15 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 12420
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  ALPHAECP            FROM LINE  12420
+
+**** SOLVER STATUS     3 Resource Interrupt        
+**** MODEL STATUS      14 No Solution Returned     
+**** OBJECTIVE VALUE               NA
+
+ RESOURCE USAGE, LIMIT       1002.030      1000.000
+ ITERATION COUNT, LIMIT      1100    2147483647
+ EVALUATION ERRORS              0             0
+
+AlphaECP         34.3.0 rac355f3 Released Feb 25, 2021 LEG x86 64bit/Linux    
+
+*** Error Cannot open parameter file "/home/dadapy/GeneralBenders/functions/gamsfiles/alphaecp.opt"
+*** Error Error code = 2; No such file or directory
+
+No solution returned
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 06/20/22 16:15:15 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+**** REPORT FILE SUMMARY
+
+results /home/dadapy/GeneralBenders/functions/gamsfiles/results.dat
+statresults /home/dadapy/GeneralBenders/functions/gamsfiles/resultsstat.dat
+
+
+EXECUTION TIME       =     1002.203 SECONDS      7 MB  34.3.0 rac355f3 LEX-LEG
+
+
+USER: Eval License                                   G210401|0002AS-GEN
+      Carnegie Mellon University, Dept. of Chemical Engineering  DCE375
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      /home/dadapy/GeneralBenders/functions/gamsfiles/model.gms
+Output     /home/dadapy/GeneralBenders/functions/gamsfiles/output.lst

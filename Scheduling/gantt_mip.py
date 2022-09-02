@@ -1,9 +1,10 @@
+# Importing the matplotlib.pyplot
 from __future__ import division
 from pickle import TRUE
 
 import sys
 sys.path.insert(0, '/home/dadapy/GeneralBenders/')
-from functions.d_bd_functions import run_function_dbd,run_function_dbd_scheduling_cost_min_nonlinear_ref_2
+from functions.d_bd_functions import run_function_dbd,run_function_dbd_scheduling_cost_min_ref_2
 from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model
 import pyomo.environ as pe
 from pyomo.gdp import Disjunct, Disjunction
@@ -13,6 +14,7 @@ import io
 import time
 from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
 import logging
+import matplotlib.pyplot as plt
 def problem_logic_scheduling(m):
     logic_expr = []
     for N in m.N:
@@ -67,6 +69,7 @@ def build_scheduling_Boolean_cost_min():
 
     m.I_i_k_plus=pe.Param(m.I,m.K,initialize=_I_i_k_plus,default=0,doc="Task-state mapping: inputs to states")
 
+
     _rho_minus={}
     _rho_minus['T1','S1']=1
 
@@ -80,11 +83,8 @@ def build_scheduling_Boolean_cost_min():
     _rho_minus['T4','S3']=0.2
 
     _rho_minus['T5','S7']=1  
-    m.rho_minus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_minus,doc="Fraction of material in state k consumed by task i ")
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
 
-    def _rho_minus_sum(m,I):
-        return sum(m.rho_minus[I,K] for K in m.K if m.I_i_k_minus[I,K]==1)==1
-    m.rho_minus_sum=pe.Constraint(m.I, rule=_rho_minus_sum,doc='Sum of fractions must be equal to 1')
 
     _rho_plus={}
     _rho_plus['T1','S4']=1
@@ -98,11 +98,8 @@ def build_scheduling_Boolean_cost_min():
 
     _rho_plus['T5','S6']=0.1
     _rho_plus['T5','S9']=0.9
-    m.rho_plus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_plus,doc="Fraction of material in state k produced by task i ")
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
 
-    def _rho_plus_sum(m,I):
-        return sum(m.rho_plus[I,K] for K in m.K if m.I_i_k_plus[I,K]==1)==1
-    m.rho_plus_sum=pe.Constraint(m.I, rule=_rho_plus_sum,doc='Sum of fractions must be equal to 1')
 
 
     _I_i_j_prod={}
@@ -204,7 +201,7 @@ def build_scheduling_Boolean_cost_min():
     m.revenue=pe.Param(m.K,default=0,initialize={'S8':3,'S9':4},doc='revenue from selling one unit of material k')
 
     #VARIABLES------------------ 
-    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,doc='1 if unit j processes task i starting at time t')   
+    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,initialize=0,doc='1 if unit j processes task i starting at time t')   
     # help(pe.Var)
     m.B=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,doc='Batch size of task i processed in unit j starting at time t')
     def _S_bounds(m,K,T):
@@ -253,41 +250,6 @@ def build_scheduling_Boolean_cost_min():
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
 
-    #rho constraints
-    def _crho_1(m):
-        return m.rho_minus['T2','S3']>=0.4 
-    m.crho_1=pe.Constraint(rule=_crho_1,doc='rho constraint 1')
-
-    def _crho_2(m):
-        return m.rho_minus['T2','S2']>=0.1 
-    m.crho_2=pe.Constraint(rule=_crho_2,doc='rho constraint 2')
-
-    def _crho_3(m):
-        return m.rho_minus['T4','S3']>=0.15
-    m.crho_3=pe.Constraint(rule=_crho_3,doc='rho constraint 3')
-
-    def _crho_4(m):
-        return m.rho_minus['T4','S6']>=0.7
-    m.crho_4=pe.Constraint(rule=_crho_4,doc='rho constraint 4')
-
-    def _crho_5(m):
-        return m.rho_minus['T3','S4']>=0.1
-    m.crho_5=pe.Constraint(rule=_crho_5,doc='rho constraint 5')
-
-    def _crho_6(m):
-        return m.rho_minus['T3','S5']>=0.3 
-    m.crho_6=pe.Constraint(rule=_crho_6,doc='rho constraint 6')
-
-    def _crho_7(m):
-        return m.rho_minus['T3','S4']==m.rho_plus['T3','S8']
-    m.crho_7=pe.Constraint(rule=_crho_7,doc='rho constraint 7')
-
-    def _crho_8(m):
-        return m.rho_plus['T5','S6']==m.rho_minus['T4','S6']-3.5*m.rho_minus['T4','S3']
-    m.crho_8=pe.Constraint(rule=_crho_8,doc='rho constraint 8')
-    def _crho_9(m):
-        return m.rho_plus['T5','S9']<=0.9
-    m.crho_9=pe.Constraint(rule=_crho_9,doc='rho constraint 9')
     #OBJECTIVE----------------
     # cost minimization
     def _obj(m):
@@ -317,6 +279,8 @@ def build_scheduling_Boolean_cost_min():
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')
   
+   
+
 
     return m
    
@@ -380,11 +344,8 @@ def build_scheduling_Original_cost_min():
     _rho_minus['T4','S3']=0.2
 
     _rho_minus['T5','S7']=1  
-    m.rho_minus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_minus,doc="Fraction of material in state k consumed by task i ")
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
 
-    def _rho_minus_sum(m,I):
-        return sum(m.rho_minus[I,K] for K in m.K if m.I_i_k_minus[I,K]==1)==1
-    m.rho_minus_sum=pe.Constraint(m.I, rule=_rho_minus_sum,doc='Sum of fractions must be equal to 1')
 
     _rho_plus={}
     _rho_plus['T1','S4']=1
@@ -398,11 +359,7 @@ def build_scheduling_Original_cost_min():
 
     _rho_plus['T5','S6']=0.1
     _rho_plus['T5','S9']=0.9
-    m.rho_plus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_plus,doc="Fraction of material in state k produced by task i ")
-
-    def _rho_plus_sum(m,I):
-        return sum(m.rho_plus[I,K] for K in m.K if m.I_i_k_plus[I,K]==1)==1
-    m.rho_plus_sum=pe.Constraint(m.I, rule=_rho_plus_sum,doc='Sum of fractions must be equal to 1')
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
 
 
 
@@ -553,41 +510,7 @@ def build_scheduling_Original_cost_min():
     def _E3_BALANCE_INIT(m,K):
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
-    #rho constraints
-    def _crho_1(m):
-        return m.rho_minus['T2','S3']>=0.4 
-    m.crho_1=pe.Constraint(rule=_crho_1,doc='rho constraint 1')
 
-    def _crho_2(m):
-        return m.rho_minus['T2','S2']>=0.1 
-    m.crho_2=pe.Constraint(rule=_crho_2,doc='rho constraint 2')
-
-    def _crho_3(m):
-        return m.rho_minus['T4','S3']>=0.15
-    m.crho_3=pe.Constraint(rule=_crho_3,doc='rho constraint 3')
-
-    def _crho_4(m):
-        return m.rho_minus['T4','S6']>=0.7
-    m.crho_4=pe.Constraint(rule=_crho_4,doc='rho constraint 4')
-
-    def _crho_5(m):
-        return m.rho_minus['T3','S4']>=0.1
-    m.crho_5=pe.Constraint(rule=_crho_5,doc='rho constraint 5')
-
-    def _crho_6(m):
-        return m.rho_minus['T3','S5']>=0.3 
-    m.crho_6=pe.Constraint(rule=_crho_6,doc='rho constraint 6')
-
-    def _crho_7(m):
-        return m.rho_minus['T3','S4']==m.rho_plus['T3','S8']
-    m.crho_7=pe.Constraint(rule=_crho_7,doc='rho constraint 7')
-
-    def _crho_8(m):
-        return m.rho_plus['T5','S6']==m.rho_minus['T4','S6']-3.5*m.rho_minus['T4','S3']
-    m.crho_8=pe.Constraint(rule=_crho_8,doc='rho constraint 8')
-    def _crho_9(m):
-        return m.rho_plus['T5','S9']<=0.9
-    m.crho_9=pe.Constraint(rule=_crho_9,doc='rho constraint 9')
     #OBJECTIVE----------------
     # cost minimization
     def _obj(m):
@@ -661,11 +584,8 @@ def build_scheduling_Boolean_profit_max():
     _rho_minus['T4','S3']=0.2
 
     _rho_minus['T5','S7']=1  
-    m.rho_minus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_minus,doc="Fraction of material in state k consumed by task i ")
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
 
-    def _rho_minus_sum(m,I):
-        return sum(m.rho_minus[I,K] for K in m.K if m.I_i_k_minus[I,K]==1)==1
-    m.rho_minus_sum=pe.Constraint(m.I, rule=_rho_minus_sum,doc='Sum of fractions must be equal to 1')
 
     _rho_plus={}
     _rho_plus['T1','S4']=1
@@ -679,11 +599,7 @@ def build_scheduling_Boolean_profit_max():
 
     _rho_plus['T5','S6']=0.1
     _rho_plus['T5','S9']=0.9
-    m.rho_plus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_plus,doc="Fraction of material in state k produced by task i ")
-
-    def _rho_plus_sum(m,I):
-        return sum(m.rho_plus[I,K] for K in m.K if m.I_i_k_plus[I,K]==1)==1
-    m.rho_plus_sum=pe.Constraint(m.I, rule=_rho_plus_sum,doc='Sum of fractions must be equal to 1')
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
 
 
 
@@ -827,41 +743,7 @@ def build_scheduling_Boolean_profit_max():
     def _E3_BALANCE_INIT(m,K):
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
-    #rho constraints
-    def _crho_1(m):
-        return m.rho_minus['T2','S3']>=0.4 
-    m.crho_1=pe.Constraint(rule=_crho_1,doc='rho constraint 1')
 
-    def _crho_2(m):
-        return m.rho_minus['T2','S2']>=0.1 
-    m.crho_2=pe.Constraint(rule=_crho_2,doc='rho constraint 2')
-
-    def _crho_3(m):
-        return m.rho_minus['T4','S3']>=0.15
-    m.crho_3=pe.Constraint(rule=_crho_3,doc='rho constraint 3')
-
-    def _crho_4(m):
-        return m.rho_minus['T4','S6']>=0.7
-    m.crho_4=pe.Constraint(rule=_crho_4,doc='rho constraint 4')
-
-    def _crho_5(m):
-        return m.rho_minus['T3','S4']>=0.1
-    m.crho_5=pe.Constraint(rule=_crho_5,doc='rho constraint 5')
-
-    def _crho_6(m):
-        return m.rho_minus['T3','S5']>=0.3 
-    m.crho_6=pe.Constraint(rule=_crho_6,doc='rho constraint 6')
-
-    def _crho_7(m):
-        return m.rho_minus['T3','S4']==m.rho_plus['T3','S8']
-    m.crho_7=pe.Constraint(rule=_crho_7,doc='rho constraint 7')
-
-    def _crho_8(m):
-        return m.rho_plus['T5','S6']==m.rho_minus['T4','S6']-3.5*m.rho_minus['T4','S3']
-    m.crho_8=pe.Constraint(rule=_crho_8,doc='rho constraint 8')
-    def _crho_9(m):
-        return m.rho_plus['T5','S9']<=0.9
-    m.crho_9=pe.Constraint(rule=_crho_9,doc='rho constraint 9')
     #OBJECTIVE----------------
     # cost minimization
     # def _obj(m):
@@ -874,7 +756,7 @@ def build_scheduling_Boolean_profit_max():
     m.obj=pe.Objective(rule=_obj,sense=pe.minimize)   
 
 
-    #REFORMULATION VARIABLES--------
+    #BOOLEAN VARIABLES--------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
     m.I_J=pe.Set(dimen=2,initialize=_I_J,doc='task-unit nodes')
@@ -890,7 +772,8 @@ def build_scheduling_Boolean_profit_max():
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')
-  
+
+
     return m
    
 def build_scheduling_Original_profit_max():
@@ -953,11 +836,8 @@ def build_scheduling_Original_profit_max():
     _rho_minus['T4','S3']=0.2
 
     _rho_minus['T5','S7']=1  
-    m.rho_minus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_minus,doc="Fraction of material in state k consumed by task i ")
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
 
-    def _rho_minus_sum(m,I):
-        return sum(m.rho_minus[I,K] for K in m.K if m.I_i_k_minus[I,K]==1)==1
-    m.rho_minus_sum=pe.Constraint(m.I, rule=_rho_minus_sum,doc='Sum of fractions must be equal to 1')
 
     _rho_plus={}
     _rho_plus['T1','S4']=1
@@ -971,11 +851,9 @@ def build_scheduling_Original_profit_max():
 
     _rho_plus['T5','S6']=0.1
     _rho_plus['T5','S9']=0.9
-    m.rho_plus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_plus,doc="Fraction of material in state k produced by task i ")
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
 
-    def _rho_plus_sum(m,I):
-        return sum(m.rho_plus[I,K] for K in m.K if m.I_i_k_plus[I,K]==1)==1
-    m.rho_plus_sum=pe.Constraint(m.I, rule=_rho_plus_sum,doc='Sum of fractions must be equal to 1')
+
 
     _I_i_j_prod={}
     _I_i_j_prod['T1','U1']=1
@@ -1117,41 +995,7 @@ def build_scheduling_Original_profit_max():
     def _E3_BALANCE_INIT(m,K):
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
-    #rho constraints
-    def _crho_1(m):
-        return m.rho_minus['T2','S3']>=0.4 
-    m.crho_1=pe.Constraint(rule=_crho_1,doc='rho constraint 1')
 
-    def _crho_2(m):
-        return m.rho_minus['T2','S2']>=0.1 
-    m.crho_2=pe.Constraint(rule=_crho_2,doc='rho constraint 2')
-
-    def _crho_3(m):
-        return m.rho_minus['T4','S3']>=0.15
-    m.crho_3=pe.Constraint(rule=_crho_3,doc='rho constraint 3')
-
-    def _crho_4(m):
-        return m.rho_minus['T4','S6']>=0.7
-    m.crho_4=pe.Constraint(rule=_crho_4,doc='rho constraint 4')
-
-    def _crho_5(m):
-        return m.rho_minus['T3','S4']>=0.1
-    m.crho_5=pe.Constraint(rule=_crho_5,doc='rho constraint 5')
-
-    def _crho_6(m):
-        return m.rho_minus['T3','S5']>=0.3 
-    m.crho_6=pe.Constraint(rule=_crho_6,doc='rho constraint 6')
-
-    def _crho_7(m):
-        return m.rho_minus['T3','S4']==m.rho_plus['T3','S8']
-    m.crho_7=pe.Constraint(rule=_crho_7,doc='rho constraint 7')
-
-    def _crho_8(m):
-        return m.rho_plus['T5','S6']==m.rho_minus['T4','S6']-3.5*m.rho_minus['T4','S3']
-    m.crho_8=pe.Constraint(rule=_crho_8,doc='rho constraint 8')
-    def _crho_9(m):
-        return m.rho_plus['T5','S9']<=0.9
-    m.crho_9=pe.Constraint(rule=_crho_9,doc='rho constraint 9')
     #OBJECTIVE----------------
     # cost minimization
     # def _obj(m):
@@ -1225,11 +1069,8 @@ def build_scheduling_Boolean_cost_min_feasibility(objective,epsilon):
     _rho_minus['T4','S3']=0.2
 
     _rho_minus['T5','S7']=1  
-    m.rho_minus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_minus,doc="Fraction of material in state k consumed by task i ")
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
 
-    def _rho_minus_sum(m,I):
-        return sum(m.rho_minus[I,K] for K in m.K if m.I_i_k_minus[I,K]==1)==1
-    m.rho_minus_sum=pe.Constraint(m.I, rule=_rho_minus_sum,doc='Sum of fractions must be equal to 1')
 
     _rho_plus={}
     _rho_plus['T1','S4']=1
@@ -1243,11 +1084,8 @@ def build_scheduling_Boolean_cost_min_feasibility(objective,epsilon):
 
     _rho_plus['T5','S6']=0.1
     _rho_plus['T5','S9']=0.9
-    m.rho_plus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_plus,doc="Fraction of material in state k produced by task i ")
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
 
-    def _rho_plus_sum(m,I):
-        return sum(m.rho_plus[I,K] for K in m.K if m.I_i_k_plus[I,K]==1)==1
-    m.rho_plus_sum=pe.Constraint(m.I, rule=_rho_plus_sum,doc='Sum of fractions must be equal to 1')
 
 
     _I_i_j_prod={}
@@ -1397,41 +1235,7 @@ def build_scheduling_Boolean_cost_min_feasibility(objective,epsilon):
     def _E3_BALANCE_INIT(m,K):
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
-    #rho constraints
-    def _crho_1(m):
-        return m.rho_minus['T2','S3']>=0.4 
-    m.crho_1=pe.Constraint(rule=_crho_1,doc='rho constraint 1')
 
-    def _crho_2(m):
-        return m.rho_minus['T2','S2']>=0.1 
-    m.crho_2=pe.Constraint(rule=_crho_2,doc='rho constraint 2')
-
-    def _crho_3(m):
-        return m.rho_minus['T4','S3']>=0.15
-    m.crho_3=pe.Constraint(rule=_crho_3,doc='rho constraint 3')
-
-    def _crho_4(m):
-        return m.rho_minus['T4','S6']>=0.7
-    m.crho_4=pe.Constraint(rule=_crho_4,doc='rho constraint 4')
-
-    def _crho_5(m):
-        return m.rho_minus['T3','S4']>=0.1
-    m.crho_5=pe.Constraint(rule=_crho_5,doc='rho constraint 5')
-
-    def _crho_6(m):
-        return m.rho_minus['T3','S5']>=0.3 
-    m.crho_6=pe.Constraint(rule=_crho_6,doc='rho constraint 6')
-
-    def _crho_7(m):
-        return m.rho_minus['T3','S4']==m.rho_plus['T3','S8']
-    m.crho_7=pe.Constraint(rule=_crho_7,doc='rho constraint 7')
-
-    def _crho_8(m):
-        return m.rho_plus['T5','S6']==m.rho_minus['T4','S6']-3.5*m.rho_minus['T4','S3']
-    m.crho_8=pe.Constraint(rule=_crho_8,doc='rho constraint 8')
-    def _crho_9(m):
-        return m.rho_plus['T5','S9']<=0.9
-    m.crho_9=pe.Constraint(rule=_crho_9,doc='rho constraint 9')
     #OBJECTIVE----------------
     # cost minimization
     def _obj1(m):
@@ -1452,7 +1256,7 @@ def build_scheduling_Boolean_cost_min_feasibility(objective,epsilon):
     # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)   
 
 
-    #REFORMULATION VARIABLES--------
+    #BOOLEAN VARIABLES--------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
     m.I_J=pe.Set(dimen=2,initialize=_I_J,doc='task-unit nodes')
@@ -1468,7 +1272,8 @@ def build_scheduling_Boolean_cost_min_feasibility(objective,epsilon):
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')
-  
+
+
     return m
   
 def build_scheduling_Boolean_cost_min_simplified():
@@ -1812,11 +1617,8 @@ def build_scheduling_Boolean_cost_min_relaxed():
     _rho_minus['T4','S3']=0.2
 
     _rho_minus['T5','S7']=1  
-    m.rho_minus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_minus,doc="Fraction of material in state k consumed by task i ")
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
 
-    def _rho_minus_sum(m,I):
-        return sum(m.rho_minus[I,K] for K in m.K if m.I_i_k_minus[I,K]==1)==1
-    m.rho_minus_sum=pe.Constraint(m.I, rule=_rho_minus_sum,doc='Sum of fractions must be equal to 1')
 
     _rho_plus={}
     _rho_plus['T1','S4']=1
@@ -1830,11 +1632,7 @@ def build_scheduling_Boolean_cost_min_relaxed():
 
     _rho_plus['T5','S6']=0.1
     _rho_plus['T5','S9']=0.9
-    m.rho_plus=pe.Var(m.I,m.K,within=pe.NonNegativeReals,bounds=(0,1),initialize=_rho_plus,doc="Fraction of material in state k produced by task i ")
-
-    def _rho_plus_sum(m,I):
-        return sum(m.rho_plus[I,K] for K in m.K if m.I_i_k_plus[I,K]==1)==1
-    m.rho_plus_sum=pe.Constraint(m.I, rule=_rho_plus_sum,doc='Sum of fractions must be equal to 1')
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
 
 
 
@@ -1985,41 +1783,7 @@ def build_scheduling_Boolean_cost_min_relaxed():
     def _E3_BALANCE_INIT(m,K):
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
-    #rho constraints
-    def _crho_1(m):
-        return m.rho_minus['T2','S3']>=0.4 
-    m.crho_1=pe.Constraint(rule=_crho_1,doc='rho constraint 1')
 
-    def _crho_2(m):
-        return m.rho_minus['T2','S2']>=0.1 
-    m.crho_2=pe.Constraint(rule=_crho_2,doc='rho constraint 2')
-
-    def _crho_3(m):
-        return m.rho_minus['T4','S3']>=0.15
-    m.crho_3=pe.Constraint(rule=_crho_3,doc='rho constraint 3')
-
-    def _crho_4(m):
-        return m.rho_minus['T4','S6']>=0.7
-    m.crho_4=pe.Constraint(rule=_crho_4,doc='rho constraint 4')
-
-    def _crho_5(m):
-        return m.rho_minus['T3','S4']>=0.1
-    m.crho_5=pe.Constraint(rule=_crho_5,doc='rho constraint 5')
-
-    def _crho_6(m):
-        return m.rho_minus['T3','S5']>=0.3 
-    m.crho_6=pe.Constraint(rule=_crho_6,doc='rho constraint 6')
-
-    def _crho_7(m):
-        return m.rho_minus['T3','S4']==m.rho_plus['T3','S8']
-    m.crho_7=pe.Constraint(rule=_crho_7,doc='rho constraint 7')
-
-    def _crho_8(m):
-        return m.rho_plus['T5','S6']==m.rho_minus['T4','S6']-3.5*m.rho_minus['T4','S3']
-    m.crho_8=pe.Constraint(rule=_crho_8,doc='rho constraint 8')
-    def _crho_9(m):
-        return m.rho_plus['T5','S9']<=0.9
-    m.crho_9=pe.Constraint(rule=_crho_9,doc='rho constraint 9')
     #OBJECTIVE----------------
     # cost minimization
     def _obj(m):
@@ -2032,7 +1796,7 @@ def build_scheduling_Boolean_cost_min_relaxed():
     # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)   
 
 
-    #REFORMULATION VARIABLES--------
+    #BOOLEAN VARIABLES--------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
     m.I_J=pe.Set(dimen=2,initialize=_I_J,doc='task-unit nodes')
@@ -2048,202 +1812,68 @@ def build_scheduling_Boolean_cost_min_relaxed():
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')
-  
+ 
+
     return m
   
 if __name__ == "__main__":
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
-
-    # #relaxed problem
-    # m=build_scheduling_Boolean_cost_min_relaxed()
-    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    # options={}
-    # start=time.time()
-    # m_solved=solve_subproblem(m,subproblem_solver = 'conopt',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee=True,rel_tol = 1e-6)   
-    # end=time.time()
-    # print('CONOPT time (reformulated, relaxed)='+str(end-start))
-    # for I_J in m_solved.I_J:
-    #     print(1+pe.value(m_solved.Nref[I_J]))
-
-    # # ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
-    # lower_obj=pe.value(m_solved.obj) #initialization of cut
-    # model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
-    # model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
-    # logic_fun=problem_logic_scheduling
-
-    # # master_max_iter=1000#master iterations
-    # initialization=[15,24,1,52,1,34,1,9]
-    # infinity_val=1e+6
-    # min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
-    # absolute_gap=0.01
-    # nlp_solver='dicopt'
-    # neigh=neighborhood_k_eq_2(len(initialization))
-    # maxiter=1000 #benders decomposition
-    # mastertee=True
-    # kwargs={}
-    # m=model_fun_simplified(**kwargs)
-    # ext_ref = {m.Z: m.N} #reformulation sets and variables
-
-
-    # #lower_obj=1664
-    # start=time.time()
-
-    # [important_info,D,x_actual,m_solved]=run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feasibility,lower_obj,absolute_gap,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
-   
-   
-    #to_gantt=generate_initialization(m=m_solved,model_name='to_gantt_MINLP')
-    # textbuffer = io.StringIO()
-    # for v in m_solved.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-    # for v in m_solved.component_data_objects(pe.Objective, descend_into=True):
-    #     textbuffer.write('Objective value '+str(pe.value(v)))
-    #     textbuffer.write('\n')
-    #     # v.pprint(textbuffer)
-    #     # textbuffer.write('\n')
-    # with open('MINLP_LBBD_solution_dicopt.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
-    # ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
-    kwargs={}
-    # DICOPT solution reformulated
-    model_fun =build_scheduling_Boolean_cost_min
-    m=model_fun(**kwargs)
-    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    options=    {'add_options':[
-        'GAMS_MODEL.optfile = 1;'
-        '\n'
-        '$onecho > sbb.opt \n'
-        'nodlim 1000000\n'
-        'memnodes 1000000\n'
-        '$offecho \n']}
-    start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'bonmin',subproblem_solver_options= options,timelimit= 1000,gams_output = False,tee= True,rel_tol = 0)   
-    end=time.time()
-    print('DICOPT time (reformulated)='+str(end-start))
-
-
-    # model_fun =build_scheduling_Original_cost_min
-    # logic_fun=problem_logic_scheduling
-    # #DICOPT solution
-    # m=model_fun(**kwargs)
-    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    # options=    {'add_options':[
-    #     'GAMS_MODEL.optfile = 1;'
-    #     '\n'
-    #     '$onecho > dicopt.opt \n'
-    #     'feaspump 2\n'        
-    #     '$offecho \n']}
-
-    # start=time.time()
-    # m_solved=solve_subproblem(m,subproblem_solver = 'antigone',subproblem_solver_options= options,timelimit= 1000,gams_output = False,tee= True,rel_tol = 0)   
-    # end=time.time()
-    # print('DICOPT time ='+str(end-start))
-
-
-
-
-
-
-
-
-
-
-    # textbuffer = io.StringIO()
-    # for v in m_solved.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-    # for v in m_solved.component_data_objects(pe.Objective, descend_into=True):
-    #     textbuffer.write('Objective value '+str(pe.value(v)))
-    #     textbuffer.write('\n')
-    #     # v.pprint(textbuffer)
-    #     # textbuffer.write('\n')
-    # with open('MINLP_solution.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
-
-    #### SOLVE USING DSDA AND DBD
-#     m=model_fun(**kwargs)
-#     ext_ref = {m.Z: m.N} #reformulation sets and variables
-#     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-
-
-#     max_cplex_sol=1 #maximum number of solutions
-#     dict_known={}
-#     for sol in range(1,max_cplex_sol+1):
-
-#         m=model_fun(**kwargs)
-#         pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-#         options=   {'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
-#         if sol==max_cplex_sol:
-#             start=time.time()
-#         m_solved=solve_subproblem(m,subproblem_solver = 'dicopt',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)   
-#         if sol==max_cplex_sol:
-#             end=time.time()
-#         #print(m_solved.dsda_status)   
-#         # solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_reformualted_profit_max')
-#         empty_list=[]
-#         for I_J in m_solved.I_J:
-#             for N in m_solved.N:
-#                 if pe.value(m_solved.Z_binary[N,I_J])==1:
-#                     # print('ext_Var associated to '+str(I_J)+'is '+str(N+1))
-#                     empty_list.append(N+1)
-#         # print(pe.value(m_solved.obj))
-#         dict_known[tuple(empty_list)]=pe.value(m_solved.obj)
-#         updated_known=dict_known.copy()
-
-#     required_time=end-start
-#     print('Time required to evaluate '+str(max_cplex_sol)+' MIP solutions: '+str(required_time))
-#     print(dict_known)
-# # USE THIS IF THE PROBLEM IS NOT A FEASIBILITY PROBLEM WHEN SOLVING DIFFERENT INITIALZIATION TRIALS (E.G. PROFIT MAX)
-#     # for trial in dict_known:
-#     #     m=build_scheduling()       
-#     #     external_ref(m,list(trial),logic_fun,reformulation_dict,tee=False)
-#     #     m_solved2=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= {},timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0) 
-#     #     updated_known[trial]=pe.value(m_solved2.obj)
-#     # print(updated_known)   
-
-
-#     m=model_fun(**kwargs)
-#     initialization=list(min(dict_known, key=lambda k: dict_known[k]) )
-#     infinity_val=1e+6
-#     nlp_solver='dicopt'
-#     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver conopt\n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
-#     neigh=neighborhood_k_eq_2(len(initialization))
-#     maxiter=1000
-#     # DBD
-#     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-#     [important_info,important_info_preprocessing,D,x_actual]=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,known_solutions=updated_known)
-#     print('obj= ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    #model initialization
+    m=build_scheduling_Boolean_cost_min()
+    m=initialize_model(m,from_feasible=True,feasible_model='to_gantt_MIP')
+    # Declaring a figure "gnt"
+    fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
     
-#      #DSDA
-#     # m_init_fixed = external_ref(m=m,x=initialization,extra_logic_function=logic_fun,dict_extvar=ext_ref,tee=False)
-#     # m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver='baron', timelimit=10000, tee=False)
-#     # init_path = generate_initialization(m=m_init_solved)   
-#     start=time.time()
-#     D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,{},initialization,ext_ref,logic_fun,k = '2',provide_starting_initialization= True,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 1000,timelimit = 3600,gams_output = False,tee= False,global_tee = True,rel_tol = 1e-3)
-#     end=time.time()
-#     print('Objective='+str(pe.value(D_SDAsol.obj))+', best='+str(routeDSDA[-1]))
-#     print('cputime= '+str(end-start))   
-
-
-
-# # # Optimal: 14515.5
-# # # 786.0247232913971 secinds 
-# # #     ## LOAD RESULTS
-# # #     model = build_scheduling()
-# # #     m=initialize_model(model,from_feasible=True,feasible_model='maravelias_cplex_reformualted_profit_max')
-# # #     for I_J in m.I_J:
-# # #         for N in m.N:
-# # #             if pe.value(m.Z_binary[N,I_J])==1:
-# # #                 print('ext_Var associated to '+str(I_J)+'is '+str(N+1))
-# # #     textbuffer = io.StringIO()
-# # #     for v in m.component_objects(pe.Var, descend_into=True):
-# # #         v.pprint(textbuffer)
-# # #         textbuffer.write('\n')
-# # #     for v in m.component_data_objects(pe.Objective, descend_into=True):
-# # #         textbuffer.write('Objective value '+str(pe.value(v)))
-# # #         textbuffer.write('\n')
-# # #         # v.pprint(textbuffer)
-# # #         # textbuffer.write('\n')
-# # #     with open('maravelias_cplex_reformualted_profit_max.txt', 'w') as outputfile:
-# # #         outputfile.write(textbuffer.getvalue())
+    # Setting Y-axis limits
+    gnt.set_ylim(8, 52)
+    
+    # Setting X-axis limits
+    gnt.set_xlim(0, 120)
+    
+    # Setting labels for x-axis and y-axis
+    gnt.set_xlabel('Discretized time')
+    gnt.set_ylabel('Units')
+    
+    # Setting ticks on y-axis
+    gnt.set_yticks([15, 25, 35, 45])
+    # Labelling tickes of y-axis
+    gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1'])
+    
+    # Setting graph attribute
+    gnt.grid(False)
+    
+    # Declaring bars in schedule
+    height=9
+    for j in m.J:
+        if j=='U1':
+            lower_y_position=40
+        elif j=='U2':
+            lower_y_position=30    
+        elif j=='U3':
+            lower_y_position=20    
+        elif j=='U4':
+            lower_y_position=10
+        for i in m.I:
+            if i=='T1':
+                bar_color='tab:orange'
+            elif i=='T2':
+                bar_color='tab:blue'    
+            elif i=='T3':
+                bar_color='tab:red'    
+            elif i=='T4':
+                bar_color='yellow' 
+            elif i=='T5':
+                bar_color='tab:pink' 
+            for t in m.T:
+                try:
+                    if pe.value(m.X[i,j,t])==1:
+                        gnt.broken_barh([(t, m.tau[i,j])], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                except:
+                    pass 
+    gnt.tick_params(axis='both', which='major', labelsize=15)
+    gnt.tick_params(axis='both', which='minor', labelsize=15) 
+    gnt.yaxis.label.set_size(15)
+    gnt.xaxis.label.set_size(15)  
+    plt.savefig("gantt_mip.png")
+    plt.savefig("gantt_mip.svg")

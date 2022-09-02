@@ -346,933 +346,933 @@ def run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,max
     important_info={}
     iterations=range(1,maxiter+1)
 
-    #No random sampling here: TODO WE HAVE TO THINK HOW CAN WE INTEGRATE THIS
-    D_random={}
+#     #No random sampling here: TODO WE HAVE TO THINK HOW CAN WE INTEGRATE THIS
+#     D_random={}
 
 
-    #TEST 5: Solve using cuts: first idea
-    #GENERATE INITIALIZATION
-    start=time.time()
-    model = build_column(8, 17, 0.95, 0.95)
-    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-    init_path = generate_initialization(m=m_init_solved)
-    end=time.time()
-    #print(end-start)
-    #important_info["cuts_first_iter"]=end-start
+#     #TEST 5: Solve using cuts: first idea
+#     #GENERATE INITIALIZATION
+#     start=time.time()
+#     model = build_column(8, 17, 0.95, 0.95)
+#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#     init_path = generate_initialization(m=m_init_solved)
+#     end=time.time()
+#     #print(end-start)
+#     #important_info["cuts_first_iter"]=end-start
 
-    if m_init_solved.dsda_status!='Optimal':
-        #NOW SOLVE
+#     if m_init_solved.dsda_status!='Optimal':
+#         #NOW SOLVE
 
-        D={}
-        D=D_random.copy()
+#         D={}
+#         D=D_random.copy()
 
 
-        x_dict={}  #value of x at each iteration
-        #fval_dict={}   #objective function value at each iteration
-        #lower_bound_dict={}    #lower bound for the objective function. (is it)
-        fobj_actual=infinity_val
+#         x_dict={}  #value of x at each iteration
+#         #fval_dict={}   #objective function value at each iteration
+#         #lower_bound_dict={}    #lower bound for the objective function. (is it)
+#         fobj_actual=infinity_val
 
-        start = time.time()
-        for k in iterations:
-            #if first iteration, initialize
-            if k==1:
-                x_actual=initialization
-            #print(x_actual)
-            #calculate objective function for current point and its neighborhood (subproblem)
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            new_values,_=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
-            fobj_actual=list(new_values.values())[0]
-            #fval_dict[k]=fobj_actual  
-            #Add points to D
-            D.update(new_values)
-            #print(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
-            #Calculate new convex hull and dd cuts to the current model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)
-            for i in D: #calculate cuts only for current discrete variables in D
-                cuts=convex_clousure(D,list(i))
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#         start = time.time()
+#         for k in iterations:
+#             #if first iteration, initialize
+#             if k==1:
+#                 x_actual=initialization
+#             #print(x_actual)
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             new_values,_=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
+#             fobj_actual=list(new_values.values())[0]
+#             #fval_dict[k]=fobj_actual  
+#             #Add points to D
+#             D.update(new_values)
+#             #print(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
+#             #Calculate new convex hull and dd cuts to the current model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)
+#             for i in D: #calculate cuts only for current discrete variables in D
+#                 cuts=convex_clousure(D,list(i))
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            #lower_bound_dict[k]=pe.value(m.zobj)
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             #lower_bound_dict[k]=pe.value(m.zobj)
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
 
-                        #TODO: I also have to try: what if I update all values so far in D equal to infinity (Not only the point m.x1,m.x2 where I got stuck??????? )
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-        end = time.time()
-        #print('stage 1: method_1 time:',end - start,'method_1 obj:',D[tuple(x_actual)])
-        #print('Cuts are the convex hull of every point in D. This is actually similar to a D-SDA without line search')
-        #print(x_dict)
-        important_info['m1_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#                         #TODO: I also have to try: what if I update all values so far in D equal to infinity (Not only the point m.x1,m.x2 where I got stuck??????? )
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         end = time.time()
+#         #print('stage 1: method_1 time:',end - start,'method_1 obj:',D[tuple(x_actual)])
+#         #print('Cuts are the convex hull of every point in D. This is actually similar to a D-SDA without line search')
+#         #print(x_dict)
+#         important_info['m1_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
 
-        #Stage 2
-        #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #Stage 2
+#         #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        #Now we can start stage 2
-        #model = build_column(8, 17, 0.95, 0.95)
-        #init_path = generate_initialization(m=model)
-        #m_first_values = external_ref(m=model,x=x_actual,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#         #Now we can start stage 2
+#         #model = build_column(8, 17, 0.95, 0.95)
+#         #init_path = generate_initialization(m=model)
+#         #m_first_values = external_ref(m=model,x=x_actual,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
         
-        x_dict={}  #value of x at each iteration
-        #fval_dict={}   #objective function value at each iteration
-        #lower_bound_dict={}    #lower bound for the objective function. (is it)
-        fobj_actual=infinity_val
+#         x_dict={}  #value of x at each iteration
+#         #fval_dict={}   #objective function value at each iteration
+#         #lower_bound_dict={}    #lower bound for the objective function. (is it)
+#         fobj_actual=infinity_val
 
-        start = time.time()
-        for k in iterations:
-            #if first iteration, initialize
-            #if k==1:
-            #    x_actual=initialization
-            #print(x_actual)
-            #calculate objective function for current point and its neighborhood (subproblem)
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            new_values,_,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-            fobj_actual=list(new_values.values())[0]
-            #fval_dict[k]=fobj_actual  
-            #Add points to D
-            D.update(new_values)
-            #print(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
-            #Calculate new convex hull and dd cuts to the current model
-            #define model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)
-            for i in D: #calculate cuts only for current discrete variables in D
-                cuts=convex_clousure(D,list(i))
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#         start = time.time()
+#         for k in iterations:
+#             #if first iteration, initialize
+#             #if k==1:
+#             #    x_actual=initialization
+#             #print(x_actual)
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             new_values,_,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#             fobj_actual=list(new_values.values())[0]
+#             #fval_dict[k]=fobj_actual  
+#             #Add points to D
+#             D.update(new_values)
+#             #print(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
+#             #Calculate new convex hull and dd cuts to the current model
+#             #define model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)
+#             for i in D: #calculate cuts only for current discrete variables in D
+#                 cuts=convex_clousure(D,list(i))
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            #lower_bound_dict[k]=pe.value(m.zobj)
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-        end = time.time()
-        #print('stage 2: method_1 time:',end - start,'method_1 obj:',D[tuple(x_actual)])
-        #print('Cuts are the convex hull of every point in D. This is actually similar to a D-SDA without line search')
-        #print(x_dict)
-        important_info['m1_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             #lower_bound_dict[k]=pe.value(m.zobj)
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         end = time.time()
+#         #print('stage 2: method_1 time:',end - start,'method_1 obj:',D[tuple(x_actual)])
+#         #print('Cuts are the convex hull of every point in D. This is actually similar to a D-SDA without line search')
+#         #print(x_dict)
+#         important_info['m1_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
 
 
-        #print(D)
-        #Stage 3: Optimization
+#         #print(D)
+#         #Stage 3: Optimization
 
-        #First D must be updated
-        ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #First D must be updated
+#         ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        #print(D)
-        ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
-        #D={k: v for k, v in D.items() if v == infinity_val}
+#         #print(D)
+#         ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
+#         #D={k: v for k, v in D.items() if v == infinity_val}
 
-        #Bring initialization from previous stages
-        init_path=path_result
-    else:
-        x_actual=initialization
-        D={}
-        D=D_random.copy()
+#         #Bring initialization from previous stages
+#         init_path=path_result
+#     else:
+#         x_actual=initialization
+#         D={}
+#         D=D_random.copy()
 
-    x_dict={}  #value of x at each iteration
-    #fval_dict={}   #objective function value at each iteration
-    #lower_bound_dict={}    #lower bound for the objective function. (is it)
-    fobj_actual=infinity_val
+#     x_dict={}  #value of x at each iteration
+#     #fval_dict={}   #objective function value at each iteration
+#     #lower_bound_dict={}    #lower bound for the objective function. (is it)
+#     fobj_actual=infinity_val
 
-    start = time.time()
-    for k in iterations:
-        #if first iteration, initialize
-        #if k==1:
-        #    x_actual=initialization
-        #print(x_actual)
-        #calculate objective function for current point and its neighborhood (subproblem)
-        #update current value of x in the dictionary
-        x_dict[k]=x_actual
-        new_values,_,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-        fobj_actual=list(new_values.values())[0]
-        #fval_dict[k]=fobj_actual  
-        #Add points to D
-        D.update(new_values)
-        #print(new_values)
+#     start = time.time()
+#     for k in iterations:
+#         #if first iteration, initialize
+#         #if k==1:
+#         #    x_actual=initialization
+#         #print(x_actual)
+#         #calculate objective function for current point and its neighborhood (subproblem)
+#         #update current value of x in the dictionary
+#         x_dict[k]=x_actual
+#         new_values,_,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#         fobj_actual=list(new_values.values())[0]
+#         #fval_dict[k]=fobj_actual  
+#         #Add points to D
+#         D.update(new_values)
+#         #print(new_values)
 
-        #Calculate new convex hull and dd cuts to the current model
-        #define model
-        m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)
-        for i in D: #calculate cuts only for current discrete variables in D
-            cuts=convex_clousure(D,list(i))
-            m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
-        #Solve master problem       
-        SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#         #Calculate new convex hull and dd cuts to the current model
+#         #define model
+#         m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)
+#         for i in D: #calculate cuts only for current discrete variables in D
+#             cuts=convex_clousure(D,list(i))
+#             m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#         #Solve master problem       
+#         SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-        #Stop?
-        #print([pe.value(m.x1),pe.value(m.x2)])
-        #lower_bound_dict[k]=pe.value(m.zobj)
-        if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#         #Stop?
+#         #print([pe.value(m.x1),pe.value(m.x2)])
+#         #lower_bound_dict[k]=pe.value(m.zobj)
+#         if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
         
-        #if pe.value(m.zobj)==fobj_actual:
-            break
-        else:
-            x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-    end = time.time()
-    #print('stage 3: method_1 time:',end - start,'method_1 obj:',D[tuple(x_actual)])
-    #print('Cuts are the convex hull of every point in D. This is actually similar to a D-SDA without line search')
-    #print(x_dict,'\n')
-    important_info['m1_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
+#         #if pe.value(m.zobj)==fobj_actual:
+#             break
+#         else:
+#             x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#     end = time.time()
+#     #print('stage 3: method_1 time:',end - start,'method_1 obj:',D[tuple(x_actual)])
+#     #print('Cuts are the convex hull of every point in D. This is actually similar to a D-SDA without line search')
+#     #print(x_dict,'\n')
+#     important_info['m1_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
 
 
 
-    #SECOND
-    #GENERATE INITIALIZATION
-    model = build_column(8, 17, 0.95, 0.95)
-    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-    init_path = generate_initialization(m=m_init_solved)
+#     #SECOND
+#     #GENERATE INITIALIZATION
+#     model = build_column(8, 17, 0.95, 0.95)
+#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#     init_path = generate_initialization(m=m_init_solved)
 
-    if m_init_solved.dsda_status!='Optimal':
-        #NOW SOLVE 
-        D={}
-        D=D_random.copy()
+#     if m_init_solved.dsda_status!='Optimal':
+#         #NOW SOLVE 
+#         D={}
+#         D=D_random.copy()
 
-        only_feasible_bag=[]
-        x_dict={}  #value of x at each iteration
-        fobj_actual=infinity_val
+#         only_feasible_bag=[]
+#         x_dict={}  #value of x at each iteration
+#         fobj_actual=infinity_val
 
-        start = time.time()
+#         start = time.time()
 
-        for k in iterations:
+#         for k in iterations:
 
 
 
-            #if first iteration, initialize
-            if k==1:
-                x_actual=initialization
-                only_feasible_bag.extend(list(x) for x in D)
-            #print(x_actual)
-            #calculate objective function for current point and its neighborhood (subproblem)
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            new_values,feasible_n=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
-            fobj_actual=list(new_values.values())[0]
-            #print(new_values)
-            #print(feasible_n)
-            #print(new_values)
-            #print(feasible_n)
-            #print(all_n)
-            only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
-            #print(only_feasible_bag)
-            #print(only_feasible_bag)
-            #Add points to D
-            D.update(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
+#             #if first iteration, initialize
+#             if k==1:
+#                 x_actual=initialization
+#                 only_feasible_bag.extend(list(x) for x in D)
+#             #print(x_actual)
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             new_values,feasible_n=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
+#             fobj_actual=list(new_values.values())[0]
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(all_n)
+#             only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #Add points to D
+#             D.update(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
             
-            #print(new_values)
+#             #print(new_values)
 
-            #Calculate new convex hull and dd cuts to the current model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)
-            for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
-                cuts=convex_clousure(D,i)
-                #print(cuts)
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #Calculate new convex hull and dd cuts to the current model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)
+#             for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
+#                 cuts=convex_clousure(D,i)
+#                 #print(cuts)
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-        end = time.time()
-        #print('stage1: method_2 time:',end - start,'method_2 obj:',D[tuple(x_actual)])
-        #print('Cuts are the convex hull of every point in D, and its corresponding feasible negihborhod (but at a distance of 0.5)')
-        #print(x_dict)
-        #print(D)
-        important_info['m2_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         end = time.time()
+#         #print('stage1: method_2 time:',end - start,'method_2 obj:',D[tuple(x_actual)])
+#         #print('Cuts are the convex hull of every point in D, and its corresponding feasible negihborhod (but at a distance of 0.5)')
+#         #print(x_dict)
+#         #print(D)
+#         important_info['m2_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
 
-        #Stage 2
-        #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #Stage 2
+#         #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        #Now we can start stage 2
-        only_feasible_bag=[]
-        x_dict={}  #value of x at each iteration
-        fobj_actual=infinity_val
+#         #Now we can start stage 2
+#         only_feasible_bag=[]
+#         x_dict={}  #value of x at each iteration
+#         fobj_actual=infinity_val
 
-        start = time.time()
+#         start = time.time()
 
-        for k in iterations:
-            #if first iteration, initialize
-            if k==1:
-            #    x_actual=initialization
-                only_feasible_bag.extend(list(x) for x in D)
-            #print(x_actual)
-            #calculate objective function for current point and its neighborhood (subproblem)
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            new_values,feasible_n,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-            fobj_actual=list(new_values.values())[0]
-            #print(new_values)
-            #print(feasible_n)
-            #print(new_values)
-            #print(feasible_n)
-            #print(all_n)
-            only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
-            #print(only_feasible_bag)
-            #print(only_feasible_bag)
-            #Add points to D
-            D.update(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
+#         for k in iterations:
+#             #if first iteration, initialize
+#             if k==1:
+#             #    x_actual=initialization
+#                 only_feasible_bag.extend(list(x) for x in D)
+#             #print(x_actual)
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             new_values,feasible_n,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#             fobj_actual=list(new_values.values())[0]
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(all_n)
+#             only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #Add points to D
+#             D.update(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
             
-            #print(new_values)
+#             #print(new_values)
 
-            #Calculate new convex hull and dd cuts to the current model
-            #define model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)
-            for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
-                cuts=convex_clousure(D,i)
-                #print(cuts)
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #Calculate new convex hull and dd cuts to the current model
+#             #define model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)
+#             for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
+#                 cuts=convex_clousure(D,i)
+#                 #print(cuts)
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-        end = time.time()
-        #print('stage2: method_2 time:',end - start,'method_2 obj:',D[tuple(x_actual)])
-        #print('Cuts are the convex hull of every point in D, and its corresponding feasible negihborhod (but at a distance of 0.5)')
-        #print(x_dict)
-        important_info['m2_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
-        #Stage 3: Optimization
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         end = time.time()
+#         #print('stage2: method_2 time:',end - start,'method_2 obj:',D[tuple(x_actual)])
+#         #print('Cuts are the convex hull of every point in D, and its corresponding feasible negihborhod (but at a distance of 0.5)')
+#         #print(x_dict)
+#         important_info['m2_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#         #Stage 3: Optimization
 
-        #First D must be updated
-        ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #First D must be updated
+#         ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        #print(D)
-        ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
-        #D={k: v for k, v in D.items() if v == infinity_val}
+#         #print(D)
+#         ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
+#         #D={k: v for k, v in D.items() if v == infinity_val}
 
-        #Bring initialization from previous stages
-        init_path=path_result
-    else:
-        x_actual=initialization
-        D={}
-        D=D_random.copy()
+#         #Bring initialization from previous stages
+#         init_path=path_result
+#     else:
+#         x_actual=initialization
+#         D={}
+#         D=D_random.copy()
 
-    only_feasible_bag=[]
-    x_dict={}  #value of x at each iteration
-    fobj_actual=infinity_val
+#     only_feasible_bag=[]
+#     x_dict={}  #value of x at each iteration
+#     fobj_actual=infinity_val
 
-    start = time.time()
+#     start = time.time()
 
-    for k in iterations:
-        #if first iteration, initialize
-        if k==1:
-        #    x_actual=initialization
-            only_feasible_bag.extend(list(x) for x in D)
-        #print(x_actual)
-        #calculate objective function for current point and its neighborhood (subproblem)
-        #update current value of x in the dictionary
-        x_dict[k]=x_actual
-        new_values,feasible_n,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-        fobj_actual=list(new_values.values())[0]
-        #print(new_values)
-        #print(feasible_n)
-        #print(new_values)
-        #print(feasible_n)
-        #print(all_n)
-        only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
-        #print(only_feasible_bag)
-        #print(only_feasible_bag)
-        #Add points to D
-        D.update(new_values)
+#     for k in iterations:
+#         #if first iteration, initialize
+#         if k==1:
+#         #    x_actual=initialization
+#             only_feasible_bag.extend(list(x) for x in D)
+#         #print(x_actual)
+#         #calculate objective function for current point and its neighborhood (subproblem)
+#         #update current value of x in the dictionary
+#         x_dict[k]=x_actual
+#         new_values,feasible_n,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#         fobj_actual=list(new_values.values())[0]
+#         #print(new_values)
+#         #print(feasible_n)
+#         #print(new_values)
+#         #print(feasible_n)
+#         #print(all_n)
+#         only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
+#         #print(only_feasible_bag)
+#         #print(only_feasible_bag)
+#         #Add points to D
+#         D.update(new_values)
         
-        #print(new_values)
+#         #print(new_values)
 
-        #Calculate new convex hull and dd cuts to the current model
-        #define model
-        m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)
-        for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
-            cuts=convex_clousure(D,i)
-            #print(cuts)
-            m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#         #Calculate new convex hull and dd cuts to the current model
+#         #define model
+#         m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)
+#         for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
+#             cuts=convex_clousure(D,i)
+#             #print(cuts)
+#             m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
         
-        #Solve master problem       
-        SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#         #Solve master problem       
+#         SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-        #Stop?
-        #print([pe.value(m.x1),pe.value(m.x2)])
-        if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-            break
-        else:
-            x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-    end = time.time()
-    #print('stage 3: method_2 time:',end - start,'method_2 obj:',D[tuple(x_actual)])
-    #print('Cuts are the convex hull of every point in D, and its corresponding feasible negihborhod (but at a distance of 0.5)')
-    #print(x_dict,'\n')
-    important_info['m2_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
-
-
-    #TEST 7: Solve using cuts: third idea
-    #GENERATE INITIALIZATION
-    model = build_column(8, 17, 0.95, 0.95)
-    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-    init_path = generate_initialization(m=m_init_solved)
-
-    if m_init_solved.dsda_status!='Optimal':
-        #NOW SOLVE  
-        D={}
-        D=D_random.copy()
+#         #Stop?
+#         #print([pe.value(m.x1),pe.value(m.x2)])
+#         if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#             break
+#         else:
+#             x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#     end = time.time()
+#     #print('stage 3: method_2 time:',end - start,'method_2 obj:',D[tuple(x_actual)])
+#     #print('Cuts are the convex hull of every point in D, and its corresponding feasible negihborhod (but at a distance of 0.5)')
+#     #print(x_dict,'\n')
+#     important_info['m2_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
 
 
-        x_dict={}  #value of x at each iteration
-        fobj_actual=infinity_val
-        start = time.time()
-        for k in iterations:
+#     #TEST 7: Solve using cuts: third idea
+#     #GENERATE INITIALIZATION
+#     model = build_column(8, 17, 0.95, 0.95)
+#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#     init_path = generate_initialization(m=m_init_solved)
 
-            #if first iteration, initialize
-            if k==1:
-                x_actual=initialization
-            #print(x_actual)
+#     if m_init_solved.dsda_status!='Optimal':
+#         #NOW SOLVE  
+#         D={}
+#         D=D_random.copy()
 
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,_=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
-            fobj_actual=list(new_values.values())[0]
-            #Add points to D
-            D.update(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
-            #print(D)
-            #Calculate new convex hull and dd cuts to the current model
-            #define model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)            
-            for i in x_dict:
-                cuts=convex_clousure(D,x_dict[i])
-                #print(cuts)
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+
+#         x_dict={}  #value of x at each iteration
+#         fobj_actual=infinity_val
+#         start = time.time()
+#         for k in iterations:
+
+#             #if first iteration, initialize
+#             if k==1:
+#                 x_actual=initialization
+#             #print(x_actual)
+
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             new_values,_=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
+#             fobj_actual=list(new_values.values())[0]
+#             #Add points to D
+#             D.update(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
+#             #print(D)
+#             #Calculate new convex hull and dd cuts to the current model
+#             #define model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)            
+#             for i in x_dict:
+#                 cuts=convex_clousure(D,x_dict[i])
+#                 #print(cuts)
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            #print(new_values)
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
-            #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-            #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-            #if 
-            #if 0 in D.values():
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             #print(new_values)
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
+#             #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+#             #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+#             #if 
+#             #if 0 in D.values():
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
 
-        end = time.time()
-        #print('stage 1: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
-        #print('Cuts calculated from the central points evaluated so far.')
-        #print(x_dict)
-        important_info['m3_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#         end = time.time()
+#         #print('stage 1: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
+#         #print('Cuts calculated from the central points evaluated so far.')
+#         #print(x_dict)
+#         important_info['m3_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
 
-        #Stage 2
-        #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #Stage 2
+#         #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        x_dict={}  #value of x at each iteration
-        fobj_actual=infinity_val
-        start = time.time()
-        for k in iterations:
-            #if first iteration, initialize
-            #if k==1:
-            #    x_actual=initialization
-            #print(x_actual)
+#         x_dict={}  #value of x at each iteration
+#         fobj_actual=infinity_val
+#         start = time.time()
+#         for k in iterations:
+#             #if first iteration, initialize
+#             #if k==1:
+#             #    x_actual=initialization
+#             #print(x_actual)
 
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,_,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-            fobj_actual=list(new_values.values())[0]
-            #Add points to D
-            D.update(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
-            #print(D)
-            #Calculate new convex hull and dd cuts to the current model  
-            #define model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)          
-            for i in x_dict:
-                cuts=convex_clousure(D,x_dict[i])
-                #print(cuts)
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             new_values,_,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#             fobj_actual=list(new_values.values())[0]
+#             #Add points to D
+#             D.update(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
+#             #print(D)
+#             #Calculate new convex hull and dd cuts to the current model  
+#             #define model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)          
+#             for i in x_dict:
+#                 cuts=convex_clousure(D,x_dict[i])
+#                 #print(cuts)
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            #print(new_values)
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
-            #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-            #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-            #if 
-            #if 0 in D.values():
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             #print(new_values)
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
+#             #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+#             #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+#             #if 
+#             #if 0 in D.values():
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
 
-        end = time.time()
-        #print('stage 2: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
-        #print('Cuts calculated from the central points evaluated so far.')
-        #print(x_dict)
-        important_info['m3_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
-        #Stage 3: Optimization
+#         end = time.time()
+#         #print('stage 2: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
+#         #print('Cuts calculated from the central points evaluated so far.')
+#         #print(x_dict)
+#         important_info['m3_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#         #Stage 3: Optimization
 
-        #First D must be updated
-        ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #First D must be updated
+#         ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        #print(D)
-        ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
-        #D={k: v for k, v in D.items() if v == infinity_val}
+#         #print(D)
+#         ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
+#         #D={k: v for k, v in D.items() if v == infinity_val}
 
-        #Bring initialization from previous stages
-        init_path=path_result
-    else:
-        x_actual=initialization
-        D={}
-        D=D_random.copy()
+#         #Bring initialization from previous stages
+#         init_path=path_result
+#     else:
+#         x_actual=initialization
+#         D={}
+#         D=D_random.copy()
 
-    x_dict={}  #value of x at each iteration
-    fobj_actual=infinity_val
-    start = time.time()
-    for k in iterations:
-        #if first iteration, initialize
-        #if k==1:
-        #    x_actual=initialization
-        #print(x_actual)
+#     x_dict={}  #value of x at each iteration
+#     fobj_actual=infinity_val
+#     start = time.time()
+#     for k in iterations:
+#         #if first iteration, initialize
+#         #if k==1:
+#         #    x_actual=initialization
+#         #print(x_actual)
 
-        #update current value of x in the dictionary
-        x_dict[k]=x_actual
-        #calculate objective function for current point and its neighborhood (subproblem)
-        new_values,_,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-        fobj_actual=list(new_values.values())[0]
-        #Add points to D
-        D.update(new_values)
-        #print(D)
-        #Calculate new convex hull and dd cuts to the current model
-        #define model
-        m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)            
-        for i in x_dict:
-            cuts=convex_clousure(D,x_dict[i])
-            #print(cuts)
-            m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#         #update current value of x in the dictionary
+#         x_dict[k]=x_actual
+#         #calculate objective function for current point and its neighborhood (subproblem)
+#         new_values,_,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#         fobj_actual=list(new_values.values())[0]
+#         #Add points to D
+#         D.update(new_values)
+#         #print(D)
+#         #Calculate new convex hull and dd cuts to the current model
+#         #define model
+#         m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)            
+#         for i in x_dict:
+#             cuts=convex_clousure(D,x_dict[i])
+#             #print(cuts)
+#             m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
         
-        #Solve master problem       
-        SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#         #Solve master problem       
+#         SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-        #Stop?
-        #print([pe.value(m.x1),pe.value(m.x2)])
-        #print(new_values)
-        if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
-        #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-        #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-        #if 
-            break
-        else:
-            x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         #Stop?
+#         #print([pe.value(m.x1),pe.value(m.x2)])
+#         #print(new_values)
+#         if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: 
+#         #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+#         #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+#         #if 
+#             break
+#         else:
+#             x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
 
-    end = time.time()
-    #print('stage 3: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
-    #print('Cuts calculated from the central points evaluated so far.')
-    #print(x_dict,'\n')
-    important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
-
-
-    #MEJOR VERSION HASTA AHORA, PERO CON EL ERROR DE QUE NO ESTA COSIDERANDO LA INFORMACION DEL RANDOM SAMPLING EN LA PRIMERA ITERACION
-   #model = build_column(8, 17, 0.95, 0.95)
-    #init_path = generate_initialization(m=model)
-   #m_first_values = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    #GENERATE INITIALIZATION
-    model = build_column(8, 17, 0.95, 0.95)
-    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-    init_path = generate_initialization(m=m_init_solved)
-
-    if m_init_solved.dsda_status!='Optimal':
-        #NOW SOLVE   
-        D={}
-        D=D_random.copy()
+#     end = time.time()
+#     #print('stage 3: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
+#     #print('Cuts calculated from the central points evaluated so far.')
+#     #print(x_dict,'\n')
+#     important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
 
 
-        only_feasible_bag=[]
+#     #MEJOR VERSION HASTA AHORA, PERO CON EL ERROR DE QUE NO ESTA COSIDERANDO LA INFORMACION DEL RANDOM SAMPLING EN LA PRIMERA ITERACION
+#    #model = build_column(8, 17, 0.95, 0.95)
+#     #init_path = generate_initialization(m=model)
+#    #m_first_values = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     #GENERATE INITIALIZATION
+#     model = build_column(8, 17, 0.95, 0.95)
+#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#     init_path = generate_initialization(m=m_init_solved)
+
+#     if m_init_solved.dsda_status!='Optimal':
+#         #NOW SOLVE   
+#         D={}
+#         D=D_random.copy()
 
 
-        x_dict={}  #value of x at each iteration
-        fobj_actual=infinity_val
-        start = time.time()
-
-        for k in iterations:
+#         only_feasible_bag=[]
 
 
-            #if first iteration, initialize
-            if k==1:
-                x_actual=initialization
+#         x_dict={}  #value of x at each iteration
+#         fobj_actual=infinity_val
+#         start = time.time()
 
-            #print(x_actual)
-            #calculate objective function for current point and its neighborhood (subproblem)
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            new_values,feasible_n=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
-            fobj_actual=list(new_values.values())[0]
-            #print(new_values)
-            #print(feasible_n)
-            #print(new_values)
-            #print(feasible_n)
-            #print(all_n)
-            only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
-            #print(only_feasible_bag)
-            #print(only_feasible_bag)
-            #Add points to D
-            D.update(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
+#         for k in iterations:
+
+
+#             #if first iteration, initialize
+#             if k==1:
+#                 x_actual=initialization
+
+#             #print(x_actual)
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             new_values,feasible_n=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column)
+#             fobj_actual=list(new_values.values())[0]
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(all_n)
+#             only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #Add points to D
+#             D.update(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
             
-            #print(new_values)
+#             #print(new_values)
 
-            #Calculate new convex hull and dd cuts to the current model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)
-            for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
-                cuts=convex_clousure(D,i)
-                #print(cuts)
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #Calculate new convex hull and dd cuts to the current model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,1,D,use_random)
+#             for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
+#                 cuts=convex_clousure(D,i)
+#                 #print(cuts)
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-        end = time.time()
-        # print('stage 1: method_4 time:',end - start,'method_4 obj:',D[tuple(x_actual)])
-        # print('Cuts calculated from the central points evaluated so far, and its corresponding feasible negihborhod (but at a distance of 0.5)')
-        # print(x_dict)
-        important_info['m4_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         end = time.time()
+#         # print('stage 1: method_4 time:',end - start,'method_4 obj:',D[tuple(x_actual)])
+#         # print('Cuts calculated from the central points evaluated so far, and its corresponding feasible negihborhod (but at a distance of 0.5)')
+#         # print(x_dict)
+#         important_info['m4_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
 
-        #Stage 2
-        #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #Stage 2
+#         #First rewrite the dictionary: infinity value for infieasible values and remove the only feasible entry
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
 
 
-        only_feasible_bag=[]
-        x_dict={}  #value of x at each iteration
-        fobj_actual=infinity_val
-        start = time.time()
+#         only_feasible_bag=[]
+#         x_dict={}  #value of x at each iteration
+#         fobj_actual=infinity_val
+#         start = time.time()
 
-        for k in iterations:
+#         for k in iterations:
 
-            #if first iteration, initialize
-            #if k==1:
-            #    x_actual=initialization
-            #print(x_actual)
-            #calculate objective function for current point and its neighborhood (subproblem)
-            #update current value of x in the dictionary
-            x_dict[k]=x_actual
-            new_values,feasible_n,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-            fobj_actual=list(new_values.values())[0]
-            #print(new_values)
-            #print(feasible_n)
-            #print(new_values)
-            #print(feasible_n)
-            #print(all_n)
-            only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
-            #print(only_feasible_bag)
-            #print(only_feasible_bag)
-            #Add points to D
-            D.update(new_values)
-            if 0 in D.values():
-                x_actual=list(next(reversed(D.keys())))
-                x_dict[str(k)+', neighborhood']=x_actual
-                break
+#             #if first iteration, initialize
+#             #if k==1:
+#             #    x_actual=initialization
+#             #print(x_actual)
+#             #calculate objective function for current point and its neighborhood (subproblem)
+#             #update current value of x in the dictionary
+#             x_dict[k]=x_actual
+#             new_values,feasible_n,path_result=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#             fobj_actual=list(new_values.values())[0]
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(new_values)
+#             #print(feasible_n)
+#             #print(all_n)
+#             only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #print(only_feasible_bag)
+#             #Add points to D
+#             D.update(new_values)
+#             if 0 in D.values():
+#                 x_actual=list(next(reversed(D.keys())))
+#                 x_dict[str(k)+', neighborhood']=x_actual
+#                 break
             
-            #print(new_values)
+#             #print(new_values)
 
-            #Calculate new convex hull and dd cuts to the current model
-            #define model
-            m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)
-            for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
-                cuts=convex_clousure(D,i)
-                #print(cuts)
-                m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#             #Calculate new convex hull and dd cuts to the current model
+#             #define model
+#             m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,2,D,use_random)
+#             for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
+#                 cuts=convex_clousure(D,i)
+#                 #print(cuts)
+#                 m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#             #Solve master problem       
+#             SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-                if 0 in D.values():
-                    break
-                else:
-                    if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
-                        break
-                    else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
-            else:
-                x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-        end = time.time()
-        # print('stage 2: method_4 time:',end - start,'method_4 obj:',D[tuple(x_actual)])
-        # print('Cuts calculated from the central points evaluated so far, and its corresponding feasible negihborhod (but at a distance of 0.5)')
-        # print(x_dict)
-        important_info['m4_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+#             #Stop?
+#             #print([pe.value(m.x1),pe.value(m.x2)])
+#             if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#                 if 0 in D.values():
+#                     break
+#                 else:
+#                     if fabs(float(len(D.keys()))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+#                         break
+#                     else:
+#                         x_actual=not_eval
+#                         D.update({tuple([round(pe.value(m.x1)),round(pe.value(m.x2))]):infinity_val})
+#             else:
+#                 x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#         end = time.time()
+#         # print('stage 2: method_4 time:',end - start,'method_4 obj:',D[tuple(x_actual)])
+#         # print('Cuts calculated from the central points evaluated so far, and its corresponding feasible negihborhod (but at a distance of 0.5)')
+#         # print(x_dict)
+#         important_info['m4_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
                                          
-        #Stage 3: Optimization
+#         #Stage 3: Optimization
 
-        #First D must be updated
-        ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
-        for j in D:
-            if D[j]==0:
-                del D[j]
-                break
-            else:
-                D[j]=infinity_val
+#         #First D must be updated
+#         ##OPTION 1: EVERYTHING THAT WAS DECLARED INFEASIBLE IN STAGES 1 AND 2 REMAINS INFEASIBLE
+#         for j in D:
+#             if D[j]==0:
+#                 del D[j]
+#                 break
+#             else:
+#                 D[j]=infinity_val
 
-        #print(D)
-        ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
-        #D={k: v for k, v in D.items() if v == infinity_val}
+#         #print(D)
+#         ##OPTION 2: ONLY THOSE POINTS THAT WHERE DELCARED INFEASIBLE IN STAGE 1 REMAIN INFEASIBLE (probably some points declared infeasible in stage 2 are not really infeasible)
+#         #D={k: v for k, v in D.items() if v == infinity_val}
 
-        #Bring initialization from previous stages
-        init_path=path_result
-    else:
-        x_actual=initialization
-        D={}
-        D=D_random.copy()
+#         #Bring initialization from previous stages
+#         init_path=path_result
+#     else:
+#         x_actual=initialization
+#         D={}
+#         D=D_random.copy()
 
-    only_feasible_bag=[]
-    x_dict={}  #value of x at each iteration
-    fobj_actual=infinity_val
-    start = time.time()
+#     only_feasible_bag=[]
+#     x_dict={}  #value of x at each iteration
+#     fobj_actual=infinity_val
+#     start = time.time()
 
-    for k in iterations:
-        #if first iteration, initialize
-        #if k==1:
-        #    x_actual=initialization
-        #print(x_actual)
-        #calculate objective function for current point and its neighborhood (subproblem)
-        #update current value of x in the dictionary
-        x_dict[k]=x_actual
-        new_values,feasible_n,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
-        fobj_actual=list(new_values.values())[0]
-        #print(new_values)
-        #print(feasible_n)
-        #print(new_values)
-        #print(feasible_n)
-        #print(all_n)
-        only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
-        #print(only_feasible_bag)
-        #print(only_feasible_bag)
-        #Add points to D
-        D.update(new_values)
+#     for k in iterations:
+#         #if first iteration, initialize
+#         #if k==1:
+#         #    x_actual=initialization
+#         #print(x_actual)
+#         #calculate objective function for current point and its neighborhood (subproblem)
+#         #update current value of x in the dictionary
+#         x_dict[k]=x_actual
+#         new_values,feasible_n,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,Adjustable_val,reformulation_dict,problem_logic_column,nlp_solver,init_path)
+#         fobj_actual=list(new_values.values())[0]
+#         #print(new_values)
+#         #print(feasible_n)
+#         #print(new_values)
+#         #print(feasible_n)
+#         #print(all_n)
+#         only_feasible_bag.extend(x for x in feasible_n if x not in only_feasible_bag)
+#         #print(only_feasible_bag)
+#         #print(only_feasible_bag)
+#         #Add points to D
+#         D.update(new_values)
         
-        #print(new_values)
+#         #print(new_values)
 
-        #Calculate new convex hull and dd cuts to the current model
-        #define model
-        m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)
-        for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
-            cuts=convex_clousure(D,i)
-            #print(cuts)
-            m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+#         #Calculate new convex hull and dd cuts to the current model
+#         #define model
+#         m,not_eval=build_master(lower_bounds,upper_bounds,x_actual,3,D)
+#         for i in only_feasible_bag: #calculate cuts only for current discrete variables in D
+#             cuts=convex_clousure(D,i)
+#             #print(cuts)
+#             m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
         
-        #Solve master problem       
-        SolverFactory('gams', solver='cplex').solve(m, tee=False)
+#         #Solve master problem       
+#         SolverFactory('gams', solver='cplex').solve(m, tee=False)
 
-        #Stop?
-        #print([pe.value(m.x1),pe.value(m.x2)])
-        if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
-            break
-        else:
-            x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
-    end = time.time()
-    # print('stage 3: method_4 time:',end - start,'method_4 obj:',D[tuple(x_actual)])
-    # print('Cuts calculated from the central points evaluated so far, and its corresponding feasible negihborhod (but at a distance of 0.5)')
-    # print(x_dict,'\n')
-    important_info['m4_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
+#         #Stop?
+#         #print([pe.value(m.x1),pe.value(m.x2)])
+#         if fabs(fobj_actual-pe.value(m.zobj))<=1e-5:
+#             break
+#         else:
+#             x_actual=[round(pe.value(m.x1)),round(pe.value(m.x2))]
+#     end = time.time()
+#     # print('stage 3: method_4 time:',end - start,'method_4 obj:',D[tuple(x_actual)])
+#     # print('Cuts calculated from the central points evaluated so far, and its corresponding feasible negihborhod (but at a distance of 0.5)')
+#     # print(x_dict,'\n')
+#     important_info['m4_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
 
 
 
-    #TEST A SOLUTION
-    model=build_column(8, 17, 0.95, 0.95)
-    m_initialized=initialize_model(m=model,json_path=path_result)
-    m_fixed = external_ref(m=m_initialized,x=x_actual,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_solved=solve_subproblem(m=m_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=True)
+#     #TEST A SOLUTION
+#     model=build_column(8, 17, 0.95, 0.95)
+#     m_initialized=initialize_model(m=model,json_path=path_result)
+#     m_fixed = external_ref(m=m_initialized,x=x_actual,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_solved=solve_subproblem(m=m_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=True)
 
-    #####USE OTHER SOLVERS-----------
+#     #####USE OTHER SOLVERS-----------
 
-    ### SOLVE WITH DSDA  
-    #GENERATE INITIALIZATION
-    model = build_column(8, 17, 0.95, 0.95)
-    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-    init_path = generate_initialization(m=m_init_solved)
-    #NOW SOLVE
-    try:  
-        start = time.time()
-        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_function=build_column,model_args={'min_trays': 8, 'max_trays': 17, 'xD': 0.95, 'xB': 0.95},starting_point=initialization,ext_dict=ext_ref,ext_logic=problem_logic_column, k='Infinity',provide_starting_initialization=True,feasible_model='dsda', subproblem_solver=nlp_solver, iter_timelimit=1000,tee=False,global_tee=True)
-        end = time.time()
-        print('dsda time:',end - start,'dsda obj:',pe.value(D_SDAsol.obj))
-        print(routeDSDA,obj_route)
-        #TEST DSDA solution. D_SDAsol is already initialized from a good initialization 
-        mDSDA_fixed = external_ref(m=D_SDAsol,x=routeDSDA[-1],extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-        m_DSDA_solved=solve_subproblem(m=mDSDA_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-        try:
-            print('Status from DSDA solution: ',m_DSDA_solved.results.solver.termination_condition,'\n')
-            important_info['DSDA_'+nlp_solver]=[pe.value(D_SDAsol.obj),end - start,m_DSDA_solved.results.solver.termination_condition]
-        except:
-            print('Status from DSDA solution: ',m_DSDA_solved.dsda_status,'\n')
-            important_info['DSDA_'+nlp_solver]=[pe.value(D_SDAsol.obj),end - start,m_DSDA_solved.dsda_status]
-    except:
-        print('DSDA FBBT infeasible')
-        important_info['DSDA_'+nlp_solver]=[infinity_val,end - start,'DSDA FBBT infeasible']
-    #SOLVE WITH MINLP
-    #GENERATE INITIALIZATION
-    model = build_column(8, 17, 0.95, 0.95)
-    m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-    m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-    init_path = generate_initialization(m=m_init_solved)
-    #NOW SOLVE  
-    model = build_column_minlp_gdp(initialization,8, 17, 0.95, 0.95)
-    m_init=initialize_model(m=model,json_path=init_path)
+#     ### SOLVE WITH DSDA  
+#     #GENERATE INITIALIZATION
+#     model = build_column(8, 17, 0.95, 0.95)
+#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#     init_path = generate_initialization(m=m_init_solved)
+#     #NOW SOLVE
+#     try:  
+#         start = time.time()
+#         D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_function=build_column,model_args={'min_trays': 8, 'max_trays': 17, 'xD': 0.95, 'xB': 0.95},starting_point=initialization,ext_dict=ext_ref,ext_logic=problem_logic_column, k='Infinity',provide_starting_initialization=True,feasible_model='dsda', subproblem_solver=nlp_solver, iter_timelimit=1000,tee=False,global_tee=True)
+#         end = time.time()
+#         print('dsda time:',end - start,'dsda obj:',pe.value(D_SDAsol.obj))
+#         print(routeDSDA,obj_route)
+#         #TEST DSDA solution. D_SDAsol is already initialized from a good initialization 
+#         mDSDA_fixed = external_ref(m=D_SDAsol,x=routeDSDA[-1],extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#         m_DSDA_solved=solve_subproblem(m=mDSDA_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#         try:
+#             print('Status from DSDA solution: ',m_DSDA_solved.results.solver.termination_condition,'\n')
+#             important_info['DSDA_'+nlp_solver]=[pe.value(D_SDAsol.obj),end - start,m_DSDA_solved.results.solver.termination_condition]
+#         except:
+#             print('Status from DSDA solution: ',m_DSDA_solved.dsda_status,'\n')
+#             important_info['DSDA_'+nlp_solver]=[pe.value(D_SDAsol.obj),end - start,m_DSDA_solved.dsda_status]
+#     except:
+#         print('DSDA FBBT infeasible')
+#         important_info['DSDA_'+nlp_solver]=[infinity_val,end - start,'DSDA FBBT infeasible']
+#     #SOLVE WITH MINLP
+#     #GENERATE INITIALIZATION
+#     model = build_column(8, 17, 0.95, 0.95)
+#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+#     init_path = generate_initialization(m=m_init_solved)
+#     #NOW SOLVE  
+#     model = build_column_minlp_gdp(initialization,8, 17, 0.95, 0.95)
+#     m_init=initialize_model(m=model,json_path=init_path)
 
-    start = time.time()
-    sub_opt={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > sbb.opt \n','rootsolver '+nlp_solver+'\n','subsolver '+nlp_solver+'\n','$offecho \n']}
-    m_solved = solve_with_minlp(m_init, transformation='bigm', minlp='sbb', minlp_options=sub_opt,gams_output=False,tee=False,rel_tol=0)
-    end = time.time()
-    print('minlp time:',end - start,'minlp obj:',pe.value(m_solved.obj))
-    print('Status from MINLP solution: ',m_solved.results.solver.termination_condition,'\n')
-    important_info['sbb_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
+#     start = time.time()
+#     sub_opt={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > sbb.opt \n','rootsolver '+nlp_solver+'\n','subsolver '+nlp_solver+'\n','$offecho \n']}
+#     m_solved = solve_with_minlp(m_init, transformation='bigm', minlp='sbb', minlp_options=sub_opt,gams_output=False,tee=False,rel_tol=0)
+#     end = time.time()
+#     print('minlp time:',end - start,'minlp obj:',pe.value(m_solved.obj))
+#     print('Status from MINLP solution: ',m_solved.results.solver.termination_condition,'\n')
+#     important_info['sbb_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
 
 
     #SOLVE WITH GDP. Boolean fixed at first iteration  
@@ -1286,11 +1286,11 @@ def run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,max
     m_init=initialize_model(m=model,json_path=init_path)
 
     start = time.time()
-    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='GLOA', mip_output=False, nlp_output=False,rel_tol=0,tee=False)
+    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='LOA', mip_output=False, nlp_output=False,rel_tol=0,tee=False)
     end = time.time()
     #print('gdp time:',end - start,'gdp obj:',pe.value(m_solved.obj))
     #print('Status from GDP-OPT solution: ',m_solved.results.solver.termination_condition,'\n')
-    important_info['GLOA_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
+    important_info['LOA_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
 
     return important_info 
 
@@ -1304,48 +1304,48 @@ if __name__ == "__main__":
     reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) 
     print('-------------------------------------------------------------------------- \n \n')
 
-    # #### SOLUTION WITH DIFFERENT METHODS
-    # initialization=[15,9] 
-    # infinity_val=1e+5
-    # Adjustable_val=0.5
-    # nlp_solver='knitro'
-    # neigh=neighborhood_k_eq_inf(2)
-    # maxiter=100
-    # info=run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
-    # print(info)
-
-
-    XX_1,XX_2=np.meshgrid(np.linspace(lower_bounds[1],upper_bounds[1],upper_bounds[1]-lower_bounds[1]+1),np.linspace(lower_bounds[2],upper_bounds[2],upper_bounds[2]-lower_bounds[2]+1))
-    X_1=list(np.reshape(XX_1,XX_1.size))
-    X_2=list(np.reshape(XX_2,XX_2.size))
-    init_tup=list(zip(X_1,X_2))
-
-    initializations=[]
-    for i in init_tup:
-        if all([i[0]>=9,i[1]<=9]):
-            initializations.append(list(i))
-    print(initializations)
-
-    #m.known=pe.Constraint(expr=m.x1-m.x2>=7)
-    #m.known2=pe.Constraint(expr=m.x1>=9)
-    #m.known3=pe.Constraint(expr=m.x2<=9)
-
-
+    #### SOLUTION WITH DIFFERENT METHODS
+    initialization=[13,4] 
     infinity_val=1e+5
     Adjustable_val=0.5
     nlp_solver='knitro'
     neigh=neighborhood_k_eq_inf(2)
     maxiter=100
+    info=run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
+    print(info)
 
-    dict_of_dicts={}
-    count=1
-    for i in initializations:
-        dict_of_dicts[tuple(i)]=run_function(i,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
-        print("solved case ",count,"of ",len(initializations),"\n")
-        count=count+1
+    # #------ACTUAL EXPERIMENT-------------
+    # XX_1,XX_2=np.meshgrid(np.linspace(lower_bounds[1],upper_bounds[1],upper_bounds[1]-lower_bounds[1]+1),np.linspace(lower_bounds[2],upper_bounds[2],upper_bounds[2]-lower_bounds[2]+1))
+    # X_1=list(np.reshape(XX_1,XX_1.size))
+    # X_2=list(np.reshape(XX_2,XX_2.size))
+    # init_tup=list(zip(X_1,X_2))
 
-    dictionary_data = dict_of_dicts
+    # initializations=[]
+    # for i in init_tup:
+    #     if all([i[0]>=9,i[1]<=9]):
+    #         initializations.append(list(i))
+    # print(initializations)
 
-    a_file = open("data_distillation_gloa.pkl", "wb")
-    pickle.dump(dictionary_data, a_file)
-    a_file.close()
+    # #m.known=pe.Constraint(expr=m.x1-m.x2>=7)
+    # #m.known2=pe.Constraint(expr=m.x1>=9)
+    # #m.known3=pe.Constraint(expr=m.x2<=9)
+
+
+    # infinity_val=1e+5
+    # Adjustable_val=0.5
+    # nlp_solver='knitro'
+    # neigh=neighborhood_k_eq_inf(2)
+    # maxiter=100
+
+    # dict_of_dicts={}
+    # count=1
+    # for i in initializations:
+    #     dict_of_dicts[tuple(i)]=run_function(i,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
+    #     print("solved case ",count,"of ",len(initializations),"\n")
+    #     count=count+1
+
+    # dictionary_data = dict_of_dicts
+
+    # a_file = open("data_distillation_gloa.pkl", "wb")
+    # pickle.dump(dictionary_data, a_file)
+    # a_file.close()
