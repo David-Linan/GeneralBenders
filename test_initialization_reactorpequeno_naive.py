@@ -602,7 +602,7 @@ if __name__ == "__main__":
     # nlp_solver='MSNLP'
     # neigh=neighborhood_k_eq_inf(2)
     # maxiter=100
-    # points=25
+    # points=20
 
 
 
@@ -610,34 +610,57 @@ if __name__ == "__main__":
     # #print(evaluated)
     # print(info_solver)
     # print(info_preprocess)
-    #--------------------what if one sampling point----------------------------------------------------------------
-    #INIT_VALUES
+
+    # -----------to compute average cpu time--------------------------------
     kwargs={'NT': 5}
     model_fun =build_cstrs
     logic_fun=problem_logic_cstr
     model=model_fun(**kwargs)
-    ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables 
+    ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
+    initialization=[1,1] 
     infinity_val=1e+5
     nlp_solver='MSNLP'
     neigh=neighborhood_k_eq_inf(2)
     maxiter=100
-    points=1
+    
+    points=10
+    total_time=[]
+    for i in range(1,21):
+        info_solver,info_preprocess,evaluated=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=True,n_points_multstart=points)
+        #print(evaluated)
+        time1=info_solver['m3_s3'][1]
+        time2=info_preprocess[1]
+        total_time.append(time1+time2)   
+    print('average time with w='+str(points)+' is: '+str(np.mean(total_time))+' seconds') 
+    print('std with w='+str(points)+' is: '+str(np.std(total_time))+' seconds') 
+    #--------------------what if one sampling point----------------------------------------------------------------
+    #INIT_VALUES
+    # kwargs={'NT': 5}
+    # model_fun =build_cstrs
+    # logic_fun=problem_logic_cstr
+    # model=model_fun(**kwargs)
+    # ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables 
+    # infinity_val=1e+5
+    # nlp_solver='MSNLP'
+    # neigh=neighborhood_k_eq_inf(2)
+    # maxiter=100
+    # points=1
 
 
-    num_global=0
-    for i in range(1,6):
-        for j in range(1,6):
-            initialization=[i,j]
-            start=time.time()
-            info_solver,info_preprocess,evaluated=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
-            end=time.time()
-            #print(evaluated)
-            print('----Init=',initialization)
-            print('objective=',info_solver['m3_s3'][0])
-            print('time=',end-start)
-            if info_solver['m3_s3'][0]<= 3.08:
-                num_global=num_global+1
-            print(num_global,'/25 times that the global optimum was found')
+    # num_global=0
+    # for i in range(1,6):
+    #     for j in range(1,6):
+    #         initialization=[i,j]
+    #         start=time.time()
+    #         info_solver,info_preprocess,evaluated=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=False,n_points_multstart=points)
+    #         end=time.time()
+    #         #print(evaluated)
+    #         print('----Init=',initialization)
+    #         print('objective=',info_solver['m3_s3'][0])
+    #         print('time=',end-start)
+    #         if info_solver['m3_s3'][0]<= 3.08:
+    #             num_global=num_global+1
+    #         print(num_global,'/25 times that the global optimum was found')
 
     # #-----------------multiple_runs_test-------------------------------------------------------
 
@@ -717,16 +740,16 @@ if __name__ == "__main__":
     #------------Multiple runs: suggestion by luis--------------------------------------
 
     #INIT_VALUES
-    kwargs={'NT': 5}
-    model_fun =build_cstrs
-    logic_fun=problem_logic_cstr
-    model=model_fun(**kwargs)
-    ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
-    initialization=[1,1] 
-    infinity_val=1e+5
-    nlp_solver='msnlp'
-    neigh=neighborhood_k_eq_inf(2)
-    maxiter=100
+    # kwargs={'NT': 5}
+    # model_fun =build_cstrs
+    # logic_fun=problem_logic_cstr
+    # model=model_fun(**kwargs)
+    # ext_ref = {model.YF: model.N, model.YR: model.N} #reformulation sets and variables
+    # initialization=[1,1] 
+    # infinity_val=1e+5
+    # nlp_solver='msnlp'
+    # neigh=neighborhood_k_eq_inf(2)
+    # maxiter=100
     ##used in second test test_probabilities_more_rigurous
     # size_of_batches=10
     # initial_sampled_points=2
@@ -760,68 +783,68 @@ if __name__ == "__main__":
     # number_of_iter_where_probability_must_remain_constant=20
     
     ##used in third test test_probabilities_more_rigurous4
-    size_of_batches=10
-    initial_sampled_points=23
-    max_number_sampled_points=24
-    value_slightly_greater_than_global_opt=3.08
-    tolerance=0.01
-    number_of_iter_where_probability_must_remain_constant=40
+    # size_of_batches=10
+    # initial_sampled_points=23
+    # max_number_sampled_points=24
+    # value_slightly_greater_than_global_opt=3.08
+    # tolerance=0.01
+    # number_of_iter_where_probability_must_remain_constant=40
     
-    print("initial_sampled_points",initial_sampled_points)
-    print("size_of_batches",size_of_batches)
-    print("max_number_sampled_points",max_number_sampled_points)
-    print("tolerance",tolerance)
-    print("number_of_iter_where_probability_must_remain_constant",number_of_iter_where_probability_must_remain_constant)
+    # print("initial_sampled_points",initial_sampled_points)
+    # print("size_of_batches",size_of_batches)
+    # print("max_number_sampled_points",max_number_sampled_points)
+    # print("tolerance",tolerance)
+    # print("number_of_iter_where_probability_must_remain_constant",number_of_iter_where_probability_must_remain_constant)
 
 
-    runs_dict={}
+    # runs_dict={}
 
-    accum_probability={}
-    accum_average_cpu={}
-    accum_multi_cpu={}
-    accum_solver_cpu={}
+    # accum_probability={}
+    # accum_average_cpu={}
+    # accum_multi_cpu={}
+    # accum_solver_cpu={}
     
-    for points in range(initial_sampled_points,max_number_sampled_points+1):
-        iteration=0
-        while True:
-            iteration=iteration+1
-            print("---------------------------------------------------- \n")
-            print("number of points sampled=",points, "__iteration=",iteration)
-            for runs in range(1,size_of_batches+1):
-                try:
-                    info_solver,info_preprocess,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=True,n_points_multstart=points)
-                    cpu_time_solver=sum([info_solver[k][1]   for k in info_solver.keys()])
-                    cpu_time_multi=info_preprocess[1]
-                    actual_number_sampled_points=len(info_preprocess[0]) #actual number of random samples evaluated
-                    total_cpu=cpu_time_solver+cpu_time_multi
-                    try:
-                        objective_found=info_solver['m3_s3'][0]
-                    except:
-                        objective_found=infinity_val
-                    runs_dict[(points,iteration,runs)]=[objective_found,total_cpu,cpu_time_multi,cpu_time_solver,1,actual_number_sampled_points]  #objective function,total cpu time,cpu time multis,cpu time solver
-                except:
-                    runs_dict[(points,iteration,runs)]=[infinity_val,infinity_val,infinity_val,infinity_val,0,actual_number_sampled_points]
-                #print(runs_dict[(points,iteration,runs)])
-            accum_average_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][1] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][1] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])
-            accum_multi_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])            
-            accum_solver_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])  
-            accum_probability[(points,iteration)]=sum([     runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][0]<=value_slightly_greater_than_global_opt   ]   )/len([  runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])    
-            print("accumulated probability",accum_probability[(points,iteration)])
-            print("accumulated average cpu time",accum_average_cpu[(points,iteration)])
-            if iteration>=number_of_iter_where_probability_must_remain_constant:
-                criter=[abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-j)])/abs(accum_probability[(points,iteration)])<=tolerance for j in range(1,number_of_iter_where_probability_must_remain_constant) ]
-                print("stopping criteria:",criter)
-                if all(criter):
-                    break        
-    probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
+    # for points in range(initial_sampled_points,max_number_sampled_points+1):
+    #     iteration=0
+    #     while True:
+    #         iteration=iteration+1
+    #         print("---------------------------------------------------- \n")
+    #         print("number of points sampled=",points, "__iteration=",iteration)
+    #         for runs in range(1,size_of_batches+1):
+    #             try:
+    #                 info_solver,info_preprocess,_=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,use_multi_start=True,n_points_multstart=points)
+    #                 cpu_time_solver=sum([info_solver[k][1]   for k in info_solver.keys()])
+    #                 cpu_time_multi=info_preprocess[1]
+    #                 actual_number_sampled_points=len(info_preprocess[0]) #actual number of random samples evaluated
+    #                 total_cpu=cpu_time_solver+cpu_time_multi
+    #                 try:
+    #                     objective_found=info_solver['m3_s3'][0]
+    #                 except:
+    #                     objective_found=infinity_val
+    #                 runs_dict[(points,iteration,runs)]=[objective_found,total_cpu,cpu_time_multi,cpu_time_solver,1,actual_number_sampled_points]  #objective function,total cpu time,cpu time multis,cpu time solver
+    #             except:
+    #                 runs_dict[(points,iteration,runs)]=[infinity_val,infinity_val,infinity_val,infinity_val,0,actual_number_sampled_points]
+    #             #print(runs_dict[(points,iteration,runs)])
+    #         accum_average_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][1] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][1] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])
+    #         accum_multi_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][2] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])            
+    #         accum_solver_cpu[(points,iteration)]=sum(   [  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ]  )/len([  runs_dict[(points,i,r)][3] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])  
+    #         accum_probability[(points,iteration)]=sum([     runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][0]<=value_slightly_greater_than_global_opt   ]   )/len([  runs_dict[(points,i,r)][4] for i in range(1,iteration+1) for r in range(1,size_of_batches+1) if runs_dict[(points,i,r)][4]==1   ])    
+    #         print("accumulated probability",accum_probability[(points,iteration)])
+    #         print("accumulated average cpu time",accum_average_cpu[(points,iteration)])
+    #         if iteration>=number_of_iter_where_probability_must_remain_constant:
+    #             criter=[abs(accum_probability[(points,iteration)]-accum_probability[(points,iteration-j)])/abs(accum_probability[(points,iteration)])<=tolerance for j in range(1,number_of_iter_where_probability_must_remain_constant) ]
+    #             print("stopping criteria:",criter)
+    #             if all(criter):
+    #                 break        
+    # probability_data=[accum_probability,accum_average_cpu,accum_multi_cpu,accum_solver_cpu]
 
-    a_file = open("test_probabilities_more_rigurous4_25_to_26_naive.pkl", "wb")
-    pickle.dump(probability_data, a_file)
-    a_file.close()
+    # a_file = open("test_probabilities_more_rigurous4_25_to_26_naive.pkl", "wb")
+    # pickle.dump(probability_data, a_file)
+    # a_file.close()
 
-    a_file = open("test_probabilities_secondary_info_more_rigurous4_25_to_26_naive.pkl", "wb")
-    pickle.dump(runs_dict, a_file)
-    a_file.close()
+    # a_file = open("test_probabilities_secondary_info_more_rigurous4_25_to_26_naive.pkl", "wb")
+    # pickle.dump(runs_dict, a_file)
+    # a_file.close()
 
 
 

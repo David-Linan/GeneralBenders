@@ -2,7 +2,6 @@ from __future__ import division
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-
 def merge_two_dicts(x, y):
     z = x.copy()   # start with keys and values of x
     z.update(y)    # modifies z with keys and values of y
@@ -27,20 +26,10 @@ def merge_two_dicts(x, y):
 
 ### ---CODE TO OBTAIN PROBABILITY CONSIDERING A MINIMUM VALUE
 
-min_point=8 #KEEP FIXED
-max_point=22
+min_point=10 #KEEP FIXED
+max_point=20
 
-
-if max_point==10:
-    files=['8_to_10']
-if max_point==13:
-    files=['8_to_10','11_to_13']
-if max_point==16:
-    files=['8_to_10','11_to_13','14_to_16']
-if max_point==19:
-    files=['8_to_10','11_to_13','14_to_16','17_to_19']
-if max_point==22:
-    files=['8_to_10','11_to_13','14_to_16','17_to_19','20_to_22']
+files=['8_to_10','11_to_13','14_to_16','17_to_19','20_to_22']
 
 iterat=0
 for i in files:
@@ -53,21 +42,16 @@ for i in files:
         f_name="test_probabilities_more_rigurous4_"+i+"_naive"
         a_file = open(f_name+".pkl", "rb")
         results = merge_two_dicts(results,pickle.load(a_file)[0])
-iteration=200
-while 1:
-    try:
-        updated_probability={}
-        for points in range(min_point,max_point+1):
-            updated_probability[points]=results[(points,iteration)]
-        break
-    except:
-        iteration=iteration-1
+iteration=51
+updated_probability={}
+for points in range(min_point,max_point+1):
+    updated_probability[points]=float(results[(points,iteration)])
 
 num_points=iteration*10
 print(updated_probability)
 
 
-name='Updated_probability_'+str(num_points)+'_points'
+name='Updated_probability_'+str(num_points)+'_points_'+'from_'+str(min_point)+'to'+str(max_point)
 pd_data_proba=pd.DataFrame.from_dict(data=updated_probability,orient='index',columns=['probability'])
 with pd.ExcelWriter(name+'.xlsx') as writer:
     pd_data_proba.to_excel(writer, sheet_name='Sheet1',startcol=1)
