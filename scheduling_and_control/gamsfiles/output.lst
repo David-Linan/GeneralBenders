@@ -1,0 +1,181 @@
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/14/22 16:45:13 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+
+
+COMPILATION TIME     =        0.051 SECONDS      4 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/14/22 16:45:13 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 10221
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS       2,615     SINGLE EQUATIONS        2,615
+BLOCKS OF VARIABLES       2,702     SINGLE VARIABLES        2,702  750 projected
+NON ZERO ELEMENTS        11,317     NON LINEAR N-Z          3,060
+CODE LENGTH              12,420     CONSTANT POOL              42     DISCRETE VARIABLES        160
+
+
+GENERATION TIME      =        0.029 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/14/22 16:45:13 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 10221
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  DICOPT              FROM LINE  10221
+
+**** SOLVER STATUS     8 User Interrupt            
+**** MODEL STATUS      9 Intermediate Non-Integer  
+**** OBJECTIVE VALUE              236.8056
+
+ RESOURCE USAGE, LIMIT          2.631 10000000000.000
+ ITERATION COUNT, LIMIT        87    2147483647
+ EVALUATION ERRORS              0             0
+-------------------------------------------------------------------------------
+Dicopt 2         34.3.0 rac355f3 Released Feb 25, 2021 LEG x86 64bit/Linux    
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+Reading parameter(s) from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/dicopt.opt"
+>> 
+>>  stop 1
+Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/dicopt.opt"
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 2615 constraints and 2702 variables
+    with 11317 Jacobian elements, 3060 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    1260 elements below the diagonal, and 1086 nonlinear variables.
+ 
+    The pre-triangular part of the model has 283 constraints and 215 variables.
+    The post-triangular part of the model has 74 constraints and variables.
+    There are 833 definitional constraints and defined variables.
+ 
+    Preprocessed model has 1425 constraints and 1580 variables
+    with 7588 Jacobian elements, 2766 of which are nonlinear.
+ 
+ ** Optimal solution. There are no superbasic variables.
+ 
+ ** Scaled model is feasible, but some unscaled residuals are large due
+    due to large scale factors.
+    Largest unscaled residual is 1.03E-04 based on scale factor 4.10E+03.
+ 
+ 
+ CONOPT time Total                            1.212 seconds
+   of which: Function evaluations             0.227 = 18.7%
+             1st Derivative evaluations       0.045 =  3.7%
+             2nd Derivative evaluations       0.000 =  0.0%
+             Interval derivative evals        0.015 =  1.2%
+ 
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- Space for names approximately 0.25 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 1.82 Mb (peak 1.86 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.0 link memory 0.12 Mb (peak 0.63 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.05sec (det. 9.17 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.01sec (det. 3.26 ticks)
+
+
+Proven optimal solution
+MIP Solution:          310.000000    (10 iterations, 0 nodes)
+Final Solve:           310.000000    (0 iterations)
+
+Best possible:         310.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 2615 constraints and 2702 variables
+    with 11317 Jacobian elements, 3060 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    1260 elements below the diagonal, and 1086 nonlinear variables.
+ 
+    The pre-triangular part of the model has 690 constraints and 426 variables.
+    The post-triangular part of the model has 115 constraints and variables.
+    There are 825 definitional constraints and defined variables.
+ 
+    Preprocessed model has 985 constraints and 1336 variables
+    with 6182 Jacobian elements, 2861 of which are nonlinear.
+ 
+ ** User Interrupt.
+ 
+ 
+ CONOPT time Total                            1.300 seconds
+   of which: Function evaluations             0.262 = 20.2%
+             1st Derivative evaluations       0.053 =  4.1%
+             Interval derivative evals        0.009 =  0.7%
+ 
+--- DICOPT: Stopped on user interrupt
+
+      The search was stopped because a user interrupt
+      was received.
+
+--- DICOPT: No integer solution
+
+      No integer solution was found. The relaxed NLP solution
+      will be reported.
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                            62  PROJECTED
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/14/22 16:45:13 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+**** REPORT FILE SUMMARY
+
+results /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/results.dat
+statresults /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/resultsstat.dat
+
+
+EXECUTION TIME       =        2.731 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
+
+
+USER: Eval License                                   G210401|0002AS-GEN
+      Carnegie Mellon University, Dept. of Chemical Engineering  DCE375
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/model.gms
+Output     /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/output.lst

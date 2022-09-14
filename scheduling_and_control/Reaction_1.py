@@ -2,6 +2,10 @@ from __future__ import division
 import pyomo.environ as pe
 import pyomo.dae as dae
 import math
+import os
+import io
+import matplotlib.pyplot as plt
+from pyomo.opt import SolverFactory
 
 #IDEAS
 #0) If the ammount processed whenever a task repeats is the same, processing times are the same and, etc, then I can consider dynamic model once 
@@ -134,14 +138,14 @@ def reaction_1():
 
     _tau_p['Mix','Mix']=1.5
 
-    _tau_p['R1','R_large']=1 #Approximate value from You results
-    _tau_p['R1','R_small']=1 #Approximate value from You results
+    _tau_p['R1','R_large']=3 #Approximate value from You results
+    _tau_p['R1','R_small']=3 #Approximate value from You results
 
-    _tau_p['R2','R_large']=1.5 #Approximate value from You results
-    _tau_p['R2','R_small']=1.5 #Approximate value from You results
+    _tau_p['R2','R_large']=3 #Approximate value from You results
+    _tau_p['R2','R_small']=3 #Approximate value from You results
 
-    _tau_p['R3','R_large']=1 #Approximate value from You results
-    _tau_p['R3','R_small']=1 #Approximate value from You results
+    _tau_p['R3','R_large']=3 #Approximate value from You results
+    _tau_p['R3','R_small']=3 #Approximate value from You results
 
     _tau_p['Sep','Sep']=3 
 
@@ -289,7 +293,10 @@ def reaction_1():
     # Initial temperature of reactors and heating medium for each task
     m.T_R_initial=pe.Param(m.I_reactions,initialize={'R1':300,'R2':300,'R3':300},doc='Initial condition for reaction temperatures inside reactor [K]')
     m.T_J_initial=pe.Param(m.I_reactions,initialize={'R1':300,'R2':300,'R3':300},doc='Initial condition for jacket temperatures [K]')
-
+    # Final temperature of reactions
+    m.T_R_final=pe.Param(m.I_reactions,initialize={'R1':320,'R2':320,'R3':320},doc='Maximum temperature at the end of the reaction [K]')
+    
+    
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
             return 1/sum(m.C[K,Q] for Q in m.Q)
@@ -384,6 +391,11 @@ def reaction_1():
     m.c_dCdt={}
     m.c_dTRdt={}
     m.c_dTJdt={}
+    
+    #Final constraint
+    m.finalCon={}
+    m.finalTemp={}      
+
     for I in m.I_reactions:
         m.Q_balance[I]=pe.Set(initialize=[Q for Q in m.Q if m.coef[I,Q]!=0],within=m.Q,doc='Species of interest for reaction I')
         setattr(m,'Q_balance_[%s]' %I,m.Q_balance[I])
@@ -429,7 +441,6 @@ def reaction_1():
                     return m.dCdt[I,J][N,Q] == m.coef[I,Q]*   m.z[I]*pe.exp(-m.er[I]/m.TRvar[I,J][N])*pe.prod([m.Cvar[I,J][N,Q_2] for Q_2 in m.Q_balance[I] if m.coef[I,Q_2]<=-1]) 
             m.c_dCdt[I,J] = pe.Constraint(m.N[I,J],m.Q_balance[I], rule=_dCdt)
             setattr(m,'c_dCdt_(%s,%s)' %(I,J),m.c_dCdt[I,J])
-            # m.c_dCdt[I,J].pprint()
 
 
             def _dTRdt(m,N):
@@ -448,16 +459,34 @@ def reaction_1():
                     return m.dTJdt[I,J][N] == (((m.Fhot[I,J][N]*(m.T_H[J]-m.TJvar[I,J][N]))+(m.Fcold[I,J][N]*(m.T_C[J]-m.TJvar[I,J][N])))/(m.v_J[J]))+((m.ua[J]*(m.TRvar[I,J][N]-m.TJvar[I,J][N]))/(m.v_J[J]*m.rho_J[J]*m.c_J[J]))  
             m.c_dTJdt[I,J]=pe.Constraint(m.N[I,J],rule=_dTJdt)
             setattr(m,'c_dTJdt_(%s,%s)' %(I,J),m.c_dTJdt[I,J])
+            
+            
+            #Constraints when finishing reaction tasks
+            
+            # Final concentration constraint
+            def _finalCon(m,N,Q):
+                if N==m.N[I,J].last():
+                    return m.Cvar[I,J][N,Q] == m.C_final[I,Q]
+                else:
+                    return pe.Constraint.Skip
+            m.finalCon[I,J]=pe.Constraint(m.N[I,J],m.Q_balance[I],rule=_finalCon)
+            setattr(m,'finalCon_(%s,%s)' %(I,J),m.finalCon[I,J])
+            
+            #Final temperature constraints
+            
+            def _finalTemp(m,N):
+                if N==m.N[I,J].last():
+                    return m.TRvar[I,J][N]<= m.T_R_final[I]
+                else:
+                    return pe.Constraint.Skip
+            m.finalTemp[I,J]=pe.Constraint(m.N[I,J],rule=_finalTemp)
+            setattr(m,'finalTemp_(%s,%s)' %(I,J),m.finalTemp[I,J])
 
     # m.c_dCdt['R3','R_large'].display()
     # m.Cvar['R3','R_large'].display()  
     # m.Q_balance['R1'].pprint()
     # m.Q_balance['R2'].pprint()
     # m.Q_balance['R3'].pprint()
-
-
-
-
     # # -----------scheduling variables -----------------------------------------
     m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,doc='1 if unit j processes task i starting at time t')   
     # help(pe.Var)
@@ -538,20 +567,87 @@ def reaction_1():
     
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
-    m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')
+    m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
+    
     # # -------Discretization---------------------------------------------------
     # discretizer = pe.TransformationFactory('dae.finite_difference')
     # discretizer.apply_to(m, nfe=60, wrt=m.t, scheme='BACKWARD')
     # # discretizer = TransformationFactory('dae.collocation')
     # # discretizer.apply_to(m,nfe=60,ncp=3,wrt=m.t,scheme='LAGRANGE-RADAU')
+    #Constant control actions
+    m.Constant_control1={}
+    m.Constant_control2={}
+    keep_constant_Fhot=3 #Keep Fhot constant every three discretization points
+    keep_constant_Fcold=3 #Keep Fcold constant every three discretization points 
+
+
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
+
     for I in m.I_reactions:
         for J in m.J_reactors:
-            discretizer.apply_to(m, nfe=5, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
+            
+            
+            #------Constant control
+            def _Constant_control1(m,N):
+                if N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fhot!=0:
+                    return m.Fhot[I,J][N] == m.Fhot[I,J][m.N[I,J].prev(N)]
+                else:
+                    return pe.Constraint.Skip
+            m.Constant_control1[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control1)
+            setattr(m,'Constant_control1_(%s,%s)' %(I,J),m.Constant_control1[I,J])
 
+            def _Constant_control2(m,N):
+                if N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fcold!=0:
+                    return m.Fcold[I,J][N] == m.Fcold[I,J][m.N[I,J].prev(N)]
+                else:
+                    return pe.Constraint.Skip
+            m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2)
+            setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])
+            # m.Constant_control1[I,J].pprint()  
+            # m.Constant_control2[I,J].pprint()             
     # # -----------------------------------------------------------------------
     # # -----------------------------------------------------------------------
     return m
 if __name__ == "__main__":
     m=reaction_1()
-    # m.pprint()
+    # dir_path = os.path.dirname(os.path.abspath(__file__))
+    # gams_path = os.path.join(dir_path, "gamsfiles/")
+    # if not(os.path.exists(gams_path)):
+    #     print('Directory for automatically generated files ' + gams_path + ' does not exist. We will create it')
+    #     os.makedirs(gams_path)
+    # opt1 = SolverFactory('gams')
+    # sub_options=['option nlp=conopt4;\n','GAMS_MODEL.optfile=1; \n','$onecho > dicopt.opt \n','stop 1','$offecho \n']
+    # results = opt1.solve(m, solver='dicopt', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
+
+    # t=[]
+    # c=[]
+    # Tr=[]
+    # Fhot=[]
+    # Fcold=[]
+    # case=('R2','R_large')
+    # component='E'
+    # for i in m.N[case]:
+    #     t.append(i)
+    #     c.append( m.Cvar[case][i,component].value)
+    #     Tr.append(m.TRvar[case][i].value)
+    #     Fhot.append(m.Fhot[case][i].value)
+    #     Fcold.append(m.Fcold[case][i].value)
+    # plt.plot(t, c)
+    # plt.show()
+    # plt.plot(t,Tr)
+    # plt.show()
+    # plt.plot(t, Fhot)
+    # plt.show()
+    # plt.plot(t,Fcold)
+    # plt.show()    
+    
+    # ### Results to txt
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+
+    # with open('Results.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
