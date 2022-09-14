@@ -1286,7 +1286,7 @@ def run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,max
     m_init=initialize_model(m=model,json_path=init_path)
 
     start = time.time()
-    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='LOA', mip_output=False, nlp_output=False,rel_tol=0,tee=False)
+    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='LOA', mip_output=False, nlp_output=False,rel_tol=0,tee=True)
     end = time.time()
     #print('gdp time:',end - start,'gdp obj:',pe.value(m_solved.obj))
     #print('Status from GDP-OPT solution: ',m_solved.results.solver.termination_condition,'\n')
