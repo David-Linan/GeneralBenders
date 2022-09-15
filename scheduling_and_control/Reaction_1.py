@@ -299,11 +299,11 @@ def reaction_1():
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return 1/sum(m.C[K,Q] for Q in m.Q)
+            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return 1/sum(m.C[K,Q] for Q in m.Q)
+            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
-            return 0 
+            return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="demand of material k at time t [m^3]")
     m.S0=pe.Param(m.K,initialize={'M1':Infty,'M2':Infty,'M3':Infty,'S1':Infty},default=0,doc="Initial amount of state k [m^3]") #You is not reporting this, so I am assuming it is infinity. This makes sense with the objective function his defines if it is assumed that raw material is available whenever we want to buy it, and that it can instantanelusly go to our production facility
 
@@ -488,9 +488,9 @@ def reaction_1():
     # m.Q_balance['R2'].pprint()
     # m.Q_balance['R3'].pprint()
     # # -----------scheduling variables -----------------------------------------
-    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,doc='1 if unit j processes task i starting at time t')   
+    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,initialize=0,doc='1 if unit j processes task i starting at time t')   
     # help(pe.Var)
-    m.B=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,doc='Batch size of task i processed in unit j starting at time t')
+    m.B=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,initialize=0,doc='Batch size of task i processed in unit j starting at time t')
     def _S_bounds(m,K,T):
         return (None,m.gamma[K])
     m.S=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_S_bounds,doc='Inventory of material k at time t')
@@ -552,6 +552,8 @@ def reaction_1():
     def _obj(m): #TODO: CONSIDER OTHER TERMS
         return sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)
     m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+    
+    
     # # -------Reformulation----------------------------------------------------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
@@ -577,33 +579,33 @@ def reaction_1():
     #Constant control actions
     m.Constant_control1={}
     m.Constant_control2={}
-    keep_constant_Fhot=3 #Keep Fhot constant every three discretization points
-    keep_constant_Fcold=3 #Keep Fcold constant every three discretization points 
+    keep_constant_Fhot=6 #Keep Fhot constant every three discretization points
+    keep_constant_Fcold=6 #Keep Fcold constant every three discretization points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
     for I in m.I_reactions:
         for J in m.J_reactors:
-            discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            discretizer.apply_to(m, nfe=20, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
             
             
             #------Constant control
             def _Constant_control1(m,N):
-                if N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fhot!=0:
+                if (N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fhot!=0) or (N==m.N[I,J].last()):
                     return m.Fhot[I,J][N] == m.Fhot[I,J][m.N[I,J].prev(N)]
                 else:
                     return pe.Constraint.Skip
-            m.Constant_control1[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control1)
+            m.Constant_control1[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control1,doc='Constant control action every keep_constant_Fhot discrete points and the last one')
             setattr(m,'Constant_control1_(%s,%s)' %(I,J),m.Constant_control1[I,J])
 
             def _Constant_control2(m,N):
-                if N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fcold!=0:
+                if (N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fcold!=0) or (N==m.N[I,J].last()):
                     return m.Fcold[I,J][N] == m.Fcold[I,J][m.N[I,J].prev(N)]
                 else:
                     return pe.Constraint.Skip
-            m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2)
+            m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2,doc='Constant control action every keep_constant_Fcold discrete points and the last one')
             setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])
             # m.Constant_control1[I,J].pprint()  
             # m.Constant_control2[I,J].pprint()             
@@ -611,43 +613,143 @@ def reaction_1():
     # # -----------------------------------------------------------------------
     return m
 if __name__ == "__main__":
+    #--- Run problem
     m=reaction_1()
-    # dir_path = os.path.dirname(os.path.abspath(__file__))
-    # gams_path = os.path.join(dir_path, "gamsfiles/")
-    # if not(os.path.exists(gams_path)):
-    #     print('Directory for automatically generated files ' + gams_path + ' does not exist. We will create it')
-    #     os.makedirs(gams_path)
-    # opt1 = SolverFactory('gams')
-    # sub_options=['option nlp=conopt4;\n','GAMS_MODEL.optfile=1; \n','$onecho > dicopt.opt \n','stop 1','$offecho \n']
-    # results = opt1.solve(m, solver='dicopt', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+    gams_path = os.path.join(dir_path, "gamsfiles/")
+    if not(os.path.exists(gams_path)):
+        print('Directory for automatically generated files ' + gams_path + ' does not exist. We will create it')
+        os.makedirs(gams_path)
+    opt1 = SolverFactory('gams')
+    sub_options=['option nlp=conopt4;\n','GAMS_MODEL.optfile=1; \n','$onecho > dicopt.opt \n','stop 1','$offecho \n']
+    results = opt1.solve(m, solver='dicopt', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
 
-    # t=[]
-    # c=[]
-    # Tr=[]
-    # Fhot=[]
-    # Fcold=[]
-    # case=('R2','R_large')
-    # component='E'
-    # for i in m.N[case]:
-    #     t.append(i)
-    #     c.append( m.Cvar[case][i,component].value)
-    #     Tr.append(m.TRvar[case][i].value)
-    #     Fhot.append(m.Fhot[case][i].value)
-    #     Fcold.append(m.Fcold[case][i].value)
-    # plt.plot(t, c)
-    # plt.show()
-    # plt.plot(t,Tr)
-    # plt.show()
-    # plt.plot(t, Fhot)
-    # plt.show()
-    # plt.plot(t,Fcold)
-    # plt.show()    
+
+    #--- Dynamic model plots
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            case=(I,J)
+            t=[]
+            c1=[]
+            c2=[]
+            c3=[]
+            Tr=[]
+            Tj=[]
+            Fhot=[]
+            Fcold=[]
+            for N in m.N[case]:
+                t.append(N)
+                Tr.append(m.TRvar[case][N].value)
+                Tj.append(m.TJvar[case][N].value)
+                Fhot.append(m.Fhot[case][N].value)
+                Fcold.append(m.Fcold[case][N].value)
+                c1.append( m.Cvar[case][N,list(m.Q_balance[I])[0]].value)
+                c2.append( m.Cvar[case][N,list(m.Q_balance[I])[1]].value)
+                c3.append( m.Cvar[case][N,list(m.Q_balance[I])[2]].value)
+                
+                
+            plt.plot(t, c1,label=list(m.Q_balance[I])[0],color='red')
+            plt.plot(t, c2,label=list(m.Q_balance[I])[1],color='green')
+            plt.plot(t, c3,label=list(m.Q_balance[I])[2],color='blue')
+            plt.xlabel('Time [h]')
+            plt.ylabel('$Concentration [kmol/m^{3}]$')
+            plt.title(case[0]+' in '+case[1])
+            plt.legend()
+            plt.show()
+            
+            plt.plot(t,Tr,label='T_reactor',color='red')
+            plt.plot(t,Tj,label='T_jacket',color='blue')
+            plt.xlabel('Time [h]')
+            plt.ylabel('Temperature [K]')
+            plt.title(case[0]+' in '+case[1])
+            plt.legend()
+            plt.show()
+            
+            plt.plot(t, Fhot,label='F_hot',color='red')
+            plt.plot(t,Fcold,label='F_cold',color='blue')
+            plt.xlabel('Time [h]')
+            plt.ylabel('$Flow rate [m^{3}/h]$')
+            plt.title(case[0]+' in '+case[1])
+            plt.legend()
+            plt.show()    
+            
     
-    # ### Results to txt
-    # textbuffer = io.StringIO()
-    # for v in m.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
+    #--- Gantt plot
+    fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+    # Setting Y-axis limits
+    gnt.set_ylim(8, 62)
+    
+    # Setting X-axis limits
+    gnt.set_xlim(0, m.lastT.value)
+    
+    # Setting labels for x-axis and y-axis
+    gnt.set_xlabel('Time [h]')
+    gnt.set_ylabel('Units')
+    
+    # Setting ticks on y-axis
+    gnt.set_yticks([15, 25, 35, 45, 55])
+    # Labelling tickes of y-axis
+    gnt.set_yticklabels(['Pack', 'Sep', 'R_small', 'R_large','Mix'])
 
-    # with open('Results.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
+    
+    # Setting graph attribute
+    gnt.grid(False)
+    
+    # Declaring bars in schedule
+    height=9
+    already_used=[]
+    for j in m.J:
+        if j=='Mix':
+            lower_y_position=50
+        elif j=='R_large':
+            lower_y_position=40    
+        elif j=='R_small':
+            lower_y_position=30    
+        elif j=='Sep':
+            lower_y_position=20
+        elif j=='Pack':
+            lower_y_position=10
+        for i in m.I:
+            if i=='Mix':
+                bar_color='tab:red'
+            elif i=='R1':
+                bar_color='tab:green'    
+            elif i=='R2':
+                bar_color='tab:blue'    
+            elif i=='R3':
+                bar_color='tab:orange' 
+            elif i=='Sep':
+                bar_color='tab:olive'
+            elif i=='Pack1':
+                bar_color='tab:purple'                
+            elif i=='Pack2':
+                bar_color='teal'
+            for t in m.T:
+                try:       
+                    if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                        gnt.broken_barh([(m.t_p[t], m.tau_p[i,j])], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.tau_p[i,j])/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.tau_p[i,j])/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                        already_used.append(i)
+                    elif pe.value(m.X[i,j,t])==1:
+                        gnt.broken_barh([(m.t_p[t], m.tau_p[i,j])], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.tau_p[i,j])/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.tau_p[i,j])/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                except:
+                    pass 
+    gnt.tick_params(axis='both', which='major', labelsize=15)
+    gnt.tick_params(axis='both', which='minor', labelsize=15) 
+    gnt.yaxis.label.set_size(15)
+    gnt.xaxis.label.set_size(15)
+    plt.legend()
+    plt.show()
+    # plt.savefig("gantt_minlp.png")
+    # plt.savefig("gantt_minlp.svg")   
+    
+    
+    # ---Results to txt
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+
+    with open('Results.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
