@@ -1,14 +1,14 @@
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/15/22 13:18:18 Page 1
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/20/22 13:59:45 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.105 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/15/22 13:18:18 Page 2
+COMPILATION TIME     =        0.081 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/20/22 13:59:45 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 19209
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 19509
 
 
 MODEL STATISTICS
@@ -19,23 +19,23 @@ NON ZERO ELEMENTS        21,181     NON LINEAR N-Z          6,120
 CODE LENGTH              24,840     CONSTANT POOL              42     DISCRETE VARIABLES        160
 
 
-GENERATION TIME      =        0.067 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/15/22 13:18:18 Page 3
+GENERATION TIME      =        0.046 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/20/22 13:59:45 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19209
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
 
 
                S O L V E      S U M M A R Y
 
      MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  19209
+     SOLVER  DICOPT              FROM LINE  19509
 
 **** SOLVER STATUS     1 Normal Completion         
 **** MODEL STATUS      8 Integer Solution          
 **** OBJECTIVE VALUE              310.0000
 
- RESOURCE USAGE, LIMIT          3.843 10000000000.000
+ RESOURCE USAGE, LIMIT          4.120 10000000000.000
  ITERATION COUNT, LIMIT        94    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
@@ -77,11 +77,11 @@ Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfi
     Largest unscaled residual is 2.50E-04 based on scale factor 4.10E+03.
  
  
- CONOPT time Total                            1.879 seconds
-   of which: Function evaluations             0.302 = 16.1%
-             1st Derivative evaluations       0.047 =  2.5%
-             2nd Derivative evaluations       0.001 =  0.1%
-             Interval derivative evals        0.012 =  0.6%
+ CONOPT time Total                            2.158 seconds
+   of which: Function evaluations             0.302 = 14.0%
+             1st Derivative evaluations       0.068 =  3.2%
+             2nd Derivative evaluations       0.001 =  0.0%
+             Interval derivative evals        0.032 =  1.5%
  
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- Space for names approximately 0.50 Mb
@@ -93,7 +93,7 @@ Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfi
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 0.05sec (det. 14.99 ticks)
+--- Cplex Time: 0.06sec (det. 14.99 ticks)
 
 --- Fixing integer variables and solving final LP...
 
@@ -138,11 +138,11 @@ Relative gap:            0.000000
     Largest unscaled residual is 3.69E-04 based on scale factor 8.19E+03.
  
  
- CONOPT time Total                            1.828 seconds
-   of which: Function evaluations             0.365 = 20.0%
-             1st Derivative evaluations       0.088 =  4.8%
+ CONOPT time Total                            1.836 seconds
+   of which: Function evaluations             0.375 = 20.4%
+             1st Derivative evaluations       0.084 =  4.6%
              2nd Derivative evaluations       0.000 =  0.0%
-             Interval derivative evals        0.012 =  0.7%
+             Interval derivative evals        0.015 =  0.8%
  
 --- DICOPT: Stopped on crossover
 
@@ -158,7 +158,7 @@ Relative gap:            0.000000
                              0  UNBOUNDED
                              0     ERRORS
                             50  PROJECTED
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/15/22 13:18:18 Page 4
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/20/22 13:59:45 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -169,7 +169,7 @@ results /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/results.dat
 statresults /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/resultsstat.dat
 
 
-EXECUTION TIME       =        4.098 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+EXECUTION TIME       =        4.289 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
 
 
 USER: Eval License                                   G210401|0002AS-GEN
