@@ -1917,34 +1917,34 @@ if __name__ == "__main__":
     #             # m.Z_binary[N,I_J].pprint()
 
     ###-----NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION------
-    lower_obj=pe.value(m_solved.obj) #initialization of cut
-    model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
-    model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
-    logic_fun=problem_logic_scheduling
+    # lower_obj=pe.value(m_solved.obj) #initialization of cut
+    # model_fun_simplified=build_scheduling_Boolean_cost_min_simplified
+    # model_fun_feasibility=build_scheduling_Boolean_cost_min_feasibility
+    # logic_fun=problem_logic_scheduling
 
-    master_max_iter=1000#master iterations
-    initialization=[15,8,23,71,1,45,1,9]
-    infinity_val=1e+6
-    min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
-    nlp_solver='cplex'
-    neigh=neighborhood_k_eq_2(len(initialization))
-    maxiter=1000 #benders decomposition
-    mastertee=True
-    kwargs={}
-    m=model_fun_simplified(**kwargs)
-    ext_ref = {m.Z: m.N} #reformulation sets and variables
-    #lower_obj=1664
-    start=time.time()
+    # master_max_iter=1000#master iterations
+    # initialization=[15,8,23,71,1,45,1,9]
+    # infinity_val=1e+6
+    # min_epsilon_improvement=5#todo: this should agree with the minimum coefficient in the objective function
+    # nlp_solver='cplex'
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # maxiter=1000 #benders decomposition
+    # mastertee=True
+    # kwargs={}
+    # m=model_fun_simplified(**kwargs)
+    # ext_ref = {m.Z: m.N} #reformulation sets and variables
+    # #lower_obj=1664
+    # start=time.time()
 
-    [important_info,D,x_actual]=run_function_dbd_scheduling_cost_min(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
+    # [important_info,D,x_actual]=run_function_dbd_scheduling_cost_min(model_fun_feasibility,lower_obj,min_epsilon_improvement,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun_simplified,kwargs,use_random=False,sub_solver_opt={}, tee=True)
 
 
     ##-----END OF NEW SCHEDULING ALGORITHM FOR COST MINIMIZATION
 
 
-    model_fun =build_scheduling_Original_cost_min
-    kwargs={}
-    logic_fun=problem_logic_scheduling
+    # model_fun =build_scheduling_Original_cost_min
+    # kwargs={}
+    # logic_fun=problem_logic_scheduling
     # #CPLEX solution
     # m=model_fun(**kwargs)
     # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
@@ -1961,98 +1961,102 @@ if __name__ == "__main__":
     # print('CPLEX time ='+str(end-start))
 
     # CPLEX solution reformulated
+    # model_fun =build_scheduling_Boolean_cost_min
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    # options=    {'add_options':[
+    #     'GAMS_MODEL.optfile = 1;'
+    #     '\n'
+    #     '$onecho > cplex.opt \n'
+    #     'mipemphasis 0\n'
+    #     '$offecho \n']}
+
+    # start=time.time()
+    # m_solved=solve_subproblem(m,subproblem_solver = 'xpress',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
+    # end=time.time()
+    # print('CPLEX time (reformulated)='+str(end-start))
+
+
+
+    #### SOLVE USING DSDA AND DBD
     model_fun =build_scheduling_Boolean_cost_min
+    logic_fun=problem_logic_scheduling
+    kwargs={}
     m=model_fun(**kwargs)
-    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    options=    {'add_options':[
+    ext_ref = {m.Z: m.N} #reformulation sets and variables
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+
+
+    max_cplex_sol=1 #maximum number of cplex solutions
+    dict_known={}
+    for sol in range(1,max_cplex_sol+1):
+
+        m=model_fun(**kwargs)
+        pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+        options=    {'add_options':[
+            'GAMS_MODEL.optfile = 1;'
+            '\n'
+            '$onecho > cplex.opt \n'
+            'intsollim '+str(sol)+'\n'
+            'mipemphasis 1\n'
+            '$offecho \n']}
+        if sol==max_cplex_sol:
+            start=time.time()
+        m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)   
+        if sol==max_cplex_sol:
+            end=time.time()
+        #print(m_solved.dsda_status)   
+        # solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_reformualted_profit_max')
+        empty_list=[]
+        for I_J in m_solved.I_J:
+            for N in m_solved.N:
+                if pe.value(m_solved.Z_binary[N,I_J])==1:
+                    # print('ext_Var associated to '+str(I_J)+'is '+str(N+1))
+                    empty_list.append(N+1)
+        # print(pe.value(m_solved.obj))
+        dict_known[tuple(empty_list)]=pe.value(m_solved.obj)
+        updated_known=dict_known.copy()
+
+    required_time=end-start
+    print('Time required to evaluate '+str(max_cplex_sol)+' MIP solutions: '+str(required_time))
+    print(dict_known)
+# USE THIS IF THE PROBLEM IS NOT A FEASIBILITY PROBLEM WHEN SOLVING DIFFERENT INITIALZIATION TRIALS (E.G. PROFIT MAX)
+    # for trial in dict_known:
+    #     m=build_scheduling()       
+    #     external_ref(m,list(trial),logic_fun,reformulation_dict,tee=False)
+    #     m_solved2=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= {},timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0) 
+    #     updated_known[trial]=pe.value(m_solved2.obj)
+    # print(updated_known)   
+
+
+    m=model_fun(**kwargs)
+    initialization=list(min(dict_known, key=lambda k: dict_known[k]) )
+    infinity_val=1e+6
+    nlp_solver='cplex'
+    sub_options={'add_options':[
         'GAMS_MODEL.optfile = 1;'
         '\n'
         '$onecho > cplex.opt \n'
-        'mipemphasis 0\n'
+        'intsollim 1\n'  #TODO: CHANGE THIS FOR COST MIN
+        'mipemphasis 1\n'
         '$offecho \n']}
-
-    start=time.time()
-    m_solved=solve_subproblem(m,subproblem_solver = 'xpress',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0)   
-    end=time.time()
-    print('CPLEX time (reformulated)='+str(end-start))
-
-
-
-#     #### SOLVE USING DSDA AND DBD
-#     m=model_fun(**kwargs)
-#     ext_ref = {m.Z: m.N} #reformulation sets and variables
-#     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-
-
-#     max_cplex_sol=1 #maximum number of cplex solutions
-#     dict_known={}
-#     for sol in range(1,max_cplex_sol+1):
-
-#         m=model_fun(**kwargs)
-#         pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-#         options=    {'add_options':[
-#             'GAMS_MODEL.optfile = 1;'
-#             '\n'
-#             '$onecho > cplex.opt \n'
-#             'intsollim '+str(sol)+'\n'
-#             'mipemphasis 5\n'
-#             '$offecho \n']}
-#         if sol==max_cplex_sol:
-#             start=time.time()
-#         m_solved=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= options,timelimit= 1000000,gams_output = False,tee= False,rel_tol = 0)   
-#         if sol==max_cplex_sol:
-#             end=time.time()
-#         #print(m_solved.dsda_status)   
-#         # solved=generate_initialization(m=m_solved,model_name='maravelias_cplex_reformualted_profit_max')
-#         empty_list=[]
-#         for I_J in m_solved.I_J:
-#             for N in m_solved.N:
-#                 if pe.value(m_solved.Z_binary[N,I_J])==1:
-#                     # print('ext_Var associated to '+str(I_J)+'is '+str(N+1))
-#                     empty_list.append(N+1)
-#         # print(pe.value(m_solved.obj))
-#         dict_known[tuple(empty_list)]=pe.value(m_solved.obj)
-#         updated_known=dict_known.copy()
-
-#     required_time=end-start
-#     print('Time required to evaluate '+str(max_cplex_sol)+' MIP solutions: '+str(required_time))
-#     print(dict_known)
-# # USE THIS IF THE PROBLEM IS NOT A FEASIBILITY PROBLEM WHEN SOLVING DIFFERENT INITIALZIATION TRIALS (E.G. PROFIT MAX)
-#     # for trial in dict_known:
-#     #     m=build_scheduling()       
-#     #     external_ref(m,list(trial),logic_fun,reformulation_dict,tee=False)
-#     #     m_solved2=solve_subproblem(m,subproblem_solver = 'cplex',subproblem_solver_options= {},timelimit= 1000000,gams_output = False,tee= True,rel_tol = 0) 
-#     #     updated_known[trial]=pe.value(m_solved2.obj)
-#     # print(updated_known)   
-
-
-#     m=model_fun(**kwargs)
-#     initialization=list(min(dict_known, key=lambda k: dict_known[k]) )
-#     infinity_val=1e+6
-#     nlp_solver='cplex'
-#     sub_options={'add_options':[
-#         'GAMS_MODEL.optfile = 1;'
-#         '\n'
-#         '$onecho > cplex.opt \n'
-#         'intsollim 1\n'  #TODO: CHANGE THIS FOR COST MIN
-#         'mipemphasis 1\n'
-#         '$offecho \n']}
-#     neigh=neighborhood_k_eq_2(len(initialization))
-#     maxiter=1000
-#     # DBD
-#     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-#     [important_info,important_info_preprocessing,D,x_actual]=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,known_solutions=updated_known)
-#     print('obj= ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    neigh=neighborhood_k_eq_2(len(initialization))
+    maxiter=1000
+    # DBD
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    [important_info,important_info_preprocessing,D,x_actual]=run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,known_solutions=updated_known)
+    print('obj= ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
     
-#      #DSDA
-#     # m_init_fixed = external_ref(m=m,x=initialization,extra_logic_function=logic_fun,dict_extvar=ext_ref,tee=False)
-#     # m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver='baron', timelimit=10000, tee=False)
-#     # init_path = generate_initialization(m=m_init_solved)   
-#     start=time.time()
-#     D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,{},initialization,ext_ref,logic_fun,k = '2',provide_starting_initialization= True,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 1000,timelimit = 3600,gams_output = False,tee= False,global_tee = True,rel_tol = 1e-3)
-#     end=time.time()
-#     print('Objective='+str(pe.value(D_SDAsol.obj))+', best='+str(routeDSDA[-1]))
-#     print('cputime= '+str(end-start))   
+     #DSDA
+    # m_init_fixed = external_ref(m=m,x=initialization,extra_logic_function=logic_fun,dict_extvar=ext_ref,tee=False)
+    # m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver='baron', timelimit=10000, tee=False)
+    # init_path = generate_initialization(m=m_init_solved)   
+    start=time.time()
+    D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,{},initialization,ext_ref,logic_fun,k = '2',provide_starting_initialization= True,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 1000,timelimit = 3600,gams_output = False,tee= False,global_tee = True,rel_tol = 1e-3)
+    end=time.time()
+    print('Objective='+str(pe.value(D_SDAsol.obj))+', best='+str(routeDSDA[-1]))
+    print('cputime= '+str(end-start))   
 
 
 

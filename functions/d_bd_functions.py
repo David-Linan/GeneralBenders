@@ -950,7 +950,7 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
     initial_Stage=3 #stage where the algorithm will be initialized: 1 is feasibility1, 2 is feasibility2 and 3 is optimality
     #------------------------------------------REFORMULATION WITH EXTERNAL VARIABLES--------------------------------------------------
     model = model_fun(**kwargs)
-    _, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=False) 
+    _, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) 
     #------------------------------------------PRE PROCESSING-------------------------------------------------------------------------
     start=time.time()
     #-----------------------------------D-BD ALGORITHM-----------------------------------------------------------------------
@@ -967,7 +967,7 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
         start = time.time()
 
         sub_options_feasibility={}
-        if nlp_solver=='dicopt':
+        if nlp_solver=='dicopt': #TODO: CONOPT 4 used for a specific case study
             sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}
         elif nlp_solver=='baron':
             sub_options_feasibility={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','FirstFeas 1\n',' NumSol 1\n','$offecho \n']}
@@ -1029,18 +1029,30 @@ def run_function_dbd_scheduling_cost_min_nonlinear_ref_2(model_fun_feas,minimum_
             #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
                 #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             _cost={}# TODO: GENERALIZE THIS!!!!
+            # _cost[1]=10
+
+            # _cost[2]=15
+            # _cost[3]=30
+
+            # _cost[4]=5
+            # _cost[5]=25
+
+            # _cost[6]=5
+            # _cost[7]=20
+
+            # _cost[8]=20
+
+            #scheduling and control
             _cost[1]=10
-
-            _cost[2]=15
-            _cost[3]=30
-
-            _cost[4]=5
-            _cost[5]=25
-
-            _cost[6]=5
+            _cost[2]=30
+            _cost[3]=20
+            _cost[4]=30
+            _cost[5]=20
+            _cost[6]=30
             _cost[7]=20
-
-            _cost[8]=20
+            _cost[8]=100
+            _cost[9]=50
+            _cost[10]=50
             if k==1:
                 m.cuts.add(minimum_obj<=sum(_cost[posit]*(m.x[posit]-1) for posit in m.extset))  
             else:

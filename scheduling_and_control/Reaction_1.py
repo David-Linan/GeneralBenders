@@ -622,7 +622,7 @@ if __name__ == "__main__":
         os.makedirs(gams_path)
     opt1 = SolverFactory('gams')
     sub_options=['option nlp=conopt4;\n','GAMS_MODEL.optfile=1; \n','$onecho > dicopt.opt \n','stop 1','$offecho \n']
-    results = opt1.solve(m, solver='dicopt', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
+    results = opt1.solve(m, solver='alphaecp', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
 
 
     #--- Dynamic model plots

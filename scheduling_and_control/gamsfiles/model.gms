@@ -19486,7 +19486,7 @@ s__TJvar__R3_R_small___0__5605_.lo = 300;
 s__TJvar__R3_R_small___0__5605_.up = 370;
 
 MODEL GAMS_MODEL /all/ ;
-option minlp=dicopt;
+option minlp=alphaecp;
 option solprint=off;
 option limrow=0;
 option limcol=0;

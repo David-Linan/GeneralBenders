@@ -53,10 +53,10 @@ def reaction_1():
     _maxTau['R1','R_small']=4 
 
     _maxTau['R2','R_large']=4 
-    _maxTau['R2','R_small']=1 
+    _maxTau['R2','R_small']=4 
 
     _maxTau['R3','R_large']=4 
-    _maxTau['R3','R_small']=6
+    _maxTau['R3','R_small']=4
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
 
     m.ordered_set={}
@@ -78,7 +78,8 @@ def reaction_1():
 
     m.Y=pe.BooleanVar(m.disjunctionsset,initialize=False,doc="Boolean variable that defines the disjunction that decides which scheduling model will be used, depending on the current durantion of each task")
     
-    def _YR_Y_equivalence(m,disjunctionsset):
+    def _YR_Y_equivalence(m,*args):
+            disjunctionsset=args
             return_list=[]
             current=-1
             for I in m.I_reactions:
@@ -90,6 +91,7 @@ def reaction_1():
             return m.Y[disjunctionsset].equivalent_to(pe.land(return_list))
 
     m.YR_Y_equivalence = pe.LogicalConstraint(m.disjunctionsset, rule=_YR_Y_equivalence)
+    # m.YR_Y_equivalence.pprint()
 
 # m.ordered_set['R1','R_large'],m.ordered_set['R1','R_small'],m.ordered_set['R2','R_large'],m.ordered_set['R2','R_small'],m.ordered_set['R3','R_large'],m.ordered_set['R3','R_small'],
 
