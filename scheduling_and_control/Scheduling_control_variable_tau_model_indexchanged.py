@@ -14,7 +14,7 @@ import itertools
 #0) If the ammount processed whenever a task repeats is the same, processing times are the same and, etc, then I can consider dynamic model once 
 #1) can I make things dimmensionless and independent on the ammount processes for every batch? that way probably I can consider one dynamic model to represent multiple operations
 
-def reaction_1():
+def scheduling_and_control():
     # Data
     Infty=1e+8 
     # ------------pyomo model------------------------------------------------
@@ -24,7 +24,7 @@ def reaction_1():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=14,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=1,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -407,30 +407,35 @@ def reaction_1():
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=3
-    _maxTau['R1','R_small']=3 
+    _maxTau['R1','R_large']=2
+    _maxTau['R1','R_small']=2 
 
-    _maxTau['R2','R_large']=3 
-    _maxTau['R2','R_small']=3 
+    _maxTau['R2','R_large']=2 
+    _maxTau['R2','R_small']=2 
 
-    _maxTau['R3','R_large']=3 
-    _maxTau['R3','R_small']=3
+    _maxTau['R3','R_large']=2 
+    _maxTau['R3','R_small']=2
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
 
-    m.ordered_set={}
-    m.YR={}
 
-    for I in m.I_reactions:
-        for J in m.J_reactors:
 
-            m.ordered_set[I,J]=pe.RangeSet(m.minTau[I,J],m.maxTau[I,J],doc='Ordered set for each reaction-reactor pair') 
-            setattr(m,'ordered_set_[%s,%s]' %(I,J),m.ordered_set[I,J])
 
-            m.YR[I,J]=pe.BooleanVar(m.ordered_set[I,J],initialize=False)
-            setattr(m,'YR_[%s,%s]' %(I,J),m.YR[I,J])            
+    m.ordered_set=pe.RangeSet(min([m.minTau[I,J] for I in m.I_reactions for J in m.J_reactors]),max([m.maxTau[I,J] for I in m.I_reactions for J in m.J_reactors]),doc='Ordered set for each reaction-reactor pair') 
 
+    def _ordered_subset(m):
+        return ((I,J,ordered) for I in m.I_reactions for J in m.J_reactors for ordered in m.ordered_set if (ordered>=m.minTau[I,J] and ordered<=m.maxTau[I,J]))
+    m.ordered_subset=pe.Set(dimen=3,initialize=_ordered_subset,doc='Subset to consider specific smaller sets for which reformualtion variable will be defined')
+
+    m.YR=pe.BooleanVar(m.ordered_subset,initialize=False,doc='Reformulation variable')        
+
+    #Constraint that allow to apply the reformulation over YR
+    def _select_one(m,I,J):
+        return pe.exactly(1,[m.YR[I,J,ordered] for ordered in m.ordered_set if (ordered>=m.minTau[I,J] and ordered<=m.maxTau[I,J])])
+    m.oneYR=pe.LogicalConstraint(m.I_reactions,m.J_reactors,rule=_select_one)   
+
+    # Declaration of disjuncts
     def _initDisjuncset(m):
-        return list(itertools.product(*m.ordered_set.values()))              
+        return list(itertools.product(*[[ordered for ordered in m.ordered_set if (ordered>=m.minTau[I,J] and ordered<=m.maxTau[I,J])] for I in m.I_reactions for J in m.J_reactors]))              
     m.disjunctionsset=pe.Set(initialize=_initDisjuncset)
 
 
@@ -443,9 +448,9 @@ def reaction_1():
             for I in m.I_reactions:
                 for J in m.J_reactors:
                     current=current+1
-                    for order in m.ordered_set[I,J]:
+                    for order in [ordered for ordered in m.ordered_set if (ordered>=m.minTau[I,J] and ordered<=m.maxTau[I,J])]:
                         if order==disjunctionsset[current]:
-                            return_list.append(m.YR[I,J][order])
+                            return_list.append(m.YR[I,J,order])
             return m.Y[disjunctionsset].equivalent_to(pe.land(return_list))
 
     m.YR_Y_equivalence = pe.LogicalConstraint(m.disjunctionsset, rule=_YR_Y_equivalence)
@@ -637,23 +642,13 @@ def reaction_1():
                         return pe.Constraint.Skip
                 m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2,doc='Constant control action every keep_constant_Fcold discrete points and the last one')
                 setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])            
-
-
-
-    m.disjuncts=Disjunct(m.disjunctionsset,rule=_build_disjuncts,doc="each disjunct defines a scheduling model with different operation times for reactor tasks")    
+    m.Y_disjuncts=Disjunct(m.disjunctionsset,rule=_build_disjuncts,doc="each disjunct defines a scheduling model with different operation times for reactor tasks")    
+    
     # m.disjuncts.pprint()
 
-
-
-
-    # #--Associate boolean variables to disjuncts
-    # for n in m.set:
-    #     m.Y[n].associate_binary_var(m.Y_disjunct[n].indicator_var)
-
-    # #Constraint that allow to apply the reformulation over Y1
-    # def _select_one(m):
-    #     return pe.exactly(1,m.Y)
-    # m.oneY=pe.LogicalConstraint(rule=_select_one)  
+    # Associate disjuncts with boolean variables
+    for index in m.disjunctionsset:
+        m.Y[index].associate_binary_var(m.Y_disjuncts[index].indicator_var)
 
     #****END OF DISJUNCTIVE SECTION*****************************
 
@@ -702,44 +697,26 @@ def reaction_1():
     # # -----------------------------------------------------------------------
     return m
 
-def dummy_model():
-    m = pe.ConcreteModel(name='my_dummy_model')
-    m.set=pe.RangeSet(1,6,doc= "ordered_Set")
-    m.otherset=pe.Set(initialize=['Mix','R1','R2','R3','Sep','Pack1','Pack2'], doc='Set of tasks')
 
-    m.time=pe.Var(within=pe.NonNegativeIntegers,bounds=(m.set.first(),m.set.last()))
-    m.Y=pe.BooleanVar(m.set,doc="Boolean variable associated to set")
+def problem_logic_scheduling(m):
+    logic_expr = []
+    for disjunctionsset in m.disjunctionsset:
+        return_list=[]
+        current=-1
+        for I in m.I_reactions:
+            for J in m.J_reactors:
+                current=current+1
+                for order in m.ordered_set[I,J]:
+                    if order==disjunctionsset[current]:
+                        return_list.append(m.YR[I,J][order])
+        logic_expr.append([m.Y[disjunctionsset],pe.land(return_list)])            
 
-    #-----First disjunction
-    def _build_disjuncts(m,set):  #Disjuncts for first Boolean variable
-        def _constraint(m):
-            return m.model().time==set #.model() is required when writing constraints inside disjuncts
-        m.constraint=pe.Constraint(rule=_constraint)
-
-        def _parameter(m,other):
-            return set 
-        m.paramet=pe.Param(m.model().otherset,initialize=_parameter)
+    return logic_expr
 
 
-
-
-    m.Y_disjunct=Disjunct(m.set,rule=_build_disjuncts,doc="each disjunct is defined over set")    
-
-    #--Associate boolean variables to disjuncts
-    for n in m.set:
-        m.Y[n].associate_binary_var(m.Y_disjunct[n].indicator_var)
-
-    #Constraint that allow to apply the reformulation over Y1
-    def _select_one(m):
-        return pe.exactly(1,m.Y)
-    m.oneY=pe.LogicalConstraint(rule=_select_one)        
-    
-
-
-    return m
 if __name__ == "__main__":
     #--- Run problem
-    m=reaction_1()
+    m=scheduling_and_control()
     # print(m.Y.index_set().pprint())
     # m.Y.pprint()
     # m.tau.pprint()

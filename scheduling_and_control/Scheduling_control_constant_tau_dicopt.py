@@ -138,14 +138,14 @@ def reaction_1():
 
     _tau_p['Mix','Mix']=1.5
 
-    _tau_p['R1','R_large']=3 #Approximate value from You results
-    _tau_p['R1','R_small']=3 #Approximate value from You results
+    _tau_p['R1','R_large']=1 #Approximate value from You results
+    _tau_p['R1','R_small']=1 #Approximate value from You results
 
-    _tau_p['R2','R_large']=3 #Approximate value from You results
-    _tau_p['R2','R_small']=3 #Approximate value from You results
+    _tau_p['R2','R_large']=1 #Approximate value from You results
+    _tau_p['R2','R_small']=1 #Approximate value from You results
 
-    _tau_p['R3','R_large']=3 #Approximate value from You results
-    _tau_p['R3','R_small']=3 #Approximate value from You results
+    _tau_p['R3','R_large']=1 #Approximate value from You results
+    _tau_p['R3','R_small']=1 #Approximate value from You results
 
     _tau_p['Sep','Sep']=3 
 
@@ -622,9 +622,9 @@ if __name__ == "__main__":
         os.makedirs(gams_path)
     opt1 = SolverFactory('gams')
     sub_options=['option nlp=conopt4;\n','GAMS_MODEL.optfile=1; \n','$onecho > dicopt.opt \n','stop 1','$offecho \n']
-    results = opt1.solve(m, solver='alphaecp', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
-
-
+    results = opt1.solve(m, solver='dicopt', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)
+    print(results.solver.termination_condition)
+    
     #--- Dynamic model plots
     for I in m.I_reactions:
         for J in m.J_reactors:

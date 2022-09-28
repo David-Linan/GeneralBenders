@@ -1,12 +1,12 @@
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/22/22 16:23:34 Page 1
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.079 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/22/22 16:23:34 Page 2
+COMPILATION TIME     =        0.086 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 19509
 
@@ -15,12 +15,12 @@ MODEL STATISTICS
 
 BLOCKS OF EQUATIONS       5,027     SINGLE EQUATIONS        5,027
 BLOCKS OF VARIABLES       4,874     SINGLE VARIABLES        4,874  1,470 projected
-NON ZERO ELEMENTS        21,181     NON LINEAR N-Z          6,120
+NON ZERO ELEMENTS        21,035     NON LINEAR N-Z          6,120
 CODE LENGTH              24,840     CONSTANT POOL              42     DISCRETE VARIABLES        160
 
 
-GENERATION TIME      =        0.046 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/22/22 16:23:34 Page 3
+GENERATION TIME      =        0.053 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
 
@@ -29,28 +29,99 @@ Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
 
      MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  ALPHAECP            FROM LINE  19509
+     SOLVER  DICOPT              FROM LINE  19509
 
-**** SOLVER STATUS     8 User Interrupt            
-**** MODEL STATUS      8 Integer Solution          
-**** OBJECTIVE VALUE              310.0000
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      5 Locally Infeasible        
+**** OBJECTIVE VALUE             1418.1479
 
- RESOURCE USAGE, LIMIT        124.747 10000000000.000
- ITERATION COUNT, LIMIT       460    2147483647
+ RESOURCE USAGE, LIMIT          7.636 10000000000.000
+ ITERATION COUNT, LIMIT       207    2147483647
  EVALUATION ERRORS              0             0
+-------------------------------------------------------------------------------
+Dicopt 2         34.3.0 rac355f3 Released Feb 25, 2021 LEG x86 64bit/Linux    
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+Reading parameter(s) from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/dicopt.opt"
+>> 
+>>  stop 1
+Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/dicopt.opt"
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 5027 constraints and 4874 variables
+    with 21035 Jacobian elements, 6120 of which are nonlinear.
+    The Hessian of the Lagrangian has 366 elements on the diagonal,
+    2520 elements below the diagonal, and 2166 nonlinear variables.
+ 
+    The pre-triangular part of the model has 174 constraints and 134 variables.
+    The post-triangular part of the model has 88 constraints and variables.
+    There are 2430 definitional constraints and defined variables.
+ 
+    Preprocessed model has 2335 constraints and 2222 variables
+    with 13902 Jacobian elements, 6456 of which are nonlinear.
+ 
+ ** Infeasible solution. There are no superbasic variables.
+ 
+ 
+    Initial linear feasibility model has 567 constraints and 404 variables
+    with 1682 linear Jacobian elements.
+    Objective: Distance to initial point (nondefault variables)
+ 
+    Restarting preprocessed model from a new starting point.
+ 
+ ** Infeasible solution. There are no superbasic variables.
+ 
+ 
+    Restarting linear feasibility model.
+    Objective: Distance to initial point (all variables)
+ 
+    Restarting preprocessed model from a new starting point.
+ 
+ ** Infeasible solution. There are no superbasic variables.
+ 
+ 
+    Restarting linear feasibility model.
+    Objective: Distance to point away from bounds
+ 
+    Restarting preprocessed model from a new starting point.
+ 
+ ** Infeasible solution. There are no superbasic variables.
+ 
+ 
+ CONOPT time Total                            7.629 seconds
+   of which: Function evaluations             1.450 = 19.0%
+             1st Derivative evaluations       0.292 =  3.8%
+             2nd Derivative evaluations       0.008 =  0.1%
+             Directional 2nd Deriv(Hess)      0.000 =  0.0%
+             Interval derivative evals        0.005 =  0.1%
+ 
+--- DICOPT: Relaxed NLP is infeasible
 
-AlphaECP         34.3.0 rac355f3 Released Feb 25, 2021 LEG x86 64bit/Linux    
+      The Relaxed NLP was infeasible. Please check your model and
+      make sure it solves correctly as an RMINLP model. Also
+      consider switching to a different RMINLP solver.
 
-*** Error Cannot open parameter file "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/alphaecp.opt"
-*** Error Error code = 2; No such file or directory
 
 
 **** REPORT SUMMARY :        0     NONOPT
-                             0 INFEASIBLE
+                            68 INFEASIBLE (INFES)
+                    SUM      26276.6148
+                    MAX       4631.8142
+                    MEAN       386.4208
                              0  UNBOUNDED
                              0     ERRORS
-                            50  PROJECTED
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/22/22 16:23:34 Page 4
+                            19  PROJECTED
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -61,7 +132,7 @@ results /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/results.dat
 statresults /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/resultsstat.dat
 
 
-EXECUTION TIME       =      145.358 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+EXECUTION TIME       =        7.773 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
 
 
 USER: Eval License                                   G210401|0002AS-GEN
