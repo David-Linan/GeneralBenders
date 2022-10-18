@@ -394,26 +394,26 @@ def scheduling_and_control():
     
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _minTau={}
-    _minTau['R1','R_large']=1
-    _minTau['R1','R_small']=1 
+    _minTau['R1','R_large']=3
+    _minTau['R1','R_small']=3 
 
-    _minTau['R2','R_large']=1 
-    _minTau['R2','R_small']=1 
+    _minTau['R2','R_large']=3 
+    _minTau['R2','R_small']=3 
 
-    _minTau['R3','R_large']=1
-    _minTau['R3','R_small']=1
+    _minTau['R3','R_large']=3
+    _minTau['R3','R_small']=3
     m.minTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=1
-    _maxTau['R1','R_small']=1 
+    _maxTau['R1','R_large']=3
+    _maxTau['R1','R_small']=3 
 
-    _maxTau['R2','R_large']=1 
-    _maxTau['R2','R_small']=1 
+    _maxTau['R2','R_large']=3 
+    _maxTau['R2','R_small']=3 
 
-    _maxTau['R3','R_large']=1 
-    _maxTau['R3','R_small']=1
+    _maxTau['R3','R_large']=3 
+    _maxTau['R3','R_small']=3
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
 
     m.ordered_set={}
@@ -503,7 +503,7 @@ def scheduling_and_control():
             setattr(m,'Q_balance_[%s]' %I,m.Q_balance[I])
             for J in m.model().J_reactors:
                 m.N[I,J]=dae.ContinuousSet(bounds=(0,pe.value(m.model().tau_p[I,J])),doc='Continuous time set for reaction I in reactor J [h]') #TODO: chek units of time, are they consistent? should I use hours? 
-                setattr(m,'N_[%s,%s]' %(I,J),m.N[I,J]) # TODO: I think the name of the pyomo object do not affect, because I can access these sets through dictionary m.N. Check if this is correct
+                setattr(m,'N_%s_%s' %(I,J),m.N[I,J]) # TODO: I think the name of the pyomo object do not affect, because I can access these sets through dictionary m.N. Check if this is correct
 
 
                 def _Cvar_bounds(m,N,Q):
@@ -621,7 +621,9 @@ def scheduling_and_control():
 
         for I in m.model().I_reactions:
             for J in m.model().J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-                discretizer.apply_to(m, nfe=5, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+                discretizer.apply_to(m, nfe=2, ncp=1, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+                print(dir(m.N[I,J]))
+                print(m.N[I,J].value_list)
                 # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
                 
                 
@@ -645,6 +647,13 @@ def scheduling_and_control():
                 setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])            
     m.Y_disjuncts=Disjunct(m.disjunctionsset,rule=_build_disjuncts,doc="each disjunct defines a scheduling model with different operation times for reactor tasks")    
     # m.disjuncts.pprint()
+
+    #Create disjunction
+    def Disjunction1(m):    #Disjunction for first Boolean variable
+        return [m.Y_disjuncts[disjunctionsset] for disjunctionsset in m.disjunctionsset]
+    m.Disjunction1=Disjunction(rule=Disjunction1,xor=False)
+
+
 
     # Associate disjuncts with boolean variables
     for index in m.disjunctionsset:
@@ -717,6 +726,7 @@ def problem_logic_scheduling(m):
 if __name__ == "__main__":
     #--- Run problem
     m=scheduling_and_control()
-    print(m.Y.index_set().pprint())
+    # m.Y_disjuncts.pprint()
+    # print(m.Y.index_set().pprint())
     # m.Y.pprint()
     # m.tau.pprint()

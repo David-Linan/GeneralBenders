@@ -909,7 +909,7 @@ def solve_with_gdpopt(
                           init_strategy='set_covering',#'fix_disjuncts'##'set_covering'#
                           #   set_cover_iterlim=0,
                           #iterlim#=1000,
-                          force_subproblem_nlp=True,
+                          force_subproblem_nlp=False,
                           #subproblem_presolve=False
                           #   bound_tolerance=rel_tol
                           #   calc_disjunctive_bounds=True
