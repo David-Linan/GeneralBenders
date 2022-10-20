@@ -23,7 +23,7 @@ def scheduling_and_control():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=1,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=14,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -36,7 +36,10 @@ def scheduling_and_control():
     #Subsets
     m.J_reactors=pe.Set(initialize=['R_large','R_small'],within=m.J)
     m.I_reactions=pe.Set(initialize=['R1','R2','R3'],within=m.I)   
-
+    m.J_noDynamics=m.J-m.J_reactors
+    m.I_noDynamics=m.I-m.I_reactions
+    m.K_inputs=pe.Set(initialize=['S1','M1','M2','M3'],within=m.K)
+    m.K_products=pe.Set(initialize=['P1','P2'],within=m.K)
     #----------Scalars that depend on sets
     m.eta=pe.Param(initialize=(m.T.__len__()-1)*m.delta, doc='scheduling horizon [units of nntime]')
     # -----------parameters--------------------------------------------------
@@ -309,7 +312,7 @@ def scheduling_and_control():
     _variable_cost_param['Pack1','Pack']=50
     _variable_cost_param['Pack2','Pack']=50
 
-    m.variable_cost_param=pe.Param(m.I,m.J,default=0,initialize=_variable_cost_param,doc="Variabe batch cost [m.u/m^3]") #TODO: define a vaiable called m.variable_cost, which will either take the value of this parameter or the variable cost related to reactor operation
+    m.variable_cost=pe.Param(m.I,m.J,default=0,initialize=_variable_cost_param,doc="Variabe batch cost [m.u/m^3]") 
 
     def _raw_cost(m,K):
         if K=='S1':
@@ -371,6 +374,7 @@ def scheduling_and_control():
         else:
             return (None,0)
     m.vardemand=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_vardemand_bounds,doc='demand of material k at time t [m^3]')
+    m.phicost_var=pe.Var(within=pe.NonNegativeReals, doc='variable cost associated to dynamic units [m.u.]')
     # # ----------Reactor variables that do not depend on disjunctions------------------------------------------------------
     def _Vreactor_bounds(m,I,J):
         return (m.model().beta_min[I,J],m.model().beta_max[I,J])
@@ -503,7 +507,11 @@ def scheduling_and_control():
         
         #Final constraint
         m.finalCon={}
-        m.finalTemp={}      
+        m.finalTemp={}    
+
+        #Integrals for cost calcualtion
+        m.Integral_hot={}
+        m.Integral_cold={}  
 
         for I in m.model().I_reactions:
             m.Q_balance[I]=pe.Set(initialize=[Q for Q in m.model().Q if m.model().coef[I,Q]!=0],within=m.model().Q,doc='Species of interest for reaction I')
@@ -590,6 +598,17 @@ def scheduling_and_control():
                         return pe.Constraint.Skip
                 m.finalTemp[I,J]=pe.Constraint(m.N[I,J],rule=_finalTemp)
                 setattr(m,'finalTemp_(%s,%s)' %(I,J),m.finalTemp[I,J])
+                # Integrals for cost calculation
+
+                def _Integral_hot(m,N):
+                    return m.Fhot[I,J][N] 
+                m.Integral_hot[I,J]=dae.Integral(m.N[I,J],wrt=m.N[I,J],rule=_Integral_hot)
+                setattr(m,'Integral_hot_%s_%s' %(I,J),m.Integral_hot[I,J])
+
+                def _Integral_cold(m,N):
+                    return m.Fcold[I,J][N] 
+                m.Integral_cold[I,J]=dae.Integral(m.N[I,J],wrt=m.N[I,J],rule=_Integral_cold)
+                setattr(m,'Integral_cold_%s_%s' %(I,J),m.Integral_cold[I,J])
 
                 # m.c_dCdt['R3','R_large'].display()
                 # m.Cvar['R3','R_large'].display()  
@@ -597,7 +616,7 @@ def scheduling_and_control():
                 # m.Q_balance['R2'].pprint()
                 # m.Q_balance['R3'].pprint()
 
-    # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
+        # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
         def _E1_UNIT(m,J,T):
             return sum(sum(m.model().X[I,J,TP] for TP in m.model().T if TP<=T and TP>=T-pe.value(m.model().tau[I,J])+1) for I in m.model().I if  m.model().I_i_j_prod[I,J]==1) <=  1
             
@@ -611,7 +630,10 @@ def scheduling_and_control():
                 return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)-m.model().vardemand[K,T]    
         m.E3_BALANCE=pe.Constraint(m.model().K,m.model().T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
 
-
+        # #------Objectiv function terms-----------------------------------------------
+        def _sum_phi_con(m):
+            return m.model().phicost_var==  sum(sum(sum(m.model().X[I,J,T]*(m.model().hot_cost*m.Integral_hot[I,J]   +  m.model().cold_cost*m.Integral_cold[I,J]  ) for T in m.model().T) for I in m.model().I_reactions)for J in m.model().J_reactors)      
+        m.sum_phi_con=pe.Constraint(rule=_sum_phi_con,doc='Total cost for units that consider dynamics')
         # # -------Discretization---------------------------------------------------
         # discretizer = pe.TransformationFactory('dae.finite_difference')
         # discretizer.apply_to(m, nfe=60, wrt=m.t, scheme='BACKWARD')
@@ -620,17 +642,17 @@ def scheduling_and_control():
         #Constant control actions
         m.Constant_control1={}
         m.Constant_control2={}
-        keep_constant_Fhot=6 #Keep Fhot constant every three discretization points
-        keep_constant_Fcold=6 #Keep Fcold constant every three discretization points 
+        keep_constant_Fhot=3 #Keep Fhot constant every three discretization points
+        keep_constant_Fcold=3 #Keep Fcold constant every three discretization points 
 
 
         discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
         for I in m.model().I_reactions:
             for J in m.model().J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-                discretizer.apply_to(m, nfe=2, ncp=1, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
-                print(dir(m.N[I,J]))
-                print(m.N[I,J].value_list)
+                discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+                # print(dir(m.N[I,J]))
+                # print(m.N[I,J].value_list)
                 # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
                 
                 
@@ -680,15 +702,16 @@ def scheduling_and_control():
       
     #There is an important assumption here (discussed before): If a given task I is executed multiple times in reactor J, then it is always executed the same way, i.e., same batch size, same time 
 
-    #2) Variable batch costs #TODO
-
-    #Note that processing time is constant, hence it was linked before as a parameter to define the discretization of reactor differential equations 
-
     #TODO: MAKE TIME DIMENTIONLESS IDEA!!!!!!!!!!!!!!!!!. MAYBE THAT WAY I CAN MAKE TIME A VARIABLE!!!!!!
-
     #-----------Objective function----------------------------------------------
     def _obj(m): #TODO: CONSIDER OTHER TERMS
-        return sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)
+        return  (    
+          sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                           #TPC: Fixed costs for all unit-tasks
+        + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T) #TPC: Variable cost for unit-tasks that do not consider dynamics
+        + m.phicost_var                                                                                                #TPC: Variable cost for unit-tasks that do consider dynamics
+        + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                             #TMC: Total material cost
+        - sum(sum( m.revenue[K]*m.vardemand[K,T]     for K in m.K_products) for T in m.T)#SALES: Revenue form selling products
+        ) 
     m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
     
     

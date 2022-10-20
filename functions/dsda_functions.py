@@ -565,7 +565,7 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
-    m=complementary_model(m,x)
+    # m=complementary_model(m,x)
     #TODO
     #TODO
     #TODO
