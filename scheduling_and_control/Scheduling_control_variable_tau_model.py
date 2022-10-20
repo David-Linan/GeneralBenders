@@ -35,7 +35,7 @@ def scheduling_and_control():
     m.K=pe.Set(initialize=['S1','M1','M2','M3','W1','P1','P2','I1','I2','I3','I4','I5','I6'],doc='Set of states')
     #Subsets
     m.J_reactors=pe.Set(initialize=['R_large','R_small'],within=m.J)
-    m.I_reactions=pe.Set(initialize=['R1','R2','R3'],within=m.I)
+    m.I_reactions=pe.Set(initialize=['R1','R2','R3'],within=m.I)   
 
     #----------Scalars that depend on sets
     m.eta=pe.Param(initialize=(m.T.__len__()-1)*m.delta, doc='scheduling horizon [units of nntime]')
@@ -279,7 +279,7 @@ def scheduling_and_control():
             return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
-    m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="demand of material k at time t [m^3]")
+    m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
     m.S0=pe.Param(m.K,initialize={'M1':Infty,'M2':Infty,'M3':Infty,'S1':Infty},default=0,doc="Initial amount of state k [m^3]") #You is not reporting this, so I am assuming it is infinity. This makes sense with the objective function his defines if it is assumed that raw material is available whenever we want to buy it, and that it can instantanelusly go to our production facility
 
     _fixed_cost={}
@@ -364,6 +364,13 @@ def scheduling_and_control():
         return (None,m.gamma[K])
     m.S=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_S_bounds,doc='Inventory of material k at time t')
 
+    ##%%%%%%%    new      %%%%%%%%%%%
+    def _vardemand_bounds(m,K,T):
+        if (K=='P1' or K=='P2') and T==m.lastT:
+            return (m.demand[K,T],None)
+        else:
+            return (None,0)
+    m.vardemand=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_vardemand_bounds,doc='demand of material k at time t [m^3]')
     # # ----------Reactor variables that do not depend on disjunctions------------------------------------------------------
     def _Vreactor_bounds(m,I,J):
         return (m.model().beta_min[I,J],m.model().beta_max[I,J])
@@ -387,7 +394,7 @@ def scheduling_and_control():
     m.E2_CAPACITY_UP=pe.Constraint(m.I,m.J,m.T,rule=_E2_CAPACITY_UP,doc='UNIT CAPACITY UPPER BOUND')
 
     def _E3_BALANCE_INIT(m,K):
-        return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,0]
+        return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.vardemand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
 
     #*****DISJUNCTIVE SECTION**********************************
@@ -601,7 +608,7 @@ def scheduling_and_control():
             if T==0:
                 return pe.Constraint.Skip
             else:
-                return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)-m.model().demand[K,T]    
+                return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)-m.model().vardemand[K,T]    
         m.E3_BALANCE=pe.Constraint(m.model().K,m.model().T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
 
 
