@@ -24,7 +24,7 @@ if __name__ == "__main__":
     minlp_solver='dicopt'
     nlp_solver='conopt4'
     mip_solver='cplex'
-    gdp_solver='LBB'
+    gdp_solver='LOA'
     if minlp_solver=='dicopt':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','$offecho \n']}
     else:
@@ -41,7 +41,13 @@ if __name__ == "__main__":
 
 
     #Solve with pyomo.GDP
+    # kwargs={}
+    # model_fun=scheduling_and_control_GDP 
+    # m=model_fun(**kwargs)
+    # m_solved = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+
+    #Solve with MINLP
     kwargs={}
-    model_fun=scheduling_and_control_GDP 
+    model_fun=scheduling_and_control_GDP
     m=model_fun(**kwargs)
-    m_solved = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    m_solved = solve_with_minlp(m, transformation='bigm', minlp='sbb', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
