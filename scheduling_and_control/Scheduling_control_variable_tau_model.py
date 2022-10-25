@@ -691,8 +691,7 @@ def scheduling_and_control():
             # print(dir(m.N[I,J]))
             # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
-            
-            
+                        
             #------Constant control
     for I in m.I_reactions:
         for J in m.J_reactors:  
