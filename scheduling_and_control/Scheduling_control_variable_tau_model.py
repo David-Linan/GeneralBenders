@@ -604,7 +604,7 @@ def scheduling_and_control():
             setattr(m,'dTRdtheta_(%s,%s)' %(I,J),m.dTRdtheta[I,J])
 
             m.dTJdtheta[I,J]=dae.DerivativeVar(m.TJvar[I,J], withrespectto=m.N[I,J], doc='Derivative of jacket temperature')
-            setattr(m,'dTJdtheta_(%s,%s)' %(I,J),m.dTJdt[I,J])
+            setattr(m,'dTJdtheta_(%s,%s)' %(I,J),m.dTJdtheta[I,J])
 
             def _dCdtheta(m,N,Q):
                 if N == m.N[I,J].first(): 
