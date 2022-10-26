@@ -1,12 +1,12 @@
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 1
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.086 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 2
+COMPILATION TIME     =        0.137 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 19509
 
@@ -15,12 +15,12 @@ MODEL STATISTICS
 
 BLOCKS OF EQUATIONS       5,027     SINGLE EQUATIONS        5,027
 BLOCKS OF VARIABLES       4,874     SINGLE VARIABLES        4,874  1,470 projected
-NON ZERO ELEMENTS        21,035     NON LINEAR N-Z          6,120
+NON ZERO ELEMENTS        21,181     NON LINEAR N-Z          6,120
 CODE LENGTH              24,840     CONSTANT POOL              42     DISCRETE VARIABLES        160
 
 
-GENERATION TIME      =        0.053 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 3
+GENERATION TIME      =        0.066 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
 
@@ -32,11 +32,11 @@ Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
      SOLVER  DICOPT              FROM LINE  19509
 
 **** SOLVER STATUS     1 Normal Completion         
-**** MODEL STATUS      5 Locally Infeasible        
-**** OBJECTIVE VALUE             1418.1479
+**** MODEL STATUS      8 Integer Solution          
+**** OBJECTIVE VALUE              310.0000
 
- RESOURCE USAGE, LIMIT          7.636 10000000000.000
- ITERATION COUNT, LIMIT       207    2147483647
+ RESOURCE USAGE, LIMIT          3.156 10000000000.000
+ ITERATION COUNT, LIMIT        94    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
 Dicopt 2         34.3.0 rac355f3 Released Feb 25, 2021 LEG x86 64bit/Linux    
@@ -59,69 +59,106 @@ Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfi
  
  
     The user model has 5027 constraints and 4874 variables
-    with 21035 Jacobian elements, 6120 of which are nonlinear.
+    with 21181 Jacobian elements, 6120 of which are nonlinear.
     The Hessian of the Lagrangian has 366 elements on the diagonal,
     2520 elements below the diagonal, and 2166 nonlinear variables.
  
-    The pre-triangular part of the model has 174 constraints and 134 variables.
-    The post-triangular part of the model has 88 constraints and variables.
-    There are 2430 definitional constraints and defined variables.
+    The pre-triangular part of the model has 283 constraints and 215 variables.
+    The post-triangular part of the model has 86 constraints and variables.
+    There are 2425 definitional constraints and defined variables.
  
-    Preprocessed model has 2335 constraints and 2222 variables
-    with 13902 Jacobian elements, 6456 of which are nonlinear.
+    Preprocessed model has 2233 constraints and 2148 variables
+    with 13652 Jacobian elements, 5936 of which are nonlinear.
  
- ** Infeasible solution. There are no superbasic variables.
+ ** Optimal solution. There are no superbasic variables.
  
- 
-    Initial linear feasibility model has 567 constraints and 404 variables
-    with 1682 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
+ ** Scaled model is feasible, but some unscaled residuals are large due
+    due to large scale factors.
+    Largest unscaled residual is 2.50E-04 based on scale factor 4.10E+03.
  
  
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
+ CONOPT time Total                            1.688 seconds
+   of which: Function evaluations             0.252 = 14.9%
+             1st Derivative evaluations       0.049 =  2.9%
+             2nd Derivative evaluations       0.000 =  0.0%
+             Interval derivative evals        0.017 =  1.0%
  
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            7.629 seconds
-   of which: Function evaluations             1.450 = 19.0%
-             1st Derivative evaluations       0.292 =  3.8%
-             2nd Derivative evaluations       0.008 =  0.1%
-             Directional 2nd Deriv(Hess)      0.000 =  0.0%
-             Interval derivative evals        0.005 =  0.1%
- 
---- DICOPT: Relaxed NLP is infeasible
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- Space for names approximately 0.50 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 3.06 Mb (peak 3.12 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.21 Mb)
+--- Starting Cplex
 
-      The Relaxed NLP was infeasible. Please check your model and
-      make sure it solves correctly as an RMINLP model. Also
-      consider switching to a different RMINLP solver.
 
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.03sec (det. 14.99 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.01sec (det. 6.26 ticks)
+
+
+Proven optimal solution
+MIP Solution:          310.000000    (16 iterations, 0 nodes)
+Final Solve:           310.000000    (0 iterations)
+
+Best possible:         310.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 5027 constraints and 4874 variables
+    with 21181 Jacobian elements, 6120 of which are nonlinear.
+    The Hessian of the Lagrangian has 366 elements on the diagonal,
+    2520 elements below the diagonal, and 2166 nonlinear variables.
+ 
+    The pre-triangular part of the model has 689 constraints and 425 variables.
+    The post-triangular part of the model has 129 constraints and variables.
+    There are 2406 definitional constraints and defined variables.
+ 
+    Preprocessed model has 1803 constraints and 1914 variables
+    with 12269 Jacobian elements, 5969 of which are nonlinear.
+ 
+ ** Optimal solution. There are no superbasic variables.
+ 
+ ** Scaled model is feasible, but some unscaled residuals are large due
+    due to large scale factors.
+    Largest unscaled residual is 3.69E-04 based on scale factor 8.19E+03.
+ 
+ 
+ CONOPT time Total                            1.390 seconds
+   of which: Function evaluations             0.250 = 18.0%
+             1st Derivative evaluations       0.058 =  4.2%
+             2nd Derivative evaluations       0.000 =  0.0%
+             Interval derivative evals        0.008 =  0.6%
+ 
+--- DICOPT: Stopped on crossover
+
+      The search was stopped because a crossover occurred.
+      The bound provided by the MIP master problem exceeds or
+      is within optcr of the objective value of the incumbent.
+
+--- DICOPT: Best integer solution found: 310.000000
 
 
 **** REPORT SUMMARY :        0     NONOPT
-                            68 INFEASIBLE (INFES)
-                    SUM      26276.6148
-                    MAX       4631.8142
-                    MEAN       386.4208
+                             0 INFEASIBLE
                              0  UNBOUNDED
                              0     ERRORS
-                            19  PROJECTED
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 09/28/22 13:56:31 Page 4
+                            50  PROJECTED
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -132,7 +169,7 @@ results /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/results.dat
 statresults /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/resultsstat.dat
 
 
-EXECUTION TIME       =        7.773 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+EXECUTION TIME       =        3.327 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
 
 
 USER: Eval License                                   G210401|0002AS-GEN

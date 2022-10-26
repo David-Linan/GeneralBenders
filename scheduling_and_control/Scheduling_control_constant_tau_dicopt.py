@@ -138,14 +138,14 @@ def reaction_1():
 
     _tau_p['Mix','Mix']=1.5
 
-    _tau_p['R1','R_large']=1 #Approximate value from You results
-    _tau_p['R1','R_small']=1 #Approximate value from You results
+    _tau_p['R1','R_large']=3 #Approximate value from You results
+    _tau_p['R1','R_small']=3 #Approximate value from You results
 
-    _tau_p['R2','R_large']=1 #Approximate value from You results
-    _tau_p['R2','R_small']=1 #Approximate value from You results
+    _tau_p['R2','R_large']=3 #Approximate value from You results
+    _tau_p['R2','R_small']=3 #Approximate value from You results
 
-    _tau_p['R3','R_large']=1 #Approximate value from You results
-    _tau_p['R3','R_small']=1 #Approximate value from You results
+    _tau_p['R3','R_large']=3 #Approximate value from You results
+    _tau_p['R3','R_small']=3 #Approximate value from You results
 
     _tau_p['Sep','Sep']=3 
 
