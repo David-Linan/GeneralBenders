@@ -1,12 +1,12 @@
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 1
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/27/22 13:55:50 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.137 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 2
+COMPILATION TIME     =        0.095 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/27/22 13:55:50 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 19509
 
@@ -19,8 +19,8 @@ NON ZERO ELEMENTS        21,181     NON LINEAR N-Z          6,120
 CODE LENGTH              24,840     CONSTANT POOL              42     DISCRETE VARIABLES        160
 
 
-GENERATION TIME      =        0.066 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 3
+GENERATION TIME      =        0.051 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/27/22 13:55:50 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
 
@@ -35,7 +35,7 @@ Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19509
 **** MODEL STATUS      8 Integer Solution          
 **** OBJECTIVE VALUE              310.0000
 
- RESOURCE USAGE, LIMIT          3.156 10000000000.000
+ RESOURCE USAGE, LIMIT          3.007 10000000000.000
  ITERATION COUNT, LIMIT        94    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
@@ -77,11 +77,11 @@ Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfi
     Largest unscaled residual is 2.50E-04 based on scale factor 4.10E+03.
  
  
- CONOPT time Total                            1.688 seconds
-   of which: Function evaluations             0.252 = 14.9%
-             1st Derivative evaluations       0.049 =  2.9%
+ CONOPT time Total                            1.692 seconds
+   of which: Function evaluations             0.258 = 15.2%
+             1st Derivative evaluations       0.045 =  2.7%
              2nd Derivative evaluations       0.000 =  0.0%
-             Interval derivative evals        0.017 =  1.0%
+             Interval derivative evals        0.020 =  1.2%
  
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- Space for names approximately 0.50 Mb
@@ -93,7 +93,7 @@ Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfi
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 0.03sec (det. 14.99 ticks)
+--- Cplex Time: 0.02sec (det. 14.99 ticks)
 
 --- Fixing integer variables and solving final LP...
 
@@ -138,11 +138,11 @@ Relative gap:            0.000000
     Largest unscaled residual is 3.69E-04 based on scale factor 8.19E+03.
  
  
- CONOPT time Total                            1.390 seconds
-   of which: Function evaluations             0.250 = 18.0%
-             1st Derivative evaluations       0.058 =  4.2%
+ CONOPT time Total                            1.256 seconds
+   of which: Function evaluations             0.212 = 16.9%
+             1st Derivative evaluations       0.060 =  4.8%
              2nd Derivative evaluations       0.000 =  0.0%
-             Interval derivative evals        0.008 =  0.6%
+             Interval derivative evals        0.011 =  0.9%
  
 --- DICOPT: Stopped on crossover
 
@@ -158,7 +158,7 @@ Relative gap:            0.000000
                              0  UNBOUNDED
                              0     ERRORS
                             50  PROJECTED
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/25/22 21:09:24 Page 4
+GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 10/27/22 13:55:50 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -169,7 +169,7 @@ results /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/results.dat
 statresults /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/resultsstat.dat
 
 
-EXECUTION TIME       =        3.327 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+EXECUTION TIME       =        3.142 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
 
 
 USER: Eval License                                   G210401|0002AS-GEN

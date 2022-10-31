@@ -369,13 +369,6 @@ def scheduling_and_control():
         return (0,m.gamma[K])
     m.S=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_S_bounds,doc='Inventory of material k at time t')
 
-    ##%%%%%%%    new      %%%%%%%%%%%
-    def _vardemand_bounds(m,K,T):
-        if (K=='P1' or K=='P2') and T==m.lastT:
-            return (m.demand[K,T],m.demand[K,T]+m.demand[K,T]*0.5)
-        else:
-            return (0,0)
-    m.vardemand=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_vardemand_bounds,doc='demand of material k at time t [m^3]')
     # # ----------Reactor variables that do not depend on disjunctions------------------------------------------------------
     def _Vreactor_bounds(m,I,J):
         return (m.model().beta_min[I,J],m.model().beta_max[I,J])
@@ -399,34 +392,38 @@ def scheduling_and_control():
     m.E2_CAPACITY_UP=pe.Constraint(m.I,m.J,m.T,rule=_E2_CAPACITY_UP,doc='UNIT CAPACITY UPPER BOUND')
 
     def _E3_BALANCE_INIT(m,K):
-        return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.vardemand[K,0]
+        return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)#-m.demand[K,0]
     m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
 
-
+    def _E_DEMAND_SATISFACTION(m,K):
+        return m.S[K,m.lastT]>=m.demand[K,m.lastT]
+    m.E_DEMAND_SATISFACTION=pe.Constraint(m.K_products,rule=_E_DEMAND_SATISFACTION,doc='INVENTORY LEVEL OF PRODUCTS NEEDS TO MEET THE ORDER DEMAND')
+        
+        
 
     #*****DISJUNCTIVE SECTION**********************************   
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _minTau={}
-    _minTau['R1','R_large']=3
-    _minTau['R1','R_small']=3 
+    _minTau['R1','R_large']=2
+    _minTau['R1','R_small']=2 
 
     _minTau['R2','R_large']=3 
     _minTau['R2','R_small']=3 
 
-    _minTau['R3','R_large']=3
-    _minTau['R3','R_small']=3
+    _minTau['R3','R_large']=2
+    _minTau['R3','R_small']=2
     m.minTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=4
-    _maxTau['R1','R_small']=4 
+    _maxTau['R1','R_large']=2
+    _maxTau['R1','R_small']=2 
 
-    _maxTau['R2','R_large']=4 
-    _maxTau['R2','R_small']=4 
+    _maxTau['R2','R_large']=3 
+    _maxTau['R2','R_small']=3 
 
-    _maxTau['R3','R_large']=4 
-    _maxTau['R3','R_small']=4
+    _maxTau['R3','R_large']=2 
+    _maxTau['R3','R_small']=2
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
     ### NEW ###################
     def _varTime_bounds(m,I,J):
@@ -485,7 +482,7 @@ def scheduling_and_control():
                 m.model().tau_p[I,J]=disjunctionsset[current]*m.model().delta #Both times are assumed to be discrete
         # #----------- Variable processing times----------------------------------------------------------------
         def _DEF_VAR_TIME(m,I,J):
-            return m.model().varTime[I,J]==m.model().tau_p[I,J]
+            return m.model().varTime[I,J]==pe.value(m.model().tau_p[I,J])
         m.DEF_VAR_TIME=pe.Constraint(m.model().I_reactions,m.model().J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
         # m.DEF_VAR_TIME.display()
         # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
@@ -499,7 +496,7 @@ def scheduling_and_control():
             if T==0:
                 return pe.Constraint.Skip
             else:
-                return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)-m.model().vardemand[K,T]    
+                return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)#-m.model().demand[K,T]    
         m.E3_BALANCE=pe.Constraint(m.model().K,m.model().T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
     m.Y_disjuncts=Disjunct(m.disjunctionsset,rule=_build_disjuncts,doc="each disjunct defines a scheduling model with different operation times for reactor tasks")    
     # m.disjuncts.pprint()
@@ -566,7 +563,12 @@ def scheduling_and_control():
 
     #Integrals for cost calcualtion
     m.Integral_hot={}
-    m.Integral_cold={}  
+    m.Integral_cold={}
+    
+    m.dIntegral_hotdtheta={}
+    m.dIntegral_colddtheta={}
+    m.c_dIntegral_hotdtheta={}
+    m.c_dIntegral_colddtheta={}    
 
     for I in m.I_reactions:
         m.Q_balance[I]=pe.Set(initialize=[Q for Q in m.Q if m.coef[I,Q]!=0],within=m.Q,doc='Species of interest for reaction I')
@@ -653,24 +655,56 @@ def scheduling_and_control():
                     return pe.Constraint.Skip
             m.finalTemp[I,J]=pe.Constraint(m.N[I,J],rule=_finalTemp)
             setattr(m,'finalTemp_(%s,%s)' %(I,J),m.finalTemp[I,J])
-            # Integrals for cost calculation
+           
+            
+           # Integrals for cost calculation
+            def _Integral_hot_bounds(m,N):
+                return (0,m.F_max[J]*m.maxTau[I,J]*m.delta)
+            m.Integral_hot[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_Integral_hot_bounds,doc='Integral of F_hot evaluated at every point [m^3]')
+            setattr(m,'Integral_hot_(%s,%s)' %(I,J),m.Integral_hot[I,J])
+            def _Integral_cold_bounds(m,N):
+                return (0,m.F_max[J]*m.maxTau[I,J]*m.delta)
+            m.Integral_cold[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_Integral_cold_bounds,doc='Integral of F_cold evaluated at every point [m^3]')
+            setattr(m,'Integral_cold_(%s,%s)' %(I,J),m.Integral_cold[I,J])
+            
+            m.dIntegral_hotdtheta[I,J]=dae.DerivativeVar(m.Integral_hot[I,J], withrespectto=m.N[I,J], doc='Derivative of hot integral')
+            setattr(m,'dIntegral_hotdtheta_(%s,%s)' %(I,J),m.dIntegral_hotdtheta[I,J])            
+            m.dIntegral_colddtheta[I,J]=dae.DerivativeVar(m.Integral_cold[I,J], withrespectto=m.N[I,J], doc='Derivative of cold integral')
+            setattr(m,'dIntegral_colddtheta_(%s,%s)' %(I,J),m.dIntegral_colddtheta[I,J])
 
-            def _Integral_hot(m,N):
-                return m.Fhot[I,J][N]*m.varTime[I,J] 
-            m.Integral_hot[I,J]=dae.Integral(m.N[I,J],wrt=m.N[I,J],rule=_Integral_hot)
-            setattr(m,'Integral_hot_%s_%s' %(I,J),m.Integral_hot[I,J])
 
-            def _Integral_cold(m,N):
-                return m.Fcold[I,J][N]*m.varTime[I,J] 
-            m.Integral_cold[I,J]=dae.Integral(m.N[I,J],wrt=m.N[I,J],rule=_Integral_cold)
-            setattr(m,'Integral_cold_%s_%s' %(I,J),m.Integral_cold[I,J])
-
-            # m.c_dCdt['R3','R_large'].display()
+            def _c_dIntegral_hotdtheta(m,N):
+                if N == m.N[I,J].first():
+                    return m.Integral_hot[I,J][N]==0
+                else:
+                    return m.dIntegral_hotdtheta[I,J][N]==m.varTime[I,J]*m.Fhot[I,J][N]
+            m.c_dIntegral_hotdtheta[I,J]=pe.Constraint(m.N[I,J],rule=_c_dIntegral_hotdtheta)
+            setattr(m,'c_dIntegral_hotdtheta_(%s,%s)' %(I,J),m.c_dIntegral_hotdtheta[I,J])   
+            
+            def _c_dIntegral_colddtheta(m,N):
+                if N == m.N[I,J].first():
+                    return m.Integral_cold[I,J][N]==0
+                else:
+                    return m.dIntegral_colddtheta[I,J][N]==m.varTime[I,J]*m.Fcold[I,J][N]
+            m.c_dIntegral_colddtheta[I,J]=pe.Constraint(m.N[I,J],rule=_c_dIntegral_colddtheta)
+            setattr(m,'c_dIntegral_colddtheta_(%s,%s)' %(I,J),m.c_dIntegral_colddtheta[I,J])  
+            
+            # m.c_dCdtheta['R3','R_large'].display()  
             # m.Cvar['R3','R_large'].display()  
             # m.Q_balance['R1'].pprint()
             # m.Q_balance['R2'].pprint()
             # m.Q_balance['R3'].pprint()
-
+    #-----------Objective function----------------------------------------------
+    def _obj(m): 
+        return  (    
+          sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
+        + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
+        + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J][m.N[I,J].last()]   +  m.cold_cost*m.Integral_cold[I,J][m.N[I,J].last()]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
+        + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
+        - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
+        )/100 
+    m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+    
     # # -------Discretization---------------------------------------------------
     # discretizer = pe.TransformationFactory('dae.finite_difference')
     # discretizer.apply_to(m, nfe=60, wrt=m.t, scheme='BACKWARD')
@@ -710,19 +744,7 @@ def scheduling_and_control():
                     return pe.Constraint.Skip
             m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2,doc='Constant control action every keep_constant_Fcold discrete points and the last one')
             setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])            
-
-    #-----------Objective function----------------------------------------------
-    def _obj(m): #TODO: CONSIDER OTHER TERMS
-        return  (    
-          sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
-        + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
-        + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J]   +  m.cold_cost*m.Integral_cold[I,J]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
-        + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
-        - sum(sum( m.revenue[K]*m.vardemand[K,T]     for K in m.K_products) for T in m.T)                                                                             #SALES: Revenue form selling products
-        ) 
-    m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
-    
-    
+  
     # # -------Reformulation----------------------------------------------------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
