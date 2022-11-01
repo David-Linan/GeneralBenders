@@ -1256,41 +1256,42 @@ def run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,max
 #     except:
 #         print('DSDA FBBT infeasible')
 #         important_info['DSDA_'+nlp_solver]=[infinity_val,end - start,'DSDA FBBT infeasible']
-#     #SOLVE WITH MINLP
-#     #GENERATE INITIALIZATION
-#     model = build_column(8, 17, 0.95, 0.95)
-#     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
-#     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
-#     init_path = generate_initialization(m=m_init_solved)
-#     #NOW SOLVE  
-#     model = build_column_minlp_gdp(initialization,8, 17, 0.95, 0.95)
-#     m_init=initialize_model(m=model,json_path=init_path)
-
-#     start = time.time()
-#     sub_opt={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > sbb.opt \n','rootsolver '+nlp_solver+'\n','subsolver '+nlp_solver+'\n','$offecho \n']}
-#     m_solved = solve_with_minlp(m_init, transformation='bigm', minlp='sbb', minlp_options=sub_opt,gams_output=False,tee=False,rel_tol=0)
-#     end = time.time()
-#     print('minlp time:',end - start,'minlp obj:',pe.value(m_solved.obj))
-#     print('Status from MINLP solution: ',m_solved.results.solver.termination_condition,'\n')
-#     important_info['sbb_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
-
-
-    #SOLVE WITH GDP. Boolean fixed at first iteration  
+    #SOLVE WITH MINLP
     #GENERATE INITIALIZATION
     model = build_column(8, 17, 0.95, 0.95)
     m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
     m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
     init_path = generate_initialization(m=m_init_solved)
     #NOW SOLVE  
-    model = build_column_minlp_gdp(initialization,8, 17, 0.95, 0.95) #TODO THIS CODE INITIALIZE YF AND YR ONLY, BUT NOT YP 
+    model = build_column_minlp_gdp(initialization,8, 17, 0.95, 0.95)
     m_init=initialize_model(m=model,json_path=init_path)
 
     start = time.time()
-    m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='LOA', mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    # sub_opt={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > sbb.opt \n','rootsolver '+nlp_solver+'\n','subsolver '+nlp_solver+'\n','$offecho \n']}
+    sub_opt={'add_options':['option nlp=knitro;\n','GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','stop 1','$offecho \n']}
+    m_solved = solve_with_minlp(m_init, transformation='bigm', minlp='alphaecp', minlp_options=sub_opt,gams_output=False,tee=False,rel_tol=0)
     end = time.time()
-    #print('gdp time:',end - start,'gdp obj:',pe.value(m_solved.obj))
-    #print('Status from GDP-OPT solution: ',m_solved.results.solver.termination_condition,'\n')
-    important_info['LOA_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
+    print('minlp time:',end - start,'minlp obj:',pe.value(m_solved.obj))
+    print('Status from MINLP solution: ',m_solved.results.solver.termination_condition,'\n')
+    important_info['sbb_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
+
+
+    # #SOLVE WITH GDP. Boolean fixed at first iteration  
+    # #GENERATE INITIALIZATION
+    # model = build_column(8, 17, 0.95, 0.95)
+    # m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=problem_logic_column,dict_extvar=reformulation_dict,tee=False)
+    # m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver, timelimit=10000, tee=False)
+    # init_path = generate_initialization(m=m_init_solved)
+    # #NOW SOLVE  
+    # model = build_column_minlp_gdp(initialization,8, 17, 0.95, 0.95) #TODO THIS CODE INITIALIZE YF AND YR ONLY, BUT NOT YP 
+    # m_init=initialize_model(m=model,json_path=init_path)
+
+    # start = time.time()
+    # m_solved = solve_with_gdpopt(m_init, mip='cplex',nlp=nlp_solver, timelimit=1000,strategy='LOA', mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    # end = time.time()
+    # #print('gdp time:',end - start,'gdp obj:',pe.value(m_solved.obj))
+    # #print('Status from GDP-OPT solution: ',m_solved.results.solver.termination_condition,'\n')
+    # important_info['LOA_'+nlp_solver]=[pe.value(m_solved.obj),end - start,m_solved.results.solver.termination_condition]
 
     return important_info 
 
@@ -1304,48 +1305,48 @@ if __name__ == "__main__":
     reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds = get_external_information(model, ext_ref, tee=True) 
     print('-------------------------------------------------------------------------- \n \n')
 
-    #### SOLUTION WITH DIFFERENT METHODS
-    initialization=[13,4] 
-    infinity_val=1e+5
-    Adjustable_val=0.5
-    nlp_solver='knitro'
-    neigh=neighborhood_k_eq_inf(2)
-    maxiter=100
-    info=run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
-    print(info)
-
-    # #------ACTUAL EXPERIMENT-------------
-    # XX_1,XX_2=np.meshgrid(np.linspace(lower_bounds[1],upper_bounds[1],upper_bounds[1]-lower_bounds[1]+1),np.linspace(lower_bounds[2],upper_bounds[2],upper_bounds[2]-lower_bounds[2]+1))
-    # X_1=list(np.reshape(XX_1,XX_1.size))
-    # X_2=list(np.reshape(XX_2,XX_2.size))
-    # init_tup=list(zip(X_1,X_2))
-
-    # initializations=[]
-    # for i in init_tup:
-    #     if all([i[0]>=9,i[1]<=9]):
-    #         initializations.append(list(i))
-    # print(initializations)
-
-    # #m.known=pe.Constraint(expr=m.x1-m.x2>=7)
-    # #m.known2=pe.Constraint(expr=m.x1>=9)
-    # #m.known3=pe.Constraint(expr=m.x2<=9)
-
-
+    # #### SOLUTION WITH DIFFERENT METHODS
+    # initialization=[13,4] 
     # infinity_val=1e+5
     # Adjustable_val=0.5
     # nlp_solver='knitro'
     # neigh=neighborhood_k_eq_inf(2)
     # maxiter=100
+    # info=run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
+    # print(info)
 
-    # dict_of_dicts={}
-    # count=1
-    # for i in initializations:
-    #     dict_of_dicts[tuple(i)]=run_function(i,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
-    #     print("solved case ",count,"of ",len(initializations),"\n")
-    #     count=count+1
+    #------ACTUAL EXPERIMENT-------------
+    XX_1,XX_2=np.meshgrid(np.linspace(lower_bounds[1],upper_bounds[1],upper_bounds[1]-lower_bounds[1]+1),np.linspace(lower_bounds[2],upper_bounds[2],upper_bounds[2]-lower_bounds[2]+1))
+    X_1=list(np.reshape(XX_1,XX_1.size))
+    X_2=list(np.reshape(XX_2,XX_2.size))
+    init_tup=list(zip(X_1,X_2))
 
-    # dictionary_data = dict_of_dicts
+    initializations=[]
+    for i in init_tup:
+        if all([i[0]>=9,i[1]<=9]):
+            initializations.append(list(i))
+    print(initializations)
 
-    # a_file = open("data_distillation_gloa.pkl", "wb")
-    # pickle.dump(dictionary_data, a_file)
-    # a_file.close()
+    #m.known=pe.Constraint(expr=m.x1-m.x2>=7)
+    #m.known2=pe.Constraint(expr=m.x1>=9)
+    #m.known3=pe.Constraint(expr=m.x2<=9)
+
+
+    infinity_val=1e+5
+    Adjustable_val=0.5
+    nlp_solver='knitro'
+    neigh=neighborhood_k_eq_inf(2)
+    maxiter=100
+
+    dict_of_dicts={}
+    count=1
+    for i in initializations:
+        dict_of_dicts[tuple(i)]=run_function(i,infinity_val,Adjustable_val,nlp_solver,neigh,maxiter)
+        print("solved case ",count,"of ",len(initializations),"\n")
+        count=count+1
+
+    dictionary_data = dict_of_dicts
+
+    a_file = open("data_distillation_alphaecp.pkl", "wb")
+    pickle.dump(dictionary_data, a_file)
+    a_file.close()
