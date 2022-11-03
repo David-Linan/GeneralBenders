@@ -1269,7 +1269,8 @@ def run_function(initialization,infinity_val,Adjustable_val,nlp_solver,neigh,max
     start = time.time()
     # sub_opt={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > sbb.opt \n','rootsolver '+nlp_solver+'\n','subsolver '+nlp_solver+'\n','$offecho \n']}
     sub_opt={'add_options':['option nlp=knitro;\n','GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','stop 1','$offecho \n']}
-    m_solved = solve_with_minlp(m_init, transformation='bigm', minlp='alphaecp', minlp_options=sub_opt,gams_output=False,tee=False,rel_tol=0)
+    sub_opt={'add_options':['option nlp=knitro;\n','GAMS_MODEL.optfile = 1;','\n','$onecho > baron.opt \n','MaxTime 1000\n ','NLPSol 6\n ','ExtNLPsolver knitro\n','$offecho \n']}
+    m_solved = solve_with_minlp(m_init, transformation='bigm', minlp='lindoglobal', minlp_options=sub_opt,gams_output=False,tee=False,rel_tol=0)
     end = time.time()
     print('minlp time:',end - start,'minlp obj:',pe.value(m_solved.obj))
     print('Status from MINLP solution: ',m_solved.results.solver.termination_condition,'\n')
@@ -1347,6 +1348,6 @@ if __name__ == "__main__":
 
     dictionary_data = dict_of_dicts
 
-    a_file = open("data_distillation_alphaecp.pkl", "wb")
+    a_file = open("data_distillation_lindoglobal.pkl", "wb")
     pickle.dump(dictionary_data, a_file)
     a_file.close()
