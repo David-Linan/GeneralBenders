@@ -23,7 +23,7 @@ def scheduling_and_control():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=11,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=12,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
