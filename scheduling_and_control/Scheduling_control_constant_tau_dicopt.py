@@ -138,14 +138,14 @@ def reaction_1():
 
     _tau_p['Mix','Mix']=1.5
 
-    _tau_p['R1','R_large']=3 #Approximate value from You results
-    _tau_p['R1','R_small']=3 #Approximate value from You results
+    _tau_p['R1','R_large']=2 #Approximate value from You results
+    _tau_p['R1','R_small']=2 #Approximate value from You results
 
     _tau_p['R2','R_large']=3 #Approximate value from You results
     _tau_p['R2','R_small']=3 #Approximate value from You results
 
-    _tau_p['R3','R_large']=3 #Approximate value from You results
-    _tau_p['R3','R_small']=3 #Approximate value from You results
+    _tau_p['R3','R_large']=2 #Approximate value from You results
+    _tau_p['R3','R_small']=2 #Approximate value from You results
 
     _tau_p['Sep','Sep']=3 
 
@@ -579,19 +579,22 @@ def reaction_1():
     #Constant control actions
     m.Constant_control1={}
     m.Constant_control2={}
-    keep_constant_Fhot=6 #Keep Fhot constant every three discretization points
-    keep_constant_Fcold=6 #Keep Fcold constant every three discretization points 
+    keep_constant_Fhot=3 #Keep Fhot constant every three discretization points
+    keep_constant_Fcold=3 #Keep Fcold constant every three discretization points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
     for I in m.I_reactions:
-        for J in m.J_reactors:
+        for J in m.J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
             discretizer.apply_to(m, nfe=20, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            # print(dir(m.N[I,J]))
+            # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
-            
-            
+                        
             #------Constant control
+    for I in m.I_reactions:
+        for J in m.J_reactors:  
             def _Constant_control1(m,N):
                 if (N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fhot!=0) or (N==m.N[I,J].last()):
                     return m.Fhot[I,J][N] == m.Fhot[I,J][m.N[I,J].prev(N)]
@@ -606,7 +609,7 @@ def reaction_1():
                 else:
                     return pe.Constraint.Skip
             m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2,doc='Constant control action every keep_constant_Fcold discrete points and the last one')
-            setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])
+            setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J]) 
             # m.Constant_control1[I,J].pprint()  
             # m.Constant_control2[I,J].pprint()             
     # # -----------------------------------------------------------------------

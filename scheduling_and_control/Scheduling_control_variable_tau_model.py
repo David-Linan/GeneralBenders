@@ -23,7 +23,7 @@ def scheduling_and_control():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=14,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=11,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -367,7 +367,7 @@ def scheduling_and_control():
     m.B=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_B_bounds,initialize=0,doc='Batch size of task i processed in unit j starting at time t')
     def _S_bounds(m,K,T):
         return (0,m.gamma[K])
-    m.S=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_S_bounds,doc='Inventory of material k at time t')
+    m.S=pe.Var(m.K,m.T,within=pe.NonNegativeReals,bounds=_S_bounds,initialize=0,doc='Inventory of material k at time t')
 
     # # ----------Reactor variables that do not depend on disjunctions------------------------------------------------------
     def _Vreactor_bounds(m,I,J):
@@ -660,12 +660,12 @@ def scheduling_and_control():
            # Integrals for cost calculation
             def _Integral_hot_bounds(m,N):
                 return (0,m.F_max[J]*m.maxTau[I,J]*m.delta)
-            m.Integral_hot[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_Integral_hot_bounds,doc='Integral of F_hot evaluated at every point [m^3]')
-            setattr(m,'Integral_hot_(%s,%s)' %(I,J),m.Integral_hot[I,J])
+            m.Integral_hot[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,initialize=0,bounds=_Integral_hot_bounds,doc='Integral of F_hot evaluated at every point [m^3]')
+            setattr(m,'Integral_hot_%s_%s' %(I,J),m.Integral_hot[I,J])
             def _Integral_cold_bounds(m,N):
                 return (0,m.F_max[J]*m.maxTau[I,J]*m.delta)
-            m.Integral_cold[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_Integral_cold_bounds,doc='Integral of F_cold evaluated at every point [m^3]')
-            setattr(m,'Integral_cold_(%s,%s)' %(I,J),m.Integral_cold[I,J])
+            m.Integral_cold[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,initialize=0,bounds=_Integral_cold_bounds,doc='Integral of F_cold evaluated at every point [m^3]')
+            setattr(m,'Integral_cold_%s_%s' %(I,J),m.Integral_cold[I,J])
             
             m.dIntegral_hotdtheta[I,J]=dae.DerivativeVar(m.Integral_hot[I,J], withrespectto=m.N[I,J], doc='Derivative of hot integral')
             setattr(m,'dIntegral_hotdtheta_(%s,%s)' %(I,J),m.dIntegral_hotdtheta[I,J])            
