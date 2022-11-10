@@ -407,8 +407,8 @@ def scheduling_and_control():
     _minTau['R1','R_large']=2
     _minTau['R1','R_small']=2 
 
-    _minTau['R2','R_large']=3 
-    _minTau['R2','R_small']=3 
+    _minTau['R2','R_large']=2 
+    _minTau['R2','R_small']=2 
 
     _minTau['R3','R_large']=2
     _minTau['R3','R_small']=2
@@ -416,14 +416,14 @@ def scheduling_and_control():
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=2
-    _maxTau['R1','R_small']=2 
+    _maxTau['R1','R_large']=3
+    _maxTau['R1','R_small']=3 
 
     _maxTau['R2','R_large']=3 
     _maxTau['R2','R_small']=3 
 
-    _maxTau['R3','R_large']=2 
-    _maxTau['R3','R_small']=2
+    _maxTau['R3','R_large']=3 
+    _maxTau['R3','R_small']=3
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
     ### NEW ###################
     def _varTime_bounds(m,I,J):
