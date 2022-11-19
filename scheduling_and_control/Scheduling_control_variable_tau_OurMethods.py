@@ -37,7 +37,7 @@ if __name__ == "__main__":
     m=model_fun(**kwargs)
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[1,1,2,2,1,1],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 1000,timelimit = 3600,gams_output = False,tee= False,global_tee = True,rel_tol = 1e-3)
+    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[1,1,1,1,1,1],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 1000,timelimit = 3600,gams_output = False,tee= False,global_tee = True,rel_tol = 1e-3)
 
 
     #Solve with pyomo.GDP
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     gnt.set_ylim(8, 62)
     
     # Setting X-axis limits
-    gnt.set_xlim(0, m.lastT.value)
+    gnt.set_xlim(0, m.lastT.value*m.delta.value)
     
     # Setting labels for x-axis and y-axis
     gnt.set_xlabel('Time [h]')
