@@ -1,6 +1,5 @@
 from math import fabs
 import math
-from selectors import EpollSelector
 import numpy as np
 import pyomo.environ as pe
 from pyomo.opt.base.solvers import SolverFactory

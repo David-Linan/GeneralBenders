@@ -2,7 +2,8 @@ from __future__ import division
 from pickle import TRUE
 
 import sys
-sys.path.insert(0, '/home/dadapy/GeneralBenders/')
+# sys.path.insert(0, '/home/dadapy/GeneralBenders/')
+sys.path.append('C:/Users/TEMP/Desktop/GeneralBenders/')
 from functions.d_bd_functions import run_function_dbd,run_function_dbd_scheduling_cost_min
 from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model
 import pyomo.environ as pe

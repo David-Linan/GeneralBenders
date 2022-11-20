@@ -6,7 +6,7 @@ import pyomo.environ as pe
 from pyomo.opt.base.solvers import SolverFactory
 import os
 from decimal import Decimal
-from smt.sampling_methods import LHS
+# from smt.sampling_methods import LHS
 import random
 
 
@@ -44,30 +44,30 @@ def convex_clousure(data,xinitial):
     return variables
 
 
-def initialization_sampling(number_points,lower_bounds,upper_bounds,input_criterion: str='ese'):
+# def initialization_sampling(number_points,lower_bounds,upper_bounds,input_criterion: str='ese'):
 
-    """
-    Function that returns the points to be evaluated in the random sampling step
-    """
-    if number_points<=0:
-        number_points=1
-    list_of_limits=[]
+#     """
+#     Function that returns the points to be evaluated in the random sampling step
+#     """
+#     if number_points<=0:
+#         number_points=1
+#     list_of_limits=[]
 
-    for i in lower_bounds:
-        list_of_limits.append([lower_bounds[i],upper_bounds[i]])
+#     for i in lower_bounds:
+#         list_of_limits.append([lower_bounds[i],upper_bounds[i]])
 
-    xlimits = np.array(list_of_limits)
-    sampling = LHS(xlimits=xlimits,criterion=input_criterion)#,random_state=1)
-    num = number_points
-    x = sampling(num)
+#     xlimits = np.array(list_of_limits)
+#     sampling = LHS(xlimits=xlimits,criterion=input_criterion)#,random_state=1)
+#     num = number_points
+#     x = sampling(num)
       
-    newx=[] #discrete values
-    for i in x.tolist():
-        partial=[round(j) for j in i]
-        if partial not in newx: #without repeated values
-            newx.append(partial)
-    newx.sort(reverse=True)
-    return newx   #list with discrete randomly sampled values (without repetition)
+#     newx=[] #discrete values
+#     for i in x.tolist():
+#         partial=[round(j) for j in i]
+#         if partial not in newx: #without repeated values
+#             newx.append(partial)
+#     newx.sort(reverse=True)
+#     return newx   #list with discrete randomly sampled values (without repetition)
 
 def initialization_sampling_naive(number_points,lower_bounds,upper_bounds):
 
