@@ -1,6 +1,7 @@
 from __future__ import division
 import sys
-sys.path.insert(0, '/home/dadapy/GeneralBenders/')
+# sys.path.insert(0, '/home/dadapy/GeneralBenders/')
+sys.path.append('C:/Users/TEMP/Desktop/GeneralBenders/') #for LRLAB5
 from functions.d_bd_functions import run_function_dbd
 from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_gdpopt,solve_with_minlp
 import pyomo.environ as pe
