@@ -1,7 +1,8 @@
 from __future__ import division
 import sys
 # sys.path.insert(0, '/home/dadapy/GeneralBenders/')
-sys.path.append('C:/Users/TEMP/Desktop/GeneralBenders/') #for LRLAB5
+# sys.path.append('C:/Users/TEMP/Desktop/GeneralBenders/') #for LRLAB5
+sys.path.append('C:/Users/dlinanro/Desktop/GeneralBenders/') #for LRSRV1
 from functions.d_bd_functions import run_function_dbd
 from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_gdpopt,solve_with_minlp
 import pyomo.environ as pe
@@ -45,13 +46,13 @@ if __name__ == "__main__":
     # kwargs={}
     # model_fun=scheduling_and_control_GDP 
     # m=model_fun(**kwargs)
-    # m_solved = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    # m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
 
     #Solve with MINLP
     # kwargs={}
     # model_fun=scheduling_and_control_GDP
     # m=model_fun(**kwargs)
-    # m_solved = solve_with_minlp(m, transformation='bigm', minlp='sbb', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
+    # m = solve_with_minlp(m, transformation='bigm', minlp='sbb', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
     #--- Dynamic model plots
     # ---Results to txt
     textbuffer = io.StringIO()
