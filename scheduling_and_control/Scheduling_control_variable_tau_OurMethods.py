@@ -28,7 +28,7 @@ if __name__ == "__main__":
     mip_solver='cplex'
     gdp_solver='LOA'
     if minlp_solver=='dicopt':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','$offecho \n']}
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
     else:
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n']}
 
@@ -39,8 +39,17 @@ if __name__ == "__main__":
     m=model_fun(**kwargs)
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[1,1,1,1,1,1],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 1000,timelimit = 3600,gams_output = False,tee= False,global_tee = True,rel_tol = 1e-3)
+    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[1,1,1,1,1,1],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= True,global_tee = True,rel_tol = 1e-3)
+    print('Objective value: ',str(pe.value(m.obj)))
 
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('Results_variable_tau_dsda.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
 
     #Solve with pyomo.GDP
     # kwargs={}
@@ -55,14 +64,7 @@ if __name__ == "__main__":
     # m = solve_with_minlp(m, transformation='bigm', minlp='sbb', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
     #--- Dynamic model plots
     # ---Results to txt
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+
 
 
 
