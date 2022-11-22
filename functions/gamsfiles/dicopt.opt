@@ -1,1 +1,7 @@
-feaspump 2
+
+nlpsolver conopt4
+
+stop 1 
+
+maxcycles 2000 
+

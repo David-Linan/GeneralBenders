@@ -199,7 +199,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
     #solve neighborhood (only if central point was feasible)
     if status[0]==1:
         count=0 #count to add elements to status
-        for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+        for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT, BUT THIS IS PROBLEMATIC BECAUSE I MUST DELETE DISJUNCTIONS FROM THE CODE (JUST LEAVE DISJUNCTS)
             count=count+1
             current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
             #print(current_value)
@@ -224,7 +224,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
                     status[count]=0
                     generated_dict[tuple(current_value)]=infinity_val   #THIS LAINE ACTUALLY HELPS A LOT TO FIND LOCAL SOLUTIONS FASTER!!!!!
                 #print(pe.value(m_solved2.obj))
-    return generated_dict,init_path
+    return generated_dict,init_path,m_solved
 
 
 def build_master(num_ext,lower_b,upper_b,current,stage,D,use_random: bool=False):
@@ -294,8 +294,6 @@ def build_master(num_ext,lower_b,upper_b,current,stage,D,use_random: bool=False)
     notevaluated=[round(k) for k in initial.values()]
     return m,notevaluated
 
-
-
 def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
     #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
@@ -318,7 +316,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         model=initialize_model(m=model,json_path=init_path)
         m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
         #original line
-        m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+        m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=True)
         #m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= {'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver conopt4\n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}, timelimit=10000, tee=False)
         #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: uncomment last line for nonlinear scheduling problem      
         
@@ -564,7 +562,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             x_dict[k]=x_actual
             #print(x_actual)
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,init_path=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt)
+            new_values,init_path,m_solved=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
                 print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
@@ -603,7 +601,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
         if tee==True:
             print('-------------------------------------------')
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
-    return important_info,important_info_preprocessing,D,x_actual
+    return important_info,important_info_preprocessing,D,x_actual,m_solved
 
 def run_function_dbd_scheduling_cost_min(model_fun_feas,minimum_obj,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
@@ -828,8 +826,6 @@ def run_function_dbd_scheduling_cost_min_nonlinear(model_fun_feas,minimum_obj,ep
             print('-------------------------------------------')
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
     return important_info,D,x_actual
-
-
 
 def run_function_dbd_scheduling_cost_min_ref_2(model_fun_feas,minimum_obj,epsilon,initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 

@@ -14,8 +14,8 @@ import time
 from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
 import logging
 # from Scheduling_control_variable_tau_model_reduced import scheduling_and_control,problem_logic_scheduling
-from Scheduling_control_variable_tau_model import scheduling_and_control as scheduling_and_control_GDP 
-from Scheduling_control_variable_tau_model import problem_logic_scheduling
+from Scheduling_only import scheduling as scheduling_GDP 
+from Scheduling_only import problem_logic_scheduling
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
@@ -23,23 +23,21 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='dicopt'
     nlp_solver='conopt4'
     mip_solver='cplex'
     gdp_solver='LOA'
-    if minlp_solver=='dicopt':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
-    else:
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n']}
+
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
+    sub_options={}
 
     # #Solve with LD-SDA
-    model_fun =scheduling_and_control_GDP
+    model_fun =scheduling_GDP
     logic_fun=problem_logic_scheduling
     kwargs={}
     m=model_fun(**kwargs)
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[1,1,1,1,1,1],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = True,tee= True,global_tee = True,rel_tol = 0)
+    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[1,1,1,1,1,1],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = mip_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= True,global_tee = True,rel_tol = 0)
     print('Objective value: ',str(pe.value(m.obj)))
 
     textbuffer = io.StringIO()
@@ -48,44 +46,18 @@ if __name__ == "__main__":
         textbuffer.write('\n')
     textbuffer.write('\n Objective: \n') 
     textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_dsda.txt', 'w') as outputfile:
+    with open('Results_schedling_only_dsda.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
-
-
-    # #Solve with LD-BD
-    # initialization=[1,1,1,1,1,1]
-    # infinity_val=1e+8
-    # maxiter=1000
-    # neigh=neighborhood_k_eq_2(len(initialization))
-    # model_fun =scheduling_and_control_GDP
-    # logic_fun=problem_logic_scheduling
-    # kwargs={}
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
-    # print('Objective value: ',str(pe.value(m.obj)))
-    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
-    # textbuffer = io.StringIO()
-    # for v in m.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-    # textbuffer.write('\n Objective: \n') 
-    # textbuffer.write(str(pe.value(m.obj)))    
-    # with open('Results_variable_tau_dbd.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
-
-
 
     #Solve with pyomo.GDP
     # kwargs={}
-    # model_fun=scheduling_and_control_GDP 
+    # model_fun=scheduling_GDP 
     # m=model_fun(**kwargs)
     # m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
 
     #Solve with MINLP
     # kwargs={}
-    # model_fun=scheduling_and_control_GDP
+    # model_fun=scheduling_GDP
     # m=model_fun(**kwargs)
     # m = solve_with_minlp(m, transformation='bigm', minlp='sbb', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
     #--- Dynamic model plots
@@ -94,52 +66,52 @@ if __name__ == "__main__":
 
 
 
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            case=(I,J)
-            t=[]
-            c1=[]
-            c2=[]
-            c3=[]
-            Tr=[]
-            Tj=[]
-            Fhot=[]
-            Fcold=[]
-            for N in m.N[case]:
-                t.append(N)
-                Tr.append(m.TRvar[case][N].value)
-                Tj.append(m.TJvar[case][N].value)
-                Fhot.append(m.Fhot[case][N].value)
-                Fcold.append(m.Fcold[case][N].value)
-                c1.append( m.Cvar[case][N,list(m.Q_balance[I])[0]].value)
-                c2.append( m.Cvar[case][N,list(m.Q_balance[I])[1]].value)
-                c3.append( m.Cvar[case][N,list(m.Q_balance[I])[2]].value)
+    # for I in m.I_reactions:
+    #     for J in m.J_reactors:
+    #         case=(I,J)
+    #         t=[]
+    #         c1=[]
+    #         c2=[]
+    #         c3=[]
+    #         Tr=[]
+    #         Tj=[]
+    #         Fhot=[]
+    #         Fcold=[]
+    #         for N in m.N[case]:
+    #             t.append(N)
+    #             Tr.append(m.TRvar[case][N].value)
+    #             Tj.append(m.TJvar[case][N].value)
+    #             Fhot.append(m.Fhot[case][N].value)
+    #             Fcold.append(m.Fcold[case][N].value)
+    #             c1.append( m.Cvar[case][N,list(m.Q_balance[I])[0]].value)
+    #             c2.append( m.Cvar[case][N,list(m.Q_balance[I])[1]].value)
+    #             c3.append( m.Cvar[case][N,list(m.Q_balance[I])[2]].value)
                 
                 
-            plt.plot(t, c1,label=list(m.Q_balance[I])[0],color='red')
-            plt.plot(t, c2,label=list(m.Q_balance[I])[1],color='green')
-            plt.plot(t, c3,label=list(m.Q_balance[I])[2],color='blue')
-            plt.xlabel('Time [h]')
-            plt.ylabel('$Concentration [kmol/m^{3}]$')
-            plt.title(case[0]+' in '+case[1])
-            plt.legend()
-            plt.show()
+    #         plt.plot(t, c1,label=list(m.Q_balance[I])[0],color='red')
+    #         plt.plot(t, c2,label=list(m.Q_balance[I])[1],color='green')
+    #         plt.plot(t, c3,label=list(m.Q_balance[I])[2],color='blue')
+    #         plt.xlabel('Time [h]')
+    #         plt.ylabel('$Concentration [kmol/m^{3}]$')
+    #         plt.title(case[0]+' in '+case[1])
+    #         plt.legend()
+    #         plt.show()
             
-            plt.plot(t,Tr,label='T_reactor',color='red')
-            plt.plot(t,Tj,label='T_jacket',color='blue')
-            plt.xlabel('Time [h]')
-            plt.ylabel('Temperature [K]')
-            plt.title(case[0]+' in '+case[1])
-            plt.legend()
-            plt.show()
+    #         plt.plot(t,Tr,label='T_reactor',color='red')
+    #         plt.plot(t,Tj,label='T_jacket',color='blue')
+    #         plt.xlabel('Time [h]')
+    #         plt.ylabel('Temperature [K]')
+    #         plt.title(case[0]+' in '+case[1])
+    #         plt.legend()
+    #         plt.show()
             
-            plt.plot(t, Fhot,label='F_hot',color='red')
-            plt.plot(t,Fcold,label='F_cold',color='blue')
-            plt.xlabel('Time [h]')
-            plt.ylabel('$Flow rate [m^{3}/h]$')
-            plt.title(case[0]+' in '+case[1])
-            plt.legend()
-            plt.show()    
+    #         plt.plot(t, Fhot,label='F_hot',color='red')
+    #         plt.plot(t,Fcold,label='F_cold',color='blue')
+    #         plt.xlabel('Time [h]')
+    #         plt.ylabel('$Flow rate [m^{3}/h]$')
+    #         plt.title(case[0]+' in '+case[1])
+    #         plt.legend()
+    #         plt.show()    
             
     
     #--- Gantt plot
@@ -221,9 +193,5 @@ if __name__ == "__main__":
     plt.show()
     # plt.savefig("gantt_minlp.png")
     # plt.savefig("gantt_minlp.svg")   
-
-    print('TPC: Fixed costs for all unit-tasks: ',str(sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(sum(sum(sum( m.variable_cost[I,J]*pe.value(m.B[I,J,T]) for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(sum(sum(sum(pe.value(m.X[I,J,T])*(m.hot_cost*pe.value(m.Integral_hot[I,J][m.N[I,J].last()])   +  m.cold_cost*pe.value(m.Integral_cold[I,J][m.N[I,J].last()])  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)))
-    print('TMC: Total material cost: ',str(sum( m.raw_cost[K]*(m.S0[K]-pe.value(m.S[K,m.lastT])) for K in m.K_inputs)))
-    print('SALES: Revenue form selling products: ',str(sum( m.revenue[K]*pe.value(m.S[K,m.lastT])  for K in m.K_products)))
+    
+    
