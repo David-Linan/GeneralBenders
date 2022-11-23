@@ -78,16 +78,16 @@ if __name__ == "__main__":
 
 
     #Solve with pyomo.GDP
-    # kwargs={}
-    # model_fun=scheduling_and_control_GDP 
-    # m=model_fun(**kwargs)
-    # m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    kwargs={}
+    model_fun=scheduling_and_control_GDP 
+    m=model_fun(**kwargs)
+    m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
 
     #Solve with MINLP
-    kwargs={}
-    model_fun=scheduling_and_control_GDP
-    m=model_fun(**kwargs)
-    m = solve_with_minlp(m, transformation='hull', minlp='dicopt', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
+    # kwargs={}
+    # model_fun=scheduling_and_control_GDP
+    # m=model_fun(**kwargs)
+    # m = solve_with_minlp(m, transformation='hull', minlp='dicopt', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
 
 
 
@@ -227,7 +227,7 @@ if __name__ == "__main__":
     TPC3=sum(sum(sum(pe.value(m.X[I,J,T])*(m.hot_cost*pe.value(m.Integral_hot[I,J][m.N[I,J].last()])   +  m.cold_cost*pe.value(m.Integral_cold[I,J][m.N[I,J].last()])  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
     TMC=sum( m.raw_cost[K]*(m.S0[K]-pe.value(m.S[K,m.lastT])) for K in m.K_inputs)
     SALES=sum( m.revenue[K]*pe.value(m.S[K,m.lastT])  for K in m.K_products)
-    OBJVAL=TPC1+TPC2+TPC3+TMC-SALES
+    OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)/100
     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
     print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))

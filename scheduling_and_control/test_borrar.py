@@ -914,3 +914,8 @@ if __name__ == "__main__":
     SALES = sum(m.revenue[K]*pe.value(m.S[K, m.lastT]) for K in m.K_products)
     OBJVAL = (TPC1+TPC2+TPC3+TMC-SALES)/100
     print('Objective value PYOMO (from variables):', str(OBJVAL))
+    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    print('TMC: Total material cost: ',str(TMC))
+    print('SALES: Revenue form selling products: ',str(SALES))

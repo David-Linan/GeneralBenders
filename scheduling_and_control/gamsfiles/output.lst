@@ -1,4 +1,4 @@
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 1
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -6,7 +6,7 @@ C o m p i l a t i o n
 
 
 COMPILATION TIME     =        0.078 SECONDS      5 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 2
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 17933
 
@@ -20,7 +20,7 @@ CODE LENGTH              16,204     CONSTANT POOL              47     DISCRETE V
 
 
 GENERATION TIME      =        0.063 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 3
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE GAMS_MODEL Using MINLP From line 17933
 
@@ -35,7 +35,7 @@ Solution Report     SOLVE GAMS_MODEL Using MINLP From line 17933
 **** MODEL STATUS      8 Integer Solution
 **** OBJECTIVE VALUE               -9.4658
 
- RESOURCE USAGE, LIMIT         22.125      1000.000
+ RESOURCE USAGE, LIMIT         22.717      1000.000
  ITERATION COUNT, LIMIT     39844    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
@@ -80,11 +80,11 @@ Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_c
     gradient is greater than the tolerance.
  
  
- CONOPT time Total                            5.335 seconds
-   of which: Function evaluations             1.091 = 20.4%
-             1st Derivative evaluations       0.177 =  3.3%
-             2nd Derivative evaluations       0.077 =  1.4%
-             Directional 2nd Deriv(Hess)      0.482 =  9.0%
+ CONOPT time Total                            5.808 seconds
+   of which: Function evaluations             1.152 = 19.8%
+             1st Derivative evaluations       0.213 =  3.7%
+             2nd Derivative evaluations       0.098 =  1.7%
+             Directional 2nd Deriv(Hess)      0.533 =  9.2%
              Interval derivative evals        0.018 =  0.3%
  
 --- DICOPT: NLP Subproblem was non-optimal but feasible.
@@ -107,7 +107,7 @@ Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_c
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 0.19sec (det. 146.44 ticks)
+--- Cplex Time: 0.23sec (det. 146.44 ticks)
 
 --- Fixing integer variables and solving final LP...
 
@@ -150,12 +150,12 @@ Relative gap:            0.000000
     gradient is greater than the tolerance.
  
  
- CONOPT time Total                            3.454 seconds
-   of which: Function evaluations             0.669 = 19.4%
-             1st Derivative evaluations       0.150 =  4.3%
-             2nd Derivative evaluations       0.037 =  1.1%
-             Directional 2nd Deriv(Hess)      0.193 =  5.6%
-             Interval derivative evals        0.013 =  0.4%
+ CONOPT time Total                            3.383 seconds
+   of which: Function evaluations             0.654 = 19.3%
+             1st Derivative evaluations       0.143 =  4.2%
+             2nd Derivative evaluations       0.032 =  0.9%
+             Directional 2nd Deriv(Hess)      0.185 =  5.5%
+             Interval derivative evals        0.012 =  0.4%
  
 --- GMO Resort Time 0ms
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
@@ -169,7 +169,7 @@ Relative gap:            0.000000
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 1.75sec (det. 1590.96 ticks)
+--- Cplex Time: 1.83sec (det. 1590.96 ticks)
 
 --- Fixing integer variables and solving final LP...
 
@@ -214,12 +214,12 @@ Relative gap:            0.000000
     Largest unscaled residual is 1.34E-06 based on scale factor 1.64E+04.
  
  
- CONOPT time Total                            0.670 seconds
-   of which: Function evaluations             0.143 = 21.3%
-             1st Derivative evaluations       0.025 =  3.7%
-             2nd Derivative evaluations       0.005 =  0.7%
-             Directional 2nd Deriv(Hess)      0.003 =  0.4%
-             Interval derivative evals        0.016 =  2.4%
+ CONOPT time Total                            0.618 seconds
+   of which: Function evaluations             0.126 = 20.4%
+             1st Derivative evaluations       0.029 =  4.7%
+             2nd Derivative evaluations       0.007 =  1.1%
+             Directional 2nd Deriv(Hess)      0.004 =  0.6%
+             Interval derivative evals        0.010 =  1.6%
  
 --- GMO Resort Time 0ms
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
@@ -233,7 +233,7 @@ Relative gap:            0.000000
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 10.33sec (det. 9227.19 ticks)
+--- Cplex Time: 10.41sec (det. 9227.19 ticks)
 
 --- Fixing integer variables and solving final LP...
 
@@ -266,12 +266,12 @@ Relative gap:            0.000000
                             81  PROJECTED
 
 **** Saved point c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\GAMS_MODEL_p.gdx
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 4
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-EXECUTION TIME       =       22.375 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
+EXECUTION TIME       =       22.984 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
 
 
 USER: Eval License                                   G210401|0002AS-GEN
