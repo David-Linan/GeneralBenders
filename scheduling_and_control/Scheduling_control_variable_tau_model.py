@@ -501,10 +501,10 @@ def scheduling_and_control():
     m.Y_disjuncts=Disjunct(m.disjunctionsset,rule=_build_disjuncts,doc="each disjunct defines a scheduling model with different operation times for reactor tasks")    
     # m.disjuncts.pprint()
 
-    # #Create disjunction
-    # def Disjunction1(m):    #Disjunction for first Boolean variable
-    #     return [m.Y_disjuncts[disjunctionsset] for disjunctionsset in m.disjunctionsset]
-    # m.Disjunction1=Disjunction(rule=Disjunction1,xor=False)
+    #Create disjunction
+    def Disjunction1(m):    #Disjunction for first Boolean variable
+        return [m.Y_disjuncts[disjunctionsset] for disjunctionsset in m.disjunctionsset]
+    m.Disjunction1=Disjunction(rule=Disjunction1,xor=True)
 
     # Associate disjuncts with boolean variables
     for index in m.disjunctionsset:

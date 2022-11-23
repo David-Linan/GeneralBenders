@@ -22,10 +22,9 @@ def scheduling():
     m = pe.ConcreteModel(name='reaction_1')
 
     # ------------scalars    ------------------------------------------------   
-    m.delta=pe.Param(initialize=0.25,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=56,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
+    m.lastT=pe.Param(initialize=14,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
-
     # -----------sets--------------------------------------------------------
     #Main sets
     m.T=pe.RangeSet(0,m.lastT,1,doc='Discrete time set')
@@ -403,6 +402,7 @@ def scheduling():
 
     #*****DISJUNCTIVE SECTION**********************************   
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
+
     _minTau={}
     _minTau['R1','R_large']=math.ceil(2/m.delta)
     _minTau['R1','R_small']=math.ceil(2/m.delta)

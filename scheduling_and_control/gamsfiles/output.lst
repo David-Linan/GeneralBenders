@@ -1,55 +1,60 @@
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 11/09/22 17:18:28 Page 1
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.078 SECONDS      6 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 11/09/22 17:18:28 Page 2
+COMPILATION TIME     =        0.078 SECONDS      5 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 19269
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 17933
 
 
 MODEL STATISTICS
 
-BLOCKS OF EQUATIONS       4,907     SINGLE EQUATIONS        4,907
-BLOCKS OF VARIABLES       4,874     SINGLE VARIABLES        4,874  1,470 projected
-NON ZERO ELEMENTS        20,893     NON LINEAR N-Z          6,120
-CODE LENGTH              24,840     CONSTANT POOL              42     DISCRETE VARIABLES        160
+BLOCKS OF EQUATIONS       4,629     SINGLE EQUATIONS        4,629
+BLOCKS OF VARIABLES       3,960     SINGLE VARIABLES        3,960  756 projected
+NON ZERO ELEMENTS        17,773     NON LINEAR N-Z          4,962
+CODE LENGTH              16,204     CONSTANT POOL              47     DISCRETE VARIABLES        167
 
 
-GENERATION TIME      =        0.049 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 11/09/22 17:18:28 Page 3
+GENERATION TIME      =        0.063 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE GAMS_MODEL Using MINLP From line 19269
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 17933
 
 
                S O L V E      S U M M A R Y
 
      MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  19269
+     SOLVER  DICOPT              FROM LINE  17933
 
-**** SOLVER STATUS     4 Terminated By Solver      
-**** MODEL STATUS      9 Intermediate Non-Integer  
-**** OBJECTIVE VALUE              236.8056
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      8 Integer Solution
+**** OBJECTIVE VALUE               -9.4658
 
- RESOURCE USAGE, LIMIT        206.859 10000000000.000
- ITERATION COUNT, LIMIT     13770    2147483647
+ RESOURCE USAGE, LIMIT         22.125      1000.000
+ ITERATION COUNT, LIMIT     39844    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
-Dicopt 2         34.3.0 rac355f3 Released Feb 25, 2021 LEG x86 64bit/Linux    
+Dicopt 2         37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
 -------------------------------------------------------------------------------
 by Aldo Vecchietti, Director del Instituto INGAR,
    CONICET, UTN, Santa Fe, Argentina
 by Ignacio E. Grossmann, Chemical Engineering Faculty,
    Carnegie Mellon University, Pittsburgh, PA, USA
 -------------------------------------------------------------------------------
-Reading parameter(s) from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/dicopt.opt"
+Reading parameter(s) from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\dicopt.opt"
 >> 
->>  stop 1
-Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/dicopt.opt"
+>>  nlpsolver conopt4
+>> 
+>>  stop 1 
+>> 
+>>  maxcycles 2000 
+>> 
+Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\dicopt.opt"
  
  
     C O N O P T   version 4.24
@@ -58,1677 +63,215 @@ Finished reading from "/home/dadapy/GeneralBenders/scheduling_and_control/gamsfi
                   DK-2880 Bagsvaerd, Denmark
  
  
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
+    The user model has 4629 constraints and 3960 variables
+    with 17773 Jacobian elements, 4962 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    2526 elements below the diagonal, and 1194 nonlinear variables.
  
-    The pre-triangular part of the model has 226 constraints and 175 variables.
-    The post-triangular part of the model has 84 constraints and variables.
-    There are 2295 definitional constraints and defined variables.
+    The pre-triangular part of the model has 858 constraints and 291 variables.
+    The post-triangular part of the model has 272 constraints and variables.
+    There are 1721 definitional constraints and defined variables.
  
-    Preprocessed model has 2302 constraints and 2320 variables
-    with 13835 Jacobian elements, 6008 of which are nonlinear.
+    Preprocessed model has 1778 constraints and 1676 variables
+    with 9333 Jacobian elements, 3202 of which are nonlinear.
+ 
+ ** Feasible solution. The tolerances are minimal and
+    there is no change in objective although the reduced
+    gradient is greater than the tolerance.
+ 
+ 
+ CONOPT time Total                            5.335 seconds
+   of which: Function evaluations             1.091 = 20.4%
+             1st Derivative evaluations       0.177 =  3.3%
+             2nd Derivative evaluations       0.077 =  1.4%
+             Directional 2nd Deriv(Hess)      0.482 =  9.0%
+             Interval derivative evals        0.018 =  0.3%
+ 
+--- DICOPT: NLP Subproblem was non-optimal but feasible.
+
+      An NLP subproblem was not solved to optimality. The solution
+      was feasible however, so this solution was accepted.
+      You may want to rerun the model with a GAMS option
+      OPTION SYSOUT=ON; to display extra solver information.
+      The cycle in which this situation occurred is marked with
+      *Nonopt*.
+
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.48 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 2.28 Mb (peak 2.33 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.18 Mb (peak 1.03 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.19sec (det. 146.44 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.02sec (det. 5.70 ticks)
+
+
+Proven optimal solution
+MIP Solution:          -13.559548    (1256 iterations, 338 nodes)
+Final Solve:           -13.559548    (6 iterations)
+
+Best possible:         -13.559548
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 4629 constraints and 3960 variables
+    with 17773 Jacobian elements, 4962 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    2526 elements below the diagonal, and 1194 nonlinear variables.
+ 
+    The pre-triangular part of the model has 1569 constraints and 787 variables.
+    The post-triangular part of the model has 253 constraints and variables.
+    There are 1520 definitional constraints and defined variables.
+ 
+    Preprocessed model has 1287 constraints and 1400 variables
+    with 7797 Jacobian elements, 3222 of which are nonlinear.
+ 
+ ** Feasible solution. The tolerances are minimal and
+    there is no change in objective although the reduced
+    gradient is greater than the tolerance.
+ 
+ 
+ CONOPT time Total                            3.454 seconds
+   of which: Function evaluations             0.669 = 19.4%
+             1st Derivative evaluations       0.150 =  4.3%
+             2nd Derivative evaluations       0.037 =  1.1%
+             Directional 2nd Deriv(Hess)      0.193 =  5.6%
+             Interval derivative evals        0.013 =  0.4%
+ 
+--- GMO Resort Time 0ms
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.56 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 3.22 Mb (peak 3.29 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.24 Mb (peak 1.32 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 1.75sec (det. 1590.96 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.09sec (det. 96.39 ticks)
+
+
+Proven optimal solution
+MIP Solution:           -9.645990    (5490 iterations, 220 nodes)
+Final Solve:            -9.645989    (1664 iterations)
+
+Best possible:          -9.645990
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 4629 constraints and 3960 variables
+    with 17773 Jacobian elements, 4962 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    2526 elements below the diagonal, and 1194 nonlinear variables.
+ 
+    The pre-triangular part of the model has 1571 constraints and 789 variables.
+    The post-triangular part of the model has 242 constraints and variables.
+    There are 1533 definitional constraints and defined variables.
+ 
+    Preprocessed model has 1283 constraints and 1396 variables
+    with 7790 Jacobian elements, 3222 of which are nonlinear.
  
  ** Optimal solution. Reduced gradient less than tolerance.
  
  ** Scaled model is feasible, but some unscaled residuals are large due
     due to large scale factors.
-    Largest unscaled residual is 2.45E-04 based on scale factor 1.64E+04.
+    Largest unscaled residual is 1.34E-06 based on scale factor 1.64E+04.
  
  
- CONOPT time Total                            2.693 seconds
-   of which: Function evaluations             0.505 = 18.8%
-             1st Derivative evaluations       0.102 =  3.8%
-             2nd Derivative evaluations       0.000 =  0.0%
-             Interval derivative evals        0.014 =  0.5%
+ CONOPT time Total                            0.670 seconds
+   of which: Function evaluations             0.143 = 21.3%
+             1st Derivative evaluations       0.025 =  3.7%
+             2nd Derivative evaluations       0.005 =  0.7%
+             Directional 2nd Deriv(Hess)      0.003 =  0.4%
+             Interval derivative evals        0.016 =  2.4%
  
+--- GMO Resort Time 0ms
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.63 Mb
 --- Use option 'names no' to turn use of names off
---- GMO memory 3.05 Mb (peak 3.11 Mb)
+--- GMO memory 4.17 Mb (peak 4.26 Mb)
 --- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.20 Mb)
+--- Cplex 20.1.0.1 link memory 0.30 Mb (peak 1.62 Mb)
 --- Starting Cplex
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 0.08sec (det. 39.66 ticks)
+--- Cplex Time: 10.33sec (det. 9227.19 ticks)
 
 --- Fixing integer variables and solving final LP...
 
 
 --- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.21 ticks)
+--- Cplex Time: 0.20sec (det. 182.53 ticks)
 
 
 Proven optimal solution
-MIP Solution:          300.000000    (251 iterations, 21 nodes)
-Final Solve:           300.000000    (0 iterations)
+MIP Solution:           -8.887289    (32554 iterations, 884 nodes)
+Final Solve:            -8.887290    (2364 iterations)
 
-Best possible:         300.000000
+Best possible:          -8.887289
 Absolute gap:            0.000000
 Relative gap:            0.000000
 
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 685 constraints and 421 variables.
-    The post-triangular part of the model has 127 constraints and variables.
-    There are 2286 definitional constraints and defined variables.
- 
-    Preprocessed model has 1809 constraints and 2040 variables
-    with 12281 Jacobian elements, 6126 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 27 constraints and 64 variables
-    with 86 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            6.621 seconds
-   of which: Function evaluations             1.050 = 15.9%
-             1st Derivative evaluations       0.237 =  3.6%
-             2nd Derivative evaluations       0.000 =  0.0%
-             Interval derivative evals        0.008 =  0.1%
- 
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.05 Mb (peak 3.12 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.21 Mb)
---- Starting Cplex
+--- DICOPT: Stopped on crossover
 
+      The search was stopped because a crossover occurred.
+      The bound provided by the MIP master problem exceeds or
+      is within optcr of the objective value of the incumbent.
 
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.03sec (det. 32.24 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.25 ticks)
-
-
-Proven optimal solution
-MIP Solution:          300.000000    (143 iterations, 0 nodes)
-Final Solve:           300.000000    (0 iterations)
-
-Best possible:         300.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 683 constraints and 419 variables.
-    The post-triangular part of the model has 131 constraints and variables.
-    There are 2286 definitional constraints and defined variables.
- 
-    Preprocessed model has 1807 constraints and 2038 variables
-    with 12277 Jacobian elements, 6126 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 25 constraints and 62 variables
-    with 82 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            6.324 seconds
-   of which: Function evaluations             1.030 = 16.3%
-             1st Derivative evaluations       0.220 =  3.5%
-             2nd Derivative evaluations       0.001 =  0.0%
-             Interval derivative evals        0.004 =  0.1%
- 
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.06 Mb (peak 3.12 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.21 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.05sec (det. 41.63 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.27 ticks)
-
-
-Proven optimal solution
-MIP Solution:          300.000000    (156 iterations, 0 nodes)
-Final Solve:           300.000000    (0 iterations)
-
-Best possible:         300.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 684 constraints and 420 variables.
-    The post-triangular part of the model has 129 constraints and variables.
-    There are 2286 definitional constraints and defined variables.
- 
-    Preprocessed model has 1808 constraints and 2039 variables
-    with 12279 Jacobian elements, 6126 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 26 constraints and 63 variables
-    with 84 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            6.076 seconds
-   of which: Function evaluations             0.980 = 16.1%
-             1st Derivative evaluations       0.208 =  3.4%
-             2nd Derivative evaluations       0.001 =  0.0%
-             Interval derivative evals        0.011 =  0.2%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.06 Mb (peak 3.13 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.22 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.06sec (det. 46.42 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.30 ticks)
-
-
-Proven optimal solution
-MIP Solution:          300.000000    (233 iterations, 10 nodes)
-Final Solve:           300.000000    (0 iterations)
-
-Best possible:         300.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 686 constraints and 422 variables.
-    The post-triangular part of the model has 125 constraints and variables.
-    There are 2286 definitional constraints and defined variables.
- 
-    Preprocessed model has 1810 constraints and 2041 variables
-    with 12283 Jacobian elements, 6126 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 28 constraints and 65 variables
-    with 88 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            6.158 seconds
-   of which: Function evaluations             1.019 = 16.5%
-             1st Derivative evaluations       0.186 =  3.0%
-             2nd Derivative evaluations       0.001 =  0.0%
-             Directional 2nd Deriv(Hess)      0.006 =  0.1%
-             Interval derivative evals        0.007 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.07 Mb (peak 3.13 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.22 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.07sec (det. 53.91 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.33 ticks)
-
-
-Proven optimal solution
-MIP Solution:          300.000000    (401 iterations, 29 nodes)
-Final Solve:           300.000000    (0 iterations)
-
-Best possible:         300.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 687 constraints and 423 variables.
-    The post-triangular part of the model has 123 constraints and variables.
-    There are 2286 definitional constraints and defined variables.
- 
-    Preprocessed model has 1811 constraints and 2042 variables
-    with 12285 Jacobian elements, 6126 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 29 constraints and 66 variables
-    with 90 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            6.465 seconds
-   of which: Function evaluations             1.034 = 16.0%
-             1st Derivative evaluations       0.200 =  3.1%
-             2nd Derivative evaluations       0.000 =  0.0%
-             Interval derivative evals        0.006 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.07 Mb (peak 3.14 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.22 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.07sec (det. 58.61 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.36 ticks)
-
-
-Proven optimal solution
-MIP Solution:          300.000000    (383 iterations, 31 nodes)
-Final Solve:           300.000000    (0 iterations)
-
-Best possible:         300.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 688 constraints and 424 variables.
-    The post-triangular part of the model has 121 constraints and variables.
-    There are 2286 definitional constraints and defined variables.
- 
-    Preprocessed model has 1812 constraints and 2043 variables
-    with 12287 Jacobian elements, 6126 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 30 constraints and 67 variables
-    with 92 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            7.026 seconds
-   of which: Function evaluations             1.199 = 17.1%
-             1st Derivative evaluations       0.230 =  3.3%
-             2nd Derivative evaluations       0.001 =  0.0%
-             Directional 2nd Deriv(Hess)      0.004 =  0.1%
-             Interval derivative evals        0.008 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.07 Mb (peak 3.14 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.23 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.12sec (det. 71.16 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.36 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (1298 iterations, 237 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 686 constraints and 422 variables.
-    The post-triangular part of the model has 125 constraints and variables.
-    There are 2284 definitional constraints and defined variables.
- 
-    Preprocessed model has 1812 constraints and 2043 variables
-    with 12291 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 30 constraints and 78 variables
-    with 101 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. Reduced gradient less than tolerance.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            7.547 seconds
-   of which: Function evaluations             1.273 = 16.9%
-             1st Derivative evaluations       0.248 =  3.3%
-             2nd Derivative evaluations       0.004 =  0.1%
-             Directional 2nd Deriv(Hess)      0.010 =  0.1%
-             Interval derivative evals        0.007 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.08 Mb (peak 3.15 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.23 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.06sec (det. 46.55 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.39 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (245 iterations, 0 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 691 constraints and 427 variables.
-    The post-triangular part of the model has 123 constraints and variables.
-    There are 2284 definitional constraints and defined variables.
- 
-    Preprocessed model has 1809 constraints and 2040 variables
-    with 12285 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 27 constraints and 75 variables
-    with 95 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            7.558 seconds
-   of which: Function evaluations             1.238 = 16.4%
-             1st Derivative evaluations       0.233 =  3.1%
-             2nd Derivative evaluations       0.003 =  0.0%
-             Interval derivative evals        0.008 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.50 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.09 Mb (peak 3.15 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.24 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.08sec (det. 61.14 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.00sec (det. 6.42 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (361 iterations, 0 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 679 constraints and 415 variables.
-    The post-triangular part of the model has 139 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1807 constraints and 2038 variables
-    with 12281 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 25 constraints and 73 variables
-    with 91 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            8.312 seconds
-   of which: Function evaluations             1.276 = 15.4%
-             1st Derivative evaluations       0.245 =  2.9%
-             2nd Derivative evaluations       0.003 =  0.0%
-             Interval derivative evals        0.007 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.09 Mb (peak 3.16 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.22 Mb (peak 1.24 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.11sec (det. 60.05 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.45 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (311 iterations, 0 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 690 constraints and 426 variables.
-    The post-triangular part of the model has 125 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1810 constraints and 2041 variables
-    with 12287 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 28 constraints and 76 variables
-    with 97 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            8.220 seconds
-   of which: Function evaluations             1.298 = 15.8%
-             1st Derivative evaluations       0.253 =  3.1%
-             2nd Derivative evaluations       0.003 =  0.0%
-             Interval derivative evals        0.006 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.10 Mb (peak 3.16 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.25 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.23sec (det. 100.71 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.48 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (575 iterations, 127 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 688 constraints and 424 variables.
-    The post-triangular part of the model has 126 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1811 constraints and 2042 variables
-    with 12289 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 29 constraints and 77 variables
-    with 99 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                            8.855 seconds
-   of which: Function evaluations             1.388 = 15.7%
-             1st Derivative evaluations       0.272 =  3.1%
-             2nd Derivative evaluations       0.004 =  0.0%
-             Directional 2nd Deriv(Hess)      0.004 =  0.0%
-             Interval derivative evals        0.011 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.10 Mb (peak 3.17 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.25 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.11sec (det. 62.59 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.51 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (378 iterations, 0 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 683 constraints and 419 variables.
-    The post-triangular part of the model has 133 constraints and variables.
-    There are 2284 definitional constraints and defined variables.
- 
-    Preprocessed model has 1807 constraints and 2038 variables
-    with 12281 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 25 constraints and 73 variables
-    with 91 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           10.615 seconds
-   of which: Function evaluations             1.903 = 17.9%
-             1st Derivative evaluations       0.377 =  3.6%
-             2nd Derivative evaluations       0.002 =  0.0%
-             Interval derivative evals        0.009 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.11 Mb (peak 3.18 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.26 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.18sec (det. 78.33 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.54 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (702 iterations, 96 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 681 constraints and 417 variables.
-    The post-triangular part of the model has 135 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1809 constraints and 2040 variables
-    with 12285 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 27 constraints and 75 variables
-    with 95 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           13.269 seconds
-   of which: Function evaluations             2.104 = 15.9%
-             1st Derivative evaluations       0.413 =  3.1%
-             2nd Derivative evaluations       0.004 =  0.0%
-             Interval derivative evals        0.009 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.11 Mb (peak 3.18 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.26 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.17sec (det. 65.90 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.57 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (369 iterations, 0 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 691 constraints and 427 variables.
-    The post-triangular part of the model has 125 constraints and variables.
-    There are 2284 definitional constraints and defined variables.
- 
-    Preprocessed model has 1807 constraints and 2038 variables
-    with 12281 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 25 constraints and 73 variables
-    with 91 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           14.198 seconds
-   of which: Function evaluations             2.443 = 17.2%
-             1st Derivative evaluations       0.525 =  3.7%
-             2nd Derivative evaluations       0.003 =  0.0%
-             Directional 2nd Deriv(Hess)      0.023 =  0.2%
-             Interval derivative evals        0.007 =  0.0%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.12 Mb (peak 3.19 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.27 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.27sec (det. 101.14 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.60 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (691 iterations, 122 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 695 constraints and 431 variables.
-    The post-triangular part of the model has 119 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1811 constraints and 2042 variables
-    with 12289 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 29 constraints and 77 variables
-    with 99 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           15.048 seconds
-   of which: Function evaluations             2.404 = 16.0%
-             1st Derivative evaluations       0.459 =  3.1%
-             2nd Derivative evaluations       0.004 =  0.0%
-             Interval derivative evals        0.010 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.13 Mb (peak 3.19 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.27 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.26sec (det. 87.78 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.64 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (824 iterations, 162 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 683 constraints and 419 variables.
-    The post-triangular part of the model has 131 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1811 constraints and 2042 variables
-    with 12289 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 29 constraints and 77 variables
-    with 99 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           15.994 seconds
-   of which: Function evaluations             2.694 = 16.8%
-             1st Derivative evaluations       0.527 =  3.3%
-             2nd Derivative evaluations       0.004 =  0.0%
-             Directional 2nd Deriv(Hess)      0.011 =  0.1%
-             Interval derivative evals        0.014 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.13 Mb (peak 3.20 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.28 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.31sec (det. 96.86 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.02sec (det. 6.67 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (669 iterations, 65 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 685 constraints and 421 variables.
-    The post-triangular part of the model has 127 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1813 constraints and 2044 variables
-    with 12293 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 31 constraints and 79 variables
-    with 103 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           16.970 seconds
-   of which: Function evaluations             2.639 = 15.6%
-             1st Derivative evaluations       0.553 =  3.3%
-             2nd Derivative evaluations       0.004 =  0.0%
-             Interval derivative evals        0.020 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.14 Mb (peak 3.20 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.28 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.33sec (det. 113.07 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.70 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (662 iterations, 61 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 684 constraints and 420 variables.
-    The post-triangular part of the model has 129 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1812 constraints and 2043 variables
-    with 12291 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 30 constraints and 78 variables
-    with 101 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           17.611 seconds
-   of which: Function evaluations             2.842 = 16.1%
-             1st Derivative evaluations       0.613 =  3.5%
-             2nd Derivative evaluations       0.005 =  0.0%
-             Interval derivative evals        0.015 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- Space for names approximately 0.51 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.14 Mb (peak 3.21 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.0 link memory 0.23 Mb (peak 1.29 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 0.33sec (det. 128.93 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.01sec (det. 6.73 ticks)
-
-
-Proven optimal solution
-MIP Solution:          310.000000    (939 iterations, 102 nodes)
-Final Solve:           310.000000    (0 iterations)
-
-Best possible:         310.000000
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
---- DICOPT: Setting up next NLP
- 
- 
-    C O N O P T   version 4.24
-    Copyright (C) ARKI Consulting and Development A/S
-                  Bagsvaerdvej 246 A
-                  DK-2880 Bagsvaerd, Denmark
- 
- 
-    The user model has 4907 constraints and 4874 variables
-    with 20893 Jacobian elements, 6120 of which are nonlinear.
-    The Hessian of the Lagrangian has 366 elements on the diagonal,
-    2520 elements below the diagonal, and 2166 nonlinear variables.
- 
-    The pre-triangular part of the model has 688 constraints and 424 variables.
-    The post-triangular part of the model has 129 constraints and variables.
-    There are 2282 definitional constraints and defined variables.
- 
-    Preprocessed model has 1808 constraints and 2039 variables
-    with 12283 Jacobian elements, 6166 of which are nonlinear.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Initial linear feasibility model has 26 constraints and 74 variables
-    with 93 linear Jacobian elements.
-    Objective: Distance to initial point (nondefault variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to initial point (all variables)
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
-    Restarting linear feasibility model.
-    Objective: Distance to point away from bounds
- 
-    Restarting preprocessed model from a new starting point.
- 
- ** Infeasible solution. There are no superbasic variables.
- 
- 
- CONOPT time Total                           17.743 seconds
-   of which: Function evaluations             3.047 = 17.2%
-             1st Derivative evaluations       0.580 =  3.3%
-             2nd Derivative evaluations       0.004 =  0.0%
-             Interval derivative evals        0.014 =  0.1%
- 
-
---- NOTICE : Too many infeasible NLP subproblems consider the use of infeasder option
-
---- DICOPT: Maximum number of major iterations (20) exceeded
---- DICOPT: Stopped on MAXCYCLES
-
-      The search was stopped because the major iteration limit
-      was reached. This limit can be reset with the DICOPT
-      option MAXCYCLES.
-
---- DICOPT: No integer solution
-
-      No integer solution was found. The relaxed NLP solution
-      will be reported.
-
+--- DICOPT: Best integer solution found: -9.465837
 
 
 **** REPORT SUMMARY :        0     NONOPT
                              0 INFEASIBLE
                              0  UNBOUNDED
                              0     ERRORS
-                            62  PROJECTED
-GAMS 34.3.0  rac355f3 Released Feb 25, 2021 LEX-LEG x86 64bit/Linux - 11/09/22 17:18:28 Page 4
+                            81  PROJECTED
+
+**** Saved point c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\GAMS_MODEL_p.gdx
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 10:39:56 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-**** REPORT FILE SUMMARY
-
-results /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/results.dat
-statresults /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/resultsstat.dat
-
-
-EXECUTION TIME       =      207.530 SECONDS      9 MB  34.3.0 rac355f3 LEX-LEG
+EXECUTION TIME       =       22.375 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
 
 
 USER: Eval License                                   G210401|0002AS-GEN
@@ -1738,5 +281,5 @@ USER: Eval License                                   G210401|0002AS-GEN
 
 **** FILE SUMMARY
 
-Input      /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/model.gms
-Output     /home/dadapy/GeneralBenders/scheduling_and_control/gamsfiles/output.lst
+Input      c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\model.gms
+Output     c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\output.lst

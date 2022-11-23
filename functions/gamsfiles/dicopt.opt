@@ -1,5 +1,5 @@
 
-nlpsolver conopt4
+nlpsolver ipopth
 
 stop 1 
 
