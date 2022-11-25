@@ -1,42 +1,42 @@
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 09:05:24 Page 1
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 20:25:29 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.062 SECONDS      5 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 09:05:24 Page 2
+COMPILATION TIME     =        0.078 SECONDS      5 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 20:25:29 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 16659
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 22053
 
 
 MODEL STATISTICS
 
-BLOCKS OF EQUATIONS       3,607     SINGLE EQUATIONS        3,607
-BLOCKS OF VARIABLES       3,452     SINGLE VARIABLES        3,452  1,380 projected
-NON ZERO ELEMENTS        15,650     NON LINEAR N-Z          4,962
-CODE LENGTH              16,204     CONSTANT POOL              47     DISCRETE VARIABLES        160
+BLOCKS OF EQUATIONS       4,322     SINGLE EQUATIONS        4,322
+BLOCKS OF VARIABLES       3,919     SINGLE VARIABLES        3,919  1 projected
+NON ZERO ELEMENTS        18,839     NON LINEAR N-Z          5,046
+CODE LENGTH              16,526     CONSTANT POOL              44     DISCRETE VARIABLES        300
 
 
-GENERATION TIME      =        0.047 SECONDS      7 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 09:05:24 Page 3
+GENERATION TIME      =        0.062 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 20:25:29 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE GAMS_MODEL Using MINLP From line 16659
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 22053
 
 
                S O L V E      S U M M A R Y
 
      MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  16659
+     SOLVER  DICOPT              FROM LINE  22053
 
 **** SOLVER STATUS     1 Normal Completion
 **** MODEL STATUS      8 Integer Solution
-**** OBJECTIVE VALUE               -8.3687
+**** OBJECTIVE VALUE               -6.6140
 
- RESOURCE USAGE, LIMIT         13.689    100000.000
- ITERATION COUNT, LIMIT     22741    2147483647
+ RESOURCE USAGE, LIMIT          8.289    100000.000
+ ITERATION COUNT, LIMIT      7046    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
 Dicopt 2         37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
@@ -59,86 +59,57 @@ Finished reading from "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfi
 COIN-OR Ipopt    37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- GMO setup time: 0.00s
---- Space for names approximately 0.38 Mb
+--- Space for names approximately 0.42 Mb
 --- Use option 'names no' to turn use of names off
---- GMO memory 2.11 Mb (peak 2.15 Mb)
+--- GMO memory 2.74 Mb (peak 2.79 Mb)
 --- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.1 link memory 0.16 Mb (peak 0.86 Mb)
+--- Cplex 20.1.0.1 link memory 0.17 Mb (peak 0.97 Mb)
 --- Starting Cplex
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 3.50sec (det. 2795.05 ticks)
+--- Cplex Time: 2.20sec (det. 2293.71 ticks)
 
 --- Fixing integer variables and solving final LP...
 
 
 --- Fixed MIP status (1): optimal.
---- Cplex Time: 0.14sec (det. 135.16 ticks)
+--- Cplex Time: 0.09sec (det. 113.24 ticks)
 
 
 Proven optimal solution
-MIP Solution:           -8.791128    (4665 iterations, 59 nodes)
-Final Solve:            -8.791127    (1903 iterations)
+MIP Solution:            8.521831    (6459 iterations, 220 nodes)
+Final Solve:             8.521831    (1681 iterations)
 
-Best possible:          -8.791128
+Best possible:           8.521831
 Absolute gap:            0.000000
 Relative gap:            0.000000
 
 --- DICOPT: Setting up next NLP
 
 COIN-OR Ipopt    37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
---- GMO Resort Time 0ms
---- GAMS/Cplex Link licensed for continuous and discrete problems.
---- GMO setup time: 0.00s
---- Space for names approximately 0.45 Mb
---- Use option 'names no' to turn use of names off
---- GMO memory 3.05 Mb (peak 3.12 Mb)
---- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.1 link memory 0.22 Mb (peak 1.16 Mb)
---- Starting Cplex
-
-
---- MIP status (101): integer optimal solution.
---- Cplex Time: 7.14sec (det. 6128.25 ticks)
-
---- Fixing integer variables and solving final LP...
-
-
---- Fixed MIP status (1): optimal.
---- Cplex Time: 0.97sec (det. 992.43 ticks)
-
-
-Proven optimal solution
-MIP Solution:           66.415421    (17925 iterations, 69 nodes)
-Final Solve:            66.415349    (6518 iterations)
-
-Best possible:          66.415421
-Absolute gap:            0.000000
-Relative gap:            0.000000
-
 --- DICOPT: Stopped on crossover
 
       The search was stopped because a crossover occurred.
       The bound provided by the MIP master problem exceeds or
       is within optcr of the objective value of the incumbent.
 
---- DICOPT: Best integer solution found: -8.368724
+--- DICOPT: Best integer solution found: -6.614010
 
 
 **** REPORT SUMMARY :        0     NONOPT
                              0 INFEASIBLE
                              0  UNBOUNDED
                              0     ERRORS
-                          3024  PROJECTED
+                          3291  PROJECTED
 
 **** Saved point C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\GAMS_MODEL_p.gdx
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 09:05:24 Page 4
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 20:25:29 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-EXECUTION TIME       =       13.907 SECONDS      7 MB  37.1.0 r07954d5 WEX-WEI
+EXECUTION TIME       =        8.516 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
 
 
 USER: Eval License                                   G210401|0002AS-GEN

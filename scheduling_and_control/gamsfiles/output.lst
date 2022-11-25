@@ -1,42 +1,42 @@
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 1
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 14:34:24 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.078 SECONDS      5 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 2
+COMPILATION TIME     =        0.094 SECONDS      5 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 14:34:24 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 17933
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 17948
 
 
 MODEL STATISTICS
 
-BLOCKS OF EQUATIONS       4,629     SINGLE EQUATIONS        4,629
-BLOCKS OF VARIABLES       3,960     SINGLE VARIABLES        3,960  756 projected
-NON ZERO ELEMENTS        17,773     NON LINEAR N-Z          4,962
-CODE LENGTH              16,204     CONSTANT POOL              47     DISCRETE VARIABLES        167
+BLOCKS OF EQUATIONS       4,634     SINGLE EQUATIONS        4,634
+BLOCKS OF VARIABLES       3,965     SINGLE VARIABLES        3,965  756 projected
+NON ZERO ELEMENTS        17,873     NON LINEAR N-Z          4,962
+CODE LENGTH              16,022     CONSTANT POOL              44     DISCRETE VARIABLES        167
 
 
-GENERATION TIME      =        0.063 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 3
+GENERATION TIME      =        0.078 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 14:34:24 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE GAMS_MODEL Using MINLP From line 17933
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 17948
 
 
                S O L V E      S U M M A R Y
 
      MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  17933
+     SOLVER  DICOPT              FROM LINE  17948
 
-**** SOLVER STATUS     1 Normal Completion
+**** SOLVER STATUS     3 Resource Interrupt
 **** MODEL STATUS      8 Integer Solution
-**** OBJECTIVE VALUE               -9.4658
+**** OBJECTIVE VALUE               -8.3704
 
- RESOURCE USAGE, LIMIT         22.717      1000.000
- ITERATION COUNT, LIMIT     39844    2147483647
+ RESOURCE USAGE, LIMIT       1000.172      1000.000
+ ITERATION COUNT, LIMIT   3105821    2147483647
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
 Dicopt 2         37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
@@ -63,13 +63,13 @@ Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_c
                   DK-2880 Bagsvaerd, Denmark
  
  
-    The user model has 4629 constraints and 3960 variables
-    with 17773 Jacobian elements, 4962 of which are nonlinear.
+    The user model has 4634 constraints and 3965 variables
+    with 17873 Jacobian elements, 4962 of which are nonlinear.
     The Hessian of the Lagrangian has 186 elements on the diagonal,
     2526 elements below the diagonal, and 1194 nonlinear variables.
  
     The pre-triangular part of the model has 858 constraints and 291 variables.
-    The post-triangular part of the model has 272 constraints and variables.
+    The post-triangular part of the model has 277 constraints and variables.
     There are 1721 definitional constraints and defined variables.
  
     Preprocessed model has 1778 constraints and 1676 variables
@@ -80,12 +80,12 @@ Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_c
     gradient is greater than the tolerance.
  
  
- CONOPT time Total                            5.808 seconds
-   of which: Function evaluations             1.152 = 19.8%
-             1st Derivative evaluations       0.213 =  3.7%
-             2nd Derivative evaluations       0.098 =  1.7%
-             Directional 2nd Deriv(Hess)      0.533 =  9.2%
-             Interval derivative evals        0.018 =  0.3%
+ CONOPT time Total                            3.887 seconds
+   of which: Function evaluations             0.775 = 19.9%
+             1st Derivative evaluations       0.167 =  4.3%
+             2nd Derivative evaluations       0.030 =  0.8%
+             Directional 2nd Deriv(Hess)      0.173 =  4.5%
+             Interval derivative evals        0.014 =  0.4%
  
 --- DICOPT: NLP Subproblem was non-optimal but feasible.
 
@@ -107,20 +107,20 @@ Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_c
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 0.23sec (det. 146.44 ticks)
+--- Cplex Time: 2.27sec (det. 1895.71 ticks)
 
 --- Fixing integer variables and solving final LP...
 
 
 --- Fixed MIP status (1): optimal.
---- Cplex Time: 0.02sec (det. 5.70 ticks)
+--- Cplex Time: 0.11sec (det. 107.41 ticks)
 
 
 Proven optimal solution
-MIP Solution:          -13.559548    (1256 iterations, 338 nodes)
-Final Solve:           -13.559548    (6 iterations)
+MIP Solution:           -8.679268    (4731 iterations, 84 nodes)
+Final Solve:            -8.679267    (1788 iterations)
 
-Best possible:         -13.559548
+Best possible:          -8.679268
 Absolute gap:            0.000000
 Relative gap:            0.000000
 
@@ -133,56 +133,150 @@ Relative gap:            0.000000
                   DK-2880 Bagsvaerd, Denmark
  
  
-    The user model has 4629 constraints and 3960 variables
-    with 17773 Jacobian elements, 4962 of which are nonlinear.
+    The user model has 4634 constraints and 3965 variables
+    with 17873 Jacobian elements, 4962 of which are nonlinear.
     The Hessian of the Lagrangian has 186 elements on the diagonal,
     2526 elements below the diagonal, and 1194 nonlinear variables.
  
-    The pre-triangular part of the model has 1569 constraints and 787 variables.
-    The post-triangular part of the model has 253 constraints and variables.
-    There are 1520 definitional constraints and defined variables.
+ ** An equation in the pre-triangular part of the model cannot
+    be solved because there are no non-fixed variables left.
  
-    Preprocessed model has 1287 constraints and 1400 variables
-    with 7797 Jacobian elements, 3222 of which are nonlinear.
+    Residual=                  1.02932801E-07
+    Tolerance (Tol_Feas_Tria)= 1.00000000E-08
+ 
+
+    Variable X_R1_R_large_0_ fixed at Value = 1
+
+    Variable X_R1_R_large_1_ fixed at Value = 0
+
+    Variable X_R1_R_large_2_ fixed at Value = 0
+
+    Variable X_R1_R_large_3_ fixed at Value = 0
+
+    Variable X_R1_R_large_4_ fixed at Value = 0
+
+    Variable X_R1_R_large_5_ fixed at Value = 0
+
+    Variable X_R1_R_large_6_ fixed at Value = 0
+
+    Variable X_R1_R_large_7_ fixed at Value = 1
+
+    Variable X_R1_R_large_8_ fixed at Value = 0
+
+    Variable X_R1_R_large_9_ fixed at Value = 0
+
+    Variable X_R1_R_large_10_ fixed at Value = 0
+
+    Variable X_R1_R_large_11_ fixed at Value = 0
+
+    Variable X_R1_R_large_12_ fixed at Value = 0
+
+    Variable X_R1_R_large_13_ fixed at Value = 0
+
+    Variable X_R1_R_large_14_ fixed at Value = 0
+
+    Variable Nref_R1_R_large_ fixed at Value = 2
+
+    Equation X_Z_relation_R1_R_large_ cannot be solved. No free variables left.
+    Residual after last transformation = 0.000000
+
+ 
+    The pre-triangular part of the model has 7 constraints and 173 variables.
+ 
+ ** Infeasible solution. The Preprocessor has determined that the model
+    is infeasible.
+ 
+ 
+ CONOPT time Total                            0.007 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.001 = 14.3%
+ 
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.49 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 2.79 Mb (peak 2.84 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.18 Mb (peak 1.03 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 2.67sec (det. 2366.51 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.13sec (det. 95.67 ticks)
+
+
+Proven optimal solution
+MIP Solution:           -8.679268    (5738 iterations, 96 nodes)
+Final Solve:            -8.679267    (1738 iterations)
+
+Best possible:          -8.679268
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 4634 constraints and 3965 variables
+    with 17873 Jacobian elements, 4962 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    2526 elements below the diagonal, and 1194 nonlinear variables.
+ 
+    The pre-triangular part of the model has 1569 constraints and 788 variables.
+    The post-triangular part of the model has 246 constraints and variables.
+    There are 1530 definitional constraints and defined variables.
+ 
+    Preprocessed model has 1289 constraints and 1401 variables
+    with 7802 Jacobian elements, 3222 of which are nonlinear.
  
  ** Feasible solution. The tolerances are minimal and
     there is no change in objective although the reduced
     gradient is greater than the tolerance.
  
  
- CONOPT time Total                            3.383 seconds
-   of which: Function evaluations             0.654 = 19.3%
-             1st Derivative evaluations       0.143 =  4.2%
-             2nd Derivative evaluations       0.032 =  0.9%
-             Directional 2nd Deriv(Hess)      0.185 =  5.5%
-             Interval derivative evals        0.012 =  0.4%
+ CONOPT time Total                            5.313 seconds
+   of which: Function evaluations             1.197 = 22.5%
+             1st Derivative evaluations       0.204 =  3.8%
+             2nd Derivative evaluations       0.096 =  1.8%
+             Directional 2nd Deriv(Hess)      0.307 =  5.8%
+             Interval derivative evals        0.016 =  0.3%
  
---- GMO Resort Time 0ms
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- GMO setup time: 0.00s
---- Space for names approximately 0.56 Mb
+--- Space for names approximately 0.49 Mb
 --- Use option 'names no' to turn use of names off
---- GMO memory 3.22 Mb (peak 3.29 Mb)
+--- GMO memory 2.79 Mb (peak 2.84 Mb)
 --- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.1 link memory 0.24 Mb (peak 1.32 Mb)
+--- Cplex 20.1.0.1 link memory 0.18 Mb (peak 1.04 Mb)
 --- Starting Cplex
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 1.83sec (det. 1590.96 ticks)
+--- Cplex Time: 2.75sec (det. 2349.74 ticks)
 
 --- Fixing integer variables and solving final LP...
 
 
 --- Fixed MIP status (1): optimal.
---- Cplex Time: 0.09sec (det. 96.39 ticks)
+--- Cplex Time: 0.11sec (det. 97.87 ticks)
 
 
 Proven optimal solution
-MIP Solution:           -9.645990    (5490 iterations, 220 nodes)
-Final Solve:            -9.645989    (1664 iterations)
+MIP Solution:           -8.679267    (6035 iterations, 78 nodes)
+Final Solve:            -8.679267    (1754 iterations)
 
-Best possible:          -9.645990
+Best possible:          -8.679267
 Absolute gap:            0.000000
 Relative gap:            0.000000
 
@@ -195,83 +289,144 @@ Relative gap:            0.000000
                   DK-2880 Bagsvaerd, Denmark
  
  
-    The user model has 4629 constraints and 3960 variables
-    with 17773 Jacobian elements, 4962 of which are nonlinear.
+    The user model has 4634 constraints and 3965 variables
+    with 17873 Jacobian elements, 4962 of which are nonlinear.
     The Hessian of the Lagrangian has 186 elements on the diagonal,
     2526 elements below the diagonal, and 1194 nonlinear variables.
  
-    The pre-triangular part of the model has 1571 constraints and 789 variables.
-    The post-triangular part of the model has 242 constraints and variables.
-    There are 1533 definitional constraints and defined variables.
+    The pre-triangular part of the model has 1571 constraints and 790 variables.
+    The post-triangular part of the model has 245 constraints and variables.
+    There are 1529 definitional constraints and defined variables.
  
-    Preprocessed model has 1283 constraints and 1396 variables
-    with 7790 Jacobian elements, 3222 of which are nonlinear.
+    Preprocessed model has 1289 constraints and 1401 variables
+    with 7802 Jacobian elements, 3222 of which are nonlinear.
  
- ** Optimal solution. Reduced gradient less than tolerance.
- 
- ** Scaled model is feasible, but some unscaled residuals are large due
-    due to large scale factors.
-    Largest unscaled residual is 1.34E-06 based on scale factor 1.64E+04.
+ ** Feasible solution. The tolerances are minimal and
+    there is no change in objective although the reduced
+    gradient is greater than the tolerance.
  
  
- CONOPT time Total                            0.618 seconds
-   of which: Function evaluations             0.126 = 20.4%
-             1st Derivative evaluations       0.029 =  4.7%
-             2nd Derivative evaluations       0.007 =  1.1%
-             Directional 2nd Deriv(Hess)      0.004 =  0.6%
-             Interval derivative evals        0.010 =  1.6%
+ CONOPT time Total                            6.024 seconds
+   of which: Function evaluations             1.283 = 21.3%
+             1st Derivative evaluations       0.211 =  3.5%
+             2nd Derivative evaluations       0.110 =  1.8%
+             Directional 2nd Deriv(Hess)      0.382 =  6.3%
+             Interval derivative evals        0.016 =  0.3%
  
---- GMO Resort Time 0ms
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- GMO setup time: 0.00s
---- Space for names approximately 0.63 Mb
+--- Space for names approximately 0.49 Mb
 --- Use option 'names no' to turn use of names off
---- GMO memory 4.17 Mb (peak 4.26 Mb)
+--- GMO memory 2.80 Mb (peak 2.85 Mb)
 --- Dictionary memory 0.00 Mb
---- Cplex 20.1.0.1 link memory 0.30 Mb (peak 1.62 Mb)
+--- Cplex 20.1.0.1 link memory 0.18 Mb (peak 1.05 Mb)
 --- Starting Cplex
 
 
 --- MIP status (101): integer optimal solution.
---- Cplex Time: 10.41sec (det. 9227.19 ticks)
+--- Cplex Time: 2.83sec (det. 2626.31 ticks)
 
 --- Fixing integer variables and solving final LP...
 
 
 --- Fixed MIP status (1): optimal.
---- Cplex Time: 0.20sec (det. 182.53 ticks)
+--- Cplex Time: 0.08sec (det. 98.03 ticks)
 
 
 Proven optimal solution
-MIP Solution:           -8.887289    (32554 iterations, 884 nodes)
-Final Solve:            -8.887290    (2364 iterations)
+MIP Solution:           -8.679268    (4755 iterations, 62 nodes)
+Final Solve:            -8.679267    (1765 iterations)
 
-Best possible:          -8.887289
+Best possible:          -8.679268
 Absolute gap:            0.000000
 Relative gap:            0.000000
 
---- DICOPT: Stopped on crossover
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 4634 constraints and 3965 variables
+    with 17873 Jacobian elements, 4962 of which are nonlinear.
+    The Hessian of the Lagrangian has 186 elements on the diagonal,
+    2526 elements below the diagonal, and 1194 nonlinear variables.
+ 
+    The pre-triangular part of the model has 1567 constraints and 786 variables.
+    The post-triangular part of the model has 247 constraints and variables.
+    There are 1536 definitional constraints and defined variables.
+ 
+    Preprocessed model has 1284 constraints and 1396 variables
+    with 7792 Jacobian elements, 3222 of which are nonlinear.
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.548 seconds
+   of which: Function evaluations             0.094 = 17.2%
+             1st Derivative evaluations       0.021 =  3.8%
+             2nd Derivative evaluations       0.009 =  1.6%
+             Directional 2nd Deriv(Hess)      0.005 =  0.9%
+             Interval derivative evals        0.012 =  2.2%
+ 
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.49 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 2.81 Mb (peak 2.86 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.18 Mb (peak 1.05 Mb)
+--- Starting Cplex
 
-      The search was stopped because a crossover occurred.
-      The bound provided by the MIP master problem exceeds or
-      is within optcr of the objective value of the incumbent.
 
---- DICOPT: Best integer solution found: -9.465837
+--- MIP status (107): time limit exceeded.
+--- Cplex Time: 973.11sec (det. 999259.58 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.13sec (det. 99.68 ticks)
+
+
+Resource limit exceeded
+MIP Solution:           -8.579268    (3083640 iterations, 451062 nodes)
+Final Solve:            -8.579267    (1749 iterations)
+
+Best possible:          -8.679267
+Absolute gap:            0.099999
+Relative gap:            0.011522
+
+--- DICOPT: Stopped on resource limit
+
+      The search was stopped because the resource limit
+      was reached. This limit can be reset with the GAMS
+      option RESLIM.
+      This return can also occur if a DICOPT option NLPRESLIM
+      or MIPRESLIM is used.
+
+--- DICOPT: Best integer solution found: -8.370436
+
+**** ERRORS/WARNINGS IN EQUATION X_Z_relation_R1_R_large_
+     1 error(s): Constraint is inconsistent.
 
 
 **** REPORT SUMMARY :        0     NONOPT
                              0 INFEASIBLE
                              0  UNBOUNDED
-                             0     ERRORS
-                            81  PROJECTED
+                             1     ERRORS ( ****)
+                            92  PROJECTED
 
 **** Saved point c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles\GAMS_MODEL_p.gdx
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 13:44:07 Page 4
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 11/23/22 14:34:24 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-EXECUTION TIME       =       22.984 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
+EXECUTION TIME       =     1000.422 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
 
 
 USER: Eval License                                   G210401|0002AS-GEN

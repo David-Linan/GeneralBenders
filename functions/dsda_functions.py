@@ -22,233 +22,33 @@ from pyomo.opt.base.solvers import SolverFactory
 import pyomo.dae as dae
 
 
+def complementary_model(m,x):
+    current=-1
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            current=current+1
+            m.tau[I,J]=x[current]+m.minTau[I,J]-1
+            m.tau_p[I,J]=pe.value(m.tau[I,J])*m.delta #Both times are assumed to be discrete
+            # print(pe.value(m.tau_p[I,J]))
+    # #----------- Variable processing times----------------------------------------------------------------
+    def _DEF_VAR_TIME(m,I,J):
+        return m.varTime[I,J]==pe.value(m.tau_p[I,J])
+    m.DEF_VAR_TIME=pe.Constraint(m.I_reactions,m.J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
+    # m.DEF_VAR_TIME.display()
+    # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
+    # TODO: The following equations make the disjunction require a lot of time to generate and therefore the model requires a lot of time to construct
+    def _E1_UNIT(m,J,T):
+        return sum(sum(m.X[I,J,TP] for TP in m.T if TP<=T and TP>=T-pe.value(m.tau[I,J])+1) for I in m.I if  m.I_i_j_prod[I,J]==1) <=  1           
+    m.E1_UNIT=pe.Constraint(m.J,m.T,rule=_E1_UNIT,doc='UNIT UTILIZATION')
+    #m.E1_UNIT.display()
 
-# def complementary_model(m,x):
-#     _tau_p={}
-
-#     _tau_p['Mix','Mix']=1.5
-
-#     _tau_p['R1','R_large']=x[0]+m.minTau['R1','R_large']-1 
-#     _tau_p['R1','R_small']=x[1]+m.minTau['R1','R_small']-1
-
-#     _tau_p['R2','R_large']=x[2]+m.minTau['R2','R_large']-1
-#     _tau_p['R2','R_small']=x[3]+m.minTau['R2','R_small']-1 
-
-#     _tau_p['R3','R_large']=x[4]+m.minTau['R3','R_large']-1 
-#     _tau_p['R3','R_small']=x[5]+m.minTau['R3','R_small']-1 
-
-#     _tau_p['Sep','Sep']=3 
-
-#     _tau_p['Pack1','Pack']=1.5 
-#     _tau_p['Pack2','Pack']=1.5 
-
-#     #TODO: the input info I am declaring here is in HOURS. Check that it makes sense with respect to the time discretization in reactors balances!!!!!!!
-#     m.tau_p=pe.Param(m.I,m.J,initialize=_tau_p,mutable=True,default=0,doc="Physical processing time for tasks [units of time]")
-    
-#     def _tau(m,I,J):
-#         return math.ceil(pe.value(m.tau_p[I,J])/m.delta) 
-#     m.tau=pe.Param(m.I,m.J,initialize=_tau,mutable=True,default=0,doc="Processing time with respect to the time grid: how many grid spaces do I need for the task ?")
-
-#     #-----------Reactors dynamic models--------------------------------
-#     # !!! Assumption. Here I will create 6 continuous time grids, assuming that e.g., when R1 occurs in R_large, the task is always executed the same way (i.e., same tau)
-#     # !!! This means that initial conditions do not change and disturbances are the same whenever a task is executed multiple times in the same unit
-#     # !!! The six time grids stand for:
-#     # R_large-R1,R_large-R2,R_large-R3,R_small-R1,R_small-R2,R_small-R3
-#     # TODO: Energy balance has a volume term, hence energy balance is affected by batch size. This means that I must enforce that batch size is the same along time for every reactor-reaction pair. In this way my assumption will make sense    
-#     #Sets
-#     m.N={} #Continuous time set
-#     m.Q_balance={} #Species of interest in mole and energy balances
-
-#     #Variables
-#     m.Cvar={} #Composition profiles
-#     m.TRvar={} #Reactor temperature profiles
-#     m.TJvar={} #Jacket temperature profile
-#     m.Fhot={} #Hot fluid volumetric flow rate profile (manipulated variable)
-#     m.Fcold={} #Cold fluid volumetric flow rate profile (manipulated variable)
-
-#     #Derivativa variables
-#     m.dCdt={} # Composition derivatives
-#     m.dTRdt={} #Reactor temperature derivatives
-#     m.dTJdt={} #Jacket temperature derivatives
-
-#     #Differential equations
-#     m.c_dCdt={}
-#     m.c_dTRdt={}
-#     m.c_dTJdt={}
-    
-#     #Final constraint
-#     m.finalCon={}
-#     m.finalTemp={}      
-
-#     for I in m.I_reactions:
-#         m.Q_balance[I]=pe.Set(initialize=[Q for Q in m.Q if m.coef[I,Q]!=0],within=m.Q,doc='Species of interest for reaction I')
-#         setattr(m,'Q_balance_[%s]' %I,m.Q_balance[I])
-#         for J in m.J_reactors:
-#             m.N[I,J]=dae.ContinuousSet(bounds=(0,pe.value(m.tau_p[I,J])),doc='Continuous time set for reaction I in reactor J [h]') #TODO: chek units of time, are they consistent? should I use hours? 
-#             setattr(m,'N_[%s,%s]' %(I,J),m.N[I,J]) # TODO: I think the name of the pyomo object do not affect, because I can access these sets through dictionary m.N. Check if this is correct
-
-
-#             def _Cvar_bounds(m,N,Q):
-#                 return (min([m.C_initial[I,Q],m.C_final[I,Q]]),max([m.C_initial[I,Q],m.C_final[I,Q]])) #TODO: Check bounds 
-#             m.Cvar[I,J]=pe.Var(m.N[I,J],m.Q_balance[I],within=pe.NonNegativeReals,bounds=_Cvar_bounds, doc='Component composition profile [kmol/m^3]') 
-#             setattr(m,'Cvar_(%s,%s)' %(I,J),m.Cvar[I,J]) 
-
-#             def _TRvar_bounds(m,N):
-#                 return (m.T_R_initial[I],m.T_R_max[J]) #TODO: Check bounds 
-#             m.TRvar[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_TRvar_bounds,doc='Reactor temperatrue profile [K]')
-#             setattr(m,'TRvar_(%s,%s)' %(I,J),m.TRvar[I,J])
-
-#             def _TJvar_bounds(m,N):
-#                 return (m.T_J_initial[I],m.T_J_max[J]) #TODO: Check bounds 
-#             m.TJvar[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_TJvar_bounds,doc='Jacket temperature profile [K]')
-#             setattr(m,'TJvar_(%s,%s)' %(I,J),m.TJvar[I,J])
-
-#             m.Fhot[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=(0,m.F_max[J]),doc='Flow of heating fluid [m^3/h]') #TODO: Check bounds 
-#             setattr(m,'Fhot_(%s,%s)' %(I,J),m.Fhot[I,J])
-
-#             m.Fcold[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=(0,m.F_max[J]),doc='Flow of cooling fluid [m^3/h]') #TODO: Check bounds 
-#             setattr(m,'Fcold_(%s,%s)' %(I,J),m.Fcold[I,J])
-
-#             m.dCdt[I,J] = dae.DerivativeVar(m.Cvar[I,J], withrespectto=m.N[I,J], doc='Derivative of composition')
-#             setattr(m,'dCdt_(%s,%s)' %(I,J),m.dCdt[I,J])
-
-#             m.dTRdt[I,J]=dae.DerivativeVar(m.TRvar[I,J], withrespectto=m.N[I,J], doc='Derivative of reactor temperature')
-#             setattr(m,'dTRdt_(%s,%s)' %(I,J),m.dTRdt[I,J])
-
-#             m.dTJdt[I,J]=dae.DerivativeVar(m.TJvar[I,J], withrespectto=m.N[I,J], doc='Derivative of jacket temperature')
-#             setattr(m,'dTJdt_(%s,%s)' %(I,J),m.dTJdt[I,J])
-
-#             def _dCdt(m,N,Q):
-#                 if N == m.N[I,J].first(): 
-#                     return m.Cvar[I,J][N,Q] == m.C_initial[I,Q] # Initial condition
-#                 else:                                         #This is what the author calls Rb
-#                     return m.dCdt[I,J][N,Q] == m.coef[I,Q]*   m.z[I]*pe.exp(-m.er[I]/m.TRvar[I,J][N])*pe.prod([m.Cvar[I,J][N,Q_2] for Q_2 in m.Q_balance[I] if m.coef[I,Q_2]<=-1]) 
-#             m.c_dCdt[I,J] = pe.Constraint(m.N[I,J],m.Q_balance[I], rule=_dCdt)
-#             setattr(m,'c_dCdt_(%s,%s)' %(I,J),m.c_dCdt[I,J])
-
-
-#             def _dTRdt(m,N):
-#                 if N == m.N[I,J].first():
-#                     return m.TRvar[I,J][N] == m.T_R_initial[I] #Initial condition
-#                 else:
-#                     return m.dTRdt[I,J][N] == (((m.z[I]*pe.exp(-m.er[I]/m.TRvar[I,J][N])*pe.prod([m.Cvar[I,J][N,Q_2] for Q_2 in m.Q_balance[I] if m.coef[I,Q_2]<=-1]))*(-m.delta_h[I]))/(m.rho_R[I]*m.c_R[I]))+((m.ua[J]*( m.TJvar[I,J][N]- m.TRvar[I,J][N]))/(m.Vreactor[I,J]*m.rho_R[I]*m.c_R[I]))  
-#             m.c_dTRdt[I,J]=pe.Constraint(m.N[I,J],rule=_dTRdt)
-#             setattr(m,'c_dTRdt_(%s,%s)' %(I,J),m.c_dTRdt[I,J])
-#             # m.c_dTRdt[I,J].pprint()
-
-#             def _dTJdt(m,N):
-#                 if N == m.N[I,J].first():
-#                     return m.TJvar[I,J][N] == m.T_J_initial[I] #Initial condition
-#                 else:
-#                     return m.dTJdt[I,J][N] == (((m.Fhot[I,J][N]*(m.T_H[J]-m.TJvar[I,J][N]))+(m.Fcold[I,J][N]*(m.T_C[J]-m.TJvar[I,J][N])))/(m.v_J[J]))+((m.ua[J]*(m.TRvar[I,J][N]-m.TJvar[I,J][N]))/(m.v_J[J]*m.rho_J[J]*m.c_J[J]))  
-#             m.c_dTJdt[I,J]=pe.Constraint(m.N[I,J],rule=_dTJdt)
-#             setattr(m,'c_dTJdt_(%s,%s)' %(I,J),m.c_dTJdt[I,J])
-            
-            
-#             #Constraints when finishing reaction tasks
-            
-#             # Final concentration constraint
-#             def _finalCon(m,N,Q):
-#                 if N==m.N[I,J].last():
-#                     return m.Cvar[I,J][N,Q] == m.C_final[I,Q]
-#                 else:
-#                     return pe.Constraint.Skip
-#             m.finalCon[I,J]=pe.Constraint(m.N[I,J],m.Q_balance[I],rule=_finalCon)
-#             setattr(m,'finalCon_(%s,%s)' %(I,J),m.finalCon[I,J])
-            
-#             #Final temperature constraints
-            
-#             def _finalTemp(m,N):
-#                 if N==m.N[I,J].last():
-#                     return m.TRvar[I,J][N]<= m.T_R_final[I]
-#                 else:
-#                     return pe.Constraint.Skip
-#             m.finalTemp[I,J]=pe.Constraint(m.N[I,J],rule=_finalTemp)
-#             setattr(m,'finalTemp_(%s,%s)' %(I,J),m.finalTemp[I,J])
-
-#             # m.c_dCdt['R3','R_large'].display()
-#             # m.Cvar['R3','R_large'].display()  
-#             # m.Q_balance['R1'].pprint()
-#             # m.Q_balance['R2'].pprint()
-#             # m.Q_balance['R3'].pprint()
-
-# # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
-#     def _E1_UNIT(m,J,T):
-#         return sum(sum(m.X[I,J,TP] for TP in m.T if TP<=T and TP>=T-pe.value(m.tau[I,J])+1) for I in m.I if  m.I_i_j_prod[I,J]==1) <=  1
-        
-#     m.E1_UNIT=pe.Constraint(m.J,m.T,rule=_E1_UNIT,doc='UNIT UTILIZATION')
-#     #m.E1_UNIT.display()
-
-#     def _E3_BALANCE(m,K,T):
-#         if T==0:
-#             return pe.Constraint.Skip
-#         else:
-#             return m.S[K,T]==m.S[K,T-1]+sum(m.rho_plus[I,K]*sum(m.B[I,J,T-pe.value(m.tau[I,J])] for J in m.J if m.I_i_j_prod[I,J]==1 and T-pe.value(m.tau[I,J])>=0) for I in m.I if m.I_i_k_plus[I,K]==1) - sum(m.rho_minus[I,K]*sum(m.B[I,J,T] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)-m.demand[K,T]    
-#     m.E3_BALANCE=pe.Constraint(m.K,m.T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
-
-
-#     # # -------Discretization---------------------------------------------------
-#     # discretizer = pe.TransformationFactory('dae.finite_difference')
-#     # discretizer.apply_to(m, nfe=60, wrt=m.t, scheme='BACKWARD')
-#     # # discretizer = TransformationFactory('dae.collocation')
-#     # # discretizer.apply_to(m,nfe=60,ncp=3,wrt=m.t,scheme='LAGRANGE-RADAU')
-#     #Constant control actions
-#     m.Constant_control1={}
-#     m.Constant_control2={}
-#     keep_constant_Fhot=6 #Keep Fhot constant every three discretization points
-#     keep_constant_Fcold=6 #Keep Fcold constant every three discretization points 
-
-
-#     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
-
-#     for I in m.I_reactions:
-#         for J in m.J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-#             discretizer.apply_to(m, nfe=5, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
-#             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
-            
-            
-#             #------Constant control
-#     for I in m.I_reactions:
-#         for J in m.J_reactors:  
-#             def _Constant_control1(m,N):
-#                 if (N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fhot!=0) or (N==m.N[I,J].last()):
-#                     return m.Fhot[I,J][N] == m.Fhot[I,J][m.N[I,J].prev(N)]
-#                 else:
-#                     return pe.Constraint.Skip
-#             m.Constant_control1[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control1,doc='Constant control action every keep_constant_Fhot discrete points and the last one')
-#             setattr(m,'Constant_control1_(%s,%s)' %(I,J),m.Constant_control1[I,J])
-
-#             def _Constant_control2(m,N):
-#                 if (N!=m.N[I,J].first() and (m.N[I,J].ord(N)-1)%keep_constant_Fcold!=0) or (N==m.N[I,J].last()):
-#                     return m.Fcold[I,J][N] == m.Fcold[I,J][m.N[I,J].prev(N)]
-#                 else:
-#                     return pe.Constraint.Skip
-#             m.Constant_control2[I,J]=pe.Constraint(m.N[I,J],rule=_Constant_control2,doc='Constant control action every keep_constant_Fcold discrete points and the last one')
-#             setattr(m,'Constant_control2_(%s,%s)' %(I,J),m.Constant_control2[I,J])            
-    
-    
-#     # # -------Reformulation----------------------------------------------------
-#     def _I_J(m):
-#         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
-#     m.I_J=pe.Set(dimen=2,initialize=_I_J,doc='task-unit nodes')
-#     #m.I_J.display()
-#     def _lastN(m,I,J):
-#         return math.floor((m.T.__len__()-1)/pe.value(m.tau[I,J]))  #TODO: CHANGE THIS IF I USE MY OWN FORMULATION
-#     m.lastN=pe.Param(m.I_J,initialize=_lastN,doc='last element for subsets of ordered set')
-#     # m.lastN.display()
-#     def _Nref_bounds(m,I,J):
-#         return (0,m.lastN[I,J])
-#     m.Nref=pe.Var(m.I_J,within=pe.Integers,bounds=_Nref_bounds,doc='reformulation variables from 0 to lastN')
-    
-#     def _X_Z_relation(m,I,J):
-#         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
-#     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
-
-#     def _obj(m): #TODO: CONSIDER OTHER TERMS
-#         # return sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)
-#         return sum(sum( pe.value(m.tau[I,J]) for J in m.J_reactors) for I in m.I_reactions)
-#     m.obj=pe.Objective(rule=_obj,sense=pe.minimize)    
-#     return m
+    def _E3_BALANCE(m,K,T):
+        if T==0:
+            return pe.Constraint.Skip
+        else:
+            return m.S[K,T]==m.S[K,T-1]+sum(m.rho_plus[I,K]*sum(m.B[I,J,T-pe.value(m.tau[I,J])] for J in m.J if m.I_i_j_prod[I,J]==1 and T-pe.value(m.tau[I,J])>=0) for I in m.I if m.I_i_k_plus[I,K]==1) - sum(m.rho_minus[I,K]*sum(m.B[I,J,T] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)#-m.demand[K,T]    
+    m.E3_BALANCE=pe.Constraint(m.K,m.T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')   
+    return m
 
 
 def get_external_information(
@@ -565,7 +365,7 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
-    # m=complementary_model(m,x)
+    m=complementary_model(m,x)
     #TODO
     #TODO
     #TODO

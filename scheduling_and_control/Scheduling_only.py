@@ -15,15 +15,15 @@ import itertools
 
 def scheduling():
     # Data
-    Infty=1e+8 
+    Infty=10 
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
 
     m = pe.ConcreteModel(name='reaction_1')
 
     # ------------scalars    ------------------------------------------------   
-    m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=14,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
+    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
     # -----------sets--------------------------------------------------------
     #Main sets
@@ -404,26 +404,26 @@ def scheduling():
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
 
     _minTau={}
-    _minTau['R1','R_large']=math.ceil(2/m.delta)
-    _minTau['R1','R_small']=math.ceil(2/m.delta)
+    _minTau['R1','R_large']=math.ceil(3/m.delta)
+    _minTau['R1','R_small']=math.ceil(3/m.delta)
 
     _minTau['R2','R_large']=math.ceil(3/m.delta) 
     _minTau['R2','R_small']=math.ceil(3/m.delta)
 
-    _minTau['R3','R_large']=math.ceil(2/m.delta)
-    _minTau['R3','R_small']=math.ceil(2/m.delta)
+    _minTau['R3','R_large']=math.ceil(3/m.delta)
+    _minTau['R3','R_small']=math.ceil(3/m.delta)
     m.minTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=math.ceil(2/m.delta)
-    _maxTau['R1','R_small']=math.ceil(2/m.delta) 
+    _maxTau['R1','R_large']=math.ceil(3/m.delta)
+    _maxTau['R1','R_small']=math.ceil(3/m.delta) 
 
     _maxTau['R2','R_large']=math.ceil(3/m.delta) 
     _maxTau['R2','R_small']=math.ceil(3/m.delta) 
 
-    _maxTau['R3','R_large']=math.ceil(2/m.delta)
-    _maxTau['R3','R_small']=math.ceil(2/m.delta)
+    _maxTau['R3','R_large']=math.ceil(3/m.delta)
+    _maxTau['R3','R_small']=math.ceil(3/m.delta)
 
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
     ### NEW ###################
@@ -705,6 +705,30 @@ def scheduling():
         - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
         )/100 
     m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+
+    m.TCP1=pe.Var(within=pe.Reals,doc='TPC: Fixed costs for all unit-tasks')
+    def _C_TCP1(m):
+        return  m.TCP1==sum(sum(sum(m.fixed_cost[I, J]*m.X[I, J, T]for J in m.J) for I in m.I) for T in m.T) 
+    m.C_TCP1=pe.Constraint(rule=_C_TCP1)
+    m.TCP2=pe.Var(within=pe.Reals,doc='TPC: Variable cost for unit-tasks that do not consider dynamics')
+    def _C_TCP2(m):
+        return m.TCP2==sum(sum(sum(m.variable_cost[I, J]*m.B[I, J, T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
+    m.C_TCP2=pe.Constraint(rule=_C_TCP2)
+    # m.TCP3=pe.Var(within=pe.Reals,doc='TPC: Variable cost for unit-tasks that do consider dynamics')
+    # def _C_TCP3(m):
+    #     return m.TCP3== sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J][m.N[I, J].last()] + m.cold_cost*m.Integral_cold[I, J][m.N[I, J].last()]) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
+    # m.C_TCP3=pe.Constraint(rule=_C_TCP3)  
+    m.TMC= pe.Var(within=pe.Reals,doc='TMC: Total material cost')
+    def _C_TMC(m):
+        return m.TMC==sum(m.raw_cost[K]*(m.S0[K]-m.S[K, m.lastT]) for K in m.K_inputs) 
+    m.C_TMC=pe.Constraint(rule=_C_TMC)
+    m.SALES=pe.Var(within=pe.Reals,doc='SALES: Revenue form selling products')
+    def _C_SALES(m):
+        return m.SALES==sum(m.revenue[K]*m.S[K, m.lastT] for K in m.K_products)
+    m.C_SALES=pe.Constraint(rule=_C_SALES)
+    def _obj(m):
+        return ( m.TCP1+m.TCP2+m.TMC-m.SALES  )/100
+    m.obj = pe.Objective(rule=_obj, sense=pe.minimize) 
     
     # # # -------Discretization---------------------------------------------------
     # # discretizer = pe.TransformationFactory('dae.finite_difference')

@@ -1,0 +1,11 @@
+ Major Major     Objective    CPU time  Itera- Evaluation Solver
+ Step  Iter       Function     (Sec)    tions   Errors
+  NLP    1       -14.71529      1.28       62      0      conopt4
+  MIP    1        -8.79113      3.17     4062      0      cplex
+  NLP    2        *Infeas*      0.00        0      0      conopt4
+  MIP    2        -8.79113      2.69     4143      0      cplex
+  NLP    3        *Infeas*      0.01        0      0      conopt4
+  MIP    3        -8.79113      3.05     4846      0      cplex
+  NLP    4        -8.37044<     0.50       33      0      conopt4
+  MIP    4        -8.79113      3.38     4171      0      cplex
+  NLP    5        -8.37044      0.67       33      0      conopt4
