@@ -100,7 +100,7 @@ if __name__ == "__main__":
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[6,6,6,6,6,6,2,2,1,2,2,2,2,2,2,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = True,tee= True,global_tee = True,rel_tol = 0)
+    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[6,6,6,6,6,6,2,2,1,2,2,2,2,2,2,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
     print('Objective value: ',str(pe.value(m.obj)))
 
     textbuffer = io.StringIO()
