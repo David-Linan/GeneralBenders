@@ -9,16 +9,23 @@ from pyomo.opt import SolverFactory
 from pyomo.gdp import Disjunct, Disjunction
 import itertools
 
-#IDEAS
+
+
+# IMPORTANT----------------
+# scheduling_and_control: Only allows to reformulate with external variables discrete processsing times
+# scheduling_and_control_gdp_N: Allows to reformulate both N(I,J) and discrete processsing times with external variables
+#IDEAS----------------------
 #0) If the ammount processed whenever a task repeats is the same, processing times are the same and, etc, then I can consider dynamic model once 
 #1) can I make things dimmensionless and independent on the ammount processes for every batch? that way probably I can consider one dynamic model to represent multiple operations
+#2) The same Idea used in design-control where the objective function was partitioned can be implemented here!!!!!!
 def scheduling_and_control_gdp_N():
+
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
 
-    m = pe.ConcreteModel(name='reaction_1')
+    m = pe.ConcreteModel(name='scheduling_control')
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
@@ -701,15 +708,15 @@ def scheduling_and_control_gdp_N():
     #Constant control actions
     m.Constant_control1={}
     m.Constant_control2={}
-    keep_constant_Fhot=3 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
-    keep_constant_Fcold=3 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+    keep_constant_Fhot=9 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
+    keep_constant_Fcold=9 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
     for I in m.I_reactions:
         for J in m.J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-            discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            discretizer.apply_to(m, nfe=30, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
             # print(dir(m.N[I,J]))
             # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
@@ -1522,15 +1529,15 @@ def scheduling_and_control():
     #Constant control actions
     m.Constant_control1={}
     m.Constant_control2={}
-    keep_constant_Fhot=3 #Keep Fhot constant every three discretization points
-    keep_constant_Fcold=3 #Keep Fcold constant every three discretization points 
+    keep_constant_Fhot=9 #Keep Fhot constant every three discretization points
+    keep_constant_Fcold=9 #Keep Fcold constant every three discretization points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
     for I in m.I_reactions:
         for J in m.J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-            discretizer.apply_to(m, nfe=10, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            discretizer.apply_to(m, nfe=30, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
             # print(dir(m.N[I,J]))
             # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!

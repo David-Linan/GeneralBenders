@@ -19,7 +19,7 @@ def scheduling():
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
 
-    m = pe.ConcreteModel(name='reaction_1')
+    m = pe.ConcreteModel(name='scheduling')
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
@@ -696,15 +696,15 @@ def scheduling():
     #         # m.Q_balance['R2'].pprint()
     #         # m.Q_balance['R3'].pprint()
     #-----------Objective function----------------------------------------------
-    def _obj(m): 
-        return  (    
-          sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
-        + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
-        # + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J][m.N[I,J].last()]   +  m.cold_cost*m.Integral_cold[I,J][m.N[I,J].last()]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
-        + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
-        - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
-        )/100 
-    m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+    # def _obj(m): 
+    #     return  (    
+    #       sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
+    #     + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
+    #     # + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J][m.N[I,J].last()]   +  m.cold_cost*m.Integral_cold[I,J][m.N[I,J].last()]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
+    #     + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
+    #     - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
+    #     )/100 
+    # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
 
     m.TCP1=pe.Var(within=pe.Reals,doc='TPC: Fixed costs for all unit-tasks')
     def _C_TCP1(m):
