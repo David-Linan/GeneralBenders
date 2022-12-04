@@ -29,10 +29,10 @@ if __name__ == "__main__":
     mip_solver='cplex'
     gdp_solver='LOA'
 
-    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
-    sub_options={}
 
-    # #Solve with LD-SDA
+    #Solve with LD-SDA
+   # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
+    sub_options={}
     model_fun =scheduling_GDP
     logic_fun=problem_logic_scheduling
     kwargs={}
@@ -119,20 +119,20 @@ if __name__ == "__main__":
             for t in m.T:
                 try:
                     if i in m.I_reactions and j in m.J_reactors:
-                        if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                        if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
                             gnt.broken_barh([(m.t_p[t], m.varTime[i,j].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
                             gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
                             already_used.append(i)
-                        elif pe.value(m.X[i,j,t])==1:
+                        elif round(pe.value(m.X[i,j,t]))==1:
                             gnt.broken_barh([(m.t_p[t], m.varTime[i,j].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
                             gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
                                                 
                     else:
-                        if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                        if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
                             gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
                             gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
                             already_used.append(i)
-                        elif pe.value(m.X[i,j,t])==1:
+                        elif round(pe.value(m.X[i,j,t]))==1:
                             gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
                             gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
                 except:
@@ -144,66 +144,5 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
     # plt.savefig("gantt_minlp.png")
-    # plt.savefig("gantt_minlp.svg")   
-    
-    
-    #Verify reactor dynamics
-    m=reactor_dynamics()
-    dir_path = os.path.dirname(os.path.abspath(__file__))
-    gams_path = os.path.join(dir_path, "gamsfiles/")
-    if not(os.path.exists(gams_path)):
-        print('Directory for automatically generated files ' + gams_path + ' does not exist. We will create it')
-        os.makedirs(gams_path)
-    opt1 = SolverFactory('gams')
-    sub_options=['option nlp=conopt4;\n','GAMS_MODEL.optfile=1; \n','$onecho > conopt4.opt \n','$offecho \n']
-    results = opt1.solve(m, solver='dicopt', tee=True,add_options=sub_options,keepfiles=True,tmpdir=gams_path,symbolic_solver_labels=True)    
-    
-
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            case=(I,J)
-            t=[]
-            c1=[]
-            c2=[]
-            c3=[]
-            Tr=[]
-            Tj=[]
-            Fhot=[]
-            Fcold=[]
-            for N in m.N[case]:
-                t.append(N)
-                Tr.append(m.TRvar[case][N].value)
-                Tj.append(m.TJvar[case][N].value)
-                Fhot.append(m.Fhot[case][N].value)
-                Fcold.append(m.Fcold[case][N].value)
-                c1.append( m.Cvar[case][N,list(m.Q_balance[I])[0]].value)
-                c2.append( m.Cvar[case][N,list(m.Q_balance[I])[1]].value)
-                c3.append( m.Cvar[case][N,list(m.Q_balance[I])[2]].value)
-                
-                
-            plt.plot(t, c1,label=list(m.Q_balance[I])[0],color='red')
-            plt.plot(t, c2,label=list(m.Q_balance[I])[1],color='green')
-            plt.plot(t, c3,label=list(m.Q_balance[I])[2],color='blue')
-            plt.xlabel('Time []')
-            plt.ylabel('$Concentration [kmol/m^{3}]$')
-            plt.title(case[0]+' in '+case[1])
-            plt.legend()
-            plt.show()
-            
-            plt.plot(t,Tr,label='T_reactor',color='red')
-            plt.plot(t,Tj,label='T_jacket',color='blue')
-            plt.xlabel('Time []')
-            plt.ylabel('Temperature [K]')
-            plt.title(case[0]+' in '+case[1])
-            plt.legend()
-            plt.show()
-            
-            plt.plot(t, Fhot,label='F_hot',color='red')
-            plt.plot(t,Fcold,label='F_cold',color='blue')
-            plt.xlabel('Time []')
-            plt.ylabel('$Flow rate [m^{3}/h]$')
-            plt.title(case[0]+' in '+case[1])
-            plt.legend()
-            plt.show()    
-            
+    # plt.savefig("gantt_minlp.svg")               
     

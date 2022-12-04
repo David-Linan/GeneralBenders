@@ -32,7 +32,7 @@ def complementary_model(m,x):
             # print(pe.value(m.tau_p[I,J]))
     # #----------- Variable processing times----------------------------------------------------------------
     def _DEF_VAR_TIME(m,I,J):
-        return m.varTime[I,J]==pe.value(m.tau_p[I,J])
+        return m.varTime[I,J]<=pe.value(m.tau_p[I,J])
     m.DEF_VAR_TIME=pe.Constraint(m.I_reactions,m.J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
     # m.DEF_VAR_TIME.display()
     # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------

@@ -14,7 +14,7 @@ import time
 from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
 import logging
 # from Scheduling_control_variable_tau_model_reduced import scheduling_and_control,problem_logic_scheduling
-from Scheduling_control_variable_tau_model import scheduling_and_control as scheduling_and_control_GDP 
+# from Scheduling_control_variable_tau_model import scheduling_and_control as scheduling_and_control_GDP 
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N as scheduling_and_control_GDP_complete
 from Scheduling_control_variable_tau_model import problem_logic_scheduling
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     #Solver declaration
     minlp_solver='dicopt'
-    nlp_solver='ipopth'
+    nlp_solver='conopt4'
     mip_solver='cplex'
     gdp_solver='LOA'
     if minlp_solver=='dicopt':
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[6,6,6,6,6,6,2,2,1,2,2,2,2,2,2,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
     print('Objective value: ',str(pe.value(m.obj)))
 
     textbuffer = io.StringIO()
