@@ -32,7 +32,7 @@ def complementary_model(m,x):
             # print(pe.value(m.tau_p[I,J]))
     # #----------- Variable processing times----------------------------------------------------------------
     def _DEF_VAR_TIME(m,I,J):
-        return m.varTime[I,J]<=pe.value(m.tau_p[I,J])
+        return m.varTime[I,J]==pe.value(m.tau_p[I,J])
     m.DEF_VAR_TIME=pe.Constraint(m.I_reactions,m.J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
     # m.DEF_VAR_TIME.display()
     # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
@@ -706,7 +706,7 @@ def solve_with_gdpopt(
                           minlp_solver_args=dict(
                               solver=minlp, warmstart=True, tee=tee, **minlp_options),
                           mip_presolve=True, #True is the default
-                          init_strategy='set_covering',#'fix_disjuncts'##'set_covering'#
+                        #   init_strategy='set_covering',#'fix_disjuncts'##'set_covering'#
                           #   set_cover_iterlim=0,
                           #iterlim#=1000,
                           force_subproblem_nlp=False,
