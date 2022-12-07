@@ -481,15 +481,15 @@ def reactor_dynamics():
     #Constant control actions
     m.Constant_control1={}
     m.Constant_control2={}
-    keep_constant_Fhot=9*3 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
-    keep_constant_Fcold=9*3 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+    keep_constant_Fhot=9 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
+    keep_constant_Fcold=9 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
     for I in m.I_reactions:
         for J in m.J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-            discretizer.apply_to(m, nfe=30*3, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            discretizer.apply_to(m, nfe=30, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
             # print(dir(m.N[I,J]))
             # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
@@ -1015,15 +1015,15 @@ def reactor_dynamics_verif():
     #Constant control actions
     m.Constant_control1={}
     m.Constant_control2={}
-    keep_constant_Fhot=9*3 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
-    keep_constant_Fcold=9*3 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+    keep_constant_Fhot=9 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
+    keep_constant_Fcold=9 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
 
     for I in m.I_reactions:
         for J in m.J_reactors:        #TODO: Depending on selected variable time the number of discretization points must change accordingly
-            discretizer.apply_to(m, nfe=30*3, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            discretizer.apply_to(m, nfe=30, ncp=3, wrt=m.N[I,J], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
             # print(dir(m.N[I,J]))
             # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!

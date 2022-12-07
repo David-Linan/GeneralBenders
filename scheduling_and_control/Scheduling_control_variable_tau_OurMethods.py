@@ -11,11 +11,12 @@ import math
 from pyomo.opt.base.solvers import SolverFactory
 import io
 import time
-from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
+from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda,solve_with_dsda_aprox
 import logging
 # from Scheduling_control_variable_tau_model_reduced import scheduling_and_control,problem_logic_scheduling
 # from Scheduling_control_variable_tau_model import scheduling_and_control as scheduling_and_control_GDP 
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N as scheduling_and_control_GDP_complete
+from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx as scheduling_and_control_GDP_complete_approx
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_solvegdp
 from Scheduling_control_variable_tau_model import problem_logic_scheduling
 import matplotlib.pyplot as plt
@@ -34,7 +35,12 @@ if __name__ == "__main__":
     else:
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n']}
 
-    # #Solve with LD-SDA
+
+
+    ##### ----------ONLY PROCESSING TIMES AS EXTERNAL VARIABLES------------------------
+    ##### -----------------------------------------------------------------------------
+
+    # #Solve with LD-SDA. Only processing times as external vars
     # model_fun =scheduling_and_control_GDP
     # logic_fun=problem_logic_scheduling
     # kwargs={}
@@ -54,7 +60,7 @@ if __name__ == "__main__":
     #     outputfile.write(textbuffer.getvalue())
 
 
-    # #Solve with LD-BD
+    # #Solve with LD-BD. Only processing times as external vars
     # initialization=[1,1,1,1,1,1]
     # infinity_val=1e+8
     # maxiter=1000
@@ -79,21 +85,22 @@ if __name__ == "__main__":
 
 
 
-    #Solve with pyomo.GDP
+    #Solve with pyomo.GDP. Only processing times as external vars
     # kwargs={}
     # model_fun=scheduling_and_control_GDP 
     # m=model_fun(**kwargs)
     # m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=1000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
 
-    #Solve with MINLP
+    #Solve with MINLP. Only processing times as external vars
     # kwargs={}
     # model_fun=scheduling_and_control_GDP
     # m=model_fun(**kwargs)
     # m = solve_with_minlp(m, transformation='hull', minlp='dicopt', minlp_options=sub_options,gams_output=False,tee=True,rel_tol=0)
 
+    ##### ----------BOTH PROCESSING TIMES AND BATCHING VARIABLES AS EXTERNAL VARIABLES-
+    ##### -----------------------------------------------------------------------------
 
-
-    # #Solve with LD-SDA_COMPLETE GDP
+    #Solve with LD-SDA_COMPLETE GDP
     # model_fun =scheduling_and_control_GDP_complete
     # logic_fun=problem_logic_scheduling
     # kwargs={}
@@ -113,11 +120,66 @@ if __name__ == "__main__":
     # with open('Results_variable_tau_dsda_complete.txt', 'w') as outputfile:
     #     outputfile.write(textbuffer.getvalue())
 
-    #Solve with pyomo.GDP COMPLETE GDP
-    kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-    model_fun=scheduling_and_control_gdp_N_solvegdp
+#     #Solve with pyomo.GDP COMPLETE GDP
+#     kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+#     model_fun=scheduling_and_control_gdp_N_solvegdp
+#     m=model_fun(**kwargs)
+#     m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=360000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+
+#     textbuffer = io.StringIO()
+#     for v in m.component_objects(pe.Var, descend_into=True):
+#         v.pprint(textbuffer)
+#         textbuffer.write('\n')
+#     textbuffer.write('\n Objective: \n') 
+#     textbuffer.write(str(pe.value(m.obj)))    
+#     with open('Results_variable_tau_gdp_complete.txt', 'w') as outputfile:
+#         outputfile.write(textbuffer.getvalue())
+# ####--------Objective function summary---------------------------------
+#     TPC1=sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)
+#     TPC2=sum(sum(sum( m.variable_cost[I,J]*pe.value(m.B[I,J,T]) for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
+#     TPC3=sum(sum(sum(pe.value(m.X[I,J,T])*(m.hot_cost*pe.value(m.Integral_hot[I,J][m.N[I,J].last()])   +  m.cold_cost*pe.value(m.Integral_cold[I,J][m.N[I,J].last()])  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
+#     TMC=sum( m.raw_cost[K]*(m.S0[K]-pe.value(m.S[K,m.lastT])) for K in m.K_inputs)
+#     SALES=sum( m.revenue[K]*pe.value(m.S[K,m.lastT])  for K in m.K_products)
+#     OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)/100
+#     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+#     print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+#     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+#     print('TMC: Total material cost: ',str(TMC))
+#     print('SALES: Revenue form selling products: ',str(SALES))
+#     print('OBJ:',str(OBJVAL))
+#     print('----')
+#     print('TCP1 gams:',str(pe.value(m.TCP1)))
+#     print('TCP2 gams:',str(pe.value(m.TCP2)))
+#     print('TCP3 gams:',str(pe.value(m.TCP3)))
+#     print('TMC gams:',str(pe.value(m.TMC)))
+#     print('SALES gams:',str(pe.value(m.SALES)))
+
+    ##### ----------TESTS APPROXIMATED SOLUTION OF SUBPROBLEMS-------------------------
+    ##### -----------------------------------------------------------------------------
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+
+    # m_fixed = external_ref(m=m,x=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+    # m = solve_subproblem_approx(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
+
+
+
+
+    #Solve with LD-SDA_COMPLETE GDP
+    model_fun =scheduling_and_control_GDP_complete_approx
+    logic_fun=problem_logic_scheduling
+    kwargs={}
     m=model_fun(**kwargs)
-    m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=360000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    print('Objective value: ',str(pe.value(m.obj)))
 
     textbuffer = io.StringIO()
     for v in m.component_objects(pe.Var, descend_into=True):
@@ -125,27 +187,10 @@ if __name__ == "__main__":
         textbuffer.write('\n')
     textbuffer.write('\n Objective: \n') 
     textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_gdp_complete.txt', 'w') as outputfile:
+    with open('Results_variable_tau_dsda_complete_approx_solution.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
-####--------Objective function summary---------------------------------
-    TPC1=sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)
-    TPC2=sum(sum(sum( m.variable_cost[I,J]*pe.value(m.B[I,J,T]) for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
-    TPC3=sum(sum(sum(pe.value(m.X[I,J,T])*(m.hot_cost*pe.value(m.Integral_hot[I,J][m.N[I,J].last()])   +  m.cold_cost*pe.value(m.Integral_cold[I,J][m.N[I,J].last()])  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
-    TMC=sum( m.raw_cost[K]*(m.S0[K]-pe.value(m.S[K,m.lastT])) for K in m.K_inputs)
-    SALES=sum( m.revenue[K]*pe.value(m.S[K,m.lastT])  for K in m.K_products)
-    OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)/100
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJ:',str(OBJVAL))
-    print('----')
-    print('TCP1 gams:',str(pe.value(m.TCP1)))
-    print('TCP2 gams:',str(pe.value(m.TCP2)))
-    print('TCP3 gams:',str(pe.value(m.TCP3)))
-    print('TMC gams:',str(pe.value(m.TMC)))
-    print('SALES gams:',str(pe.value(m.SALES)))
+
+
 
 #######-------plots------------------------
     # for I in m.I_reactions:
@@ -209,7 +254,7 @@ if __name__ == "__main__":
     #     plt.title('state:'+k)
     #     plt.show()
 
-    #--- Gantt plot
+    #--------------------------------- Gantt plot--------------------------------------------
     fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
     # Setting Y-axis limits
     gnt.set_ylim(8, 62)
