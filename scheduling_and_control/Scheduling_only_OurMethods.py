@@ -48,7 +48,7 @@ if __name__ == "__main__":
         textbuffer.write('\n')
     textbuffer.write('\n Objective: \n') 
     textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_schedling_only_dsda.txt', 'w') as outputfile:
+    with open('Results_schedling_only_dsda_nominal_Case.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
 
     #Solve with pyomo.GDP

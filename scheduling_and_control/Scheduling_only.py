@@ -370,7 +370,8 @@ def scheduling():
 
     # # ----------Reactor variables that do not depend on disjunctions------------------------------------------------------
     def _Vreactor_bounds(m,I,J):
-        return (m.model().beta_min[I,J],m.model().beta_max[I,J])
+        # return (m.model().beta_min[I,J],m.model().beta_max[I,J])
+        return ((m.model().beta_max[I,J]+m.model().beta_min[I,J])/2,(m.model().beta_max[I,J]+m.model().beta_min[I,J])/2)
     m.Vreactor=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,bounds=_Vreactor_bounds,doc='Reactive mixture volume for reaction I in reactor J [m^3]') #TODO: link this variable with batch size variables
 
     # # ----------Scheduling Constraints that DO NOT depend on disjunctions-----------------------------------------
@@ -404,26 +405,35 @@ def scheduling():
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
 
     _minTau={}
-    _minTau['R1','R_large']=math.ceil(2.1366220886694527/m.delta)
-    _minTau['R1','R_small']=math.ceil(2.2294153194353483/m.delta)
+    # _minTau['R1','R_large']=math.ceil(2.1366220886694527/m.delta)
+    # _minTau['R1','R_small']=math.ceil(2.2294153194353483/m.delta)
 
-    _minTau['R2','R_large']=math.ceil(2.8556474598625035/m.delta) 
-    _minTau['R2','R_small']=math.ceil(2.9181422480152954/m.delta)
+    # _minTau['R2','R_large']=math.ceil(2.8556474598625035/m.delta) 
+    # _minTau['R2','R_small']=math.ceil(2.9181422480152954/m.delta)
 
-    _minTau['R3','R_large']=math.ceil(1.5917112584529056/m.delta)
-    _minTau['R3','R_small']=math.ceil(1.675857698391256/m.delta)
+    # _minTau['R3','R_large']=math.ceil(1.5917112584529056/m.delta)
+    # _minTau['R3','R_small']=math.ceil(1.675857698391256/m.delta)
+
+    _minTau['R1','R_large']=math.ceil(1.871478044505773/m.delta)
+    _minTau['R1','R_small']=math.ceil(1.9468064856155354/m.delta)
+
+    _minTau['R2','R_large']=math.ceil(2.6623987697930374/m.delta) 
+    _minTau['R2','R_small']=math.ceil(2.7086060611426097/m.delta)
+
+    _minTau['R3','R_large']=math.ceil(1.3470558700730721/m.delta)
+    _minTau['R3','R_small']=math.ceil(1.4122862348180596/m.delta)
     m.minTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=math.ceil(2.1366220886694527/m.delta)
-    _maxTau['R1','R_small']=math.ceil(2.2294153194353483/m.delta) 
+    _maxTau['R1','R_large']=math.ceil(1.871478044505773/m.delta)
+    _maxTau['R1','R_small']=math.ceil(1.9468064856155354/m.delta)
 
-    _maxTau['R2','R_large']=math.ceil(2.8556474598625035/m.delta) 
-    _maxTau['R2','R_small']=math.ceil(2.9181422480152954/m.delta) 
+    _maxTau['R2','R_large']=math.ceil(2.6623987697930374/m.delta) 
+    _maxTau['R2','R_small']=math.ceil(2.7086060611426097/m.delta)
 
-    _maxTau['R3','R_large']=math.ceil(1.5917112584529056/m.delta)
-    _maxTau['R3','R_small']=math.ceil(1.675857698391256/m.delta)
+    _maxTau['R3','R_large']=math.ceil(1.3470558700730721/m.delta)
+    _maxTau['R3','R_small']=math.ceil(1.4122862348180596/m.delta)
 
 
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')

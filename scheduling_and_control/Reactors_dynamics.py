@@ -298,7 +298,9 @@ def reactor_dynamics():
     for I in m.I_reactions:
         for J in m.J_reactors:
             m.Vreactor[I,J].fix(m.beta_max[I,J])
-
+    # for I in m.I_reactions:
+    #     for J in m.J_reactors:
+    #         m.Vreactor[I,J].fix((m.beta_max[I,J]+m.beta_min[I,J])/2)
     # m.Vreactor['R1','R_large'].fix(1.25)
     # m.Vreactor['R1','R_small'].fix(0.1)
     # m.Vreactor['R2','R_large'].fix(1.5)
@@ -797,14 +799,14 @@ def reactor_dynamics_verif():
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _minTau={}
-    _minTau['R1','R_large']=math.ceil(1/m.delta)
-    _minTau['R1','R_small']=math.ceil(1/m.delta)
+    _minTau['R1','R_large']=math.ceil(2.1366220886694527/m.delta)
+    _minTau['R1','R_small']=math.ceil(2.2294153194353483/m.delta) 
 
-    _minTau['R2','R_large']=math.ceil(1/m.delta) 
-    _minTau['R2','R_small']=math.ceil(1/m.delta)
+    _minTau['R2','R_large']=math.ceil(2.8556474598625035/m.delta)  
+    _minTau['R2','R_small']=math.ceil(2.9181422480152954/m.delta) 
 
-    _minTau['R3','R_large']=math.ceil(1/m.delta)
-    _minTau['R3','R_small']=math.ceil(1/m.delta)
+    _minTau['R3','R_large']=math.ceil(1.5917112584529056/m.delta)
+    _minTau['R3','R_small']=math.ceil(1.675857698391256/m.delta)
     m.minTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
@@ -821,8 +823,8 @@ def reactor_dynamics_verif():
 
 
     def _varTime_bounds(m,I,J):
-        # return (m.minTau[I,J]*m.delta,m.maxTau[I,J]*m.delta)
-        return (0,m.maxTau[I,J]*m.delta)
+        return (m.minTau[I,J]*m.delta,m.maxTau[I,J]*m.delta)
+        # return (0,m.maxTau[I,J]*m.delta)
     m.varTime=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
     def _Vreactor_bounds(m,I,J):
         return (m.beta_min[I,J],m.beta_max[I,J])
@@ -837,8 +839,8 @@ def reactor_dynamics_verif():
     m.Vreactor['R1','R_small'].fix(1)
     m.Vreactor['R2','R_large'].fix(1.5)
     m.Vreactor['R2','R_small'].fix(1)
-    m.Vreactor['R3','R_large'].fix(1.5)
-    m.Vreactor['R3','R_small'].fix(0.5)
+    m.Vreactor['R3','R_large'].fix(1)
+    m.Vreactor['R3','R_small'].fix(1)
     #-----------Reactors dynamic models--------------------------------
     # !!! Assumption. Here I will create 6 continuous time grids, assuming that e.g., when R1 occurs in R_large, the task is always executed the same way (i.e., same tau)
     # !!! This means that initial conditions do not change and disturbances are the same whenever a task is executed multiple times in the same unit

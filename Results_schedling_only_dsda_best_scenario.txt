@@ -4,15 +4,15 @@ X : 1 if unit j processes task i starting at time t
            ('Mix', 'Mix', 0) :     0 :                     1.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 1) :     0 :                     0.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 2) :     0 :                     0.0 :     1 : False : False : Binary
-           ('Mix', 'Mix', 3) :     0 : -1.0156281593509675e-08 :     1 : False : False : Binary
-           ('Mix', 'Mix', 4) :     0 :                     0.0 :     1 : False : False : Binary
+           ('Mix', 'Mix', 3) :     0 :                     0.0 :     1 : False : False : Binary
+           ('Mix', 'Mix', 4) :     0 :                     1.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 5) :     0 :                     0.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 6) :     0 :                     0.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 7) :     0 :                     0.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 8) :     0 :                     0.0 :     1 : False : False : Binary
            ('Mix', 'Mix', 9) :     0 :                     0.0 :     1 : False : False : Binary
           ('Mix', 'Mix', 10) :     0 :                     0.0 :     1 : False : False : Binary
-          ('Mix', 'Mix', 11) :     0 :                     1.0 :     1 : False : False : Binary
+          ('Mix', 'Mix', 11) :     0 :                     0.0 :     1 : False : False : Binary
           ('Mix', 'Mix', 12) :     0 :                     0.0 :     1 : False : False : Binary
           ('Mix', 'Mix', 13) :     0 :                     0.0 :     1 : False : False : Binary
           ('Mix', 'Mix', 14) :     0 :                     0.0 :     1 : False : False : Binary
@@ -180,18 +180,18 @@ X : 1 if unit j processes task i starting at time t
         ('Pack1', 'Pack', 2) :     0 :                     0.0 :     1 : False : False : Binary
         ('Pack1', 'Pack', 3) :     0 :                     0.0 :     1 : False : False : Binary
         ('Pack1', 'Pack', 4) :     0 :                     0.0 :     1 : False : False : Binary
-        ('Pack1', 'Pack', 5) :     0 :                     0.0 :     1 : False : False : Binary
+        ('Pack1', 'Pack', 5) :     0 :                     1.0 :     1 : False : False : Binary
         ('Pack1', 'Pack', 6) :     0 :                     0.0 :     1 : False : False : Binary
         ('Pack1', 'Pack', 7) :     0 :                     0.0 :     1 : False : False : Binary
         ('Pack1', 'Pack', 8) :     0 :                     0.0 :     1 : False : False : Binary
-        ('Pack1', 'Pack', 9) :     0 :                     0.0 :     1 : False : False : Binary
+        ('Pack1', 'Pack', 9) :     0 :                     1.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 10) :     0 :                     0.0 :     1 : False : False : Binary
-       ('Pack1', 'Pack', 11) :     0 :                     1.0 :     1 : False : False : Binary
+       ('Pack1', 'Pack', 11) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 12) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 13) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 14) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 15) :     0 :                     0.0 :     1 : False : False : Binary
-       ('Pack1', 'Pack', 16) :     0 :                     0.0 :     1 : False : False : Binary
+       ('Pack1', 'Pack', 16) :     0 :                     1.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 17) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 18) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 19) :     0 :                     0.0 :     1 : False : False : Binary
@@ -200,7 +200,7 @@ X : 1 if unit j processes task i starting at time t
        ('Pack1', 'Pack', 22) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 23) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 24) :     0 :                     0.0 :     1 : False : False : Binary
-       ('Pack1', 'Pack', 25) :     0 :                     1.0 :     1 : False : False : Binary
+       ('Pack1', 'Pack', 25) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 26) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 27) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack1', 'Pack', 28) :     0 :                     0.0 :     1 : False : False : Binary
@@ -333,19 +333,19 @@ X : 1 if unit j processes task i starting at time t
        ('Pack2', 'Pack', 10) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 11) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 12) :     0 :                     0.0 :     1 : False : False : Binary
-       ('Pack2', 'Pack', 13) :     0 :                     0.0 :     1 : False : False : Binary
+       ('Pack2', 'Pack', 13) :     0 :                     1.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 14) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 15) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 16) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 17) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 18) :     0 :                     0.0 :     1 : False : False : Binary
-       ('Pack2', 'Pack', 19) :     0 :                     0.0 :     1 : False : False : Binary
+       ('Pack2', 'Pack', 19) :     0 :                     1.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 20) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 21) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 22) :     0 :                     1.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 23) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 24) :     0 :                     0.0 :     1 : False : False : Binary
-       ('Pack2', 'Pack', 25) :     0 :                     0.0 :     1 : False : False : Binary
+       ('Pack2', 'Pack', 25) :     0 :                     1.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 26) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 27) :     0 :                     0.0 :     1 : False : False : Binary
        ('Pack2', 'Pack', 28) :     0 :                     0.0 :     1 : False : False : Binary
@@ -503,7 +503,7 @@ X : 1 if unit j processes task i starting at time t
         ('R1', 'R_large', 6) :     0 :                     0.0 :     1 : False : False : Binary
         ('R1', 'R_large', 7) :     0 :                     0.0 :     1 : False : False : Binary
         ('R1', 'R_large', 8) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R1', 'R_large', 9) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R1', 'R_large', 9) :     0 :                     1.0 :     1 : False : False : Binary
        ('R1', 'R_large', 10) :     0 :                     0.0 :     1 : False : False : Binary
        ('R1', 'R_large', 11) :     0 :                     0.0 :     1 : False : False : Binary
        ('R1', 'R_large', 12) :     0 :                     0.0 :     1 : False : False : Binary
@@ -523,9 +523,9 @@ X : 1 if unit j processes task i starting at time t
        ('R1', 'R_large', 26) :     0 :                     0.0 :     1 : False : False : Binary
        ('R1', 'R_large', 27) :     0 :                     0.0 :     1 : False : False : Binary
        ('R1', 'R_large', 28) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R1', 'R_small', 0) :     0 :                     1.0 :     1 : False : False : Binary
-        ('R1', 'R_small', 1) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R1', 'R_small', 2) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R1', 'R_small', 0) :     0 : -1.2000000715328694e-08 :     1 : False : False : Binary
+        ('R1', 'R_small', 1) :     0 :                     1.0 :     1 : False : False : Binary
+        ('R1', 'R_small', 2) :     0 : -1.2000000715328694e-08 :     1 : False : False : Binary
         ('R1', 'R_small', 3) :     0 :                     0.0 :     1 : False : False : Binary
         ('R1', 'R_small', 4) :     0 :                     0.0 :     1 : False : False : Binary
         ('R1', 'R_small', 5) :     0 :                     0.0 :     1 : False : False : Binary
@@ -642,23 +642,23 @@ X : 1 if unit j processes task i starting at time t
         ('R2', 'R_large', 0) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_large', 1) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_large', 2) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R2', 'R_large', 3) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R2', 'R_large', 3) :     0 :                     1.0 :     1 : False : False : Binary
         ('R2', 'R_large', 4) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R2', 'R_large', 5) :     0 :                     1.0 :     1 : False : False : Binary
+        ('R2', 'R_large', 5) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_large', 6) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R2', 'R_large', 7) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R2', 'R_large', 7) :     0 :                     1.0 :     1 : False : False : Binary
         ('R2', 'R_large', 8) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_large', 9) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 10) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R2', 'R_large', 11) :     0 :                     0.0 :     1 : False : False : Binary
+       ('R2', 'R_large', 11) :     0 :                     1.0 :     1 : False : False : Binary
        ('R2', 'R_large', 12) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 13) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 14) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 15) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R2', 'R_large', 16) :     0 :                     1.0 :     1 : False : False : Binary
+       ('R2', 'R_large', 16) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 17) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 18) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R2', 'R_large', 19) :     0 :  -1.108341714702495e-08 :     1 : False : False : Binary
+       ('R2', 'R_large', 19) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 20) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 21) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_large', 22) :     0 :                     0.0 :     1 : False : False : Binary
@@ -671,20 +671,20 @@ X : 1 if unit j processes task i starting at time t
         ('R2', 'R_small', 0) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_small', 1) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_small', 2) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R2', 'R_small', 3) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R2', 'R_small', 3) :     0 :                     1.0 :     1 : False : False : Binary
         ('R2', 'R_small', 4) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R2', 'R_small', 5) :     0 :                     1.0 :     1 : False : False : Binary
+        ('R2', 'R_small', 5) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_small', 6) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R2', 'R_small', 7) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R2', 'R_small', 7) :     0 :                     1.0 :     1 : False : False : Binary
         ('R2', 'R_small', 8) :     0 :                     0.0 :     1 : False : False : Binary
         ('R2', 'R_small', 9) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 10) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 11) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 12) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R2', 'R_small', 13) :     0 :                     0.0 :     1 : False : False : Binary
+       ('R2', 'R_small', 13) :     0 :                     1.0 :     1 : False : False : Binary
        ('R2', 'R_small', 14) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 15) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R2', 'R_small', 16) :     0 :                     1.0 :     1 : False : False : Binary
+       ('R2', 'R_small', 16) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 17) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 18) :     0 :                     0.0 :     1 : False : False : Binary
        ('R2', 'R_small', 19) :     0 :                     0.0 :     1 : False : False : Binary
@@ -789,15 +789,15 @@ X : 1 if unit j processes task i starting at time t
         ('R3', 'R_large', 2) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_large', 3) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_large', 4) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R3', 'R_large', 5) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R3', 'R_large', 5) :     0 :                     1.0 :     1 : False : False : Binary
         ('R3', 'R_large', 6) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_large', 7) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_large', 8) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_large', 9) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_large', 10) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_large', 11) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R3', 'R_large', 12) :     0 :                     1.0 :     1 : False : False : Binary
-       ('R3', 'R_large', 13) :     0 :                     0.0 :     1 : False : False : Binary
+       ('R3', 'R_large', 12) :     0 :                     0.0 :     1 : False : False : Binary
+       ('R3', 'R_large', 13) :     0 :                     1.0 :     1 : False : False : Binary
        ('R3', 'R_large', 14) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_large', 15) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_large', 16) :     0 :                     0.0 :     1 : False : False : Binary
@@ -818,14 +818,14 @@ X : 1 if unit j processes task i starting at time t
         ('R3', 'R_small', 2) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_small', 3) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_small', 4) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R3', 'R_small', 5) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R3', 'R_small', 5) :     0 :                     1.0 :     1 : False : False : Binary
         ('R3', 'R_small', 6) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_small', 7) :     0 :                     0.0 :     1 : False : False : Binary
         ('R3', 'R_small', 8) :     0 :                     0.0 :     1 : False : False : Binary
-        ('R3', 'R_small', 9) :     0 :                     0.0 :     1 : False : False : Binary
+        ('R3', 'R_small', 9) :     0 :                     1.0 :     1 : False : False : Binary
        ('R3', 'R_small', 10) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R3', 'R_small', 11) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R3', 'R_small', 12) :     0 :                     1.0 :     1 : False : False : Binary
+       ('R3', 'R_small', 11) :     0 :                     1.0 :     1 : False : False : Binary
+       ('R3', 'R_small', 12) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 13) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 14) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 15) :     0 :                     0.0 :     1 : False : False : Binary
@@ -838,7 +838,7 @@ X : 1 if unit j processes task i starting at time t
        ('R3', 'R_small', 22) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 23) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 24) :     0 :                     0.0 :     1 : False : False : Binary
-       ('R3', 'R_small', 25) :     0 :  1.0498486524568307e-08 :     1 : False : False : Binary
+       ('R3', 'R_small', 25) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 26) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 27) :     0 :                     0.0 :     1 : False : False : Binary
        ('R3', 'R_small', 28) :     0 :                     0.0 :     1 : False : False : Binary
@@ -994,19 +994,19 @@ X : 1 if unit j processes task i starting at time t
            ('Sep', 'Sep', 4) :     0 :                     0.0 :     1 : False : False : Binary
            ('Sep', 'Sep', 5) :     0 :                     0.0 :     1 : False : False : Binary
            ('Sep', 'Sep', 6) :     0 :                     0.0 :     1 : False : False : Binary
-           ('Sep', 'Sep', 7) :     0 :                     0.0 :     1 : False : False : Binary
+           ('Sep', 'Sep', 7) :     0 :                     1.0 :     1 : False : False : Binary
            ('Sep', 'Sep', 8) :     0 :                     0.0 :     1 : False : False : Binary
            ('Sep', 'Sep', 9) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 10) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 11) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 12) :     0 :                     0.0 :     1 : False : False : Binary
-          ('Sep', 'Sep', 13) :     0 :                     0.0 :     1 : False : False : Binary
+          ('Sep', 'Sep', 13) :     0 :                     1.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 14) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 15) :     0 :                     0.0 :     1 : False : False : Binary
-          ('Sep', 'Sep', 16) :     0 :                     1.0 :     1 : False : False : Binary
+          ('Sep', 'Sep', 16) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 17) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 18) :     0 :                     0.0 :     1 : False : False : Binary
-          ('Sep', 'Sep', 19) :     0 :                     0.0 :     1 : False : False : Binary
+          ('Sep', 'Sep', 19) :     0 :                     1.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 20) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 21) :     0 :                     0.0 :     1 : False : False : Binary
           ('Sep', 'Sep', 22) :     0 :                     0.0 :     1 : False : False : Binary
@@ -1020,18 +1020,18 @@ X : 1 if unit j processes task i starting at time t
 B : Batch size of task i processed in unit j starting at time t
     Size=1015, Index=B_index
     Key                      : Lower : Value                   : Upper : Fixed : Stale : Domain
-           ('Mix', 'Mix', 0) :     0 :      1.2499999958437185 :     2 : False : False : NonNegativeReals
+           ('Mix', 'Mix', 0) :     0 :                     2.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 1) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 2) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 3) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
-           ('Mix', 'Mix', 4) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
+           ('Mix', 'Mix', 4) :     0 :      1.7499999945999996 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 5) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 6) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 7) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 8) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Mix', 'Mix', 9) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Mix', 'Mix', 10) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
-          ('Mix', 'Mix', 11) :     0 :      1.2499999958437185 :     2 : False : False : NonNegativeReals
+          ('Mix', 'Mix', 11) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Mix', 'Mix', 12) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Mix', 'Mix', 13) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Mix', 'Mix', 14) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
@@ -1199,18 +1199,18 @@ B : Batch size of task i processed in unit j starting at time t
         ('Pack1', 'Pack', 2) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('Pack1', 'Pack', 3) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('Pack1', 'Pack', 4) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('Pack1', 'Pack', 5) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('Pack1', 'Pack', 5) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
         ('Pack1', 'Pack', 6) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('Pack1', 'Pack', 7) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('Pack1', 'Pack', 8) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('Pack1', 'Pack', 9) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('Pack1', 'Pack', 9) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 10) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack1', 'Pack', 11) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+       ('Pack1', 'Pack', 11) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 12) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 13) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 14) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 15) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack1', 'Pack', 16) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+       ('Pack1', 'Pack', 16) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 17) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 18) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 19) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
@@ -1219,7 +1219,7 @@ B : Batch size of task i processed in unit j starting at time t
        ('Pack1', 'Pack', 22) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 23) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 24) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack1', 'Pack', 25) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+       ('Pack1', 'Pack', 25) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 26) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 27) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack1', 'Pack', 28) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
@@ -1352,19 +1352,19 @@ B : Batch size of task i processed in unit j starting at time t
        ('Pack2', 'Pack', 10) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 11) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 12) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack2', 'Pack', 13) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+       ('Pack2', 'Pack', 13) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 14) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 15) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 16) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 17) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 18) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack2', 'Pack', 19) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+       ('Pack2', 'Pack', 19) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 20) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 21) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack2', 'Pack', 22) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+       ('Pack2', 'Pack', 22) :     0 :      0.3999999999999999 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 23) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 24) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('Pack2', 'Pack', 25) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+       ('Pack2', 'Pack', 25) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 26) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 27) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('Pack2', 'Pack', 28) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
@@ -1522,7 +1522,7 @@ B : Batch size of task i processed in unit j starting at time t
         ('R1', 'R_large', 6) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R1', 'R_large', 7) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R1', 'R_large', 8) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-        ('R1', 'R_large', 9) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+        ('R1', 'R_large', 9) :     0 :                     1.5 :   1.5 : False : False : NonNegativeReals
        ('R1', 'R_large', 10) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R1', 'R_large', 11) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R1', 'R_large', 12) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
@@ -1542,9 +1542,9 @@ B : Batch size of task i processed in unit j starting at time t
        ('R1', 'R_large', 26) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R1', 'R_large', 27) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R1', 'R_large', 28) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-        ('R1', 'R_small', 0) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
-        ('R1', 'R_small', 1) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('R1', 'R_small', 2) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('R1', 'R_small', 0) :     0 : -1.2000000715328694e-08 :     1 : False : False : NonNegativeReals
+        ('R1', 'R_small', 1) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+        ('R1', 'R_small', 2) :     0 : -1.2000000715328694e-08 :     1 : False : False : NonNegativeReals
         ('R1', 'R_small', 3) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R1', 'R_small', 4) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R1', 'R_small', 5) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
@@ -1661,23 +1661,23 @@ B : Batch size of task i processed in unit j starting at time t
         ('R2', 'R_large', 0) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R2', 'R_large', 1) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R2', 'R_large', 2) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-        ('R2', 'R_large', 3) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+        ('R2', 'R_large', 3) :     0 :                     1.5 :   1.5 : False : False : NonNegativeReals
         ('R2', 'R_large', 4) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-        ('R2', 'R_large', 5) :     0 :                     1.5 :   1.5 : False : False : NonNegativeReals
+        ('R2', 'R_large', 5) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R2', 'R_large', 6) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-        ('R2', 'R_large', 7) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+        ('R2', 'R_large', 7) :     0 :                     1.5 :   1.5 : False : False : NonNegativeReals
         ('R2', 'R_large', 8) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R2', 'R_large', 9) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 10) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-       ('R2', 'R_large', 11) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+       ('R2', 'R_large', 11) :     0 :                     1.5 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 12) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 13) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 14) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 15) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-       ('R2', 'R_large', 16) :     0 :                     1.5 :   1.5 : False : False : NonNegativeReals
+       ('R2', 'R_large', 16) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 17) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 18) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-       ('R2', 'R_large', 19) :     0 : -1.6625125720537426e-08 :   1.5 : False : False : NonNegativeReals
+       ('R2', 'R_large', 19) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 20) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 21) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R2', 'R_large', 22) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
@@ -1690,20 +1690,20 @@ B : Batch size of task i processed in unit j starting at time t
         ('R2', 'R_small', 0) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R2', 'R_small', 1) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R2', 'R_small', 2) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('R2', 'R_small', 3) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('R2', 'R_small', 3) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
         ('R2', 'R_small', 4) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('R2', 'R_small', 5) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+        ('R2', 'R_small', 5) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R2', 'R_small', 6) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('R2', 'R_small', 7) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('R2', 'R_small', 7) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
         ('R2', 'R_small', 8) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R2', 'R_small', 9) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 10) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 11) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 12) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('R2', 'R_small', 13) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+       ('R2', 'R_small', 13) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 14) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 15) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('R2', 'R_small', 16) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+       ('R2', 'R_small', 16) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 17) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 18) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R2', 'R_small', 19) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
@@ -1808,15 +1808,15 @@ B : Batch size of task i processed in unit j starting at time t
         ('R3', 'R_large', 2) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R3', 'R_large', 3) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R3', 'R_large', 4) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-        ('R3', 'R_large', 5) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+        ('R3', 'R_large', 5) :     0 :      1.3333333333333335 :   1.5 : False : False : NonNegativeReals
         ('R3', 'R_large', 6) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R3', 'R_large', 7) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R3', 'R_large', 8) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
         ('R3', 'R_large', 9) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R3', 'R_large', 10) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R3', 'R_large', 11) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
-       ('R3', 'R_large', 12) :     0 :      0.9999999800498482 :   1.5 : False : False : NonNegativeReals
-       ('R3', 'R_large', 13) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+       ('R3', 'R_large', 12) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
+       ('R3', 'R_large', 13) :     0 :      1.3333333333333335 :   1.5 : False : False : NonNegativeReals
        ('R3', 'R_large', 14) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R3', 'R_large', 15) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
        ('R3', 'R_large', 16) :     0 :                     0.0 :   1.5 : False : False : NonNegativeReals
@@ -1837,14 +1837,14 @@ B : Batch size of task i processed in unit j starting at time t
         ('R3', 'R_small', 2) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R3', 'R_small', 3) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R3', 'R_small', 4) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('R3', 'R_small', 5) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('R3', 'R_small', 5) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
         ('R3', 'R_small', 6) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R3', 'R_small', 7) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
         ('R3', 'R_small', 8) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-        ('R3', 'R_small', 9) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
+        ('R3', 'R_small', 9) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
        ('R3', 'R_small', 10) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('R3', 'R_small', 11) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
-       ('R3', 'R_small', 12) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+       ('R3', 'R_small', 11) :     0 :                     1.0 :     1 : False : False : NonNegativeReals
+       ('R3', 'R_small', 12) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R3', 'R_small', 13) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R3', 'R_small', 14) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
        ('R3', 'R_small', 15) :     0 :                     0.0 :     1 : False : False : NonNegativeReals
@@ -2013,19 +2013,19 @@ B : Batch size of task i processed in unit j starting at time t
            ('Sep', 'Sep', 4) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Sep', 'Sep', 5) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Sep', 'Sep', 6) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
-           ('Sep', 'Sep', 7) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
+           ('Sep', 'Sep', 7) :     0 :                     2.0 :     2 : False : False : NonNegativeReals
            ('Sep', 'Sep', 8) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
            ('Sep', 'Sep', 9) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 10) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 11) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 12) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
-          ('Sep', 'Sep', 13) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
+          ('Sep', 'Sep', 13) :     0 :                     2.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 14) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 15) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
-          ('Sep', 'Sep', 16) :     0 :      1.6666666555832497 :     2 : False : False : NonNegativeReals
+          ('Sep', 'Sep', 16) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 17) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 18) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
-          ('Sep', 'Sep', 19) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
+          ('Sep', 'Sep', 19) :     0 :      1.6666666666666667 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 20) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 21) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
           ('Sep', 'Sep', 22) :     0 :                     0.0 :     2 : False : False : NonNegativeReals
@@ -2038,384 +2038,384 @@ B : Batch size of task i processed in unit j starting at time t
 
 S : Inventory of material k at time t
     Size=377, Index=S_index
-    Key        : Lower : Value              : Upper : Fixed : Stale : Domain
-     ('I1', 0) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 1) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 2) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 3) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-     ('I1', 4) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-     ('I1', 5) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 6) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 7) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 8) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I1', 9) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 10) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 11) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 12) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 13) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 14) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I1', 15) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I1', 16) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 17) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 18) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 19) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 20) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 21) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 22) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 23) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 24) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 25) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 26) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 27) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I1', 28) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I2', 0) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I2', 1) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I2', 2) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I2', 3) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I2', 4) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I2', 5) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-     ('I2', 6) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-     ('I2', 7) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-     ('I2', 8) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-     ('I2', 9) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 10) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 11) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 12) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 13) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 14) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 15) :     0 : 1.2499999958437185 :     2 : False : False : NonNegativeReals
-    ('I2', 16) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 17) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 18) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 19) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 20) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 21) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 22) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 23) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 24) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 25) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 26) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 27) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I2', 28) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 0) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 1) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 2) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 3) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 4) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 5) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 6) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 7) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 8) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I3', 9) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I3', 10) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I3', 11) :     0 :  1.499999995012462 :     2 : False : False : NonNegativeReals
-    ('I3', 12) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 13) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 14) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 15) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 16) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 17) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 18) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 19) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 20) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 21) :     0 : 0.5000000049875379 :     2 : False : False : NonNegativeReals
-    ('I3', 22) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-    ('I3', 23) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-    ('I3', 24) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-    ('I3', 25) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-    ('I3', 26) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-    ('I3', 27) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-    ('I3', 28) :     0 :                2.0 :     2 : False : False : NonNegativeReals
-     ('I4', 0) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 1) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 2) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 3) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 4) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 5) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 6) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 7) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 8) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-     ('I4', 9) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 10) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 11) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 12) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 13) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 14) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 15) :     0 :                0.0 :     2 : False : False : NonNegativeReals
-    ('I4', 16) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 17) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 18) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 19) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 20) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 21) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 22) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 23) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 24) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 25) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 26) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 27) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-    ('I4', 28) :     0 : 0.3333333244665986 :     2 : False : False : NonNegativeReals
-     ('I5', 0) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 1) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 2) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 3) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 4) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 5) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 6) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 7) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 8) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I5', 9) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 10) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 11) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 12) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 13) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 14) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 15) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 16) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 17) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 18) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 19) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 20) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 21) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 22) :     0 : 0.9999999933499497 :     5 : False : False : NonNegativeReals
-    ('I5', 23) :     0 : 0.9999999933499497 :     5 : False : False : NonNegativeReals
-    ('I5', 24) :     0 : 0.9999999933499497 :     5 : False : False : NonNegativeReals
-    ('I5', 25) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 26) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 27) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I5', 28) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 0) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 1) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 2) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 3) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 4) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 5) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 6) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 7) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 8) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('I6', 9) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 10) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 11) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 12) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 13) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 14) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 15) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 16) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 17) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 18) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 19) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 20) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 21) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 22) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 23) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 24) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 25) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 26) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 27) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-    ('I6', 28) :     0 :                0.0 :     5 : False : False : NonNegativeReals
-     ('M1', 0) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 1) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 2) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 3) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 4) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 5) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 6) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 7) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 8) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-     ('M1', 9) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-    ('M1', 10) :     0 :  9.500000001662512 :    10 : False : False : NonNegativeReals
-    ('M1', 11) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 12) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 13) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 14) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 15) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 16) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 17) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 18) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 19) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 20) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 21) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 22) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 23) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 24) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 25) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 26) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 27) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-    ('M1', 28) :     0 :  9.000000003325024 :    10 : False : False : NonNegativeReals
-     ('M2', 0) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 1) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 2) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 3) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 4) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 5) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 6) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 7) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 8) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M2', 9) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 10) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 11) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 12) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 13) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 14) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 15) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 16) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 17) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 18) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 19) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 20) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 21) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 22) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 23) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 24) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 25) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 26) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 27) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M2', 28) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 0) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 1) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 2) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 3) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 4) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 5) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 6) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 7) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 8) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-     ('M3', 9) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M3', 10) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M3', 11) :     0 :   8.75000000415628 :    10 : False : False : NonNegativeReals
-    ('M3', 12) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 13) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 14) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 15) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 16) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 17) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 18) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 19) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 20) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 21) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 22) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 23) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 24) :     0 : 7.7500000141313565 :    10 : False : False : NonNegativeReals
-    ('M3', 25) :     0 :  7.750000013606432 :    10 : False : False : NonNegativeReals
-    ('M3', 26) :     0 :  7.750000013606432 :    10 : False : False : NonNegativeReals
-    ('M3', 27) :     0 :  7.750000013606432 :    10 : False : False : NonNegativeReals
-    ('M3', 28) :     0 :  7.750000013606432 :    10 : False : False : NonNegativeReals
-     ('P1', 0) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 1) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 2) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 3) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 4) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 5) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 6) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 7) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 8) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P1', 9) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P1', 10) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P1', 11) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P1', 12) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P1', 13) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P1', 14) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 15) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 16) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 17) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 18) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 19) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 20) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 21) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 22) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 23) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 24) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 25) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 26) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 27) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P1', 28) :     0 : 1.9999999866998994 :    10 : False : False : NonNegativeReals
-     ('P2', 0) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 1) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 2) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 3) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 4) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 5) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 6) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 7) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 8) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('P2', 9) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 10) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 11) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 12) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 13) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 14) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 15) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 16) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 17) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 18) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 19) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 20) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 21) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 22) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 23) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 24) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('P2', 25) :     0 : 0.9999999933499497 :    10 : False : False : NonNegativeReals
-    ('P2', 26) :     0 : 0.9999999933499497 :    10 : False : False : NonNegativeReals
-    ('P2', 27) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-    ('P2', 28) :     0 :                1.0 :    10 : False : False : NonNegativeReals
-     ('S1', 0) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 1) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 2) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 3) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 4) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 5) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 6) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 7) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 8) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-     ('S1', 9) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-    ('S1', 10) :     0 :  9.250000002493769 :    10 : False : False : NonNegativeReals
-    ('S1', 11) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 12) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 13) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 14) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 15) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 16) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 17) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 18) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 19) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 20) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 21) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 22) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 23) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 24) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 25) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 26) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 27) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-    ('S1', 28) :     0 :  8.500000004987537 :    10 : False : False : NonNegativeReals
-     ('W1', 0) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 1) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 2) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 3) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 4) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 5) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 6) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 7) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 8) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-     ('W1', 9) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 10) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 11) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 12) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 13) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 14) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 15) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 16) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 17) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 18) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 19) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 20) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 21) :     0 :                0.0 :    10 : False : False : NonNegativeReals
-    ('W1', 22) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
-    ('W1', 23) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
-    ('W1', 24) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
-    ('W1', 25) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
-    ('W1', 26) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
-    ('W1', 27) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
-    ('W1', 28) :     0 :    0.6666666622333 :    10 : False : False : NonNegativeReals
+    Key        : Lower : Value               : Upper : Fixed : Stale : Domain
+     ('I1', 0) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I1', 1) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I1', 2) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I1', 3) :     0 :  0.7500000054000003 :     2 : False : False : NonNegativeReals
+     ('I1', 4) :     0 :  0.7500000054000003 :     2 : False : False : NonNegativeReals
+     ('I1', 5) :     0 :  0.7500000054000003 :     2 : False : False : NonNegativeReals
+     ('I1', 6) :     0 :  0.7500000054000003 :     2 : False : False : NonNegativeReals
+     ('I1', 7) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+     ('I1', 8) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+     ('I1', 9) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+    ('I1', 10) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+    ('I1', 11) :     0 :                 0.5 :     2 : False : False : NonNegativeReals
+    ('I1', 12) :     0 :                 0.5 :     2 : False : False : NonNegativeReals
+    ('I1', 13) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 14) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 15) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 16) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 17) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 18) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 19) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 20) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 21) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 22) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 23) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 24) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 25) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 26) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 27) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I1', 28) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I2', 0) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I2', 1) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I2', 2) :     0 :  1.5000000066000005 :     2 : False : False : NonNegativeReals
+     ('I2', 3) :     0 :  1.2500000120000008 :     2 : False : False : NonNegativeReals
+     ('I2', 4) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+     ('I2', 5) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+     ('I2', 6) :     0 :                1.25 :     2 : False : False : NonNegativeReals
+     ('I2', 7) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I2', 8) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I2', 9) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I2', 10) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I2', 11) :     0 :  0.7500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 12) :     0 :  0.7500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 13) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 14) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 15) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 16) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 17) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 18) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 19) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 20) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 21) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 22) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 23) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 24) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 25) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 26) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 27) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+    ('I2', 28) :     0 :  0.2500000186000013 :     2 : False : False : NonNegativeReals
+     ('I3', 0) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I3', 1) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I3', 2) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I3', 3) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I3', 4) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I3', 5) :     0 :  0.3333333268533327 :     2 : False : False : NonNegativeReals
+     ('I3', 6) :     0 :  0.3333333268533327 :     2 : False : False : NonNegativeReals
+     ('I3', 7) :     0 :  0.3333333268533327 :     2 : False : False : NonNegativeReals
+     ('I3', 8) :     0 :  0.3333333268533327 :     2 : False : False : NonNegativeReals
+     ('I3', 9) :     0 :  1.3333333268533325 :     2 : False : False : NonNegativeReals
+    ('I3', 10) :     0 :  1.3333333268533325 :     2 : False : False : NonNegativeReals
+    ('I3', 11) :     0 :  0.8333333268533325 :     2 : False : False : NonNegativeReals
+    ('I3', 12) :     0 :  0.8333333268533325 :     2 : False : False : NonNegativeReals
+    ('I3', 13) :     0 :  1.0666666601866657 :     2 : False : False : NonNegativeReals
+    ('I3', 14) :     0 :  1.0666666601866657 :     2 : False : False : NonNegativeReals
+    ('I3', 15) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 16) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 17) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 18) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 19) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 20) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 21) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 22) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 23) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 24) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 25) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 26) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 27) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+    ('I3', 28) :     0 :  1.6666666601866655 :     2 : False : False : NonNegativeReals
+     ('I4', 0) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 1) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 2) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 3) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 4) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 5) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 6) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I4', 7) :     0 :  0.3333333333333335 :     2 : False : False : NonNegativeReals
+     ('I4', 8) :     0 :  0.3333333333333335 :     2 : False : False : NonNegativeReals
+     ('I4', 9) :     0 :  0.3333333333333335 :     2 : False : False : NonNegativeReals
+    ('I4', 10) :     0 :  0.3333333333333335 :     2 : False : False : NonNegativeReals
+    ('I4', 11) :     0 :  1.3333333333333335 :     2 : False : False : NonNegativeReals
+    ('I4', 12) :     0 :  1.3333333333333335 :     2 : False : False : NonNegativeReals
+    ('I4', 13) :     0 :  0.3333333333333335 :     2 : False : False : NonNegativeReals
+    ('I4', 14) :     0 : 0.33333333333333326 :     2 : False : False : NonNegativeReals
+    ('I4', 15) :     0 :  1.6666666666666667 :     2 : False : False : NonNegativeReals
+    ('I4', 16) :     0 :  1.6666666666666667 :     2 : False : False : NonNegativeReals
+    ('I4', 17) :     0 :  1.6666666666666667 :     2 : False : False : NonNegativeReals
+    ('I4', 18) :     0 :  1.6666666666666667 :     2 : False : False : NonNegativeReals
+    ('I4', 19) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 20) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 21) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 22) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 23) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 24) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 25) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 26) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 27) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+    ('I4', 28) :     0 :                 0.0 :     2 : False : False : NonNegativeReals
+     ('I5', 0) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 1) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 2) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 3) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 4) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 5) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 6) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 7) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 8) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I5', 9) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 10) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 11) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 12) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 13) :     0 :  0.6000000000000001 :     5 : False : False : NonNegativeReals
+    ('I5', 14) :     0 :  0.6000000000000001 :     5 : False : False : NonNegativeReals
+    ('I5', 15) :     0 :                 1.0 :     5 : False : False : NonNegativeReals
+    ('I5', 16) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 17) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 18) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 19) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 20) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 21) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 22) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 23) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 24) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 25) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 26) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 27) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I5', 28) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 0) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 1) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 2) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 3) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 4) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 5) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 6) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 7) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 8) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('I6', 9) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 10) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 11) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 12) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 13) :     0 : 0.19999999999999996 :     5 : False : False : NonNegativeReals
+    ('I6', 14) :     0 : 0.19999999999999996 :     5 : False : False : NonNegativeReals
+    ('I6', 15) :     0 : 0.19999999999999996 :     5 : False : False : NonNegativeReals
+    ('I6', 16) :     0 : 0.19999999999999996 :     5 : False : False : NonNegativeReals
+    ('I6', 17) :     0 : 0.19999999999999996 :     5 : False : False : NonNegativeReals
+    ('I6', 18) :     0 : 0.19999999999999996 :     5 : False : False : NonNegativeReals
+    ('I6', 19) :     0 :  0.3999999999999999 :     5 : False : False : NonNegativeReals
+    ('I6', 20) :     0 :  0.3999999999999999 :     5 : False : False : NonNegativeReals
+    ('I6', 21) :     0 :  0.3999999999999999 :     5 : False : False : NonNegativeReals
+    ('I6', 22) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 23) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 24) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 25) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 26) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 27) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+    ('I6', 28) :     0 :                 0.0 :     5 : False : False : NonNegativeReals
+     ('M1', 0) :     0 :                 9.2 :    10 : False : False : NonNegativeReals
+     ('M1', 1) :     0 :                 9.2 :    10 : False : False : NonNegativeReals
+     ('M1', 2) :     0 :                 9.2 :    10 : False : False : NonNegativeReals
+     ('M1', 3) :     0 :                 9.2 :    10 : False : False : NonNegativeReals
+     ('M1', 4) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+     ('M1', 5) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+     ('M1', 6) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+     ('M1', 7) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+     ('M1', 8) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+     ('M1', 9) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 10) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 11) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 12) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 13) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 14) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 15) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 16) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 17) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 18) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 19) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 20) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 21) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 22) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 23) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 24) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 25) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 26) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 27) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+    ('M1', 28) :     0 :       8.50000000216 :    10 : False : False : NonNegativeReals
+     ('M2', 0) :     0 :        9.2499999967 :    10 : False : False : NonNegativeReals
+     ('M2', 1) :     0 :        8.7499999967 :    10 : False : False : NonNegativeReals
+     ('M2', 2) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 3) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 4) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 5) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 6) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 7) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 8) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M2', 9) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 10) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 11) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 12) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 13) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 14) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 15) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 16) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 17) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 18) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 19) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 20) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 21) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 22) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 23) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 24) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 25) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 26) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 27) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+    ('M2', 28) :     0 :  7.9999999933999995 :    10 : False : False : NonNegativeReals
+     ('M3', 0) :     0 :        9.2499999967 :    10 : False : False : NonNegativeReals
+     ('M3', 1) :     0 :        8.7499999967 :    10 : False : False : NonNegativeReals
+     ('M3', 2) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M3', 3) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M3', 4) :     0 :        8.7500000027 :    10 : False : False : NonNegativeReals
+     ('M3', 5) :     0 :   7.583333336033333 :    10 : False : False : NonNegativeReals
+     ('M3', 6) :     0 :   7.583333336033333 :    10 : False : False : NonNegativeReals
+     ('M3', 7) :     0 :   7.583333336033333 :    10 : False : False : NonNegativeReals
+     ('M3', 8) :     0 :   7.583333336033333 :    10 : False : False : NonNegativeReals
+     ('M3', 9) :     0 :  6.3333333267333325 :    10 : False : False : NonNegativeReals
+    ('M3', 10) :     0 :  6.3333333267333325 :    10 : False : False : NonNegativeReals
+    ('M3', 11) :     0 :  5.8333333267333325 :    10 : False : False : NonNegativeReals
+    ('M3', 12) :     0 :  5.8333333267333325 :    10 : False : False : NonNegativeReals
+    ('M3', 13) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 14) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 15) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 16) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 17) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 18) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 19) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 20) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 21) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 22) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 23) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 24) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 25) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 26) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 27) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+    ('M3', 28) :     0 :  5.1666666600666655 :    10 : False : False : NonNegativeReals
+     ('P1', 0) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 1) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 2) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 3) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 4) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 5) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 6) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 7) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P1', 8) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+     ('P1', 9) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P1', 10) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P1', 11) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P1', 12) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 13) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 14) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 15) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 16) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 17) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 18) :     0 :  1.9999999956799999 :    10 : False : False : NonNegativeReals
+    ('P1', 19) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 20) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 21) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 22) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 23) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 24) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 25) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 26) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 27) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+    ('P1', 28) :     0 :  2.9999999956799996 :    10 : False : False : NonNegativeReals
+     ('P2', 0) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 1) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 2) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 3) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 4) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 5) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 6) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 7) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 8) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('P2', 9) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 10) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 11) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 12) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 13) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 14) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 15) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('P2', 16) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P2', 17) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P2', 18) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P2', 19) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P2', 20) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P2', 21) :     0 :                 1.0 :    10 : False : False : NonNegativeReals
+    ('P2', 22) :     0 :                 2.0 :    10 : False : False : NonNegativeReals
+    ('P2', 23) :     0 :                 2.0 :    10 : False : False : NonNegativeReals
+    ('P2', 24) :     0 :                 2.0 :    10 : False : False : NonNegativeReals
+    ('P2', 25) :     0 :                 2.4 :    10 : False : False : NonNegativeReals
+    ('P2', 26) :     0 :                 2.4 :    10 : False : False : NonNegativeReals
+    ('P2', 27) :     0 :                 2.4 :    10 : False : False : NonNegativeReals
+    ('P2', 28) :     0 :                 3.4 :    10 : False : False : NonNegativeReals
+     ('S1', 0) :     0 :                 8.8 :    10 : False : False : NonNegativeReals
+     ('S1', 1) :     0 :                 8.8 :    10 : False : False : NonNegativeReals
+     ('S1', 2) :     0 :                 8.8 :    10 : False : False : NonNegativeReals
+     ('S1', 3) :     0 :                 8.8 :    10 : False : False : NonNegativeReals
+     ('S1', 4) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+     ('S1', 5) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+     ('S1', 6) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+     ('S1', 7) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+     ('S1', 8) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+     ('S1', 9) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 10) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 11) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 12) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 13) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 14) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 15) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 16) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 17) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 18) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 19) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 20) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 21) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 22) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 23) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 24) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 25) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 26) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 27) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+    ('S1', 28) :     0 :   7.750000003240001 :    10 : False : False : NonNegativeReals
+     ('W1', 0) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 1) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 2) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 3) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 4) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 5) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 6) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 7) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 8) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+     ('W1', 9) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('W1', 10) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('W1', 11) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('W1', 12) :     0 :                 0.0 :    10 : False : False : NonNegativeReals
+    ('W1', 13) :     0 :                 0.8 :    10 : False : False : NonNegativeReals
+    ('W1', 14) :     0 :                 0.8 :    10 : False : False : NonNegativeReals
+    ('W1', 15) :     0 :                 0.8 :    10 : False : False : NonNegativeReals
+    ('W1', 16) :     0 :                 0.8 :    10 : False : False : NonNegativeReals
+    ('W1', 17) :     0 :                 0.8 :    10 : False : False : NonNegativeReals
+    ('W1', 18) :     0 :                 0.8 :    10 : False : False : NonNegativeReals
+    ('W1', 19) :     0 :                 1.6 :    10 : False : False : NonNegativeReals
+    ('W1', 20) :     0 :                 1.6 :    10 : False : False : NonNegativeReals
+    ('W1', 21) :     0 :                 1.6 :    10 : False : False : NonNegativeReals
+    ('W1', 22) :     0 :                 1.6 :    10 : False : False : NonNegativeReals
+    ('W1', 23) :     0 :                 1.6 :    10 : False : False : NonNegativeReals
+    ('W1', 24) :     0 :                 1.6 :    10 : False : False : NonNegativeReals
+    ('W1', 25) :     0 :  2.2666666666666666 :    10 : False : False : NonNegativeReals
+    ('W1', 26) :     0 :  2.2666666666666666 :    10 : False : False : NonNegativeReals
+    ('W1', 27) :     0 :  2.2666666666666666 :    10 : False : False : NonNegativeReals
+    ('W1', 28) :     0 :  2.2666666666666666 :    10 : False : False : NonNegativeReals
 
 Vreactor : Reactive mixture volume for reaction I in reactor J [m^3]
     Size=6, Index=Vreactor_index
@@ -2424,53 +2424,53 @@ Vreactor : Reactive mixture volume for reaction I in reactor J [m^3]
     ('R1', 'R_small') :   0.1 :                1.0 :     1 : False : False : NonNegativeReals
     ('R2', 'R_large') :  0.15 :                1.5 :   1.5 : False : False : NonNegativeReals
     ('R2', 'R_small') :   0.1 :                1.0 :     1 : False : False : NonNegativeReals
-    ('R3', 'R_large') :  0.15 : 0.9999999800498482 :   1.5 : False : False : NonNegativeReals
+    ('R3', 'R_large') :  0.15 : 1.3333333333333335 :   1.5 : False : False : NonNegativeReals
     ('R3', 'R_small') :   0.1 :                1.0 :     1 : False : False : NonNegativeReals
 
 varTime : Variable processing time for units that consider dynamics [h]
     Size=6, Index=varTime_index
     Key               : Lower : Value : Upper : Fixed : Stale : Domain
-    ('R1', 'R_large') :   2.5 :   2.5 :   2.5 : False : False : NonNegativeReals
-    ('R1', 'R_small') :   2.5 :   2.5 :   2.5 : False : False : NonNegativeReals
-    ('R2', 'R_large') :   3.0 :   3.0 :   3.0 : False : False : NonNegativeReals
-    ('R2', 'R_small') :   3.0 :   3.0 :   3.0 : False : False : NonNegativeReals
-    ('R3', 'R_large') :   2.0 :   2.0 :   2.0 : False : False : NonNegativeReals
-    ('R3', 'R_small') :   2.0 :   2.0 :   2.0 : False : False : NonNegativeReals
+    ('R1', 'R_large') :   1.0 :   1.0 :   1.0 : False : False : NonNegativeReals
+    ('R1', 'R_small') :   1.0 :   1.0 :   1.0 : False : False : NonNegativeReals
+    ('R2', 'R_large') :   1.0 :   1.0 :   1.0 : False : False : NonNegativeReals
+    ('R2', 'R_small') :   1.0 :   1.0 :   1.0 : False : False : NonNegativeReals
+    ('R3', 'R_large') :   1.0 :   1.0 :   1.0 : False : False : NonNegativeReals
+    ('R3', 'R_small') :   1.0 :   1.0 :   1.0 : False : False : NonNegativeReals
 
 TCP1 : TPC: Fixed costs for all unit-tasks
     Size=1, Index=None
-    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
-    None :  None : 469.9999996096532 :  None : False : False :  Reals
+    Key  : Lower : Value              : Upper : Fixed : Stale : Domain
+    None :  None : 1019.9999998199999 :  None : False : False :  Reals
 
 TCP2 : TPC: Variable cost for unit-tasks that do not consider dynamics
     Size=1, Index=None
-    Key  : Lower : Value            : Upper : Fixed : Stale : Domain
-    None :  None : 391.666664643943 :  None : False : False :  Reals
+    Key  : Lower : Value             : Upper : Fixed : Stale : Domain
+    None :  None : 999.1666662886668 :  None : False : False :  Reals
 
 TMC : TMC: Total material cost
     Size=1, Index=None
     Key  : Lower : Value             : Upper : Fixed : Stale : Domain
-    None :  None : 1774.999991648031 :  None : False : False :  Reals
+    None :  None : 3283.333336873333 :  None : False : False :  Reals
 
 SALES : SALES: Revenue form selling products
     Size=1, Index=None
     Key  : Lower : Value             : Upper : Fixed : Stale : Domain
-    None :  None : 3999.999981379859 :  None : False : False :  Reals
+    None :  None : 8279.999993951998 :  None : False : False :  Reals
 
 Nref : reformulation variables from 0 to lastN
     Size=10, Index=I_J
     Key               : Lower : Value              : Upper : Fixed : Stale : Domain
-       ('Mix', 'Mix') :     0 : 1.9999999898437184 :     9 : False : False : Integers
-    ('Pack1', 'Pack') :     0 : 1.9999999933499497 :     9 : False : False : Integers
-    ('Pack2', 'Pack') :     0 : 1.0000000066500503 :     9 : False : False : Integers
-    ('R1', 'R_large') :     0 :                1.0 :     5 : False : False : Integers
-    ('R1', 'R_small') :     0 : 0.9999999916874371 :     5 : False : False : Integers
-    ('R2', 'R_large') :     0 : 1.9999999889165827 :     4 : False : False : Integers
-    ('R2', 'R_small') :     0 :                2.0 :     4 : False : False : Integers
-    ('R3', 'R_large') :     0 :                1.0 :     7 : False : False : Integers
-    ('R3', 'R_small') :     0 : 1.0000000104984865 :     7 : False : False : Integers
-       ('Sep', 'Sep') :     0 :                1.0 :     4 : False : False : Integers
+       ('Mix', 'Mix') :     0 :                2.0 :     9 : False : False : Integers
+    ('Pack1', 'Pack') :     0 :                3.0 :     9 : False : False : Integers
+    ('Pack2', 'Pack') :     0 :                4.0 :     9 : False : False : Integers
+    ('R1', 'R_large') :     0 :        1.999999994 :    14 : False : False : Integers
+    ('R1', 'R_small') :     0 : 0.9999999879999993 :    14 : False : False : Integers
+    ('R2', 'R_large') :     0 :                3.0 :    14 : False : False : Integers
+    ('R2', 'R_small') :     0 :  3.000000012000001 :    14 : False : False : Integers
+    ('R3', 'R_large') :     0 :                2.0 :    14 : False : False : Integers
+    ('R3', 'R_small') :     0 :                3.0 :    14 : False : False : Integers
+       ('Sep', 'Sep') :     0 :                3.0 :     4 : False : False : Integers
 
 
  Objective: 
--13.63333325478232
+-29.77499990969999
