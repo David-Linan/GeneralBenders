@@ -1,35 +1,35 @@
 X : 1 if unit j processes task i starting at time t
     Size=1015, Index=X_index
     Key                      : Lower : Value : Upper : Fixed : Stale : Domain
-           ('Mix', 'Mix', 0) :     0 :   1.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Mix', 'Mix', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Mix', 'Mix', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 0) :     0 :     1 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 1) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 2) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 3) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 4) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 5) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 6) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 7) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 8) :     0 :     0 :     1 :  True :  True : Binary
+           ('Mix', 'Mix', 9) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 10) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 11) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 12) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 13) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 14) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 15) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 16) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 17) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 18) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 19) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 20) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 21) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 22) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 23) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 24) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 25) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 26) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 27) :     0 :     0 :     1 :  True :  True : Binary
+          ('Mix', 'Mix', 28) :     0 :     0 :     1 :  True :  True : Binary
           ('Mix', 'Pack', 0) :     0 :     0 :     1 :  True :  True : Binary
           ('Mix', 'Pack', 1) :     0 :     0 :     1 :  True :  True : Binary
           ('Mix', 'Pack', 2) :     0 :     0 :     1 :  True :  True : Binary
@@ -175,35 +175,35 @@ X : 1 if unit j processes task i starting at time t
         ('Pack1', 'Mix', 26) :     0 :     0 :     1 :  True :  True : Binary
         ('Pack1', 'Mix', 27) :     0 :     0 :     1 :  True :  True : Binary
         ('Pack1', 'Mix', 28) :     0 :     0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack1', 'Pack', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 19) :     0 :   1.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack1', 'Pack', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 6) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack1', 'Pack', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 12) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 19) :     0 :     1 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack1', 'Pack', 28) :     0 :     0 :     1 :  True :  True : Binary
      ('Pack1', 'R_large', 0) :     0 :     0 :     1 :  True :  True : Binary
      ('Pack1', 'R_large', 1) :     0 :     0 :     1 :  True :  True : Binary
      ('Pack1', 'R_large', 2) :     0 :     0 :     1 :  True :  True : Binary
@@ -320,35 +320,35 @@ X : 1 if unit j processes task i starting at time t
         ('Pack2', 'Mix', 26) :     0 :     0 :     1 :  True :  True : Binary
         ('Pack2', 'Mix', 27) :     0 :     0 :     1 :  True :  True : Binary
         ('Pack2', 'Mix', 28) :     0 :     0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('Pack2', 'Pack', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 25) :     0 :   1.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('Pack2', 'Pack', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 6) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('Pack2', 'Pack', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 12) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 25) :     0 :     1 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('Pack2', 'Pack', 28) :     0 :     0 :     1 :  True :  True : Binary
      ('Pack2', 'R_large', 0) :     0 :     0 :     1 :  True :  True : Binary
      ('Pack2', 'R_large', 1) :     0 :     0 :     1 :  True :  True : Binary
      ('Pack2', 'R_large', 2) :     0 :     0 :     1 :  True :  True : Binary
@@ -494,64 +494,64 @@ X : 1 if unit j processes task i starting at time t
           ('R1', 'Pack', 26) :     0 :     0 :     1 :  True :  True : Binary
           ('R1', 'Pack', 27) :     0 :     0 :     1 :  True :  True : Binary
           ('R1', 'Pack', 28) :     0 :     0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 0) :     0 :   1.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_large', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_large', 28) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R1', 'R_small', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R1', 'R_small', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 0) :     0 :     1 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 6) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_large', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 12) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_large', 28) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 6) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('R1', 'R_small', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 12) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('R1', 'R_small', 28) :     0 :     0 :     1 :  True :  True : Binary
             ('R1', 'Sep', 0) :     0 :     0 :     1 :  True :  True : Binary
             ('R1', 'Sep', 1) :     0 :     0 :     1 :  True :  True : Binary
             ('R1', 'Sep', 2) :     0 :     0 :     1 :  True :  True : Binary
@@ -639,64 +639,64 @@ X : 1 if unit j processes task i starting at time t
           ('R2', 'Pack', 26) :     0 :     0 :     1 :  True :  True : Binary
           ('R2', 'Pack', 27) :     0 :     0 :     1 :  True :  True : Binary
           ('R2', 'Pack', 28) :     0 :     0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 6) :     0 :   1.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_large', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_large', 28) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 6) :     0 :   1.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R2', 'R_small', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R2', 'R_small', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 6) :     0 :     1 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_large', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 12) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_large', 28) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 6) :     0 :     1 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('R2', 'R_small', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 12) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('R2', 'R_small', 28) :     0 :     0 :     1 :  True :  True : Binary
             ('R2', 'Sep', 0) :     0 :     0 :     1 :  True :  True : Binary
             ('R2', 'Sep', 1) :     0 :     0 :     1 :  True :  True : Binary
             ('R2', 'Sep', 2) :     0 :     0 :     1 :  True :  True : Binary
@@ -784,64 +784,64 @@ X : 1 if unit j processes task i starting at time t
           ('R3', 'Pack', 26) :     0 :     0 :     1 :  True :  True : Binary
           ('R3', 'Pack', 27) :     0 :     0 :     1 :  True :  True : Binary
           ('R3', 'Pack', 28) :     0 :     0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_large', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 12) :     0 :   1.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_large', 28) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-        ('R3', 'R_small', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 12) :     0 :   1.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 19) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-       ('R3', 'R_small', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 6) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_large', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 12) :     0 :     1 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_large', 28) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 0) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 1) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 2) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 3) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 4) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 5) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 6) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 7) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 8) :     0 :     0 :     1 :  True :  True : Binary
+        ('R3', 'R_small', 9) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 10) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 11) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 12) :     0 :     1 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 13) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 14) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 15) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 16) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 17) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 18) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 19) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 20) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 21) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 22) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 23) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 24) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 25) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 26) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 27) :     0 :     0 :     1 :  True :  True : Binary
+       ('R3', 'R_small', 28) :     0 :     0 :     1 :  True :  True : Binary
             ('R3', 'Sep', 0) :     0 :     0 :     1 :  True :  True : Binary
             ('R3', 'Sep', 1) :     0 :     0 :     1 :  True :  True : Binary
             ('R3', 'Sep', 2) :     0 :     0 :     1 :  True :  True : Binary
@@ -987,35 +987,35 @@ X : 1 if unit j processes task i starting at time t
       ('Sep', 'R_small', 26) :     0 :     0 :     1 :  True :  True : Binary
       ('Sep', 'R_small', 27) :     0 :     0 :     1 :  True :  True : Binary
       ('Sep', 'R_small', 28) :     0 :     0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 0) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 1) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 2) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 3) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 4) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 5) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 6) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 7) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 8) :     0 :   0.0 :     1 :  True :  True : Binary
-           ('Sep', 'Sep', 9) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 10) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 11) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 12) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 13) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 14) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 15) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 16) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 17) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 18) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 19) :     0 :   1.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 20) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 21) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 22) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 23) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 24) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 25) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 26) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 27) :     0 :   0.0 :     1 :  True :  True : Binary
-          ('Sep', 'Sep', 28) :     0 :   0.0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 0) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 1) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 2) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 3) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 4) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 5) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 6) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 7) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 8) :     0 :     0 :     1 :  True :  True : Binary
+           ('Sep', 'Sep', 9) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 10) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 11) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 12) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 13) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 14) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 15) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 16) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 17) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 18) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 19) :     0 :     1 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 20) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 21) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 22) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 23) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 24) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 25) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 26) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 27) :     0 :     0 :     1 :  True :  True : Binary
+          ('Sep', 'Sep', 28) :     0 :     0 :     1 :  True :  True : Binary
 
 B : Batch size of task i processed in unit j starting at time t
     Size=1015, Index=B_index
@@ -11464,16 +11464,16 @@ dIntegral_colddtheta_(R3,R_small) : Derivative of cold integral
 Nref : reformulation variables from 0 to lastN
     Size=10, Index=I_J
     Key               : Lower : Value : Upper : Fixed : Stale : Domain
-       ('Mix', 'Mix') :     0 :   1.0 :     9 :  True :  True : Integers
-    ('Pack1', 'Pack') :     0 :   1.0 :     9 :  True :  True : Integers
-    ('Pack2', 'Pack') :     0 :   1.0 :     9 :  True :  True : Integers
-    ('R1', 'R_large') :     0 :   1.0 :    14 :  True :  True : Integers
-    ('R1', 'R_small') :     0 :   0.0 :    14 :  True :  True : Integers
-    ('R2', 'R_large') :     0 :   1.0 :    14 :  True :  True : Integers
-    ('R2', 'R_small') :     0 :   1.0 :    14 :  True :  True : Integers
-    ('R3', 'R_large') :     0 :   1.0 :    14 :  True :  True : Integers
-    ('R3', 'R_small') :     0 :   1.0 :    14 :  True :  True : Integers
-       ('Sep', 'Sep') :     0 :   1.0 :     4 :  True :  True : Integers
+       ('Mix', 'Mix') :     0 :     1 :     9 :  True :  True : Integers
+    ('Pack1', 'Pack') :     0 :     1 :     9 :  True :  True : Integers
+    ('Pack2', 'Pack') :     0 :     1 :     9 :  True :  True : Integers
+    ('R1', 'R_large') :     0 :     1 :    14 :  True :  True : Integers
+    ('R1', 'R_small') :     0 :     0 :    14 :  True :  True : Integers
+    ('R2', 'R_large') :     0 :     1 :    14 :  True :  True : Integers
+    ('R2', 'R_small') :     0 :     1 :    14 :  True :  True : Integers
+    ('R3', 'R_large') :     0 :     1 :    14 :  True :  True : Integers
+    ('R3', 'R_small') :     0 :     1 :    14 :  True :  True : Integers
+       ('Sep', 'Sep') :     0 :     1 :     4 :  True :  True : Integers
 
 TCP1 : TPC: Fixed costs for all unit-tasks
     Size=1, Index=None

@@ -432,8 +432,6 @@ def external_ref(
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
     m=complementary_model(m,x)
-    #for sequential:
-    # m=complementary_model_for_sequential(m,x)
     #TODO
     #TODO
     #TODO
@@ -795,7 +793,7 @@ def solve_subproblem_aprox(
             os.makedirs(gams_path)
         output_options = {'keepfiles': True,
                           'tmpdir': gams_path,
-                          's.deactivate()ymbolic_solver_labels': True}
+                          'symbolic_solver_labels': True}
 
     subproblem_solver_options['add_options'] = subproblem_solver_options.get(
         'add_options', [])
@@ -884,9 +882,182 @@ def solve_subproblem_aprox(
                         if v.name=='X' or v.name=='Nref':
                             for index in v:
                                 if index==None:
-                                    v.fix(pe.value(v))
+                                    v.fix(round(pe.value(v)))
                                 else:
-                                    v[index].fix(pe.value(v[index]))
+                                    v[index].fix(round(pe.value(v[index])))
+
+                opt = SolverFactory(solvername, solver=subproblem_solver)
+                # start=time.time()
+                m.results = opt.solve(m, tee=tee,
+                                    **output_options,
+                                    **subproblem_solver_options,
+                                    skip_trivial_constraints=True,
+                                    )
+                # end=time.time()
+                # print('actual sol time part 2=',str(end-start))
+
+                m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
+
+                #### END OF MODIFICATIONS #######################################################################
+
+
+                # Assign D-SDA status
+                if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+                    m.dsda_status = 'Evaluated_Infeasible'
+                    m.pruned_Status = 'Evaluated_Infeasible_NotPruned'
+                    m.best_sol=1e+8
+                else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                    m.dsda_status = 'Optimal'
+                    m.pruned_Status = 'Optimal_NotPruned'
+                    m.best_sol=pe.value(m.obj)
+    return m
+
+def solve_subproblem_aprox_tau_only(
+    m: pe.ConcreteModel(),
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    timelimit: float = 1000,
+    gams_output: bool = False,
+    tee: bool = False,
+    rel_tol: float = 0,
+    best_sol: float= 1e+8
+) -> pe.ConcreteModel():
+    """
+    Function that checks feasibility and optimizes subproblem model.
+    Note integer variables have to be previously fixed in the external reformulation.
+    This function is for problems that can be decoupled into a steady-state (or scheduling) and a dynamic part
+    
+    Args:
+
+    Returns:
+
+    """
+    # Initialize D-SDA status
+    m.dsda_status = 'Initialized'
+    m.dsda_usertime = 0
+    start_prep=time.time()
+    try:
+        # Feasibility and preprocessing checks
+        # start=time.time()
+        preprocess_problem(m, simple=True)
+        # end=time.time()
+        # print('preprocess_time: ',str(end-start))
+    except InfeasibleConstraintException:
+        m.dsda_status = 'FBBT_Infeasible'
+        m.pruned_Status = 'FBBT_Infeasible'
+        m.best_sol=1e+8
+        return m
+    end_prep=time.time()
+    m.dsda_usertime =m.dsda_usertime + (end_prep-start_prep)
+    output_options = {}
+
+    # Output report
+    if gams_output:
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        gams_path = os.path.join(dir_path, "gamsfiles/")
+        if not(os.path.exists(gams_path)):
+            print('Directory for automatically generated files ' +
+                  gams_path + ' does not exist. We will create it')
+            os.makedirs(gams_path)
+        output_options = {'keepfiles': True,
+                          'tmpdir': gams_path,
+                          'symbolic_solver_labels': True}
+
+    subproblem_solver_options['add_options'] = subproblem_solver_options.get(
+        'add_options', [])
+    subproblem_solver_options['add_options'].append(
+        'option reslim=%s;' % timelimit)
+    subproblem_solver_options['add_options'].append(
+        'option optcr=%s;' % rel_tol)
+
+    # Solve
+    solvername = 'gams'
+
+    approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
+                                # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
+    scheduling_only=False #True: only perform scheduling subproblems
+    #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
+    #DEACTIVATE DYNAMIC CONSTRAINTS
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            m.c_dCdtheta[I,J].deactivate()
+            m.c_dTRdtheta[I,J].deactivate()                        
+            m.c_dTJdtheta[I,J].deactivate()
+            m.c_dIntegral_hotdtheta[I,J].deactivate()
+            m.c_dIntegral_colddtheta[I,J].deactivate()
+            m.Constant_control1[I,J].deactivate()                        
+            m.Constant_control2[I,J].deactivate()
+            m.finalCon[I,J].deactivate()
+            m.finalTemp[I,J].deactivate()
+    m.C_TCP3.deactivate()
+    m.obj.deactivate()
+    m.obj_scheduling.activate()
+
+
+    #SOLVE SCHEDULING ONLY PROBLEM
+    opt = SolverFactory(solvername, solver='cplex')
+
+    # start=time.time()
+    m.results = opt.solve(m, tee=tee,
+                          **output_options,
+                          **subproblem_solver_options,
+                          skip_trivial_constraints=True,
+                          )
+    # end=time.time()
+    # print('actual sol time part 1:',str(end-start))
+
+    m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
+
+
+    if scheduling_only:
+        m.obj.activate()
+        m.obj.value=pe.value(m.obj_scheduling)
+        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+            m.dsda_status = 'Evaluated_Infeasible'
+            m.pruned_Status = 'Evaluated_Infeasible_NotPruned'
+            m.best_sol=1e+8
+        else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+            m.dsda_status = 'Optimal'
+            m.pruned_Status = 'Optimal_NotPruned'
+            m.best_sol=pe.value(m.obj)        
+    else: 
+        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+            m.dsda_status = 'Evaluated_Infeasible'
+            m.pruned_Status = 'Pruned_SchedulingInfeasible'
+            m.best_sol=1e+8
+        else:
+            if pe.value(m.obj_scheduling)>=best_sol:
+                m.dsda_status = 'Evaluated_Infeasible'
+                m.pruned_Status = 'Pruned_NoImprovementExpected'
+                m.best_sol=1e+8
+            else:  
+                # ACTIVATE DYNAMIC CONSTRAINTS
+                for I in m.I_reactions:
+                    for J in m.J_reactors:
+                        m.c_dCdtheta[I,J].activate()
+                        m.c_dTRdtheta[I,J].activate()                        
+                        m.c_dTJdtheta[I,J].activate()
+                        m.c_dIntegral_hotdtheta[I,J].activate()
+                        m.c_dIntegral_colddtheta[I,J].activate()
+                        m.Constant_control1[I,J].activate()                        
+                        m.Constant_control2[I,J].activate()
+                        if round(pe.value(m.Nref[I,J]))>=1:
+                            m.finalCon[I,J].activate()
+                            m.finalTemp[I,J].activate() 
+                m.C_TCP3.activate()
+                m.obj.activate()
+                m.obj_scheduling.deactivate() 
+
+                if approximate_solution:
+                    # FIX SCHEDULING VARIABLES
+                    for v in m.component_objects(pe.Var, descend_into=True):
+                        # if v.name=='X' or v.name=='B' or v.name=='S' or v.name=='Nref':
+                        if v.name=='X' or v.name=='Nref':
+                            for index in v:
+                                if index==None:
+                                    v.fix(round(pe.value(v)))
+                                else:
+                                    v[index].fix(round(pe.value(v[index])))
 
                 opt = SolverFactory(solvername, solver=subproblem_solver)
                 # start=time.time()
@@ -962,7 +1133,7 @@ def solve_subproblem_aprox_sequential(
             os.makedirs(gams_path)
         output_options = {'keepfiles': True,
                           'tmpdir': gams_path,
-                          's.deactivate()ymbolic_solver_labels': True}
+                          'symbolic_solver_labels': True}
 
     subproblem_solver_options['add_options'] = subproblem_solver_options.get(
         'add_options', [])
@@ -992,6 +1163,7 @@ def solve_subproblem_aprox_sequential(
             m.finalTemp[I,J].deactivate()
     m.C_TCP3.deactivate()
     m.obj.deactivate()
+    m.obj_dummy.deactivate()
     m.obj_scheduling.activate()
 
 
@@ -1021,12 +1193,17 @@ def solve_subproblem_aprox_sequential(
             m.dsda_status = 'Optimal'
             m.best_sol=pe.value(m.obj)
             m.sched_Status="Scheduling_Feasible" 
-        m.cont_Status="Not_Evaluated"       
+            m.cont_Status="Not_Evaluated"       
     else: 
         if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
             m.dsda_status = 'Evaluated_Infeasible'
             m.best_sol=1e+8
             m.sched_Status="Scheduling_Infeasible"
+            m.cont_Status="Not_evaluated"
+            m.source={}
+            for I in m.I_reactions:
+                for J in m.J_reactors:
+                    m.source[I,J]="Not_evaluated"
         else:
              
             # ACTIVATE DYNAMIC CONSTRAINTS
@@ -1044,13 +1221,19 @@ def solve_subproblem_aprox_sequential(
                         m.finalTemp[I,J].activate()                        
             m.C_TCP3.activate()
             m.obj.activate()
+            m.obj_dummy.deactivate()
             m.obj_scheduling.deactivate() 
 
             if approximate_solution:
                 # FIX SCHEDULING VARIABLES
                 for v in m.component_objects(pe.Var, descend_into=True):
-                    if v.name=='X' or v.name=='B' or v.name=='S' or v.name=='Nref':
-                    # if v.name=='X' or v.name=='Nref':
+                    if v.name=='X' or v.name=='Nref':
+                        for index in v:
+                            if index==None:
+                                v.fix(round(pe.value(v)))
+                            else:
+                                v[index].fix(round(pe.value(v[index])))
+                    elif v.name=='B' or v.name=='S':
                         for index in v:
                             if index==None:
                                 v.fix(pe.value(v))
@@ -1077,10 +1260,80 @@ def solve_subproblem_aprox_sequential(
                 m.dsda_status = 'Evaluated_Infeasible'
                 m.best_sol=1e+8
                 m.cont_Status="Dynamcis_Infeasible"
-            else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                # If dynamics are infeasible, we identify the source of infeasibility
+                m.source={}
+                for II in m.I_reactions:
+                    for JJ in m.J_reactors:     
+                        if round(pe.value(m.Nref[II,JJ]))>=1:
+                            for I in m.I_reactions:
+                                for J in m.J_reactors:
+                                    m.c_dCdtheta[I,J].deactivate()
+                                    m.c_dTRdtheta[I,J].deactivate()                        
+                                    m.c_dTJdtheta[I,J].deactivate()
+                                    m.c_dIntegral_hotdtheta[I,J].deactivate()
+                                    m.c_dIntegral_colddtheta[I,J].deactivate()
+                                    m.Constant_control1[I,J].deactivate()                        
+                                    m.Constant_control2[I,J].deactivate()
+                                    m.finalCon[I,J].deactivate()
+                                    m.finalTemp[I,J].deactivate()
+                            m.C_TCP3.deactivate()
+                            m.obj.deactivate()
+                            m.obj_scheduling.deactivate() 
+
+                            m.c_dCdtheta[II,JJ].activate()
+                            m.c_dTRdtheta[II,JJ].activate()                        
+                            m.c_dTJdtheta[II,JJ].activate()
+                            m.c_dIntegral_hotdtheta[II,JJ].activate()
+                            m.c_dIntegral_colddtheta[II,JJ].activate()
+                            m.Constant_control1[II,JJ].activate()                        
+                            m.Constant_control2[II,JJ].activate()
+                            m.finalCon[II,JJ].activate()
+                            m.finalTemp[II,JJ].activate() 
+                            m.obj_dummy.activate()
+
+                            if approximate_solution:
+                                # FIX SCHEDULING VARIABLES
+                                for v in m.component_objects(pe.Var, descend_into=True):
+                                    if v.name=='X' or v.name=='Nref':
+                                        for index in v:
+                                            if index==None:
+                                                v.fix(round(pe.value(v)))
+                                            else:
+                                                v[index].fix(round(pe.value(v[index])))
+                                    elif v.name=='B' or v.name=='S':
+                                        for index in v:
+                                            if index==None:
+                                                v.fix(pe.value(v))
+                                            else:
+                                                v[index].fix(pe.value(v[index]))                           
+
+                            opt = SolverFactory(solvername, solver=subproblem_solver)
+                            # start=time.time()
+                            m.results = opt.solve(m, tee=tee,
+                                                **output_options,
+                                                **subproblem_solver_options,
+                                                skip_trivial_constraints=True,
+                                                )
+                            
+                            if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+                                m.source[II,JJ]="Infeasible"
+                            else:
+                                m.source[II,JJ]="Feasible"
+                        else:
+                            m.source[II,JJ]="Not_scheduled"
+               
+            else:  
                 m.cont_Status="Dynamcis_feasible"
                 m.dsda_status = 'Optimal'
                 m.best_sol=pe.value(m.obj)
+                m.source={}
+                for I in m.I_reactions:
+                    for J in m.J_reactors:
+                        if round(pe.value(m.Nref[I,J]))>=1:
+                            m.source[I,J]="Feasible"
+                        else:
+                            m.source[I,J]="Not_scheduled"
+
     return m
 
 
@@ -1238,7 +1491,7 @@ def solve_with_gdpopt(
                           minlp_solver_args=dict(
                               solver=minlp, warmstart=True, tee=tee, **minlp_options),
                           mip_presolve=True, #True is the default
-                        #   init_strategy='set_covering',#'fix_disjuncts'##'set_covering'#
+                          init_strategy='fix_disjuncts',#'fix_disjuncts'##'set_covering'#
                           #   set_cover_iterlim=0,
                           #iterlim#=1000,
                           force_subproblem_nlp=False,
@@ -1290,6 +1543,110 @@ def neighborhood_k_eq_inf(dimension: int = 2) -> dict:
         if temp[i] == [0]*dimension:
             temp.pop(i, None)
     return temp
+
+def neighborhood_k_eq_l_natural(dimension: int = 2) -> dict:
+    """
+    Function creates a k=l_natural neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+    if dimension==1:
+        directions=neighborhood_k_eq_2(dimension)
+    else:
+        set_=np.arange(1,dimension+1,1)
+        N_lflat=np.zeros(((2**(dimension+1))-2,dimension),dtype=int)
+        k=0
+        for i in range(dimension):
+            sub=np.array(list(it.combinations(set_,dimension-i)),dtype=int)
+            f=np.size(sub,0)
+            for j in range(0,f):
+                N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                k=k+1
+                N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                k=k+1
+
+        # if dimension>=3:
+        #     sort_=np.lexsort(N_lflat,axis=1)
+        # else: 
+        #     sort_=np.lexsort(N_lflat,axis=0)
+        directions=dict(enumerate(N_lflat.tolist(),1))
+    return directions
+
+
+def neighborhood_k_eq_l_natural_modified(dimension: int = 2) -> dict:
+    """
+    Function creates a k=l_natural_modified neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+    num_var_proc_time=6
+
+
+    if dimension==1:
+        directions=neighborhood_k_eq_2(dimension)
+    else:
+        set_=np.arange(1,dimension+1,1)
+        N_lflat=np.zeros(((2**(dimension+1))-2,dimension),dtype=int)
+        k=0
+        for i in range(dimension):
+            sub=np.array(list(it.combinations(set_,dimension-i)),dtype=int)
+            f=np.size(sub,0)
+            for j in range(0,f):
+                partial=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                # # The following is equivalent to saying that: for procesing times k=2, for N_ij: k=l_natural. I am eliminating interactions between processing times and processing times-N_ij. Thus, size of neighborhood is: (2^(n_Nij+1)-2      +         2*n_tau)
+                # if ~((sum(abs(partial[k]) for k in range(num_var_proc_time))>=2) or (sum(abs(partial[k]) for k in range(num_var_proc_time))>=1 and sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))>=1)):
+                #     N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+                #     N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+                # #The following is equivalent to saying that: for procesing times k=2, for N_ij: k=l_natural. I am eliminating interactions between processing times and processing times-N_ij. Also, I am not considering interactions between pairs, trios, 4,5 or 6 or 7 or 8 (i.e., only interactions of 9 and 10 vars)
+                # if ~((sum(abs(partial[k]) for k in range(num_var_proc_time))>=2) or (sum(abs(partial[k]) for k in range(num_var_proc_time))>=1 and sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))>=1) or (sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))<=8 and sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))>=2)):
+                #     N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+                #     N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+
+                #Only consider second order interactions
+                if sum(abs(partial[k]) for k in range(dimension))<=2:
+                    N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                    k=k+1
+                    N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                    k=k+1
+        N_lflat=N_lflat[~np.all(N_lflat==0, axis=1)]
+        # if dimension>=3:
+        #     sort_=np.lexsort(N_lflat,axis=1)
+        # else: 
+        #     sort_=np.lexsort(N_lflat,axis=0)
+        directions=dict(enumerate(N_lflat.tolist(),1))
+    return directions
+
+
+def neighborhood_k_eq_m_natural(dimension: int = 2) -> dict:
+    """
+    Function creates a k=m_natural neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+    N_Mflat=np.zeros((dimension*(dimension+1),dimension),dtype=int)
+    mat1=np.eye(dimension,dimension,dtype=int)
+    mat1=np.append(mat1,np.zeros((1,dimension),dtype=int),axis=0)
+    f=np.size(mat1,0)
+    k=0
+    for i in range(f):
+        for j in range(f):
+            if i!=j:
+                N_Mflat[k,0:dimension]=mat1[i,:]-mat1[j,:]
+
+                k=k+1
+    
+    directions=dict(enumerate(N_Mflat.tolist(),1))
+    return directions
 
 
 def initialize_model(
@@ -1703,6 +2060,163 @@ def evaluate_neighbors_aprox(
         print('New best neighbor:', best_var)
     return fmin, best_var, best_dir, improve, evaluation_time, ns_evaluated, best_path
 
+def evaluate_neighbors_aprox_tau_only(
+    best_sol: float,
+    ext_vars: dict,
+    fmin: float,
+    model_function,
+    model_args: dict,
+    ext_dict: dict,
+    ext_logic,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    iter_timelimit: float = 10,
+    current_time: float = 0,
+    timelimit: float = 3600,
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 1e-3,
+    global_evaluated: list = [],
+    init_path=None,
+):
+    """
+    Function that evaluates a group of given points and returns the best
+    Args:
+        ext_vars: dict with neighbors where neighbor 0 is actual point
+        fmin: Objective at actual point
+        model_function: function that returns GDP model to be solved
+        model_args: Contains the argument values needed for model_function
+        ext_dict: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values)
+        ext_logic: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a)
+        mip_transformation: Whether to solve the enumeration using the external variables applied to the MIP problem insed of the GDP
+        transformation: Which transformation to apply to the GDP 
+        subproblem_solver: MINLP or NLP solver algorithm
+        subproblem_solver_options: MINLP or NLP solver algorithm options
+        iter_timelimit: time limit in seconds for the solve statement for each iteration
+        current_time: Current time in global algorithm
+        timelimit: time limit in seconds for the algorithm
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        global_tee: display D-SDA iteration output
+        rel_tol: Relative optimality tolerance
+        global_evaluated: list with points already evaluated
+        init_path: path to initialization file
+    Returns:
+        fmin: Type int and gives the best neighbor's objective
+        best_var: Type list and gives the best neighbor
+        best_dir: Type int and is the steepest direction (key in neighborhood)
+        improve: Type bool and shows if an improvement was made while looking for neighbors
+        evaluation_time: Total solver-statement time only
+        ns_evaluated: evaluations in neighbor search
+        best_path: path to json with best solution found
+
+    """
+    # Global Tolerance parameters
+    epsilon = 1e-10
+    abs_tol = 1e-5
+    min_improve = 1e-5
+    min_improve_rel = 1e-3
+
+    # Initialize
+    ns_evaluated = []
+    evaluation_time = 0
+    improve = False
+    best_var = ext_vars[0]
+    here = ext_vars[0]
+    best_dir = 0  # Position in dictionary
+    best_dist = 0
+    best_path = init_path
+    temp = ext_vars  # TODO change name to something more saying. Points? Combinations?
+    temp.pop(0, None)
+
+    if global_tee:
+        print()
+        print('Neighbor search around:', best_var)
+
+    for i in temp.keys():   # Solve all models
+        if temp[i] not in global_evaluated:
+            m = model_function(**model_args)
+            m_init = initialize_model(m, json_path=init_path)
+            if mip_transformation:  # If you want a MIP reformulation, go ahead and use it'
+                m_init, ext_dict = extvars_gdp_to_mip(
+                    m=m,
+                    gdp_dict_extvar=ext_dict,
+                    transformation=transformation,
+                )
+
+            m_fixed = external_ref_sequential(
+                m=m_init,
+                x=temp[i],
+                extra_logic_function=ext_logic,
+                dict_extvar=ext_dict,
+                mip_ref=mip_transformation,
+                tee=False,
+            )
+            t_remaining = min(iter_timelimit, timelimit -
+                              (time.perf_counter() - current_time))
+            if t_remaining < 0:  # No time reamining for optimization
+                break
+            m_solved = solve_subproblem_aprox_tau_only(
+                m=m_fixed,
+                subproblem_solver=subproblem_solver,
+                subproblem_solver_options=subproblem_solver_options,
+                timelimit=t_remaining,
+                gams_output=gams_output,
+                tee=tee,
+                rel_tol=rel_tol,
+                best_sol=best_sol)
+            if m_solved.best_sol<=best_sol:
+                best_sol=m_solved.best_sol
+            evaluation_time += m_solved.dsda_usertime
+            ns_evaluated.append(temp[i])
+            t_end = time.perf_counter()
+
+            
+            if m_solved.dsda_status == 'Optimal':   # Check if D-SDA status is optimal
+                if global_tee:
+                    print('Evaluated:', temp[i], '   |   Objective:', round(pe.value(
+                        m_solved.obj), 5), '   |   Global Time:', round(t_end - current_time, 2))
+                          
+                dist = sum((x-y)**2 for x, y in zip(temp[i], here))
+                act_obj = pe.value(m_solved.obj)
+
+                # Assuming minimization problem
+                # Implements heuristic of largest move
+                if not improve:
+                    # We want a minimum improvement in the first found solution
+                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                        fmin = act_obj
+                        best_var = temp[i]
+                        best_dir = i
+                        best_dist = dist
+                        improve = True
+                        best_path = generate_initialization(
+                            m_solved, starting_initialization=False, model_name='best')
+                else:
+                    # We want slightly worse solutions if the distance is larger
+                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                        fmin = act_obj
+                        best_var = temp[i]
+                        best_dir = i
+                        best_dist = dist
+                        improve = True
+                        best_path = generate_initialization(
+                            m_solved, starting_initialization=False, model_name='best')
+            elif global_tee:
+                if m_solved.pruned_Status=='Pruned_SchedulingInfeasible':
+                    print('Pruned:', temp[i], '   |   Lower bound problem infeasible   |   Global Time:', round(t_end - current_time, 2))                    
+                elif m_solved.pruned_Status=='Pruned_NoImprovementExpected':
+                    print('Pruned:', temp[i], '   |   No improvement expected   |   Global Time:', round(t_end - current_time, 2))          
+            if time.perf_counter() - current_time > timelimit:  # current
+                break
+    if global_tee:
+        print()
+        print('New best neighbor:', best_var)
+    return fmin, best_var, best_dir, improve, evaluation_time, ns_evaluated, best_path
+
 
 
 def do_line_search(
@@ -1962,6 +2476,138 @@ def do_line_search_aprox(
                     print('Pruned:', moved_point, '   |   No improvement expected   |   Global Time:', round(time.perf_counter() - current_time, 2))                                    
     return fmin, best_var, moved, ls_time, ls_evaluated, new_path
 
+def do_line_search_aprox_tau_only(
+    start: list,
+    fmin: float,
+    direction: list,
+    model_function,
+    model_args: dict,
+    ext_dict: dict,
+    ext_logic,
+    best_sol: float,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    min_allowed: dict = {},
+    max_allowed: dict = {},
+    iter_timelimit: float = 10,
+    timelimit: float = 3600,
+    current_time: float = 0,
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = False,
+    rel_tol: float = 1e-3,
+    global_evaluated: list = [],
+    init_path=None
+):
+    """
+    Function that moves in a given "best direction" and evaluates the new moved point
+    Args:
+        start: Point of that is to be moved
+        fmin: Objective at actual point
+        direction: moving direction
+        model_function: function that returns GDP model to be solved
+        model_args: Contains the argument values needed for model_function
+        ext_dict: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values)
+        ext_logic: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a)
+        mip_transformation: Whether to solve the enumeration using the external variables applied to the MIP problem insed of the GDP
+        transformation: Which transformation to apply to the GDP 
+        subproblem_solver: MINLP or NLP solver algorithm
+        subproblem_solver_options: MINLP or NLP solver algorithm options
+        min_allowed: In keys contains external variables and in items their respective lower bounds
+        max_allowed: In keys contains external variables and in items their respective upper bounds
+        iter_timelimit: time limit in seconds for the solve statement for each iteration
+        current_time: Current time in global algorithm
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        global_tee: display D-SDA iteration output
+        rel_tol: Relative optimality tolerance
+        global_evaluated: list with points already evaluated
+        init_path: path to initialization file
+    Returns:
+        fmin: Type int and gives the moved point objective
+        best_var: Type list and gives the moved point
+        moved: Type bool and shows if an improvement was made while line searching
+        ls_time: Total solver-statement time only
+        ls_evaluated: evaluations in line search
+        new_path: path of best json file
+    """
+    # Global Tolerance parameters
+    epsilon = 1e-10
+    min_improve = 1e-5
+    min_improve_rel = 1e-3
+
+    # Initialize
+    ls_evaluated = []
+    ls_time = 0
+    best_var = start
+    moved = False
+    new_path = init_path
+
+    # Line search in given direction
+    moved_point = list(map(sum, zip(list(start), list(direction))))
+    checked = 0
+    for j in range(len(moved_point)):   # Check if within bounds
+        if moved_point[j] >= min_allowed[j+1] and moved_point[j] <= max_allowed[j+1]:
+            checked += 1
+
+    if checked == len(moved_point):     # Solve model
+        if moved_point not in global_evaluated:
+            m = model_function(**model_args)
+            m_init = initialize_model(m, json_path=init_path)
+            if mip_transformation:  # If you want a MIP reformulation, go ahead and use it'
+                m_init, ext_dict = extvars_gdp_to_mip(
+                    m=m,
+                    gdp_dict_extvar=ext_dict,
+                    transformation=transformation,
+                )
+            m_fixed = external_ref_sequential(
+                m=m_init,
+                x=moved_point,
+                extra_logic_function=ext_logic,
+                dict_extvar=ext_dict,
+                mip_ref=mip_transformation,
+                tee=False,
+            )
+
+            t_remaining = min(iter_timelimit, timelimit -
+                              (time.perf_counter() - current_time))
+            if t_remaining < 0:
+                return fmin, best_var, moved, ls_time, ls_evaluated, new_path
+            m_solved = solve_subproblem_aprox_tau_only(
+                m=m_fixed,
+                subproblem_solver=subproblem_solver,
+                subproblem_solver_options=subproblem_solver_options,
+                timelimit=t_remaining,
+                gams_output=gams_output,
+                tee=tee,
+                rel_tol=rel_tol,
+                best_sol=best_sol
+            )
+            ls_time += m_solved.dsda_usertime
+            ls_evaluated.append(moved_point)
+            
+            if m_solved.dsda_status == 'Optimal':   # Check status
+                if global_tee:
+                    print('Evaluated:', moved_point, '   |   Objective:', round(pe.value(
+                        m_solved.obj), 5), '   |   Global Time:', round(time.perf_counter() - current_time, 2))
+
+                act_obj = pe.value(m_solved.obj)
+                # Return moved point
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = moved_point
+                    moved = True
+                    new_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+            elif global_tee:
+                if m_solved.pruned_Status=='Pruned_SchedulingInfeasible':
+                    print('Pruned:', moved_point, '   |   Lower bound problem infeasible   |   Global Time:', round(time.perf_counter() - current_time, 2))                    
+                elif m_solved.pruned_Status=='Pruned_NoImprovementExpected':
+                    print('Pruned:', moved_point, '   |   No improvement expected   |   Global Time:', round(time.perf_counter() - current_time, 2))                                    
+    return fmin, best_var, moved, ls_time, ls_evaluated, new_path
+
 
 def solve_with_dsda(
     model_function,
@@ -2082,8 +2728,14 @@ def solve_with_dsda(
         neighborhood = neighborhood_k_eq_2(len(ext_var))
     elif k == 'Infinity':
         neighborhood = neighborhood_k_eq_inf(len(ext_var))
+    elif k == 'L_natural':
+        neighborhood = neighborhood_k_eq_l_natural(len(ext_var))   
+    elif k == 'L_natural_modified':
+        neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var)) 
+    elif k == 'M_natural':
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))    
     else:
-        return "Enter a valid neighborhood ('Infinity' or '2')"
+        return "Enter a valid neighborhood"
 
     looking_in_neighbors = True
 
@@ -2325,8 +2977,14 @@ def solve_with_dsda_aprox(
         neighborhood = neighborhood_k_eq_2(len(ext_var))
     elif k == 'Infinity':
         neighborhood = neighborhood_k_eq_inf(len(ext_var))
+    elif k == 'L_natural':
+        neighborhood = neighborhood_k_eq_l_natural(len(ext_var))  
+    elif k == 'L_natural_modified':
+        neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var))  
+    elif k == 'M_natural':
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))    
     else:
-        return "Enter a valid neighborhood ('Infinity' or '2')"
+        return "Enter a valid neighborhood"
 
     looking_in_neighbors = True
 
@@ -2452,13 +3110,267 @@ def solve_with_dsda_aprox(
 
     return m2_solved, route, obj_route
 
+def solve_with_dsda_aprox_tau_only(
+    model_function,
+    model_args: dict,
+    starting_point: list,
+    ext_dict,
+    ext_logic,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    k: str = 'Infinity',
+    provide_starting_initialization: bool = True,
+    feasible_model: str = '',
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    iter_timelimit: float = 1000,
+    timelimit: float = 3600,
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 1e-3,
+):
+    """
+    Function that computes Discrete-Steepest Descend Algorithm
+    Args:
+        k: Type of neighborhood
+        model_function: function that returns GDP model to be solved
+        model_args: Contains the argument values needed for model_function
+        starting_point: Feasible external variable initial point
+        ext_dict: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values). Both keys and values are pyomo objects.
+        ext_logic: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a).
+        mip_transformation: Whether to solve the enumeration using the external variables applied to the MIP problem insed of the GDP
+        transformation: Which transformation to apply to the GDP 
+        provide_intialization: If an existing json file is provided with a feasible initialization of starting_point
+        subproblem_solver: MINLP or NLP solver algorithm
+        subproblem_solver_options: MINLP or NLP solver algorithm options
+        iter_timelimit: time limit in seconds for the solve statement for each iteration
+        timelimit: time limit in seconds for the algorithm
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        global_tee: Display D-SDA output
+        rel_tol: Relative optimality tolerance
+    Returns:
+        m2_solved: Solved Pyomo Model
+        route: List containing points evaluated in throughout iteration
+        obj_route: List containing objectives evaluated in throughout iteration
+
+    """
+
+    if global_tee:
+        print('\nStarting enhanced D-SDA with k =', k)
+        print('--------------------------------------------------------------------------')
+
+    # Initialize
+    route = []
+    obj_route = []
+    global_evaluated = []
+    ext_var = starting_point
+
+    # Check if  feasible initialization is provided
+    m = model_function(**model_args)
+    dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
+        m, ext_dict)
+    if len(starting_point) != num_ext_var:
+        print("The size of the initialization vector must be equal to "+str(num_ext_var))
+
+    t_start = time.perf_counter()
+    dsda_usertime = 0
+    if provide_starting_initialization:
+        m_init = initialize_model(
+            m, from_feasible=True, feasible_model=feasible_model, json_path=None)
+    else:
+        m_init = m
+
+    if mip_transformation:  # If you want a MIP reformulation, go ahead and use it'
+        m_init, dict_extvar = extvars_gdp_to_mip(
+            m=m,
+            gdp_dict_extvar=dict_extvar,
+            transformation=transformation,
+        )
+
+    m_fixed = external_ref_sequential(
+        m=m_init,
+        x=ext_var,
+        extra_logic_function=ext_logic,
+        dict_extvar=dict_extvar,
+        mip_ref=mip_transformation,
+        tee=False
+    )
+
+    # Solve for initialization
+    m_solved = solve_subproblem_aprox_tau_only(
+        m=m_fixed,
+        subproblem_solver=subproblem_solver,
+        subproblem_solver_options=subproblem_solver_options,
+        timelimit=iter_timelimit,
+        gams_output=gams_output,
+        tee=tee,
+        rel_tol=rel_tol,
+    )
+    best_sol=m_solved.best_sol
+    dsda_usertime += m_solved.dsda_usertime
+    fmin = pe.value(m_solved.obj)
+    if global_tee:
+        print('Initializing...')
+        print('Evaluated:', ext_var, '   |   Objective:', round(fmin, 5),
+              '   |   Global Time:', round(time.perf_counter() - t_start, 2))
+        if m_solved.dsda_status=='FBBT_Infeasible' or m_solved.dsda_status=='Evaluated_Infeasible':
+            print('WARNING: Initialization is infeasible. Neighborhood verification will be performed to check if there is a feasible point nearby.') 
+
+    # m_solved.pprint()
+    best_path = generate_initialization(m_solved)
+
+    route.append(ext_var)
+    obj_route.append(fmin)
+    global_evaluated.append(ext_var)
+
+    # Define neighborhood
+    if k == '2':
+        neighborhood = neighborhood_k_eq_2(len(ext_var))
+    elif k == 'Infinity':
+        neighborhood = neighborhood_k_eq_inf(len(ext_var))
+    elif k == 'L_natural':
+        neighborhood = neighborhood_k_eq_l_natural(len(ext_var))  
+    elif k == 'L_natural_modified':
+        neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var))  
+    elif k == 'M_natural':
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))    
+    else:
+        return "Enter a valid neighborhood"
+
+    looking_in_neighbors = True
+
+    # Look in neighbors (outer cycle)
+    while looking_in_neighbors:
+
+        if time.perf_counter() - t_start > timelimit:
+            break
+
+        # Find neighbors of the actual point
+        neighbors = find_actual_neighbors(ext_var, neighborhood,
+                                          min_allowed=min_allowed, max_allowed=max_allowed)
+
+        if time.perf_counter() - t_start > timelimit:
+            break
+
+        fmin, best_var, best_dir, improve, eval_time, ns_evaluated, best_path  = evaluate_neighbors_aprox_tau_only(
+            best_sol=best_sol,
+            ext_vars=neighbors,
+            fmin=fmin,
+            model_function=model_function,
+            model_args=model_args,
+            ext_dict=dict_extvar,
+            ext_logic=ext_logic,
+            mip_transformation=mip_transformation,
+            transformation=transformation,
+            subproblem_solver=subproblem_solver,
+            subproblem_solver_options=subproblem_solver_options,
+            iter_timelimit=iter_timelimit,
+            timelimit=timelimit,
+            current_time=t_start,
+            gams_output=gams_output,
+            tee=tee,
+            global_tee=global_tee,
+            rel_tol=rel_tol,
+            global_evaluated=global_evaluated,
+            init_path=best_path,
+        )
+
+        best_sol=fmin
+        dsda_usertime += eval_time
+        global_evaluated = global_evaluated + ns_evaluated
+
+        # Stopping condition in case there is no improvement amongst neighbors
+        if improve:
+            line_searching = True
+            route.append(best_var)
+            obj_route.append(fmin)
+            if global_tee and time.perf_counter() - t_start < timelimit:
+                print()
+                print('Line search in direction:', neighborhood[best_dir])
+
+            # If improvement was made start line search (inner cycle)
+            while line_searching:
+
+                if time.perf_counter() - t_start > timelimit:
+                    break
+
+                fmin, best_var, moved, ls_time, ls_evaluated, best_path = do_line_search_aprox_tau_only(
+                    start=best_var,
+                    fmin=fmin,
+                    direction=neighborhood[best_dir],
+                    model_function=model_function,
+                    model_args=model_args,
+                    ext_dict=dict_extvar,
+                    ext_logic=ext_logic,
+                    best_sol=best_sol,
+                    mip_transformation=mip_transformation,
+                    transformation=transformation,
+                    subproblem_solver=subproblem_solver,
+                    min_allowed=min_allowed,
+                    max_allowed=max_allowed,
+                    iter_timelimit=iter_timelimit,
+                    timelimit=timelimit,
+                    current_time=t_start,
+                    gams_output=gams_output,
+                    tee=tee,
+                    global_tee=global_tee,
+                    rel_tol=rel_tol,
+                    global_evaluated=global_evaluated,
+                    init_path=best_path,
+                )
+                best_sol=fmin
+                global_evaluated = global_evaluated + ls_evaluated
+                dsda_usertime += ls_time
+
+                if time.perf_counter() - t_start > timelimit:
+                    break
+
+                # Stopping condition in case no movement was done
+                if moved:
+                    route.append(best_var)
+                    obj_route.append(fmin)
+                else:
+                    ext_var = best_var
+                    line_searching = False
+                    if global_tee:
+                        print()
+                        print('New best point:', best_var)
+
+        else:
+            looking_in_neighbors = False
+
+    t_end = round(time.perf_counter() - t_start, 2)
+
+    # Generate final solved model
+    m2 = model_function(**model_args)
+    m2_solved = initialize_model(m2, json_path=best_path)
+    m2_solved.dsda_time = t_end
+    m2_solved.dsda_usertime = dsda_usertime
+    if t_end > timelimit:
+        m2_solved.dsda_status = 'maxTimeLimit'
+    else:
+        m2_solved.dsda_status = 'optimal'
+
+    # Print results
+    if global_tee:
+        print('--------------------------------------------------------------------------')
+        print('Objective:', round(fmin, 5))
+        print('External variables:', route[-1])
+        print('Execution time [s]:', t_end)
+        print('User time [s]:', round(dsda_usertime, 5))
+
+    return m2_solved, route, obj_route
+
+
+
 
 def sequential_iterative_1(
     ext_logic,
     starting_point: list,
     model_function,
     ext_dict,
-    rate_beta_ub: float= 0.01,
     rate_tau: int=1,
     mip_transformation: bool = False,
     transformation: str = 'bigm',
@@ -2496,59 +3408,116 @@ def sequential_iterative_1(
         m = initialize_model(m, from_feasible=True, feasible_model=feasible_model, json_path=None)
 
 
-    #INITIALIZE LOOP
-    initial_ub={}
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            initial_ub[I,J]=m.beta_max[I,J]
-
-    B_ub=initial_ub.copy() #bound updated iteratively
-    ext_var = starting_point #external variables updated iteratively
     #START LOOP
     count_1=0
+    ext_var = starting_point #external variables updated iteratively
     while any([ext_var[pos]!=max_allowed[pos+1] for pos in range(len(ext_var))]):
         count_1=count_1+1
         if global_tee:
             print("--------------------------------------------------------------------------")
-            print("\n --Outher loop iteration "+str(count_1))
+            print("\n --Loop iteration "+str(count_1))
         if count_1 >=2:
             for posit in range(len(ext_var)):
                 ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
-        else:
-            ext_var=starting_point
-        count_2=0
-        while any([B_ub[I,J]!=m.beta_min[I,J] for I in m.I_reactions for J in m.J_reactors]):
-            count_2=count_2+1
-            if global_tee:
-                print("\n ---Inner loop iteration "+str(count_1)+"."+str(count_2)) 
-            if count_2>=2:
-                for I in m.I_reactions:
-                    for J in m.J_reactors:
-                        B_ub[I,J]=max(B_ub[I,J]-rate_beta_ub,m.beta_min[I,J]) 
-            else:
-                B_ub=initial_ub.copy()
 
-            m = model_function(Input_dict=B_ub)
-            if mip_transformation:
-                m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
-            m = external_ref_sequential(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
-            if global_tee:
-                print("-------Current value of Ext vars: ",ext_var)
-                print("-------Current value of Beta_up: ",list(B_ub.values()))        
-            m = solve_subproblem_aprox_sequential(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=iter_timelimit,gams_output=gams_output,tee=tee,rel_tol=rel_tol)           
-            if global_tee:
-                print("-------Status: ",m.sched_Status," ",m.cont_Status,"  |  Current CPU time [s]:",time.perf_counter()-t_start)
-            if m.dsda_status == 'Optimal':
-                print('--------------------------------------------------------------------------')
-                print('--------------------------------------------------------------------------')
-                print('Feasible solution with: ')
-                print("Current value of Ext vars (related to processing times): ",ext_var)
-                print("Upper bound, capacity of dynamic tasks: ",B_ub)
-                print("Objective function:",m.best_sol) 
-                print("CPU time[s]: ",time.perf_counter()-t_start)
-                return m
+        m = model_function()
+        if mip_transformation:
+            m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
+        m = external_ref_sequential(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
+        if global_tee:
+            print("-------Current value of Ext vars: ",ext_var)      
+        m = solve_subproblem_aprox_sequential(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=iter_timelimit,gams_output=gams_output,tee=tee,rel_tol=rel_tol)           
+        if global_tee:
+            print("-------Status: ",m.sched_Status," ",m.cont_Status,"  |  Current CPU time [s]:",time.perf_counter()-t_start)
+        if m.dsda_status == 'Optimal':
+            print('--------------------------------------------------------------------------')
+            print('--------------------------------------------------------------------------')
+            print('Feasible solution with: ')
+            print("Current value of Ext vars (related to processing times): ",ext_var)
+            print("Objective function:",m.best_sol) 
+            print("CPU time[s]: ",time.perf_counter()-t_start)
+            return m
     return m
 
+# IMPROVED VERSION OF SEQUENTIAL ITERATIVE STRATEGY
+def sequential_iterative_2(
+    ext_logic,
+    starting_point: list,
+    model_function,
+    ext_dict,
+    rate_tau: int=1,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    provide_starting_initialization: bool = True,
+    feasible_model: str = '',
+    subproblem_solver: str = 'knitro',
+    iter_timelimit: float = 1000000,
+    subproblem_solver_options: dict = {},
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 1e-3):
+
+    """
+    rate_beta_ub: Real, rate to decrease upper bound of beta
+    rate_tau: integer, rate to increase external variables related to variable processing time
+
+    """
+    if global_tee:
+        print('\nStarting Sequential Scheduling and control')
+        print('--------------------------------------------------------------------------')
+
+
+
+    m = model_function()
+    dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
+        m, ext_dict)
+    if len(starting_point) != num_ext_var:
+        print("The size of the initialization vector must be equal to "+str(num_ext_var))
+
+    t_start = time.perf_counter()
+
+
+    if provide_starting_initialization:
+        m = initialize_model(m, from_feasible=True, feasible_model=feasible_model, json_path=None)
+
+
+    #START LOOP
+    count_1=0
+    ext_var = starting_point #external variables updated iteratively
+    while any([ext_var[pos]!=max_allowed[pos+1] for pos in range(len(ext_var))]):
+        count_1=count_1+1
+        if global_tee:
+            print("--------------------------------------------------------------------------")
+            print("\n --Loop iteration "+str(count_1))
+        if count_1 >=2:
+
+            posit=-1
+            for I in m.I_reactions:
+                for J in m.J_reactors:
+                    posit=posit+1
+                    if m.source[I,J]=='Infeasible' or m.source[I,J]=='Not_evaluated':
+                        ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
+
+        m = model_function()
+        if mip_transformation:
+            m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
+        m = external_ref_sequential(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
+        if global_tee:
+            print("-------Current value of Ext vars: ",ext_var)      
+        m = solve_subproblem_aprox_sequential(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=iter_timelimit,gams_output=gams_output,tee=tee,rel_tol=rel_tol)           
+        if global_tee:
+            print("-------Status: ",m.sched_Status," ",m.cont_Status,"  |  Current CPU time [s]:",time.perf_counter()-t_start)
+            print("-------Dynamic models: ",m.source)
+        if m.dsda_status == 'Optimal':
+            print('--------------------------------------------------------------------------')
+            print('--------------------------------------------------------------------------')
+            print('Feasible solution with: ')
+            print("Current value of Ext vars (related to processing times): ",ext_var)
+            print("Objective function:",m.best_sol) 
+            print("CPU time[s]: ",time.perf_counter()-t_start)
+            return m
+    return m
 
 def visualize_dsda(
     route: list = [],

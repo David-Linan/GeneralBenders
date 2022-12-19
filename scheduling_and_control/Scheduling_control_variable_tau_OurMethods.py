@@ -11,15 +11,17 @@ import math
 from pyomo.opt.base.solvers import SolverFactory
 import io
 import time
-from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,solve_subproblem_aprox,generate_initialization,initialize_model,solve_with_dsda,solve_with_dsda_aprox,sequential_iterative_1
+from functions.dsda_functions import neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,solve_subproblem_aprox,generate_initialization,initialize_model,solve_with_dsda,solve_with_dsda_aprox,sequential_iterative_1,sequential_iterative_2,neighborhood_k_eq_l_natural,neighborhood_k_eq_m_natural,neighborhood_k_eq_l_natural_modified,solve_with_dsda_aprox_tau_only
 import logging
 # from Scheduling_control_variable_tau_model_reduced import scheduling_and_control,problem_logic_scheduling
 # from Scheduling_control_variable_tau_model import scheduling_and_control as scheduling_and_control_GDP 
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N as scheduling_and_control_GDP_complete
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx as scheduling_and_control_GDP_complete_approx
+from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_only_tau as scheduling_and_control_GDP_complete_approx_tau_only
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential
-from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_solvegdp
-from Scheduling_control_variable_tau_model import problem_logic_scheduling
+from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_solvegdp_simpler
+from Scheduling_control_variable_tau_model import problem_logic_scheduling, problem_logic_scheduling_tau_only,problem_logic_scheduling_dummy
+from Scheduling_control_variable_tau_model import scheduling_only_gdp_N_solvegdp_simpler
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
@@ -27,10 +29,10 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='dicopt'
+    minlp_solver='DICOPT'
     nlp_solver='conopt4'
     mip_solver='cplex'
-    gdp_solver='LOA'
+    gdp_solver='GLOA'
     if minlp_solver=='dicopt':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
     else:
@@ -102,15 +104,15 @@ if __name__ == "__main__":
     ##### -----------------------------------------------------------------------------
 
     #Solve with LD-SDA_COMPLETE GDP
-    # model_fun =scheduling_and_control_GDP_complete
-    # logic_fun=problem_logic_scheduling
-    # kwargs={}
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    # m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
-    # print('Objective value: ',str(pe.value(m.obj)))
+    model_fun =scheduling_and_control_GDP_complete#scheduling_and_control_gdp_N_solvegdp_simpler ## or i can use scheduling_and_control_GDP_complete and problem_logic_scheduling_dummy and add the complementary model alternatively
+    logic_fun=problem_logic_scheduling_dummy#problem_logic_scheduling
+    kwargs={}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    print('Objective value: ',str(pe.value(m.obj)))
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
@@ -121,20 +123,59 @@ if __name__ == "__main__":
     # with open('Results_variable_tau_dsda_complete.txt', 'w') as outputfile:
     #     outputfile.write(textbuffer.getvalue())
 
-#     #Solve with pyomo.GDP COMPLETE GDP
-#     kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-#     model_fun=scheduling_and_control_gdp_N_solvegdp
-#     m=model_fun(**kwargs)
-#     m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=360000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    infinity_val=1e+8
+    maxiter=1000
+    neigh=neighborhood_k_eq_2(len(initialization))
+    model_fun =scheduling_and_control_GDP_complete
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    print('Objective value: ',str(pe.value(m.obj)))
+    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-#     textbuffer = io.StringIO()
-#     for v in m.component_objects(pe.Var, descend_into=True):
-#         v.pprint(textbuffer)
-#         textbuffer.write('\n')
-#     textbuffer.write('\n Objective: \n') 
-#     textbuffer.write(str(pe.value(m.obj)))    
-#     with open('Results_variable_tau_gdp_complete.txt', 'w') as outputfile:
-#         outputfile.write(textbuffer.getvalue())
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('Results_variable_tau_dbd_complete.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
+
+    #Solve with pyomo.GDP COMPLETE GDP
+    # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=360000,strategy=gdp_solver, mip_output=True, nlp_output=True,minlp_output=True,rel_tol=0,tee=True)
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_gdp_complete.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+
+    #Solve with MINLP
+    # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # m = solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=0)
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_MINLP_complete.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())   
 # ####--------Objective function summary---------------------------------
 #     TPC1=sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)
 #     TPC2=sum(sum(sum( m.variable_cost[I,J]*pe.value(m.B[I,J,T]) for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
@@ -203,6 +244,9 @@ if __name__ == "__main__":
 
 
 
+
+
+
 ## ----------------------------from nominal schedule------------------------------------------------
     # Enhanced DSDA
     # model_fun =scheduling_and_control_GDP_complete_approx
@@ -251,20 +295,141 @@ if __name__ == "__main__":
 
 
 #----------------------------Sequential iterative methodology-----------------------------------
-    model_fun =scheduling_and_control_gdp_N_approx_sequential
-    logic_fun=problem_logic_scheduling
-    m=model_fun()
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m=sequential_iterative_1(logic_fun,[1,1,1,1,1,1],model_fun,ext_ref,rate_beta_ub= 0.1,rate_tau=1,provide_starting_initialization = False,subproblem_solver=nlp_solver,iter_timelimit = 1000000,subproblem_solver_options=sub_options,gams_output = False,tee = False,global_tee = True,rel_tol = 0)
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_sequential_Strategy.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+
+    ## STEP 1: SCHEDULING ONLY WITH VARIABLE PROCESSSING TIMES
+    # kwargs={'x_initial':[1,1,1,1,1,1]}
+    # model_fun=scheduling_only_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # m = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=0)
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('STEP1_Results_variable_tau_MIP_complete.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())  
+
+
+    ## STEP 2: SEQUENTIAL STRATEGY
+    # model_fun =scheduling_and_control_gdp_N_approx_sequential
+    # logic_fun=problem_logic_scheduling_dummy
+    # m=model_fun()
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m=sequential_iterative_1(logic_fun,[1,1,1,1,1,1],model_fun,ext_ref,rate_tau=1,provide_starting_initialization = False,subproblem_solver=nlp_solver,iter_timelimit = 1000000,subproblem_solver_options=sub_options,gams_output = False,tee = False,global_tee = True,rel_tol = 0)
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_sequential_Strategy.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+
+    ## STEP 2: SEQUENTIAL STRATEGY IMPROVED
+    # model_fun =scheduling_and_control_gdp_N_approx_sequential
+    # logic_fun=problem_logic_scheduling_dummy
+    # m=model_fun()
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m=sequential_iterative_2(logic_fun,[1,1,1,1,1,1],model_fun,ext_ref,rate_tau=1,provide_starting_initialization = False,subproblem_solver=nlp_solver,iter_timelimit = 1000000,subproblem_solver_options=sub_options,gams_output = False,tee = False,global_tee = True,rel_tol = 0)
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_sequential_Strategy_improved.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+
+#-------------------from sequential iterative methodology-------------------------------------
+    # aa=neighborhood_k_eq_l_natural_modified(16)
+    # print(aa)
+    # Enhanced DSDA
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,[5,5,5,5,5,5,2,2,1,2,2,2,2,2,2,2],ext_ref,logic_fun,k = 'L_natural_modified',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    # print('Objective value: ',str(pe.value(m.obj)))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_dsda_complete_approx_solution_from_iterative_L_natural_modified.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+
+    # Naive DSDA
+    # model_fun =scheduling_and_control_GDP_complete
+    # logic_fun=problem_logic_scheduling
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[5,5,5,5,5,5,2,2,1,2,2,2,2,2,2,2],ext_ref,logic_fun,k = 'M_natural',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    # print('Objective value: ',str(pe.value(m.obj)))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_dsda_complete_from_iterative_m_natural.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())   
+
+
+#-------------------from sequential iterative methodology tau only-------------------------------------
+    # aa=neighborhood_k_eq_l_natural_modified(16)
+    # print(aa)
+    # Enhanced DSDA
+    # model_fun =scheduling_and_control_GDP_complete_approx_tau_only
+    # logic_fun=problem_logic_scheduling
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda_aprox_tau_only(model_fun,kwargs,[5,5,5,5,5,5],ext_ref,logic_fun,k = 'Infinity',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    # print('Objective value: ',str(pe.value(m.obj)))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_dsda_tau_only_approx_solution_from_iterative_k_infty.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+
+    # Naive DSDA
+    # model_fun =scheduling_and_control_GDP_complete
+    # logic_fun=problem_logic_scheduling
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[5,5,5,5,5,5,2,2,1,2,2,2,2,2,2,2],ext_ref,logic_fun,k = 'M_natural',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    # print('Objective value: ',str(pe.value(m.obj)))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_dsda_complete_from_iterative_m_natural.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())   
+
 #######-------plots------------------------
     # for I in m.I_reactions:
     #     for J in m.J_reactors:

@@ -1,0 +1,184 @@
+=1
+=2
+=0IBM ILOG CPLEX   37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
+=1
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+=2
+=C
+=1
+=C*** Error Cannot open parameter file "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\cplex.opt"
+=C*** Error Error code = 2; No such file or directory
+=2
+=C
+=1
+--- GMO setup time: 0.00s
+=2
+=1
+--- Space for names approximately 0.65 Mb
+=2
+=1
+--- Use option 'names no' to turn use of names off
+=2
+=1
+--- GMO memory 3.10 Mb (peak 3.16 Mb)
+=2
+=1
+--- Dictionary memory 0.00 Mb
+=2
+=1
+--- Cplex 20.1.0.1 link memory 0.22 Mb (peak 1.33 Mb)
+=2
+=1
+--- Starting Cplex
+=2
+=C
+Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
+CPXPARAM_Advance                                 0
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               100000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0
+Generic callback                                 0x50
+Tried aggregator 2 times.
+MIP Presolve eliminated 4185 rows and 7896 columns.
+MIP Presolve modified 144 coefficients.
+Aggregator did 144 substitutions.
+Reduced MIP has 923 rows, 538 columns, and 3408 nonzeros.
+Reduced MIP has 214 binaries, 2 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (9.42 ticks)
+Found incumbent of value -3.952778 after 0.01 sec. (13.69 ticks)
+Probing fixed 2 vars, tightened 27 bounds.
+Probing changed sense of 1 constraints.
+Probing time = 0.02 sec. (1.81 ticks)
+Cover probing fixed 0 vars, tightened 1 bounds.
+Tried aggregator 2 times.
+Detecting symmetries...
+MIP Presolve eliminated 7 rows and 5 columns.
+Aggregator did 2 substitutions.
+Reduced MIP has 914 rows, 531 columns, and 3377 nonzeros.
+Reduced MIP has 211 binaries, 2 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (5.16 ticks)
+Probing fixed 0 vars, tightened 7 bounds.
+Probing time = 0.00 sec. (1.74 ticks)
+Cover probing fixed 0 vars, tightened 1 bounds.
+Clique table members: 165.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 35 rows and 1 columns.
+Aggregator did 35 substitutions.
+Reduced LP has 844 rows, 495 columns, and 3236 nonzeros.
+Presolve time = 0.00 sec. (0.61 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -176.900000
+Iteration:    83   Dual objective     =           -92.133333
+Iteration:   172   Dual objective     =           -43.095833
+Iteration:   250   Dual objective     =           -19.791667
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (5.08 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                           -3.9528     -194.0000              --- 
+Found incumbent of value -3.952778 after 0.05 sec. (29.06 ticks)
+      0     0      -15.6750    16       -3.9528      -15.6750      296  296.56%
+*     0+    0                          -11.4000      -15.6750            37.50%
+Found incumbent of value -11.400000 after 0.06 sec. (32.34 ticks)
+      0     0      -15.6000     8      -11.4000       Cuts: 4      306   36.84%
+      0     0      -15.1189    20      -11.4000      Cuts: 13      359   32.62%
+      0     0      -15.1189    23      -11.4000       Cuts: 9      366   32.62%
+      0     0      -15.1189    24      -11.4000       Cuts: 8      378   32.62%
+*     0+    0                          -12.0000      -15.1189            25.99%
+Found incumbent of value -12.000000 after 0.13 sec. (77.20 ticks)
+*     0+    0                          -13.4333      -15.1189            12.55%
+Found incumbent of value -13.433333 after 0.14 sec. (90.04 ticks)
+      0     0  -1.00000e+75     0      -13.4333      -15.1189      378   12.55%
+Detecting symmetries...
+      0     2      -15.1189    19      -13.4333      -15.1189      378   12.55%
+Elapsed time = 0.14 sec. (91.74 ticks, tree = 0.01 MB)
+*    10+    9                          -13.6333      -14.9347             9.55%
+Found incumbent of value -13.633333 after 0.16 sec. (99.93 ticks)
+*    47    34      integral     0      -13.6333      -14.3542      974    5.29%
+Found incumbent of value -13.633333 after 0.19 sec. (123.58 ticks)
+    640   103      -13.7167     8      -13.6333      -13.7167     5361    0.61%
+                                                     Cuts: 13                  
+   1446   228      -13.6889     2      -13.6333      -13.6889     8305    0.41%
+
+Performing restart 1
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIP Presolve eliminated 98 rows and 48 columns.
+MIP Presolve modified 109 coefficients.
+Aggregator did 15 substitutions.
+Reduced MIP has 801 rows, 468 columns, and 2851 nonzeros.
+Reduced MIP has 187 binaries, 2 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (3.16 ticks)
+Tried aggregator 1 time.
+MIP Presolve modified 1 coefficients.
+Reduced MIP has 801 rows, 468 columns, and 2851 nonzeros.
+Reduced MIP has 187 binaries, 2 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.87 ticks)
+Represolve time = 0.02 sec. (10.66 ticks)
+Tried aggregator 1 time.
+LP Presolve eliminated 4 rows and 1 columns.
+Aggregator did 2 substitutions.
+Reduced LP has 822 rows, 465 columns, and 3624 nonzeros.
+Presolve time = 0.00 sec. (0.60 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -160.637070
+Iteration:    87   Dual objective     =           -34.609183
+Iteration:   167   Dual objective     =           -24.316001
+Iteration:   244   Dual objective     =           -18.675086
+Iteration:   307   Dual objective     =           -15.595079
+Iteration:   380   Dual objective     =           -15.021861
+Initializing dual steep norms . . .
+   2076     0      -14.6213    26      -13.6333      Cuts: 33    10913    0.41%
+   2076     0      -13.9056    15      -13.6333      Cuts: 39    10977    0.41%
+   2076     0      -13.8581    24      -13.6333      Cuts: 21    11028    0.41%
+   2076     0      -13.8367    26      -13.6333      Cuts: 23    11052    0.41%
+*  2076+    0                          -13.6333      -13.6889             0.41%
+Found incumbent of value -13.633333 after 1.14 sec. (884.81 ticks)
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIP Presolve eliminated 226 rows and 127 columns.
+MIP Presolve modified 29 coefficients.
+Aggregator did 23 substitutions.
+Reduced MIP has 552 rows, 317 columns, and 1918 nonzeros.
+Reduced MIP has 122 binaries, 1 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.55 ticks)
+Tried aggregator 1 time.
+MIP Presolve modified 21 coefficients.
+Reduced MIP has 552 rows, 317 columns, and 1914 nonzeros.
+Reduced MIP has 122 binaries, 1 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.31 ticks)
+Represolve time = 0.02 sec. (8.51 ticks)
+Tried aggregator 1 time.
+LP Presolve eliminated 2 rows and 0 columns.
+Reduced LP has 586 rows, 317 columns, and 3349 nonzeros.
+Presolve time = 0.00 sec. (0.42 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -189.743740
+Iteration:    63   Dual objective     =           -34.299277
+Iteration:   125   Dual objective     =           -28.816985
+Iteration:   199   Dual objective     =           -17.073541
+Iteration:   266   Dual objective     =           -13.888099
+Initializing dual steep norms . . .
+   2076     0      -13.8222    21      -13.6333      Cuts: 32    11461    0.41%
+   2076     0      -13.8222    28      -13.6333      Cuts: 25    11489    0.41%
+   2076     0      -13.8222     5      -13.6333      Fract: 1    11494    0.41%
+   2076     0      -13.8222    10      -13.6333      Cuts: 25    11516    0.41%
+   2076     0      -13.8222    11      -13.6333       Cuts: 3    11526    0.41%
+   2076     0      -13.7962    17      -13.6333      Cuts: 15    11572    0.41%
+   2076     0      -13.7914    12      -13.6333       Cuts: 4    11587   
