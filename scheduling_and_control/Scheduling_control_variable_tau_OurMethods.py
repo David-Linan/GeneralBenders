@@ -3,7 +3,7 @@ import sys
 # sys.path.insert(0, '/home/dadapy/GeneralBenders/')
 # sys.path.append('C:/Users/TEMP/Desktop/GeneralBenders/') #for LRLAB5
 sys.path.append('C:/Users/dlinanro/Desktop/GeneralBenders/') #for LRSRV1
-from functions.d_bd_functions import run_function_dbd
+from functions.d_bd_functions import run_function_dbd,run_function_dbd_aprox
 from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_gdpopt,solve_with_minlp
 import pyomo.environ as pe
 from pyomo.gdp import Disjunct, Disjunction
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='DICOPT'
+    minlp_solver='dicopt'
     nlp_solver='conopt4'
     mip_solver='cplex'
     gdp_solver='GLOA'
@@ -104,15 +104,15 @@ if __name__ == "__main__":
     ##### -----------------------------------------------------------------------------
 
     #Solve with LD-SDA_COMPLETE GDP
-    model_fun =scheduling_and_control_GDP_complete#scheduling_and_control_gdp_N_solvegdp_simpler ## or i can use scheduling_and_control_GDP_complete and problem_logic_scheduling_dummy and add the complementary model alternatively
-    logic_fun=problem_logic_scheduling_dummy#problem_logic_scheduling
-    kwargs={}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
-    print('Objective value: ',str(pe.value(m.obj)))
+    # model_fun =scheduling_and_control_GDP_complete#scheduling_and_control_gdp_N_solvegdp_simpler ## or i can use scheduling_and_control_GDP_complete and problem_logic_scheduling_dummy and add the complementary model alternatively
+    # logic_fun=problem_logic_scheduling_dummy#problem_logic_scheduling
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    # print('Objective value: ',str(pe.value(m.obj)))
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
@@ -123,29 +123,33 @@ if __name__ == "__main__":
     # with open('Results_variable_tau_dsda_complete.txt', 'w') as outputfile:
     #     outputfile.write(textbuffer.getvalue())
 
-    initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
-    infinity_val=1e+8
-    maxiter=1000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_dbd_complete.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+
+
+    #SOLVE WITH LD-BD
+    # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    # infinity_val=1e+8
+    # maxiter=1000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_dbd_complete.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
     #Solve with pyomo.GDP COMPLETE GDP
     # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
@@ -224,7 +228,7 @@ if __name__ == "__main__":
 
     #Solve with enhanced LD-SDA_COMPLETE GDP. Approximated solution of subproblems with pruning depending on parameter aproximate_solution in solve_subproblem_aprox
     # model_fun =scheduling_and_control_GDP_complete_approx
-    # logic_fun=problem_logic_scheduling
+    # logic_fun=problem_logic_scheduling_dummy
     # kwargs={}
     # m=model_fun(**kwargs)
     # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
@@ -244,7 +248,32 @@ if __name__ == "__main__":
 
 
 
+    # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
+    # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
+    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    maxiter=10000
+    neigh=neighborhood_k_eq_2(len(initialization))
+    model_fun =scheduling_and_control_GDP_complete_approx
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    print('Objective value: ',str(pe.value(m.obj)))
+    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
 
 
 ## ----------------------------from nominal schedule------------------------------------------------

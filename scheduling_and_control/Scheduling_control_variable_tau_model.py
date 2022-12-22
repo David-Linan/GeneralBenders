@@ -20,7 +20,7 @@ import itertools
 #2) The same Idea used in design-control where the objective function was partitioned can be implemented here!!!!!!
 
 
-# Use this code to solve with enhanced DSDA
+# Use this code to solve with enhanced DSDA and enhanced DBD
 def scheduling_and_control_gdp_N_approx():
 
     # Data

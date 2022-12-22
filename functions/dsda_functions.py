@@ -855,11 +855,15 @@ def solve_subproblem_aprox(
             m.dsda_status = 'Evaluated_Infeasible'
             m.pruned_Status = 'Pruned_SchedulingInfeasible'
             m.best_sol=1e+8
+            m.obj.activate()
+            m.obj.value=1e+8
         else:
             if pe.value(m.obj_scheduling)>=best_sol:
                 m.dsda_status = 'Evaluated_Infeasible'
                 m.pruned_Status = 'Pruned_NoImprovementExpected'
                 m.best_sol=1e+8
+                m.obj.activate()
+                m.obj.value=pe.value(m.obj_scheduling)
             else:  
                 # ACTIVATE DYNAMIC CONSTRAINTS
                 for I in m.I_reactions:
