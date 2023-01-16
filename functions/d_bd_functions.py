@@ -388,7 +388,82 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path,m_solved
 
+def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False):
+    """
+    Function that solves the NLP subproblem for a point and its neighborhood. 
+    Args:
+        x: central point (list) where the subproblem and the neighborhood solutions are going to be calcualted
+        neigh: dictionary with directions.
+        model: GDP model to be solved
+        Internaldat: Contains the objective function information of those subproblems that were already solved (It is the same as D during the solution procedure)
+        infinity_val: value of infinity
+        reformulation_dict: directory with reformualtion info
+    Returns:
+        generated_dict: A dictionary with the points evaluated and their objective function value (central point and neighborhood).
+        generated_list_feasible: A list with lists: central point and neighborhood but at a infinity (i think) distance of 0.5 (only feasible).
+    """
+    generated_dict={}
+    generated_list_feasible=[] #if required
+    status=[None]*(len(neigh.keys())+1)   #status of the solution obtained: 1 if feasible, 0 if infeasible. Status[0] correspond to x and the subsequent positions to its neighbors
 
+    #solve subproblem
+    if tuple(x) in Internaldata: #If subproblem was already solved
+        if Internaldata[tuple(x)]!=infinity_val:
+            status[0]=1 #feasible
+        else:
+            status[0]=0 #infeasible
+        generated_dict[tuple(x)]=Internaldata[tuple(x)] #THIS IS A TEST
+    else: #If subproblem has not been solved yet
+        #1: fix external variables
+        model = model_fun(**kwargs)
+        #2: Initialize model
+        m_initialized=initialize_model(m=model,json_path=init_path)
+        m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+        m_solved=solve_subproblem(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+        #print(m_solved.dsda_status)
+        if m_solved.dsda_status=='Optimal':
+            status[0]=1
+            generated_dict[tuple(x)]=pe.value(m_solved.obj)
+            init_path = generate_initialization(m=m_solved)
+            if tee:
+                print('Evaluated:', x, '   |   Objective:', round(pe.value(m_solved.obj), 5))
+        else:
+            status[0]=0
+            generated_dict[tuple(x)]=infinity_val
+    #solve neighborhood (only if central point was feasible)
+    if status[0]==1:
+        if tee:
+            print()
+            print('Neighbor search around:', x)
+        count=0 #count to add elements to status
+        for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT, BUT THIS IS PROBLEMATIC BECAUSE I MUST DELETE DISJUNCTIONS FROM THE CODE (JUST LEAVE DISJUNCTS)
+            count=count+1
+            current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
+            #print(current_value)
+            if tuple(current_value) in Internaldata: #If subproblem was already solved
+                if Internaldata[tuple(current_value)]!=infinity_val:
+                    status[count]=1
+                else:
+                    status[count]=0
+                generated_dict[tuple(current_value)]=Internaldata[tuple(current_value)]
+            else: #If subproblem has not been solved yet
+                #1: fix external variables
+                #print(current_value)
+                model = model_fun(**kwargs)
+                m_initialized2=initialize_model(m=model,json_path=init_path)
+                m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+                m_solved2=solve_subproblem(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+                #print(m_solved2.dsda_status)
+                if m_solved2.dsda_status=='Optimal':
+                    status[count]=1
+                    generated_dict[tuple(current_value)]=pe.value(m_solved2.obj)
+                    if tee:
+                        print('Evaluated:', current_value, '   |   Objective:', round(pe.value(m_solved2.obj), 5))
+                else:
+                    status[count]=0
+                    generated_dict[tuple(current_value)]=infinity_val   #THIS LAINE ACTUALLY HELPS A LOT TO FIND LOCAL SOLUTIONS FASTER!!!!!
+                #print(pe.value(m_solved2.obj))
+    return generated_dict,init_path
 
 def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8):
     """
@@ -790,13 +865,18 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #define model
             m,not_eval=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,1,D,use_random)            
             #print(not_eval)
-            for i in x_dict:
-                cuts=convex_clousure(D,x_dict[i])
-                #print(cuts)
-                m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
-                #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+	        
+            # for i in x_dict:
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+            #     #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
-            #Solve master problem       
+            #  # Multiple cuts per iteration: cuts for all points in D
+            for i in D:
+                cuts=convex_clousure(D,list(i))
+                m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)             #Solve master problem       
+            
             SolverFactory('gams', solver='cplex').solve(m, tee=False) #TODO: generalize this
             if tee==True:
                 print('S1--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
@@ -814,9 +894,10 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
                     if fabs(float(len([el for el in D.keys() if all(el[n_e-1]>=lower_bounds[n_e] for   n_e in lower_bounds.keys()) and all(el[n_e-1]<=upper_bounds[n_e] for   n_e in lower_bounds.keys()) ]))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
                         break
                     else:
-                        x_actual=not_eval
-                        
-                        D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
+                        # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
+                        D.update({tuple(x_actual):infinity_val})
+                        x_actual=list(min(D, key=D.get))
+
             else:
                 x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
@@ -869,9 +950,15 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #Calculate new convex hull and dd cuts to the current model  
             #define model
             m,not_eval=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,2,D,use_random)          
-            for i in x_dict:
-                cuts=convex_clousure(D,x_dict[i])
-                #print(cuts)
+            
+            # for i in x_dict:
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+            #     #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+            #  # Multiple cuts per iteration: cuts for all points in D
+            for i in D:
+                cuts=convex_clousure(D,list(i))
                 m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
                 #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
             
@@ -893,8 +980,9 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
                     if fabs(float(len([el for el in D.keys() if all(el[n_e-1]>=lower_bounds[n_e] for   n_e in lower_bounds.keys()) and all(el[n_e-1]<=upper_bounds[n_e] for   n_e in lower_bounds.keys()) ]))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
                         break
                     else:
-                        x_actual=not_eval
-                        D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
+	                    # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
+                        D.update({tuple(x_actual):infinity_val})
+                        x_actual=list(min(D, key=D.get))
             else:
                 x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
@@ -936,7 +1024,16 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             x_dict[k]=x_actual
             #print(x_actual)
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,init_path,m_solved=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee)
+            if tuple(x_actual) not in D:
+                new_values,init_path,m_solved=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee)
+
+            else:
+                new_values,init_path=solve_subproblem_and_neighborhood_except(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee)
+                model = model_fun(**kwargs)
+                m_initialized=initialize_model(m=model,json_path=init_path)
+                m_fixed = external_ref(m=m_initialized,x=x_actual,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
+                m_solved=solve_subproblem(m=m_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+
             fobj_actual=list(new_values.values())[0]
             if tee==True:
                 # print('S3--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
@@ -947,12 +1044,33 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #Calculate new convex hull and dd cuts to the current model
             #define model
             m,not_eval=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,3,D)           
-            for i in x_dict:
-                cuts=convex_clousure(D,x_dict[i])
-                #print(cuts)
+	        ## A single cut per iteration
+            # for i in x_dict:
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+            #     #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+            #  # Multiple cuts per iteration: cuts for all points in D
+            for i in D:
+                cuts=convex_clousure(D,list(i))
                 m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
                 #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
-            
+
+            # Multiple cuts per iteration: points within a neighborhood of central points evaluated, at a distance of 0.5
+            # for i in x_dict:
+               
+            #     cuts=convex_clousure(D,x_dict[i])
+            #     #print(cuts)
+            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+            #     #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+            #     for j in neigh: 
+            #         if tuple(list(np.array(x_dict[i])+np.array(neigh[j]))) in D:   
+            #             current_value=list(np.array(x_dict[i])+np.array(neigh[j])*0.5)  
+            #             cuts=convex_clousure(D,current_value)
+            #             m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+
+
+
             #Solve master problem       
             SolverFactory('gams', solver='cplex').solve(m, tee=False)
             if tee==True:
