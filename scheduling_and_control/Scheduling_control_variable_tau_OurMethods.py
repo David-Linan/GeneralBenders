@@ -29,7 +29,7 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='dicopt'
+    minlp_solver='conopt4'
     nlp_solver='conopt4'
     mip_solver='cplex'
     gdp_solver='GLOA'
@@ -124,30 +124,30 @@ if __name__ == "__main__":
     #     outputfile.write(textbuffer.getvalue())
 
 
-    # # SOLVE WITH LD-BD
-    initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2] 
-    infinity_val=1e+8
-    maxiter=1000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # # SOLVE WITH LD-BD***************************************
+    # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2] 
+    # infinity_val=1e+4
+    # maxiter=1000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_dbd_complete.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_dbd_complete.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
 
 
@@ -249,31 +249,31 @@ if __name__ == "__main__":
 
     # Enhanced DBD WITH APPROXIMATE AND OPTIMAL SOLUTION OF SUBPROBLEMS
     # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
-    # # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    # # initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
-    # # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
-    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    # maxiter=10000
-    # neigh=neighborhood_k_eq_2(len(initialization))
-    # model_fun =scheduling_and_control_GDP_complete_approx
-    # logic_fun=problem_logic_scheduling_dummy
-    # kwargs={}
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
-    # print('Objective value: ',str(pe.value(m.obj)))
-    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
+    # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
+    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    maxiter=10000
+    neigh=neighborhood_k_eq_2(len(initialization))
+    model_fun =scheduling_and_control_GDP_complete_approx
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    print('Objective value: ',str(pe.value(m.obj)))
+    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    # textbuffer = io.StringIO()
-    # for v in m.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-    # textbuffer.write('\n Objective: \n') 
-    # textbuffer.write(str(pe.value(m.obj)))    
-    # with open('Results_variable_tau_enhanced_dbd_complete_optimal_sol_multicut_at_1_from_infeasible.txt', 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
 
 
 ## ----------------------------from nominal schedule------------------------------------------------

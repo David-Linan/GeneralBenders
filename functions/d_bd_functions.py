@@ -231,7 +231,6 @@ def solve_subproblem_and_neighborhood_FEAS1_aprox(x,neigh,Internaldata,infinity_
                         break        
     return generated_dict
 
-
 def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,first_path,model_fun,kwargs,tee:bool=True):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
@@ -257,18 +256,24 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
         else:
             status[0]=0 #infeasible
         generated_dict[tuple(x)]=Internaldata[tuple(x)] #THIS IS A TEST
+        source={}
     else: #If subproblem has not been solved yet
         #1: fix external variables
         model = model_fun(**kwargs)
         model=initialize_model(m=model,json_path=first_path)
         m_fixed = external_ref(m=model,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved,_,_=feasibility_2_aprox(m_fixed,sub_solver,infinity_val)
+        m_solved,_,_,source=feasibility_2_aprox(m_fixed,sub_solver,infinity_val)
         #print(m_solved.dsda_status)
         #if m_solved.dsda_status=='Optimal':
-        status[0]=1
-        generated_dict[tuple(x)]=m_solved
+
+        if len(source)==0:
+            status[0]=0
+            generated_dict[tuple(x)]=m_solved
+        else:
+            status[0]=1
+            generated_dict[tuple(x)]=m_solved
         if tee:
-            print('Evaluated:', x, '   |   Objective:', round(m_solved, 5))
+            print('Evaluated:', x, '   |   Objective:', round(m_solved, 5),'   |   Infeasibility:',source)
         # else:
         #     status[0]=0
         #     generated_dict[tuple(x)]=infinity_val
@@ -292,13 +297,13 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
                     model2 = model_fun(**kwargs)
                     model2=initialize_model(m=model2,json_path=first_path)
                     m_fixed2 = external_ref(m=model2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                    m_solved2,_,_=feasibility_2_aprox(m_fixed2,sub_solver,infinity_val)
+                    m_solved2,_,_,source2=feasibility_2_aprox(m_fixed2,sub_solver,infinity_val)
                     #print(m_solved2.dsda_status)
                     # if m_solved2.dsda_status=='Optimal':
                     status[count]=1
                     generated_dict[tuple(current_value)]=m_solved2
                     if tee:
-                        print('Evaluated:', current_value, '   |   Objective:', round(m_solved2, 5))
+                        print('Evaluated:', current_value, '   |   Objective:', round(m_solved2, 5),'   |   Infeasibility:',source2)
                     # else:
                     #     status[count]=0
                     #     generated_dict[tuple(current_value)]=infinity_val   #THIS LAINE ACTUALLY HELPS A LOT TO FIND LOCAL SOLUTIONS FASTER!!!!!
@@ -307,9 +312,7 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
                     if m_solved2==0: #stop if a feasible solution is found
                         break            
 
-    return generated_dict,init_path
-
-
+    return generated_dict,init_path,source
 
 def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False):
     """
@@ -1097,8 +1100,6 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
     return important_info,important_info_preprocessing,D,x_actual,m_solved
 
-
-
 def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
     #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
@@ -1284,6 +1285,8 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
             D={}
             D=D_random.copy()
         #use x_actual and D from previous stages otherwise
+
+        current_tau=x_actual[:6] #TODO: GENERALIZE
         x_dict={}  #value of x at each iteration
         fobj_actual=infinity_val
         start = time.time()
@@ -1297,7 +1300,7 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
             #update current value of x in the dictionary
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,init_path=solve_subproblem_and_neighborhood_FEAS2_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs)
+            new_values,init_path,source=solve_subproblem_and_neighborhood_FEAS2_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs)
             #print(new_values)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
@@ -1323,6 +1326,21 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                 cuts=convex_clousure(D,list(i))
                 m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
 
+
+            #CASE SPECIFIC CUTS: TODO: GENERALIZE
+            if len(source)!=0:
+                cuentass=-1
+                for element in source:
+                    cuentass=cuentass+1
+                    if source[element]=='Infeasible':
+                        current_tau[cuentass]=x_actual[cuentass]+1
+            print(current_tau)
+            secondcuent=-1
+            for posit in m.extset:
+                secondcuent=secondcuent+1
+                if secondcuent<=5:
+                    j=current_tau[secondcuent]
+                    m.cuts.add(m.x[posit]>=j)
 
             #Solve master problem       
             SolverFactory('gams', solver='cplex').solve(m, tee=False)
