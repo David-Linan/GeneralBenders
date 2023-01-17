@@ -124,9 +124,9 @@ if __name__ == "__main__":
     #     outputfile.write(textbuffer.getvalue())
 
 
-    # # SOLVE WITH LD-BD
+    # SOLVE WITH LD-BD***************************************
     initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2] 
-    infinity_val=1e+8
+    infinity_val=1e+4
     maxiter=1000
     neigh=neighborhood_k_eq_2(len(initialization))
     model_fun =scheduling_and_control_GDP_complete
