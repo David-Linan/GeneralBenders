@@ -265,6 +265,8 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
         m_solved,_,_,source=feasibility_2_aprox(m_fixed,sub_solver,infinity_val)
         #print(m_solved.dsda_status)
         #if m_solved.dsda_status=='Optimal':
+        if tee:
+            print('Evaluated:', x, '   |   Objective:', round(m_solved, 5),'   |   Infeasibility:',source)
 
         if len(source)==0:
             status[0]=0
@@ -272,8 +274,8 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
         else:
             status[0]=1
             generated_dict[tuple(x)]=m_solved
-        if tee:
-            print('Evaluated:', x, '   |   Objective:', round(m_solved, 5),'   |   Infeasibility:',source)
+            if 'Infeasible' in source.values():  #TODO: this is not general!!!! I am assuming that I have not evaluated all tau values and that feasibility will be eventually attained
+                return generated_dict,init_path,source
         # else:
         #     status[0]=0
         #     generated_dict[tuple(x)]=infinity_val
@@ -1193,6 +1195,10 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
     end=time.time()
     pre_processing_time=end-start#time required to test initialization and to perform multi_start
     important_info_preprocessing=[D_random,pre_processing_time,initial_Stage]
+    cpupre=end-start
+    if tee==True:
+        print('-------------------------------------------')
+        print('CPU time preprocessing [s]= '+str(cpupre))
     #-----------------------------------D-BD ALGORITHM-----------------------------------------------------------------------
     #-----------STAGE 1
     if initial_Stage==1:
@@ -1269,6 +1275,10 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
         #print('Cuts calculated from the central points evaluated so far.')
         #print(x_dict)
         important_info['m3_s1']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+        cpu1=end-start
+        if tee==True:
+            print('-------------------------------------------')
+            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time stage 1 [s]= '+str(cpu1)+'   |   ext. vars='+str(x_actual))
         #rewrite the dictionary for stages 2: infinity value for infieasible values and remove the feasible entry
         for j in D:
             if D[j]==0:
@@ -1334,7 +1344,7 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                     cuentass=cuentass+1
                     if source[element]=='Infeasible':
                         current_tau[cuentass]=x_actual[cuentass]+1
-            print(current_tau)
+            print('Current cut for tau: ',current_tau)
             secondcuent=-1
             for posit in m.extset:
                 secondcuent=secondcuent+1
@@ -1378,6 +1388,10 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
         #print('Cuts calculated from the central points evaluated so far.')
         #print(x_dict)
         important_info['m3_s2']=[D[tuple(x_actual)],end - start,'if objective=0-> status is optimal']
+        cpu2=end-start
+        if tee==True:
+            print('-------------------------------------------')
+            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time stage 2 [s]= '+str(cpu2)+'   |   ext. vars='+str(x_actual))
         #rewrite the dictionary for stages 3: infinity value for infieasible values and remove the feasible entry
         for j in D:
             if D[j]==0:
@@ -1485,9 +1499,23 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
         #print('Cuts calculated from the central points evaluated so far.')
         #print(x_dict,'\n')
         important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
+        cpu3=end-start
         if tee==True:
             print('-------------------------------------------')
-            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
+            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time stage 3 [s]= '+str(cpu3)+'   |   ext. vars='+str(x_actual))
+            try:
+                print('CPU time preprocessing [s]='+str(cpupre))
+            except:
+                pass
+            try:
+                print('CPU time stage 1 [s]='+str(cpu1))
+            except:
+                pass
+            try:
+                print('CPU time stage 2 [s]='+str(cpu2))
+            except:
+                pass
+            print('CPU time stage 3 [s]='+str(cpu3))
     return important_info,important_info_preprocessing,D,x_actual,m_solved
 
 

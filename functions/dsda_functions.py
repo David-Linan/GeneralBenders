@@ -822,6 +822,7 @@ def solve_subproblem_aprox(
     m.C_TCP3.deactivate()
     m.obj.deactivate()
     m.obj_scheduling.activate()
+    m.obj_dummy.deactivate()
 
 
     #SOLVE SCHEDULING ONLY PROBLEM
@@ -878,6 +879,7 @@ def solve_subproblem_aprox(
                 m.C_TCP3.activate()
                 m.obj.activate()
                 m.obj_scheduling.deactivate() 
+                m.obj_dummy.deactivate()
 
                 if approximate_solution:
                     # FIX SCHEDULING VARIABLES

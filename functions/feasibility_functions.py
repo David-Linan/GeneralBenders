@@ -224,6 +224,7 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                 m.Constant_control2[I,J].deactivate()
         m.C_TCP3.deactivate()
         m.obj.deactivate()
+        m.obj_dummy.deactivate()
         m.obj_scheduling.activate()
 
 
@@ -253,6 +254,7 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
             m.C_TCP3.activate()
             m.obj.activate()
             m.obj_scheduling.deactivate() 
+            m.obj_dummy.deactivate()
 
             if approximate_solution:
                 # FIX SCHEDULING VARIABLES
@@ -264,12 +266,12 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                                 v.fix(round(pe.value(v)))
                             else:
                                 v[index].fix(round(pe.value(v[index])))
-                    elif v.name=='B' or v.name=='S':
-                        for index in v:
-                            if index==None:
-                                v.fix(pe.value(v))
-                            else:
-                                v[index].fix(pe.value(v[index]))  
+                    # elif v.name=='B' or v.name=='S':
+                    #     for index in v:
+                    #         if index==None:
+                    #             v.fix(pe.value(v))
+                    #         else:
+                    #             v[index].fix(pe.value(v[index]))  
     ###############    Init problem solve
             #Options depending on the solver
             if solver=='conopt' or solver=='conopt4' or solver=='knitro' or solver=='ipopt' or solver=='ipopth' or solver=='cplex' or solver=="dicopt":
@@ -340,7 +342,8 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
 
                 output_dict = dict(name=constr.name)
                 infeasible_const.append(output_dict)
-            sum_infeasibility=sum_infeasibility/10000
+            if sum_infeasibility!=0: 
+                sum_infeasibility=sum_infeasibility/10000
 
             
     else:
@@ -355,6 +358,13 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
         init_path = generate_initialization(m=m)
     #Identify source of infeasibility
     elif sum_infeasibility!=infty_val:
+
+        m.E2_CAPACITY_LOW.deactivate()
+        m.E2_CAPACITY_UP.deactivate()
+        m.E3_BALANCE_INIT.deactivate()
+        m.E_DEMAND_SATISFACTION.deactivate()
+        m.E1_UNIT.deactivate()
+        m.E3_BALANCE.deactivate()
         for II in m.I_reactions:
             for JJ in m.J_reactors:     
                 if round(pe.value(m.Nref[II,JJ]))>=1:
@@ -381,8 +391,8 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                     m.Constant_control2[II,JJ].activate()
                     m.finalCon[II,JJ].activate()
                     m.finalTemp[II,JJ].activate() 
-                    m.obj.activate()
-                    # m.obj_dummy.activate()
+                    m.obj.deactivate()
+                    m.obj_dummy.activate()
 
                     if approximate_solution:
                         # FIX SCHEDULING VARIABLES
@@ -393,17 +403,17 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                                         v.fix(round(pe.value(v)))
                                     else:
                                         v[index].fix(round(pe.value(v[index])))
-                            elif v.name=='B' or v.name=='S':
-                                for index in v:
-                                    if index==None:
-                                        v.fix(pe.value(v))
-                                    else:
-                                        v[index].fix(pe.value(v[index]))                           
+                            # elif v.name=='B' or v.name=='S':
+                            #     for index in v:
+                            #         if index==None:
+                            #             v.fix(pe.value(v))
+                            #         else:
+                            #             v[index].fix(pe.value(v[index]))                           
 
                     opt = SolverFactory('gams', solver=nlp_solver)
                     # start=time.time()
                     m.results = opt.solve(m, tee=tee,skip_trivial_constraints=True)
-                    
+                    #print(m.results.solver.termination_condition)
                     if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
                         source[II,JJ]="Infeasible"
                     else:
