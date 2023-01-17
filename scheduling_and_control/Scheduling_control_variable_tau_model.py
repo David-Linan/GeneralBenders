@@ -864,7 +864,10 @@ def scheduling_and_control_gdp_N_approx():
 
     def _obj_scheduling(m):
         return ( m.TCP1+m.TCP2+m.TMC-m.SALES  )/100
-    m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)   
+    m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
+    def _obj_dummy(m):
+        return 1
+    m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)   
     return m
 # Use this code to solve with enhanced DSDA. Only tau as external variables
 def scheduling_and_control_gdp_N_approx_only_tau():
