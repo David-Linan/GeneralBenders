@@ -150,7 +150,6 @@ if __name__ == "__main__":
         outputfile.write(textbuffer.getvalue())
 
 
-
     #############Solve with pyomo.GDP COMPLETE GDP
     # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
     # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
