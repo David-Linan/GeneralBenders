@@ -21,7 +21,7 @@ from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_a
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_solvegdp_simpler
 from Scheduling_control_variable_tau_model import problem_logic_scheduling, problem_logic_scheduling_tau_only,problem_logic_scheduling_dummy
-from Scheduling_control_variable_tau_model import scheduling_only_gdp_N_solvegdp_simpler
+from Scheduling_control_variable_tau_model import scheduling_only_gdp_N_solvegdp_simpler,scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
@@ -250,7 +250,49 @@ if __name__ == "__main__":
     # Enhanced DBD WITH APPROXIMATE AND OPTIMAL SOLUTION OF SUBPROBLEMS
     # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
     # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
+    # initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
+    # # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
+    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # maxiter=10000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+
+
+    # IMPROVING DBD FEASIBLE INITIALIZATION
+    # kwargs={'x_initial':[3,5,5,5,2,2]}
+    # model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    # m=model_fun(**kwargs)
+    # m = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=0)
+
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_MIP_complete_new_init_dbd.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())  
+
+    # Enhanced DBD WITH APPROXIMATE AND OPTIMAL SOLUTION OF SUBPROBLEMS. From new init
+    initialization=[3,5,5,5,2,2,3,2,2,3,3,3,1,3,3,3]
     # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
     infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
     maxiter=10000
@@ -272,9 +314,8 @@ if __name__ == "__main__":
         textbuffer.write('\n')
     textbuffer.write('\n Objective: \n') 
     textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible.txt', 'w') as outputfile:
+    with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible_from_enhanced_init.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
-
 
 ## ----------------------------from nominal schedule------------------------------------------------
     # Enhanced DSDA
