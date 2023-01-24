@@ -302,9 +302,9 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                 sub_options=[]
             #Solve
             if use_multistart:#VALID FOR NLP SUBPROBLEMS ONLY
-                SolverFactory('gams', solver='msnlp').solve(m, tee=tee, add_options = sub_options)
+                m.prelim_res2=SolverFactory('gams', solver='msnlp').solve(m, tee=tee, add_options = sub_options)
             else:
-                SolverFactory('gams', solver=solver).solve(m, tee=tee, add_options = sub_options) #IF MULTISTART IS NOT USED AND MSNLP is selected, no problem; msnlp will use conopt as sub_solver
+                m.prelim_res2=SolverFactory('gams', solver=solver).solve(m, tee=tee, add_options = sub_options) #IF MULTISTART IS NOT USED AND MSNLP is selected, no problem; msnlp will use conopt as sub_solver
 
     ###########end problem solve
 
@@ -328,20 +328,23 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                     if constr.equality:
                         if fabs(constr_lb_value - constr_body_value) >= tol:
                             equality_violated = True
-                            sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
+                            sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)/(1+fabs(constr_lb_value))
                     else:
                         if constr.has_lb() and constr_lb_value - constr_body_value >= tol:
                             lb_violated = True
-                            sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
+                            sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)/(1+fabs(constr_lb_value))
                         if constr.has_ub() and constr_body_value - constr_ub_value >= tol:
                             ub_violated = True
-                            sum_infeasibility=sum_infeasibility+fabs(constr_body_value - constr_ub_value)
+                            sum_infeasibility=sum_infeasibility+fabs(constr_body_value - constr_ub_value)/(1+fabs(constr_ub_value))
                 if not any((constr_undefined, equality_violated, lb_violated, ub_violated)):
                     # constraint is fine. skip to next constraint
                     continue
 
                 output_dict = dict(name=constr.name)
                 infeasible_const.append(output_dict)
+
+            if not(m.prelim_res2.solver.termination_condition == 'infeasible' or m.prelim_res2.solver.termination_condition == 'other' or m.prelim_res2.solver.termination_condition == 'unbounded' or m.prelim_res2.solver.termination_condition == 'invalidProblem' or m.prelim_res2.solver.termination_condition == 'solverFailure' or m.prelim_res2.solver.termination_condition == 'internalSolverError' or m.prelim_res2.solver.termination_condition == 'error'  or m.prelim_res2.solver.termination_condition == 'resourceInterrupt' or m.prelim_res2.solver.termination_condition == 'licensingProblem' or m.prelim_res2.solver.termination_condition == 'noSolution' or m.prelim_res2.solver.termination_condition == 'noSolution' or m.prelim_res2.solver.termination_condition == 'intermediateNonInteger'):
+                sum_infeasibility=0
             if sum_infeasibility!=0: 
                 sum_infeasibility=sum_infeasibility/10000
 
