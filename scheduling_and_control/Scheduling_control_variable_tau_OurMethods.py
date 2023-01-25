@@ -35,11 +35,24 @@ if __name__ == "__main__":
     gdp_solver='LBB'
     if minlp_solver=='dicopt':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
-    else:
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n']}
-
-
-
+    elif minlp_solver=='alphaecp':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='antigone':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='baron':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='knitro':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='lindo':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='sbb':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='scip':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='shot':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='xpress':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
     ##### ----------ONLY PROCESSING TIMES AS EXTERNAL VARIABLES------------------------
     ##### -----------------------------------------------------------------------------
 
@@ -174,7 +187,7 @@ if __name__ == "__main__":
     # m=model_fun(**kwargs)
     # solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
     # name='Results_variable_tau_minlp_complete_'+solvers+'.txt'
-    # m = solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=0)
+    # m = solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0)
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
