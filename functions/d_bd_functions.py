@@ -1378,9 +1378,23 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                     if fabs(float(len([el for el in D.keys() if all(el[n_e-1]>=lower_bounds[n_e] for   n_e in lower_bounds.keys()) and all(el[n_e-1]<=upper_bounds[n_e] for   n_e in lower_bounds.keys()) ]))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
                         break
                     else:
+
+
+                        #TODO: ADDITIONAL VERIFICATIONS IMPOSED DOE TO THE PROBLEM-SPECIFIC CUTS!!!!. Since I evaluate a single point when starting, the solution of the first master dictated by the first cut
+                        # may return a soluton that closes the gap (because the cutting plane may be constant). SINCE THE GAP CLOSED, THE ALGORITHM AUTOMATICALLY SEARCH WITHIN D TO FIND A REINITIALIZATION POINT.
+                        # Since there was a single point evaluated. It goes to taht point in a loop. To fix this, I check first if the solution of the master is not in D. If that is the case, the it is worth trying that
+                        # soluton first!!!!  
                         # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
-                        D.update({tuple(x_actual):infinity_val})
-                        x_actual=list(min(D, key=D.get))
+
+                        if tuple([round(pe.value(m.x[posita])) for posita in m.extset]) in D.keys():
+                            D.update({tuple(x_actual):infinity_val})
+                            x_actual=list(min(D, key=D.get))
+                            if D[min(D, key=D.get)]==infinity_val:
+                                print('There are no additional candidate solutions in D to explore')
+                                break
+                        else:
+                            x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+
             else:
                 x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
