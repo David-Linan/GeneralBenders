@@ -1310,7 +1310,7 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
             #update current value of x in the dictionary
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,init_path,source=solve_subproblem_and_neighborhood_FEAS2_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs)
+            new_values,init_path,source=solve_subproblem_and_neighborhood_FEAS2_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,tee=tee)
             #print(new_values)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
@@ -1344,7 +1344,8 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                     cuentass=cuentass+1
                     if source[element]=='Infeasible':
                         current_tau[cuentass]=x_actual[cuentass]+1
-            print('Current cut for tau: ',current_tau)
+            if tee==True:
+                print('Current cut for tau: ',current_tau)
             secondcuent=-1
             for posit in m.extset:
                 secondcuent=secondcuent+1
@@ -1500,22 +1501,22 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
         #print(x_dict,'\n')
         important_info['m3_s3']=[D[tuple(x_actual)],end - start,'if objective in m1_s2 is 0-> solution is feasible and optimal']
         cpu3=end-start
-        if tee==True:
-            print('-------------------------------------------')
-            print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time stage 3 [s]= '+str(cpu3)+'   |   ext. vars='+str(x_actual))
-            try:
-                print('CPU time preprocessing [s]='+str(cpupre))
-            except:
-                pass
-            try:
-                print('CPU time stage 1 [s]='+str(cpu1))
-            except:
-                pass
-            try:
-                print('CPU time stage 2 [s]='+str(cpu2))
-            except:
-                pass
-            print('CPU time stage 3 [s]='+str(cpu3))
+        # if tee==True:
+        print('-------------------------------------------')
+        print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time stage 3 [s]= '+str(cpu3)+'   |   ext. vars='+str(x_actual))
+        try:
+            print('CPU time preprocessing [s]='+str(cpupre))
+        except:
+            pass
+        try:
+            print('CPU time stage 1 [s]='+str(cpu1))
+        except:
+            pass
+        try:
+            print('CPU time stage 2 [s]='+str(cpu2))
+        except:
+            pass
+        print('CPU time stage 3 [s]='+str(cpu3))
     return important_info,important_info_preprocessing,D,x_actual,m_solved
 
 

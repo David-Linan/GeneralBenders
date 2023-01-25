@@ -5602,10 +5602,11 @@ def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,
             setattr(m,'oneYR_%s_%s' %(I,J),m.oneYR[I,J])  
 
             #constraint to define a new lower bound of processing times
-            def _newBound(m):
-                return pe.land([pe.lnot( m.YR[I,J][pos]) for pos in m.ordered_set[I,J] if pos-1<x_initial[positcui]])
-            m.newBound[I,J]=pe.LogicalConstraint(rule=_newBound) 
-            setattr(m,'newBound_%s_%s' %(I,J),m.newBound[I,J]) 
+            if x_initial[positcui]>1:
+                def _newBound(m):
+                    return pe.land([pe.lnot( m.YR[I,J][pos]) for pos in m.ordered_set[I,J] if pos-1<x_initial[positcui]])
+                m.newBound[I,J]=pe.LogicalConstraint(rule=_newBound) 
+                setattr(m,'newBound_%s_%s' %(I,J),m.newBound[I,J]) 
             
             # Declaration of disjuncts
             def _build_disjuncts(m,indexTau):  #Disjuncts for first Boolean variable
