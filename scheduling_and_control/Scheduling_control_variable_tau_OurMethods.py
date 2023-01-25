@@ -34,7 +34,7 @@ if __name__ == "__main__":
     mip_solver='cplex'
     gdp_solver='LBB'
     if minlp_solver=='dicopt':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 2000 \n','$offecho \n']}
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
     else:
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n']}
 
@@ -155,7 +155,9 @@ if __name__ == "__main__":
     kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
     model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
     m=model_fun(**kwargs)
-    m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=360000,strategy=gdp_solver, mip_output=True, nlp_output=True,minlp_output=True,rel_tol=0,tee=True)
+    solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver+'_'+gdp_solver
+    name='Results_variable_tau_gdp_complete_'+solvers+'.txt'
+    m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=50000,strategy=gdp_solver, mip_output=True, nlp_output=True,minlp_output=True,rel_tol=0,tee=True)
 
     textbuffer = io.StringIO()
     for v in m.component_objects(pe.Var, descend_into=True):
@@ -163,13 +165,15 @@ if __name__ == "__main__":
         textbuffer.write('\n')
     textbuffer.write('\n Objective: \n') 
     textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_gdp_complete_lbb.txt', 'w') as outputfile:
+    with open(name, 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
 
     #Solve with MINLP
     # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
     # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
     # m=model_fun(**kwargs)
+    # solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
+    # name='Results_variable_tau_minlp_complete_'+solvers+'.txt'
     # m = solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=0)
 
     # textbuffer = io.StringIO()
@@ -178,7 +182,7 @@ if __name__ == "__main__":
     #     textbuffer.write('\n')
     # textbuffer.write('\n Objective: \n') 
     # textbuffer.write(str(pe.value(m.obj)))    
-    # with open('Results_variable_tau_MINLP_complete.txt', 'w') as outputfile:
+    # with open(name, 'w') as outputfile:
     #     outputfile.write(textbuffer.getvalue())   
 # ####--------Objective function summary---------------------------------
 #     TPC1=sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)
