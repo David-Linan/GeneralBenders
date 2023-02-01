@@ -1393,7 +1393,10 @@ def solve_with_minlp(
 
     # Solve
     solvername = 'gams'
-    opt = SolverFactory(solvername, solver=minlp)
+    if minlp=='OCTERACT':
+        opt = SolverFactory(solvername)
+    else:
+        opt = SolverFactory(solvername, solver=minlp)
     m.results = opt.solve(m, tee=tee,
                           **output_options,
                           **minlp_options,
