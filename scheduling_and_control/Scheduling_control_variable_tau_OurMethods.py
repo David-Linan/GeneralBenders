@@ -29,7 +29,7 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='OCTERACT'
+    minlp_solver='dicopt'
     nlp_solver='conopt4'
     mip_solver='cplex'
     gdp_solver='GLOA'
@@ -212,13 +212,13 @@ if __name__ == "__main__":
     # with open(name, 'w') as outputfile:
     #     outputfile.write(textbuffer.getvalue())
 
-    # Solve with MINLP
-    kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    m=model_fun(**kwargs)
-    solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
-    name='Results_variable_tau_minlp_complete_bigm_'+solvers+'.txt'
-    m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0)
+    # # Solve with MINLP
+    # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
+    # name='Results_variable_tau_minlp_complete_bigm_'+solvers+'.txt'
+    # m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0)
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
@@ -408,6 +408,55 @@ if __name__ == "__main__":
     #     [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
         
 
+
+
+
+## NEW tests, increasing or decreasing scheduling horizon
+
+
+    # INFEASIBLE INITIALIZATION: scheduling only
+    cplex_config='priority_option2'  # naive, benders_option1,benders_option2,priority_option1,priority_option2
+    tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars. This will also be the lower bound of processing times
+
+
+    if cplex_config=='naive':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
+    
+    elif cplex_config=='benders_option1':
+        benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
+        sub_options['add_options'].append(benders_partitioning)
+    elif cplex_config=='benders_option2':
+        benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
+        sub_options['add_options'].append(benders_partitioning)
+    
+    elif cplex_config=='priority_option1':
+        priorities=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+        sub_options={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.PriorOpt = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
+        sub_options['add_options'].append(priorities)
+    elif cplex_config=='priority_option2':
+        priorities=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+        sub_options={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.PriorOpt = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
+        sub_options['add_options'].append(priorities)    
+
+
+
+
+
+    kwargs={'x_initial':tau_init,'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    m=model_fun(**kwargs)
+    m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0)
+
+    for I_J in m_scheduling.I_J:
+        tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
+
+    print('Infeasible initialization of ext-vars: ',tau_init)
+
+
+
+    # FEASIBLE INITIALIZATION
 
 
 
@@ -657,82 +706,82 @@ if __name__ == "__main__":
     #     plt.show()
 
     #--------------------------------- Gantt plot--------------------------------------------
-    fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
-    # Setting Y-axis limits
-    gnt.set_ylim(8, 62)
+    # fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+    # # Setting Y-axis limits
+    # gnt.set_ylim(8, 62)
     
-    # Setting X-axis limits
-    gnt.set_xlim(0, m.lastT.value*m.delta.value)
+    # # Setting X-axis limits
+    # gnt.set_xlim(0, m.lastT.value*m.delta.value)
     
-    # Setting labels for x-axis and y-axis
-    gnt.set_xlabel('Time [h]')
-    gnt.set_ylabel('Units')
+    # # Setting labels for x-axis and y-axis
+    # gnt.set_xlabel('Time [h]')
+    # gnt.set_ylabel('Units')
     
-    # Setting ticks on y-axis
-    gnt.set_yticks([15, 25, 35, 45, 55])
-    # Labelling tickes of y-axis
-    gnt.set_yticklabels(['Pack', 'Sep', 'R_small', 'R_large','Mix'])
+    # # Setting ticks on y-axis
+    # gnt.set_yticks([15, 25, 35, 45, 55])
+    # # Labelling tickes of y-axis
+    # gnt.set_yticklabels(['Pack', 'Sep', 'R_small', 'R_large','Mix'])
     
     
-    # Setting graph attribute
-    gnt.grid(False)
+    # # Setting graph attribute
+    # gnt.grid(False)
     
-    # Declaring bars in schedule
-    height=9
-    already_used=[]
-    for j in m.J:
-        if j=='Mix':
-            lower_y_position=50
-        elif j=='R_large':
-            lower_y_position=40    
-        elif j=='R_small':
-            lower_y_position=30    
-        elif j=='Sep':
-            lower_y_position=20
-        elif j=='Pack':
-            lower_y_position=10
-        for i in m.I:
-            if i=='Mix':
-                bar_color='tab:red'
-            elif i=='R1':
-                bar_color='tab:green'    
-            elif i=='R2':
-                bar_color='tab:blue'    
-            elif i=='R3':
-                bar_color='tab:orange' 
-            elif i=='Sep':
-                bar_color='tab:olive'
-            elif i=='Pack1':
-                bar_color='tab:purple'                
-            elif i=='Pack2':
-                bar_color='teal'
-            for t in m.T:
-                try:
-                    if i in m.I_reactions and j in m.J_reactors:
-                        if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                            gnt.broken_barh([(m.t_p[t], m.varTime[i,j].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                            already_used.append(i)
-                        elif pe.value(m.X[i,j,t])==1:
-                            gnt.broken_barh([(m.t_p[t], m.varTime[i,j].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+    # # Declaring bars in schedule
+    # height=9
+    # already_used=[]
+    # for j in m.J:
+    #     if j=='Mix':
+    #         lower_y_position=50
+    #     elif j=='R_large':
+    #         lower_y_position=40    
+    #     elif j=='R_small':
+    #         lower_y_position=30    
+    #     elif j=='Sep':
+    #         lower_y_position=20
+    #     elif j=='Pack':
+    #         lower_y_position=10
+    #     for i in m.I:
+    #         if i=='Mix':
+    #             bar_color='tab:red'
+    #         elif i=='R1':
+    #             bar_color='tab:green'    
+    #         elif i=='R2':
+    #             bar_color='tab:blue'    
+    #         elif i=='R3':
+    #             bar_color='tab:orange' 
+    #         elif i=='Sep':
+    #             bar_color='tab:olive'
+    #         elif i=='Pack1':
+    #             bar_color='tab:purple'                
+    #         elif i=='Pack2':
+    #             bar_color='teal'
+    #         for t in m.T:
+    #             try:
+    #                 if i in m.I_reactions and j in m.J_reactors:
+    #                     if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+    #                         gnt.broken_barh([(m.t_p[t], m.varTime[i,j].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+    #                         gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+    #                         already_used.append(i)
+    #                     elif pe.value(m.X[i,j,t])==1:
+    #                         gnt.broken_barh([(m.t_p[t], m.varTime[i,j].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+    #                         gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
                                                 
-                    else:
-                        if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                            gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                            already_used.append(i)
-                        elif pe.value(m.X[i,j,t])==1:
-                            gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
-                except:
-                    pass 
-    gnt.tick_params(axis='both', which='major', labelsize=15)
-    gnt.tick_params(axis='both', which='minor', labelsize=15) 
-    gnt.yaxis.label.set_size(15)
-    gnt.xaxis.label.set_size(15)
-    plt.legend()
-    plt.show()
-    # plt.savefig("gantt_minlp.png")
-    # plt.savefig("gantt_minlp.svg")   
+    #                 else:
+    #                     if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+    #                         gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+    #                         gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+    #                         already_used.append(i)
+    #                     elif pe.value(m.X[i,j,t])==1:
+    #                         gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+    #                         gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+    #             except:
+    #                 pass 
+    # gnt.tick_params(axis='both', which='major', labelsize=15)
+    # gnt.tick_params(axis='both', which='minor', labelsize=15) 
+    # gnt.yaxis.label.set_size(15)
+    # gnt.xaxis.label.set_size(15)
+    # plt.legend()
+    # plt.show()
+    # # plt.savefig("gantt_minlp.png")
+    # # plt.savefig("gantt_minlp.svg")   
 

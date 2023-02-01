@@ -1,3 +1,0 @@
- Major Major     Objective    CPU time  Itera- Evaluation Solver
- Step  Iter       Function     (Sec)    tions   Errors
-  NLP    1       -75.14571      3.09       19      0      conopt4
