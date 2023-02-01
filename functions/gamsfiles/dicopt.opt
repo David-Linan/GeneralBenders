@@ -3,5 +3,5 @@ nlpsolver conopt4
 
 stop 1 
 
-maxcycles 2000 
+maxcycles 20000 
 
