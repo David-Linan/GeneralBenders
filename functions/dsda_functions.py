@@ -1239,12 +1239,12 @@ def solve_subproblem_aprox_sequential(
                                 v.fix(round(pe.value(v)))
                             else:
                                 v[index].fix(round(pe.value(v[index])))
-                    elif v.name=='B' or v.name=='S':
-                        for index in v:
-                            if index==None:
-                                v.fix(pe.value(v))
-                            else:
-                                v[index].fix(pe.value(v[index]))
+                    # elif v.name=='B' or v.name=='S':
+                    #     for index in v:
+                    #         if index==None:
+                    #             v.fix(pe.value(v))
+                    #         else:
+                    #             v[index].fix(pe.value(v[index]))
 
             opt = SolverFactory(solvername, solver=subproblem_solver)
             # start=time.time()
