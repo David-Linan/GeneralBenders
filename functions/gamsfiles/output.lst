@@ -1,0 +1,128 @@
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/01/23 20:56:51 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+
+
+COMPILATION TIME     =        0.282 SECONDS     14 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/01/23 20:56:51 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 58117
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS      13,860     SINGLE EQUATIONS       13,860
+BLOCKS OF VARIABLES      13,393     SINGLE VARIABLES       13,393  2,190 projected
+NON ZERO ELEMENTS        56,648     NON LINEAR N-Z         14,958
+CODE LENGTH              48,638     CONSTANT POOL              44     DISCRETE VARIABLES        620
+
+
+GENERATION TIME      =        0.172 SECONDS     22 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/01/23 20:56:51 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 58117
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  DICOPT              FROM LINE  58117
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      8 Integer Solution
+**** OBJECTIVE VALUE              -24.3831
+
+ RESOURCE USAGE, LIMIT         25.218 100000000.000
+ ITERATION COUNT, LIMIT      4972    2147483647
+ EVALUATION ERRORS              0             0
+-------------------------------------------------------------------------------
+Dicopt 2         37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+Reading parameter(s) from "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\dicopt.opt"
+>> 
+>>  feaspump 2
+>> 
+>>  MAXCYCLES 1
+>> 
+>>  stop 0
+>> 
+>>  fp_sollimit 1
+>> 
+>>  nlpsolver conopt4
+>> 
+>> 
+Finished reading from "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\dicopt.opt"
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 13860 constraints and 13393 variables
+    with 56648 Jacobian elements, 14958 of which are nonlinear.
+    The Hessian of the Lagrangian has 546 elements on the diagonal,
+    7758 elements below the diagonal, and 3630 nonlinear variables.
+ 
+    The pre-triangular part of the model has 2012 constraints and 2220 variables.
+    The post-triangular part of the model has 31 constraints and variables.
+    There are 5169 definitional constraints and defined variables.
+ 
+    Preprocessed model has 6648 constraints and 5973 variables
+    with 34644 Jacobian elements, 10009 of which are nonlinear.
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            9.741 seconds
+   of which: Function evaluations             1.641 = 16.8%
+             1st Derivative evaluations       0.300 =  3.1%
+             2nd Derivative evaluations       0.005 =  0.1%
+             Interval derivative evals        0.051 =  0.5%
+ 
+--- DICOPT: Stopped on MAXCYCLES
+
+      The search was stopped because the major iteration limit
+      was reached. This limit can be reset with the DICOPT
+      option MAXCYCLES.
+
+--- DICOPT: Best integer solution found: -24.383078
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                          4062  PROJECTED
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/01/23 20:56:51 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+**** REPORT FILE SUMMARY
+
+results C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\results.dat
+statresults C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\resultsstat.dat
+
+
+EXECUTION TIME       =       15.922 SECONDS     22 MB  37.1.0 r07954d5 WEX-WEI
+
+
+USER: Prof. Ignacio E. Grossmann                     G221207|0002AS-GEN
+      Carnegie Mellon University, Dept. of Chemical Engineering  DCE375
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\model.gms
+Output     C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\output.lst

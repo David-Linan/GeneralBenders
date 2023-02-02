@@ -431,7 +431,7 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
-    m=complementary_model(m,x)
+    # m=complementary_model(m,x)
     #TODO
     #TODO
     #TODO
@@ -3453,6 +3453,7 @@ def sequential_iterative_2(
     ext_logic,
     starting_point: list,
     model_function,
+    kwargs,
     ext_dict,
     rate_tau: int=1,
     mip_transformation: bool = False,
@@ -3478,7 +3479,7 @@ def sequential_iterative_2(
 
 
 
-    m = model_function()
+    m = model_function(**kwargs)
     dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
         m, ext_dict)
     if len(starting_point) != num_ext_var:
@@ -3508,7 +3509,7 @@ def sequential_iterative_2(
                     if m.source[I,J]=='Infeasible' or m.source[I,J]=='Not_evaluated':
                         ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
 
-        m = model_function()
+        m = model_function(**kwargs)
         if mip_transformation:
             m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
         m = external_ref_sequential(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
@@ -3525,8 +3526,8 @@ def sequential_iterative_2(
             print("Current value of Ext vars (related to processing times): ",ext_var)
             print("Objective function:",m.best_sol) 
             print("CPU time[s]: ",time.perf_counter()-t_start)
-            return m
-    return m
+            return m,ext_var
+    return m,ext_var
 
 def visualize_dsda(
     route: list = [],
