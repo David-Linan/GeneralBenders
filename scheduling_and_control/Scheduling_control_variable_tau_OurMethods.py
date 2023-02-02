@@ -715,28 +715,52 @@ if __name__ == "__main__":
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads = 0;','GAMS_MODEL.PriorOpt = 1;','option mip=cplex; \n','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','$offecho \n']}
     # sub_options['add_options'].append(priorities)  
 
-    start=time.time()
-    model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-    logic_fun=problem_logic_scheduling
-    kwargs={'x_initial':[7, 7, 7, 7, 7, 7, 3, 3, 2, 4, 4, 3, 4, 5, 4, 5],'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # start=time.time()
+    # model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
+    # logic_fun=problem_logic_scheduling
+    # kwargs={'x_initial':[7, 7, 7, 7, 7, 7, 3, 3, 2, 4, 4, 3, 4, 5, 4, 5],'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # m=model_fun(**kwargs)
+    # end=time.time()
+    # print('model generation time=',str(end-start))
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # start=time.time()
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    # end=time.time()
+    # print('get info from model time=',str(end-start))
+    # start=time.time()
+    # m_fixed = external_ref(m=m,x=[7, 7, 7, 7, 7, 7, 3, 3, 2, 4, 4, 3, 4, 5, 4, 5],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+    # end=time.time()
+    # print('ext_Ref_required time=',str(end-start))
+    # start=time.time()
+    # m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=True,tee=True,rel_tol=0)
+    # end=time.time()
+    # print('solve subproblem time=',str(end-start))
+
+
+
+
+
+
+    #Solve with enhanced LD-SDA_COMPLETE GDP. Approximated solution of subproblems with pruning depending on parameter aproximate_solution in solve_subproblem_aprox
+    model_fun =scheduling_and_control_GDP_complete_approx
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
     m=model_fun(**kwargs)
-    end=time.time()
-    print('model generation time=',str(end-start))
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    start=time.time()
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-    end=time.time()
-    print('get info from model time=',str(end-start))
-    start=time.time()
-    m_fixed = external_ref(m=m,x=[7, 7, 7, 7, 7, 7, 3, 3, 2, 4, 4, 3, 4, 5, 4, 5],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
-    end=time.time()
-    print('ext_Ref_required time=',str(end-start))
-    start=time.time()
-    m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=True,tee=True,rel_tol=0)
-    end=time.time()
-    print('solve subproblem time=',str(end-start))
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,[7, 7, 7, 7, 7, 7, 3, 3, 2, 4, 4, 3, 4, 5, 4, 5],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    print('Objective value: ',str(pe.value(m.obj)))
 
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('Results_variable_tau_dsda_complete_scheduling_k_2_increased_horizon.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
 #######-------plots------------------------
     # for I in m.I_reactions:
     #     for J in m.J_reactors:
