@@ -1427,7 +1427,6 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
 
                                 for I_J in m_scheduling_only.I_J:
                                     output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
-                                x_actual=output_ext_vars
 
 
 
@@ -1478,7 +1477,6 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
 
                     for I_J in m_scheduling_only.I_J:
                         output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
-                    x_actual=output_ext_vars
 
 
 
