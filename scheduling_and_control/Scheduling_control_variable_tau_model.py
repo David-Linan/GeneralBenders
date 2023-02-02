@@ -21,7 +21,7 @@ import itertools
 
 
 # Use this code to solve with enhanced DSDA and enhanced DBD
-def scheduling_and_control_gdp_N_approx():
+def scheduling_and_control_gdp_N_approx(last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -32,7 +32,7 @@ def scheduling_and_control_gdp_N_approx():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=math.floor(last_time_hours/m.delta),doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -286,9 +286,9 @@ def scheduling_and_control_gdp_N_approx():
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p1_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p2_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
