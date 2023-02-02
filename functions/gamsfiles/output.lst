@@ -1,25 +1,14 @@
-GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/02/23 11:26:39 Page 1
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.265 SECONDS     18 MB  41.5.0 2a5a4ddc WEX-WEI
-GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/02/23 11:26:39 Page 2
+COMPILATION TIME     =        0.390 SECONDS     14 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Range Statistics    SOLVE GAMS_MODEL Using MIP From line 85205
-
-
-RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
-
-RHS       [min, max] : [ 9.000E-01, 1.200E+04] - Zero values observed as well
-Bound     [min, max] : [ 1.000E-01, 6.100E+01] - Zero values observed as well
-Matrix    [min, max] : [ 1.000E-02, 1.400E+03]
-
-GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/02/23 11:26:39 Page 3
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE GAMS_MODEL Using MIP From line 85205
+Model Statistics    SOLVE GAMS_MODEL Using MIP From line 85206
 
 
 MODEL STATISTICS
@@ -29,47 +18,47 @@ BLOCKS OF VARIABLES      14,646     SINGLE VARIABLES       14,646  6 projected
 NON ZERO ELEMENTS        64,346     DISCRETE VARIABLES        662
 
 
-GENERATION TIME      =        0.094 SECONDS     28 MB  41.5.0 2a5a4ddc WEX-WEI
-GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/02/23 11:26:39 Page 4
+GENERATION TIME      =        0.234 SECONDS     24 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE GAMS_MODEL Using MIP From line 85205
+Solution Report     SOLVE GAMS_MODEL Using MIP From line 85206
 
 
                S O L V E      S U M M A R Y
 
      MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
      TYPE    MIP                 DIRECTION  MINIMIZE
-     SOLVER  CPLEX               FROM LINE  85205
+     SOLVER  CPLEX               FROM LINE  85206
 
 **** SOLVER STATUS     1 Normal Completion
 **** MODEL STATUS      8 Integer Solution
 **** OBJECTIVE VALUE              -64.4000
 
- RESOURCE USAGE, LIMIT         12.907   3600000.000
- ITERATION COUNT, LIMIT     89498    2147483647
+ RESOURCE USAGE, LIMIT          5.375   3600000.000
+ ITERATION COUNT, LIMIT      3778    2147483647
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- GMO setup time: 0.00s
 --- Space for names approximately 2.03 Mb
 --- Use option 'names no' to turn use of names off
 --- GMO memory 7.06 Mb (peak 7.17 Mb)
 --- Dictionary memory 0.00 Mb
---- Cplex 22.1.0.0 link memory 0.52 Mb (peak 3.60 Mb)
+--- Cplex 20.1.0.1 link memory 0.52 Mb (peak 3.60 Mb)
 --- Starting Cplex
 
 
 --- MIP status (102): integer optimal, tolerance.
---- Cplex Time: 12.83sec (det. 7895.30 ticks)
+--- Cplex Time: 5.20sec (det. 2056.02 ticks)
 
 --- Fixing integer variables and solving final LP...
 
 
 --- Fixed MIP status (1): optimal.
---- Cplex Time: 0.06sec (det. 23.23 ticks)
+--- Cplex Time: 0.08sec (det. 23.25 ticks)
 
 
 Solution satisfies tolerances
-MIP Solution:          -64.400000    (89498 iterations, 800 nodes)
-Final Solve:           -64.400000    (36 iterations)
+MIP Solution:          -64.400000    (3778 iterations, 0 nodes)
+Final Solve:           -64.400000    (27 iterations)
 
 Best possible:         -65.411765
 Absolute gap:            1.011765
@@ -80,18 +69,14 @@ Relative gap:            0.015468
 **** REPORT SUMMARY :        0     NONOPT
                              0 INFEASIBLE
                              0  UNBOUNDED
-GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/02/23 11:26:39 Page 5
+
+**** Saved point C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\GAMS_MODEL_p.gdx
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-**** REPORT FILE SUMMARY
-
-results C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\results.dat
-statresults C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\resultsstat.dat
-
-
-EXECUTION TIME       =       13.203 SECONDS     28 MB  41.5.0 2a5a4ddc WEX-WEI
+EXECUTION TIME       =        5.891 SECONDS     24 MB  37.1.0 r07954d5 WEX-WEI
 
 
 USER: Prof. Ignacio E. Grossmann                     G221207|0002AS-GEN

@@ -1390,13 +1390,105 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                             D.update({tuple(x_actual):infinity_val})
                             x_actual=list(min(D, key=D.get))
                             if D[min(D, key=D.get)]==infinity_val:
-                                print('There are no additional candidate solutions in D to explore')
-                                break
+
+                                input_ext_vars=current_tau.copy()
+                                output_ext_vars=current_tau.copy()
+                                kay=len(x_actual)-len(current_tau)
+                                kay2=len(current_tau)
+                                for i in range(kay): 
+                                    input_ext_vars.append(x_actual[i+kay2])        
+
+                                m_scheduling_only=model_fun(**kwargs)
+                                m_scheduling_only = external_ref(m=m_scheduling_only,x=input_ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+                                #REMOVE CONTROL CONSTRAINTS
+                                for I in m_scheduling_only.I_reactions:
+                                    for J in m_scheduling_only.J_reactors:
+                                        m_scheduling_only.c_dCdtheta[I,J].deactivate()
+                                        m_scheduling_only.c_dTRdtheta[I,J].deactivate()                        
+                                        m_scheduling_only.c_dTJdtheta[I,J].deactivate()
+                                        m_scheduling_only.c_dIntegral_hotdtheta[I,J].deactivate()
+                                        m_scheduling_only.c_dIntegral_colddtheta[I,J].deactivate()
+                                        m_scheduling_only.Constant_control1[I,J].deactivate()                        
+                                        m_scheduling_only.Constant_control2[I,J].deactivate()
+                                        m_scheduling_only.finalCon[I,J].deactivate()
+                                        m_scheduling_only.finalTemp[I,J].deactivate()
+                                for I_J in m_scheduling_only.I_J:
+                                    I=I_J[0]
+                                    J=I_J[1]  
+                                    m_scheduling_only.DEF_Nref[I,J].deactivate()
+                                    if I in m_scheduling_only.I_reactions and J in m_scheduling_only.J_reactors:
+                                        m_scheduling_only.finalCon[I,J].deactivate()
+                                        m_scheduling_only.finalTemp[I,J].deactivate()
+                                m_scheduling_only.C_TCP3.deactivate()
+                                m_scheduling_only.obj.deactivate()
+                                m_scheduling_only.obj_dummy.deactivate()
+                                sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
+                                m_scheduling_only = solve_subproblem(m=m_scheduling_only,subproblem_solver='cplex',subproblem_solver_options=sub_options_cplex_Feas,timelimit=100000000,gams_output=False,tee=False,rel_tol=0.02)
+
+                                for I_J in m_scheduling_only.I_J:
+                                    output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
+                                x_actual=output_ext_vars
+
+
+
+                                if m_scheduling_only.dsda_status=='Optimal':
+                                    x_actual=output_ext_vars
+                                else:
+                                    print('Infeasible: There are no additional candidate solutions in D to explore and the scheduling part of the problem seems to be infeasible')
+                                    break
                         else:
                             x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
             else:
-                x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+                if [round(pe.value(m.x[posita])) for posita in m.extset]==x_actual:
+
+                    input_ext_vars=current_tau.copy()
+                    output_ext_vars=current_tau.copy()
+                    kay=len(x_actual)-len(current_tau)
+                    kay2=len(current_tau)
+                    for i in range(kay): 
+                        input_ext_vars.append(x_actual[i+kay2])        
+
+                    m_scheduling_only=model_fun(**kwargs)
+                    m_scheduling_only = external_ref(m=m_scheduling_only,x=input_ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+                    #REMOVE CONTROL CONSTRAINTS
+                    for I in m_scheduling_only.I_reactions:
+                        for J in m_scheduling_only.J_reactors:
+                            m_scheduling_only.c_dCdtheta[I,J].deactivate()
+                            m_scheduling_only.c_dTRdtheta[I,J].deactivate()                        
+                            m_scheduling_only.c_dTJdtheta[I,J].deactivate()
+                            m_scheduling_only.c_dIntegral_hotdtheta[I,J].deactivate()
+                            m_scheduling_only.c_dIntegral_colddtheta[I,J].deactivate()
+                            m_scheduling_only.Constant_control1[I,J].deactivate()                        
+                            m_scheduling_only.Constant_control2[I,J].deactivate()
+                            m_scheduling_only.finalCon[I,J].deactivate()
+                            m_scheduling_only.finalTemp[I,J].deactivate()
+                    for I_J in m_scheduling_only.I_J:
+                        I=I_J[0]
+                        J=I_J[1]  
+                        m_scheduling_only.DEF_Nref[I,J].deactivate()
+                        if I in m_scheduling_only.I_reactions and J in m_scheduling_only.J_reactors:
+                            m_scheduling_only.finalCon[I,J].deactivate()
+                            m_scheduling_only.finalTemp[I,J].deactivate()
+                    m_scheduling_only.C_TCP3.deactivate()
+                    m_scheduling_only.obj.deactivate()
+                    m_scheduling_only.obj_dummy.deactivate()
+                    sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
+                    m_scheduling_only = solve_subproblem(m=m_scheduling_only,subproblem_solver='cplex',subproblem_solver_options=sub_options_cplex_Feas,timelimit=100000000,gams_output=False,tee=False,rel_tol=0.02)
+
+                    for I_J in m_scheduling_only.I_J:
+                        output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
+                    x_actual=output_ext_vars
+
+
+
+                    if m_scheduling_only.dsda_status=='Optimal':
+                        x_actual=output_ext_vars
+                    else:
+                        print('The scheduling part of the problem seems to be infeasible')
+                        break
+                else:
+                    x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
         end = time.time()
         #print('stage 2: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])

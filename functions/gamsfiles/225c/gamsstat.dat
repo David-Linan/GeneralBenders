@@ -1,0 +1,454 @@
+=1
+=2
+=0IBM ILOG CPLEX   37.1.0 r07954d5 Released Nov 11, 2021 WEI x86 64bit/MS Window
+=1
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+=2
+=C
+=1
+=CReading parameter(s) from "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\cplex.opt"
+=C>> 
+=C>>  bendersstrategy 3
+=CFinished reading from "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\cplex.opt"
+=2
+=C
+=1
+--- GMO setup time: 0.00s
+=2
+=1
+--- Space for names approximately 0.72 Mb
+=2
+=1
+--- Use option 'names no' to turn use of names off
+=2
+=1
+--- GMO memory 3.40 Mb (peak 3.47 Mb)
+=2
+=1
+--- Dictionary memory 0.00 Mb
+=2
+=1
+--- Cplex 20.1.0.1 link memory 0.26 Mb (peak 1.54 Mb)
+=2
+=1
+--- Starting Cplex
+=2
+=C
+Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
+CPXPARAM_Advance                                 0
+CPXPARAM_Threads                                 1
+CPXPARAM_Benders_Strategy                        3
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               100000000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x10
+Tried aggregator 2 times.
+MIP Presolve eliminated 4147 rows and 7868 columns.
+MIP Presolve modified 1 coefficients.
+Aggregator did 379 substitutions.
+Reduced MIP has 2326 rows, 1389 columns, and 8797 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.03 sec. (11.38 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 2326 rows, 1389 columns, and 8797 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (3.22 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0     -267.0000                        Benders: 1        0         
+      0     0     -265.5000                        Benders: 1        5         
+      0     0     -264.5000                        Benders: 1       11         
+      0     0     -264.5000                        Benders: 1       23         
+      0     0     -264.5000                        Benders: 1       30         
+      0     0     -264.5000                        Benders: 1       36         
+      0     0     -264.5000                        Benders: 1       42         
+      0     0     -264.5000                        Benders: 1       47         
+      0     0      -94.7500                        Benders: 1      110         
+      0     0      -94.5000                        Benders: 1      124         
+      0     0      -91.5000                        Benders: 1      128         
+      0     0      -90.5000                        Benders: 1      143         
+      0     0      -90.5000                        Benders: 1      155         
+      0     0      -90.5000                        Benders: 1      165         
+      0     0      -88.1160                        Benders: 1      254         
+      0     0      -87.9343                        Benders: 1      348         
+      0     0      -87.0311                        Benders: 1      418         
+      0     0      -84.3341                        Benders: 1      535         
+      0     0      -84.3341                        Benders: 1      536         
+      0     0      -78.4537                        Benders: 1      747         
+      0     0      -78.1693                        Benders: 1      780         
+      0     0      -76.1158                        Benders: 1      824         
+      0     0      -71.7195                        Benders: 1      957         
+      0     0      -70.7445                        Benders: 1     1011         
+      0     0      -70.3951                        Benders: 1     1021         
+      0     0      -69.0965                        Benders: 1     1126         
+      0     0      -68.7337                        Benders: 1     1178         
+      0     0      -67.9415                        Benders: 1     1275         
+      0     0      -67.6969                        Benders: 1     1317         
+      0     0      -67.3417                        Benders: 1     1360         
+      0     0      -67.3417                        Benders: 1     1367         
+      0     0      -67.3185                        Benders: 1     1402         
+      0     0      -67.2052                        Benders: 1     1432         
+      0     0      -67.0695                        Benders: 1     1492         
+      0     0      -67.0695                        Benders: 1     1494         
+      0     0      -66.4325                        Benders: 1     1599         
+      0     0      -65.2714                        Benders: 1     1692         
+      0     0      -64.6949                        Benders: 1     1759         
+      0     0      -64.6949                        Benders: 1     1774         
+      0     0      -64.3312                        Benders: 1     1821         
+      0     0      -64.2956                        Benders: 1     1857         
+      0     0      -63.3863                        Benders: 1     1968         
+      0     0      -63.2914                        Benders: 1     2034         
+      0     0      -62.9463                        Benders: 1     2100         
+      0     0      -62.8555                        Benders: 1     2150         
+      0     0      -62.6883                        Benders: 1     2221         
+      0     0      -62.6438                        Benders: 1     2273         
+      0     0      -62.3311                        Benders: 1     2350         
+      0     0      -62.3311                        Benders: 1     2363         
+      0     0      -62.2125                        Benders: 1     2432         
+      0     0      -62.2125                        Benders: 1     2479         
+      0     0      -62.1808                        Benders: 1     2512         
+      0     0      -61.9853                        Benders: 1     2583         
+      0     0      -61.9842                        Benders: 1     2592         
+      0     0      -61.9754                        Benders: 1     2618         
+      0     0      -61.9591                        Benders: 1     2638         
+      0     0      -61.9591                        Benders: 1     2641         
+      0     0      -61.9591                        Benders: 1     2657         
+      0     0      -61.9585                        Benders: 1     2677         
+      0     0      -61.7634                        Benders: 1     2761         
+      0     0      -61.7341                        Benders: 1     2816         
+      0     0      -61.7137                        Benders: 1     2853         
+      0     0      -61.5430                        Benders: 1     2923         
+      0     0      -61.5423                        Benders: 1     2989         
+      0     0      -61.5423                        Benders: 1     2998         
+      0     0      -61.4419                        Benders: 1     3058         
+      0     0      -61.4419                        Benders: 1     3083         
+      0     0      -61.2870                        Benders: 1     3133         
+      0     0      -61.2870                        Benders: 1     3185         
+      0     0      -61.2870                        Benders: 1     3229         
+      0     0      -61.1939                        Benders: 1     3306         
+      0     0      -61.1939                        Benders: 1     3314         
+      0     0      -60.4156                        Benders: 1     3423         
+      0     0      -60.4156                        Benders: 1     3442         
+      0     0      -60.4156                        Benders: 1     3454         
+      0     0      -60.4156                        Benders: 1     3463         
+      0     0      -60.4156                        Benders: 1     3464         
+      0     0      -60.3816                        Benders: 1     3494         
+      0     0      -60.3785                        Benders: 1     3574         
+      0     0      -60.3785                        Benders: 1     3581         
+      0     0      -60.3724                        Benders: 1     3617         
+      0     0      -60.1822                        Benders: 1     3686         
+      0     0      -60.1822                        Benders: 1     3717         
+      0     0      -60.1822                        Benders: 1     3740         
+      0     0      -60.1534                        Benders: 1     3816         
+      0     0      -60.1236                        Benders: 1     3856         
+      0     0      -59.6807                        Benders: 1     3962         
+      0     0      -59.6807                        Benders: 1     4009         
+      0     0      -59.6710                        Benders: 1     4043         
+      0     0      -59.6710                        Benders: 1     4051         
+      0     0      -59.6710                        Benders: 1     4055         
+      0     0      -59.6710                        Benders: 1     4056         
+      0     0      -59.6285                        Benders: 1     4073         
+      0     0      -59.6285                        Benders: 1     4079         
+      0     0      -59.5601                        Benders: 1     4135         
+      0     0      -59.3799                        Benders: 1     4262         
+      0     0      -59.3421                        Benders: 1     4358         
+      0     0      -59.3421                        Benders: 1     4381         
+      0     0      -59.3421                        Benders: 1     4391         
+      0     0      -59.3421                        Benders: 1     4416         
+      0     0      -59.3421                        Benders: 1     4429         
+      0     0      -59.3421                        Benders: 1     4449         
+      0     0      -59.3421                        Benders: 1     4453         
+      0     0      -59.3397                        Benders: 1     4476         
+      0     0      -59.2876                        Benders: 1     4545         
+      0     0      -59.2876                        Benders: 1     4547         
+      0     0      -59.2240                        Benders: 1     4575         
+      0     0      -59.1970                        Benders: 1     4588         
+      0     0      -59.1970                        Benders: 1     4616         
+      0     0      -59.1630                        Benders: 1     4653         
+      0     0      -59.1630                        Benders: 1     4727         
+      0     0      -59.1630                        Benders: 1     4749         
+      0     0      -59.1630                        Benders: 1     4765         
+      0     0      -59.1630                        Benders: 1     4792         
+      0     0      -59.1630                        Benders: 1     4822         
+      0     0      -59.1630                        Benders: 1     4856         
+      0     0      -59.1630                        Benders: 1     4864         
+      0     0      -59.1630                        Benders: 1     4916         
+      0     0      -59.1630                        Benders: 1     4931         
+      0     0      -59.1283                        Benders: 1     4999         
+      0     0      -59.1283                        Benders: 1     5021         
+      0     0      -59.0320                        Benders: 1     5078         
+      0     0      -59.0320                        Benders: 1     5110         
+      0     0      -59.0320                        Benders: 1     5132         
+      0     0      -59.0320                        Benders: 1     5145         
+      0     0      -58.9556                        Benders: 1     5214         
+      0     0      -58.9556                        Benders: 1     5246         
+      0     0      -58.9556                        Benders: 1     5257         
+      0     0      -58.8568                        Benders: 1     5351         
+      0     0      -58.8513                        Benders: 1     5368         
+      0     0      -58.8359                        Benders: 1     5409         
+      0     0      -58.8359                        Benders: 1     5415         
+      0     0      -58.8146                        Benders: 1     5449         
+      0     0      -58.7999                        Benders: 1     5468         
+      0     0      -58.7999                        Benders: 1     5514         
+      0     0      -58.7999                        Benders: 1     5515         
+      0     0      -58.7999                        Benders: 1     5553         
+      0     0      -58.7999                        Benders: 1     5624         
+      0     0      -58.7999                        Benders: 1     5664         
+      0     0      -58.7742                        Benders: 1     5698         
+      0     0      -58.7742                        Benders: 1     5725         
+      0     0      -58.7742                        Benders: 1     5728         
+      0     0      -58.7614                        Benders: 1     5771         
+      0     0      -58.7614                        Benders: 1     5772         
+      0     0      -58.7498                        Benders: 1     5825         
+      0     0      -58.7498                        Benders: 1     5844         
+      0     0      -58.7498                        Benders: 1     5851         
+      0     0      -58.7498                        Benders: 1     5852         
+      0     0      -58.7477                        Benders: 1     5859         
+      0     0      -58.7477                        Benders: 1     5861         
+      0     0      -58.7458                        Benders: 1     5883         
+      0     0      -58.7458                        Benders: 1     5884         
+      0     0      -58.7439                        Benders: 1     5898         
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 13451 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (4.04 ticks)
+Probing time = 0.00 sec. (2.53 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 13451 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (4.04 ticks)
+Probing time = 0.02 sec. (2.53 ticks)
+Clique table members: 269.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.00 sec. (0.70 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -253.307692
+Iteration:    62   Dual objective     =          -114.480232
+Iteration:   128   Dual objective     =           -77.937002
+Iteration:   192   Dual objective     =           -68.067586
+Iteration:   266   Dual objective     =           -62.129330
+Iteration:   355   Dual objective     =           -59.274563
+Iteration:   426   Dual objective     =           -58.914915
+Root relaxation solution time = 0.03 sec. (16.28 ticks)
+      0     0      -58.7429   104                    -58.7429     6366         
+      0     0      -58.6239    89                     Cuts: 5     6390         
+      0     0      -58.6239    89                     Cuts: 2     6391         
+      0     0      -58.6239    91                     Cuts: 2     6410         
+*     0+    0                          -16.6952      -58.6239           251.14%
+Found incumbent of value -16.695232 after 1.50 sec. (734.90 ticks)
+*     0+    0                          -31.7250      -58.6239            84.79%
+Found incumbent of value -31.725000 after 2.00 sec. (991.19 ticks)
+      0     0  -1.00000e+75     0      -31.7250      -58.6239     6410   84.79%
+
+Repeating presolve.
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 13451 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (7.03 ticks)
+Probing time = 0.02 sec. (2.53 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 13451 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (4.30 ticks)
+Represolve time = 0.03 sec. (18.52 ticks)
+Probing time = 0.00 sec. (2.53 ticks)
+Clique table members: 269.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.02 sec. (1.00 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -106.588556
+Iteration:    62   Dual objective     =           -86.987703
+Iteration:   132   Dual objective     =           -75.672078
+Iteration:   213   Dual objective     =           -65.038550
+Iteration:   292   Dual objective     =           -60.010019
+Iteration:   405   Dual objective     =           -59.400903
+Iteration:   482   Dual objective     =           -58.663147
+Root relaxation solution time = 0.03 sec. (23.36 ticks)
+*     0+    0                          -31.7250      -58.6239            84.79%
+Found incumbent of value -31.725000 after 3.03 sec. (1401.88 ticks)
+      0     0      -58.6239   100      -31.7250      -58.6239    12818   84.79%
+      0     0      -58.6239    94      -31.7250    Benders: 1    12822   84.79%
+      0     0      -58.6239    89      -31.7250    Benders: 1    12850   84.79%
+      0     0      -58.6239    94      -31.7250       Cuts: 2    12880   84.79%
+      0     2      -58.6239    88      -31.7250      -58.6239    12880   84.79%
+Elapsed time = 3.88 sec. (1783.67 ticks, tree = 0.01 MB)
+    100    96      -57.1982    50      -31.7250      -58.6172    14684   84.77%
+                                                  Benders: 21                  
+*   110+  104                          -33.0167      -58.6172            77.54%
+Found incumbent of value -33.016667 after 4.45 sec. (2139.45 ticks)
+*   110+  104                          -33.0167      -58.6172            77.54%
+Found incumbent of value -33.016667 after 4.45 sec. (2139.68 ticks)
+*   120+  114                          -34.2800      -58.6172            71.00%
+                                                   Benders: 3                  
+Found incumbent of value -34.280000 after 4.50 sec. (2163.17 ticks)
+*   120+  114                          -35.4250      -58.6172            65.47%
+Found incumbent of value -35.425000 after 4.55 sec. (2202.98 ticks)
+    160   156      -50.7973    26      -35.4250      -58.6172    15644   65.47%
+                                                  Benders: 22                  
+    260   250      -58.5440    90      -35.4250      -58.6172    16412   65.47%
+                                                  Benders: 23                  
+    353   337      -57.3136    91      -35.4250      -58.6142    17751   65.46%
+                                                  Benders: 17                  
+    457   432      -58.2092    66      -35.4250      -58.6142    19415   65.46%
+                                                  Benders: 15                  
+
+Performing restart 1
+
+Repeating presolve.
+Tried aggregator 1 time.
+MIP Presolve modified 4514 coefficients.
+Reduced MIP has 330 rows, 545 columns, and 11344 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.03 sec. (10.78 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 11344 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (3.71 ticks)
+Represolve time = 0.09 sec. (26.72 ticks)
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.01 sec. (2.00 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -106.588556
+Iteration:    62   Dual objective     =           -87.262078
+Iteration:   142   Dual objective     =           -78.294548
+Iteration:   234   Dual objective     =           -66.248521
+Iteration:   342   Dual objective     =           -63.723189
+Iteration:   461   Dual objective     =           -62.255110
+Iteration:   576   Dual objective     =           -58.909572
+    469     0      -58.5366   105      -35.4250       Cuts: 8    26199   65.24%
+    469     0      -58.5294   102      -35.4250       Cuts: 3    26231   65.22%
+    469     0      -58.5292   101      -35.4250    Benders: 9    26252   65.22%
+    469     0      -58.5292   103      -35.4250    Benders: 2    26273   65.22%
+    469     0      -58.5292    98      -35.4250       Cuts: 7    26284   65.22%
+    469     0      -58.5292    96      -35.4250       Cuts: 3    26291   65.22%
+    469     0      -58.5292    98      -35.4250    Benders: 1    26327   65.22%
+    469     0      -58.5292   105      -35.4250       Cuts: 3    26353   65.22%
+
+Repeating presolve.
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 11344 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (3.72 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 330 rows, 545 columns, and 11344 nonzeros.
+Reduced MIP has 540 binaries, 4 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (3.71 ticks)
+Represolve time = 0.06 sec. (30.52 ticks)
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 0 columns.
+Reduced LP has 370 rows, 545 columns, and 19686 nonzeros.
+Presolve time = 0.00 sec. (1.44 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          -106.588556
+Iteration:    62   Dual objective     =           -90.217672
+Iteration:   124   Dual objective     =           -87.232490
+Iteration:   194   Dual objective     =           -85.956701
+Iteration:   275   Dual objective     =           -83.733078
+Iteration:   359   Dual objective     =           -76.081224
+Iteration:   430   Dual objective     =           -64.245292
+Iteration:   502   Dual objective     =           -61.953501
+Iteration:   568   Dual objective     =           -59.068951
+Iteration:   650   Dual objective     =           -58.575145
+Iteration:   730   Dual objective     =           -58.548345
+Initializing dual steep norms . . .
+    469     0      -58.5291   102      -35.4250    Benders: 3    33052   65.22%
+    469     0      -58.5291   101      -35.4250    Benders: 2    33056   65.22%
+    469     0      -58.5291    97      -35.4250    Benders: 2    33073   65.22%
+    469     0      -58.5278    99      -35.4250    Benders: 1    33101   65.22%
+    469     0      -58.5278   100      -35.4250    Benders: 1    33109   65.22%
+    469     0      -58.5278    93      -35.4250    Benders: 1    33115   65.22%
+    469     0      -58.5278   109      -35.4250    Benders: 3    33150   65.22%
+    469     0      -58.5278    97      -35.4250       Cuts: 6    33182   65.22%
+    469     0      -58.5237   105      -35.4250       Cuts: 4    33225   65.20%
+    469     0      -58.5237   109      -35.4250    Benders: 2    33232   65.20%
+*   469+    0                          -41.7292      -58.5237            40.25%
+Found incumbent of value -41.729167 after 9.30 sec. (4587.19 ticks)
+*   469+    0                          -43.3167      -58.5237            35.11%
+Found incumbent of value -43.316667 after 9.44 sec. (4675.63 ticks)
+    469     0  -1.00000e+75     0      -43.3167      -58.5237    33232   35.11%
+*   469+    0                          -43.3167      -58.5237            35.11%
+Found incumbent of value -43.316667 after 9.53 sec. (4764.03 ticks)
+    469     2      -58.5237   112      -43.3167      -58.5188    33232   35.10%
+    472     5      -58.4874   104      -43.3167      -58.4878    33457   35.02%
+    477    10      -58.2203    93      -43.3167      -58.4878    34105   35.02%
+    485    18      -57.7649    99      -43.3167      -58.4878    34618   35.02%
+                                                   Benders: 4                  
+    784   301      -54.9076    50      -43.3167      -58.4787    39857   35.00%
+                                                     Cuts: 45                  
+Elapsed time = 12.30 sec. (6476.28 ticks, tree = 0.15 MB)
+   1269   759      -50.3150    42      -43.3167      -58.2520    48705   34.48%
+                                                     Cuts: 47                  
+   1842  1298      -54.9740    44      -43.3167      -58.2210    58203   34.41%
+                                                  Benders: 22                  
+   2298  1728      -56.1138    73      -43.3167      -58.2140    68224   34.39%
+                                                  Benders: 17                  
+   3006  2378      -57.5759   112      -43.3167      -58.1844    78678   34.32%
+                                                   Benders: 7                  
+   3558  2897      -56.7072    88      -43.3167      -58.1606    88684   34.27%
+                                                   Benders: 6                  
+   4119  3434      -56.6579    89      -43.3167      -58.1565    99108   34.26%
+                                                  Benders: 10                  
+   4647  3938      -55.3599    38      -43.3167      -58.1308   108700   34.20%
+                                                  Benders: 17                  
+   5343  4602      -53.2416    42      -43.3167      -58.0915   119387   34.11%
+                                                   Benders: 6                  
+   5862  5080      -56.0186    85      -43.3167      -58.0545   127039   34.02%
+                                                   Benders: 8                  
+   6469  5649      -56.9077    51      -43.3167      -58.0463   135577   34.00%
+                                                  Benders: 12                  
+Elapsed time = 27.42 sec. (16231.65 ticks, tree = 2.71 MB)
+   7092  6246      -55.7571    63      -43.3167      -58.0356   145268   33.98%
+                                                   Benders: 9                  
+   7645  6766      -54.0904    40      -43.3167      -58.0351   152734   33.98%
+                                                  Benders: 10                  
+   8237  7326      -51.7236    30      -43.3167      -58.0311   161600   33.97%
+                                                   Benders: 9                  
+   8786  7834      -52.5089    59      -43.3167      -58.0192   167849   33.94%
+                                                  Benders: 15                  
+*  8959+ 7746                          -44.1333      -58.0181            31.46%
+Found incumbent of value -44.133333 after 33.80 sec. (20297.10 ticks)
+*  8969+ 7640                          -44.6333      -58.0181            29.99%
+                                                   Benders: 1                  
+Found incumbent of value -44.633333 after 33.84 sec. (20332.19 ticks)
+   9069  7726      -56.8740    70      -44.6333      -58.0179   171956   29.99%
+                                                  Benders: 19                  
+   9389  8038      -46.2910     7      -44.6333      -58.0159   177494   29.98%
+                                                  Benders: 13                  
+Advanced basis not built.
+Advanced basis not built.
+   9798  8421      -53.8659    82      -44.6333      -58.0040   183453   29.96%
+                                                  Benders: 14                  
+  10247  8834      -56.8686    91      -44.6333      -58.0010   190154   29.95%
+                                                  Benders: 13                  
+  10703  9275      -56.2518    90      -44.6333      -58.0007   197515   29.95%
+                                                   Benders: 4                  
+  11102  9653      -54.6203    84      -44.6333      -58.0001   205261   29.95%
+                                                  Benders: 10                  
+Elapsed time = 42.86 sec. (25831.36 ticks, tree = 4.80 MB)
+  11556 10083      -56.9295   108      -44.6333      -57.9961   214472   29.94%
+                                                   Benders: 1                  
+  12107 10607      -56.1065   101      -44.6333      -57.9950   222225   29.94%
+                                                  Benders: 16                  
+  12574 11051      -55.9205    55      -44.6333      -57.9920   230541   29.93%
+     

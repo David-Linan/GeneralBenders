@@ -1,12 +1,7 @@
 
-feaspump 2
-
-MAXCYCLES 1
-
-stop 0
-
-fp_sollimit 1
-
 nlpsolver conopt4
 
+stop 1 
+
+maxcycles 20000 
 

@@ -767,8 +767,8 @@ if __name__ == "__main__":
     initialization=tau_init
     infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
     maxiter=10000
-    # neigh=neighborhood_k_eq_2(len(initialization))
-    neigh=neighborhood_k_eq_m_natural(len(initialization))
+    neigh=neighborhood_k_eq_2(len(initialization))
+    # neigh=neighborhood_k_eq_m_natural(len(initialization))
     model_fun =scheduling_and_control_GDP_complete_approx
     logic_fun=problem_logic_scheduling_dummy
     kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
@@ -787,8 +787,11 @@ if __name__ == "__main__":
         textbuffer.write('\n')
     textbuffer.write('\n Objective: \n') 
     textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible_neigh_M.txt', 'w') as outputfile:
+    with open('Results_variable_tau_enhanced_dbd_complete_aprox_sol_multicut_at_1_from_infeasible_neigh_2_larger_horizon.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
+
+
+
 
 
 #######-------plots------------------------
