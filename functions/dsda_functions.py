@@ -674,7 +674,7 @@ def solve_subproblem(
     timelimit: float = 1000,
     gams_output: bool = False,
     tee: bool = False,
-    rel_tol: float = 1e-3,
+    rel_tol: float = 0,
 ) -> pe.ConcreteModel():
     """
     Function that checks feasibility and optimizes subproblem model.

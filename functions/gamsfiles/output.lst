@@ -1,12 +1,12 @@
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 1
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/03/23 11:51:20 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
 
 
-COMPILATION TIME     =        0.390 SECONDS     14 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 2
+COMPILATION TIME     =        0.375 SECONDS     14 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/03/23 11:51:20 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE GAMS_MODEL Using MIP From line 85206
 
@@ -18,8 +18,8 @@ BLOCKS OF VARIABLES      14,646     SINGLE VARIABLES       14,646  6 projected
 NON ZERO ELEMENTS        64,346     DISCRETE VARIABLES        662
 
 
-GENERATION TIME      =        0.234 SECONDS     24 MB  37.1.0 r07954d5 WEX-WEI
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 3
+GENERATION TIME      =        0.344 SECONDS     24 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/03/23 11:51:20 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE GAMS_MODEL Using MIP From line 85206
 
@@ -34,7 +34,7 @@ Solution Report     SOLVE GAMS_MODEL Using MIP From line 85206
 **** MODEL STATUS      8 Integer Solution
 **** OBJECTIVE VALUE              -64.4000
 
- RESOURCE USAGE, LIMIT          5.375   3600000.000
+ RESOURCE USAGE, LIMIT         10.390   3600000.000
  ITERATION COUNT, LIMIT      3778    2147483647
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 --- GMO setup time: 0.00s
@@ -47,7 +47,7 @@ Solution Report     SOLVE GAMS_MODEL Using MIP From line 85206
 
 
 --- MIP status (102): integer optimal, tolerance.
---- Cplex Time: 5.20sec (det. 2056.02 ticks)
+--- Cplex Time: 10.20sec (det. 2056.02 ticks)
 
 --- Fixing integer variables and solving final LP...
 
@@ -71,12 +71,12 @@ Relative gap:            0.015468
                              0  UNBOUNDED
 
 **** Saved point C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\GAMS_MODEL_p.gdx
-GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/02/23 16:21:58 Page 4
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 02/03/23 11:51:20 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-EXECUTION TIME       =        5.891 SECONDS     24 MB  37.1.0 r07954d5 WEX-WEI
+EXECUTION TIME       =       11.031 SECONDS     24 MB  37.1.0 r07954d5 WEX-WEI
 
 
 USER: Prof. Ignacio E. Grossmann                     G221207|0002AS-GEN
