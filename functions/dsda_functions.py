@@ -1230,6 +1230,21 @@ def solve_subproblem_aprox_sequential(
             m.obj_dummy.deactivate()
             m.obj_scheduling.deactivate() 
 
+            # DEACTIVATE SCHEDULING CONSTRAINTS
+            m.E2_CAPACITY_LOW.deactivate()
+            m.E2_CAPACITY_UP.deactivate()
+            m.E3_BALANCE_INIT.deactivate()
+            m.E_DEMAND_SATISFACTION.deactivate()
+            m.linking1.deactivate()
+            m.linking2.deactivate()
+            m.E1_UNIT.deactivate()
+            m.E3_BALANCE.deactivate()
+            m.X_Z_relation.deactivate()
+            m.DEF_VAR_TIME.deactivate()            
+
+
+
+
             if approximate_solution:
                 # FIX SCHEDULING VARIABLES
                 for v in m.component_objects(pe.Var, descend_into=True):
@@ -1239,12 +1254,12 @@ def solve_subproblem_aprox_sequential(
                                 v.fix(round(pe.value(v)))
                             else:
                                 v[index].fix(round(pe.value(v[index])))
-                    # elif v.name=='B' or v.name=='S':
-                    #     for index in v:
-                    #         if index==None:
-                    #             v.fix(pe.value(v))
-                    #         else:
-                    #             v[index].fix(pe.value(v[index]))
+                    elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
+                        for index in v:
+                            if index==None:
+                                v.fix(pe.value(v))
+                            else:
+                                v[index].fix(pe.value(v[index]))
 
             opt = SolverFactory(solvername, solver=subproblem_solver)
             # start=time.time()
@@ -1306,7 +1321,7 @@ def solve_subproblem_aprox_sequential(
                                                 v.fix(round(pe.value(v)))
                                             else:
                                                 v[index].fix(round(pe.value(v[index])))
-                                    elif v.name=='B' or v.name=='S':
+                                    elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
                                         for index in v:
                                             if index==None:
                                                 v.fix(pe.value(v))
