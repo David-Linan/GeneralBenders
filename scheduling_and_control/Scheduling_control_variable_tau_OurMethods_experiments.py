@@ -31,6 +31,7 @@ if __name__ == "__main__":
     #Solver declaration
     nlp_solver='conopt4'
     mip_solver='cplex'
+    minlp_solver='dicopt'
 
 
 
@@ -88,8 +89,8 @@ if __name__ == "__main__":
     feas_init=[4, 4, 5, 5, 3, 3, 4, 2, 5, 5, 6, 7, 2, 7, 6, 8]
     gap=0.05
 
-    ## EXPERIMENT 1: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DSDA, RIGUROUS SOLUTION OF SUBPROBLEMS
-    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
+    # ## EXPERIMENT 1: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DSDA, RIGUROUS SOLUTION OF SUBPROBLEMS
+    # # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
     model_fun =scheduling_and_control_GDP_complete_approx
     logic_fun=problem_logic_scheduling_dummy
@@ -111,138 +112,138 @@ if __name__ == "__main__":
         outputfile.write(textbuffer.getvalue())
 
 
-    ## EXPERIMENT 2: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DSDA, APROX SOLUTION OF SUBPROBLEMS
-    sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
-    model_fun =scheduling_and_control_GDP_complete_approx
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,feas_init,ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = gap)
-    print('Objective value: ',str(pe.value(m.obj)))
+    # ## EXPERIMENT 2: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DSDA, APROX SOLUTION OF SUBPROBLEMS
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,feas_init,ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = gap)
+    # print('Objective value: ',str(pe.value(m.obj)))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dsda_aprox_k_2_increased_horizon.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
-    ## EXPERIMENT 3: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, RIGUROUS SOLUTION OF SUBPROBLEMS
-    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
-    initialization=feas_init
-    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    maxiter=10000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete_approx
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dsda_aprox_k_2_increased_horizon.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
+    # ## EXPERIMENT 3: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, RIGUROUS SOLUTION OF SUBPROBLEMS
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
+    # initialization=feas_init
+    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # maxiter=10000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
     
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dbd_rigurous_k_2_increased_horizon.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dbd_rigurous_k_2_increased_horizon.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
 
 
-    ## EXPERIMENT 4: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS
-    sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
-    initialization=feas_init
-    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    maxiter=10000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete_approx
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
+    # ## EXPERIMENT 4: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
+    # initialization=feas_init
+    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # maxiter=10000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
     
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dbd_aprox_k_2_increased_horizon.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dbd_aprox_k_2_increased_horizon.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
 
-    infeas_init=[1, 1, 1, 1, 1, 1, 5, 3, 5, 9, 3, 9, 2, 8, 7, 9]
+    # infeas_init=[1, 1, 1, 1, 1, 1, 5, 3, 5, 9, 3, 9, 2, 8, 7, 9]
 
-    ## EXPERIMENT 5: GAP 0.05, FROM INFEASIBLE INITIALIZATION, ENHANCED DBD, RIGUROUS SOLUTION OF SUBPROBLEMS, ONLY FEASIBILITY IN INITIALIZATION
-    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
-    initialization=infeas_init
-    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    maxiter=10000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete_approx
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
+    # ## EXPERIMENT 5: GAP 0.05, FROM INFEASIBLE INITIALIZATION, ENHANCED DBD, RIGUROUS SOLUTION OF SUBPROBLEMS, ONLY FEASIBILITY IN INITIALIZATION
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
+    # initialization=infeas_init
+    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # maxiter=10000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
     
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dbd_rigurous_k_2_increased_horizon_from_infeasible.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dbd_rigurous_k_2_increased_horizon_from_infeasible.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
-    ## EXPERIMENT 6: GAP 0.05, FROM INFEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS, ONLY FEASIBILITY IN INITIALIZATION
-    sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
-    initialization=infeas_init
-    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    maxiter=10000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete_approx
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
+    # ## EXPERIMENT 6: GAP 0.05, FROM INFEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS, ONLY FEASIBILITY IN INITIALIZATION
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
+    # initialization=infeas_init
+    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # maxiter=10000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
     
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dbd_aprox_k_2_increased_horizon_from_infeasible.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dbd_aprox_k_2_increased_horizon_from_infeasible.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
 
 
