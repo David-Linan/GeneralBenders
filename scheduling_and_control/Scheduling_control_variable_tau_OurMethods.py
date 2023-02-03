@@ -609,15 +609,15 @@ if __name__ == "__main__":
 
 
     if cplex_config=='naive':
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
+        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n']}
     
     elif cplex_config=='benders_option1':
         benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
+        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
         sub_options_infeas_init['add_options'].append(benders_partitioning)
     elif cplex_config=='benders_option2':
         benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
+        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
         sub_options_infeas_init['add_options'].append(benders_partitioning)
     
     elif cplex_config=='priority_option1':
@@ -643,6 +643,14 @@ if __name__ == "__main__":
 
     print('Infeasible initialization of ext-vars: ',tau_init)
 
+    textbuffer = io.StringIO()
+    for v in m_scheduling.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m_scheduling.obj)))    
+    with open('Results_variable_tau_scheduling_only_increased_horizon.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())  
 
 
     # # # FEASIBLE INITIALIZATION: sequential iterative methodology
