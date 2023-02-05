@@ -1343,8 +1343,8 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                 kwargs2=kwargs.copy()
                 kwargs2.update({'x_initial':output_ext_vars})
                 m_scheduling_only=model_fun_feasibility_scheduling(**kwargs2)
-                # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
-                sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
+                sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
+                # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
                 m_scheduling_only = solve_with_minlp(m_scheduling_only,transformation='hull',minlp='cplex',minlp_options=sub_options_cplex_Feas,timelimit=360000000,gams_output=False,tee=False,rel_tol=rel_tol)
 
                 for I_J in m_scheduling_only.I_J:
