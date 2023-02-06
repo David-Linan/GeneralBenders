@@ -6,7 +6,7 @@ import os
 from pyomo.opt import SolverFactory
 from pyomo.gdp import Disjunct, Disjunction
 import itertools
-
+import io
 
 def scheduling_and_control():
     # Data
@@ -855,21 +855,30 @@ def scheduling_and_control():
         m.I_J, rule=_X_Z_relation, doc='constraint that specifies the relationship between Integer and binary variables')
 
     # # ----------Objective function----------------------------------------------
+
+
+    m.TCP1=pe.Var(within=pe.Reals,doc='TPC: Fixed costs for all unit-tasks')
+    def _C_TCP1(m):
+        return  m.TCP1==sum(sum(sum(m.fixed_cost[I, J]*m.X[I, J, T]for J in m.J) for I in m.I) for T in m.T) 
+    m.C_TCP1=pe.Constraint(rule=_C_TCP1)
+    m.TCP2=pe.Var(within=pe.Reals,doc='TPC: Variable cost for unit-tasks that do not consider dynamics')
+    def _C_TCP2(m):
+        return m.TCP2==sum(sum(sum(m.variable_cost[I, J]*m.B[I, J, T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
+    m.C_TCP2=pe.Constraint(rule=_C_TCP2)
+    m.TCP3=pe.Var(within=pe.Reals,doc='TPC: Variable cost for unit-tasks that do consider dynamics')
+    def _C_TCP3(m):
+        return m.TCP3== sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J][m.N[I, J].last()] + m.cold_cost*m.Integral_cold[I, J][m.N[I, J].last()]) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
+    m.C_TCP3=pe.Constraint(rule=_C_TCP3)  
+    m.TMC= pe.Var(within=pe.Reals,doc='TMC: Total material cost')
+    def _C_TMC(m):
+        return m.TMC==sum(m.raw_cost[K]*(m.S0[K]-m.S[K, m.lastT]) for K in m.K_inputs) 
+    m.C_TMC=pe.Constraint(rule=_C_TMC)
+    m.SALES=pe.Var(within=pe.Reals,doc='SALES: Revenue form selling products')
+    def _C_SALES(m):
+        return m.SALES==sum(m.revenue[K]*m.S[K, m.lastT] for K in m.K_products)
+    m.C_SALES=pe.Constraint(rule=_C_SALES)
     def _obj(m):
-        return (
-            # TPC: Fixed costs for all unit-tasks
-            sum(sum(sum(m.fixed_cost[I, J]*m.X[I, J, T]
-                for J in m.J) for I in m.I) for T in m.T)
-            # TPC: Variable cost for unit-tasks that do not consider dynamics
-            + sum(sum(sum(m.variable_cost[I, J]*m.B[I, J, T]
-                  for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
-            + sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J][m.N[I, J].last()] + m.cold_cost*m.Integral_cold[I, J][m.N[I, J].last()])
-                  for T in m.T) for I in m.I_reactions)for J in m.J_reactors)  # TPC: Variable cost for unit-tasks that do consider dynamics
-            + sum(m.raw_cost[K]*(m.S0[K]-m.S[K, m.lastT])
-                  for K in m.K_inputs)  # TMC: Total material cost
-            # SALES: Revenue form selling products
-            - sum(m.revenue[K]*m.S[K, m.lastT] for K in m.K_products)
-        )/100
+        return ( m.TCP1+m.TCP2+m.TCP3+m.TMC-m.SALES  )/100
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)
 
     return m
@@ -895,10 +904,22 @@ if __name__ == "__main__":
     minlp_options['add_options'].append('option reslim=1000;')
     minlp_options['add_options'].append('option optcr=0;')
 
+
+    # Output report
+    output_options = {}
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+    gams_path = os.path.join(dir_path, "gamsfiles/")
+    if not(os.path.exists(gams_path)):
+        print('Directory for automatically generated files ' +
+                gams_path + ' does not exist. We will create it')
+        os.makedirs(gams_path)
+    output_options = {'keepfiles': True,
+                        'tmpdir': gams_path,
+                        'symbolic_solver_labels': True}
     # --Solve
     solvername = 'gams'
     opt = SolverFactory(solvername, solver=minlp_solver)
-    m.results = opt.solve(m, tee=True, **minlp_options)
+    m.results = opt.solve(m, tee=True,**output_options, **minlp_options)
 
     # --pyomo objective function
     print('Objective value PYOMO: ', str(pe.value(m.obj)))
@@ -919,3 +940,11 @@ if __name__ == "__main__":
     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
     print('TMC: Total material cost: ',str(TMC))
     print('SALES: Revenue form selling products: ',str(SALES))
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('Results_borrar.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())

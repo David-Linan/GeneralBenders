@@ -1,0 +1,104 @@
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 12/16/22 08:23:30 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+
+
+COMPILATION TIME     =        0.171 SECONDS      8 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 12/16/22 08:23:30 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE GAMS_MODEL Using NLP From line 34143
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS       8,601     SINGLE EQUATIONS        8,601
+BLOCKS OF VARIABLES       8,703     SINGLE VARIABLES        8,703  2,190 projected
+NON ZERO ELEMENTS        38,752     NON LINEAR N-Z         14,040
+CODE LENGTH              44,280     CONSTANT POOL              46
+
+
+GENERATION TIME      =        0.063 SECONDS     13 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 12/16/22 08:23:30 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE GAMS_MODEL Using NLP From line 34143
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
+     TYPE    NLP                 DIRECTION  MINIMIZE
+     SOLVER  CONOPT4             FROM LINE  34143
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      2 Locally Optimal
+**** OBJECTIVE VALUE                0.1500
+
+ RESOURCE USAGE, LIMIT          3.938 10000000000.000
+ ITERATION COUNT, LIMIT        56    2147483647
+ EVALUATION ERRORS              0             0
+
+Reading parameter(s) from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles_dynamics\conopt4.opt"
+>> 
+Finished reading from "c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles_dynamics\conopt4.opt"
+
+ 
+ 
+    C O N O P T   version 4.24
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The user model has 8601 constraints and 8703 variables
+    with 38752 Jacobian elements, 14040 of which are nonlinear.
+    The Hessian of the Lagrangian has 540 elements on the diagonal,
+    5940 elements below the diagonal, and 3246 nonlinear variables.
+ 
+    The pre-triangular part of the model has 66 constraints and 60 variables.
+    The post-triangular part of the model has 15 constraints and variables.
+    There are 4661 definitional constraints and defined variables.
+ 
+    Preprocessed model has 3859 constraints and 3967 variables
+    with 27187 Jacobian elements, 13955 of which are nonlinear.
+ 
+ ** Optimal solution. There are no superbasic variables.
+ 
+ ** Scaled model is feasible, but some unscaled residuals are large due
+    due to large scale factors.
+    Largest unscaled residual is 1.25E-03 based on scale factor 3.28E+04.
+ 
+ 
+ CONOPT time Total                            3.916 seconds
+   of which: Function evaluations             0.841 = 21.5%
+             1st Derivative evaluations       0.157 =  4.0%
+             2nd Derivative evaluations       0.000 =  0.0%
+             Interval derivative evals        0.031 =  0.8%
+ 
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                            13  PROJECTED
+
+**** Saved point c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles_dynamics\GAMS_MODEL_p.gdx
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 12/16/22 08:23:30 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+EXECUTION TIME       =        4.110 SECONDS     13 MB  37.1.0 r07954d5 WEX-WEI
+
+
+USER: Eval License                                   G210401|0002AS-GEN
+      Carnegie Mellon University, Dept. of Chemical Engineering  DCE375
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles_dynamics\model.gms
+Output     c:\Users\dlinanro\Desktop\GeneralBenders\scheduling_and_control\gamsfiles_dynamics\output.lst

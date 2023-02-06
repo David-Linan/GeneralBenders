@@ -15,15 +15,15 @@ import itertools
 
 def scheduling():
     # Data
-    Infty=1e+8 
+    Infty=10 
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
 
-    m = pe.ConcreteModel(name='reaction_1')
+    m = pe.ConcreteModel(name='scheduling')
 
     # ------------scalars    ------------------------------------------------   
-    m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=14,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
+    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
     # -----------sets--------------------------------------------------------
     #Main sets
@@ -370,7 +370,8 @@ def scheduling():
 
     # # ----------Reactor variables that do not depend on disjunctions------------------------------------------------------
     def _Vreactor_bounds(m,I,J):
-        return (m.model().beta_min[I,J],m.model().beta_max[I,J])
+        # return (m.model().beta_min[I,J],m.model().beta_max[I,J])
+        return ((m.model().beta_max[I,J]+m.model().beta_min[I,J])/2,(m.model().beta_max[I,J]+m.model().beta_min[I,J])/2)
     m.Vreactor=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,bounds=_Vreactor_bounds,doc='Reactive mixture volume for reaction I in reactor J [m^3]') #TODO: link this variable with batch size variables
 
     # # ----------Scheduling Constraints that DO NOT depend on disjunctions-----------------------------------------
@@ -404,30 +405,40 @@ def scheduling():
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
 
     _minTau={}
-    _minTau['R1','R_large']=math.ceil(2/m.delta)
-    _minTau['R1','R_small']=math.ceil(2/m.delta)
+    # _minTau['R1','R_large']=math.ceil(2.1366220886694527/m.delta)
+    # _minTau['R1','R_small']=math.ceil(2.2294153194353483/m.delta)
 
-    _minTau['R2','R_large']=math.ceil(3/m.delta) 
-    _minTau['R2','R_small']=math.ceil(3/m.delta)
+    # _minTau['R2','R_large']=math.ceil(2.8556474598625035/m.delta) 
+    # _minTau['R2','R_small']=math.ceil(2.9181422480152954/m.delta)
 
-    _minTau['R3','R_large']=math.ceil(2/m.delta)
-    _minTau['R3','R_small']=math.ceil(2/m.delta)
+    # _minTau['R3','R_large']=math.ceil(1.5917112584529056/m.delta)
+    # _minTau['R3','R_small']=math.ceil(1.675857698391256/m.delta)
+
+    _minTau['R1','R_large']=math.ceil(1.871478044505773/m.delta)
+    _minTau['R1','R_small']=math.ceil(1.9468064856155354/m.delta)
+
+    _minTau['R2','R_large']=math.ceil(2.6623987697930374/m.delta) 
+    _minTau['R2','R_small']=math.ceil(2.7086060611426097/m.delta)
+
+    _minTau['R3','R_large']=math.ceil(1.3470558700730721/m.delta)
+    _minTau['R3','R_small']=math.ceil(1.4122862348180596/m.delta)
     m.minTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
     _maxTau={}
-    _maxTau['R1','R_large']=math.ceil(2/m.delta)
-    _maxTau['R1','R_small']=math.ceil(2/m.delta) 
+    _maxTau['R1','R_large']=math.ceil(1.871478044505773/m.delta)
+    _maxTau['R1','R_small']=math.ceil(1.9468064856155354/m.delta)
 
-    _maxTau['R2','R_large']=math.ceil(3/m.delta) 
-    _maxTau['R2','R_small']=math.ceil(3/m.delta) 
+    _maxTau['R2','R_large']=math.ceil(2.6623987697930374/m.delta) 
+    _maxTau['R2','R_small']=math.ceil(2.7086060611426097/m.delta)
 
-    _maxTau['R3','R_large']=math.ceil(2/m.delta)
-    _maxTau['R3','R_small']=math.ceil(2/m.delta)
+    _maxTau['R3','R_large']=math.ceil(1.3470558700730721/m.delta)
+    _maxTau['R3','R_small']=math.ceil(1.4122862348180596/m.delta)
+
 
     m.maxTau=pe.Param(m.I_reactions,m.J_reactors,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
     ### NEW ###################
-    def _varTime_bounds(m,I,J):
+    def _varTime_bounds(m,I,J):#Do not put 0 as lo here, because this is scheduling, and I am plotting this one!!!!!. This is correct
         return (m.minTau[I,J]*m.delta,m.maxTau[I,J]*m.delta)
     m.varTime=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
 
@@ -475,30 +486,30 @@ def scheduling():
     #-----First disjunction
     def _build_disjuncts(m,*args):  #Disjuncts for first Boolean variable
         disjunctionsset=args
-        current=-1
-        for I in m.model().I_reactions:
-            for J in m.model().J_reactors:
-                current=current+1
-                m.model().tau[I,J]=disjunctionsset[current]
-                m.model().tau_p[I,J]=disjunctionsset[current]*m.model().delta #Both times are assumed to be discrete
-        # #----------- Variable processing times----------------------------------------------------------------
-        def _DEF_VAR_TIME(m,I,J):
-            return m.model().varTime[I,J]==pe.value(m.model().tau_p[I,J])
-        m.DEF_VAR_TIME=pe.Constraint(m.model().I_reactions,m.model().J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
-        # m.DEF_VAR_TIME.display()
-        # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
-        # TODO: The following equations make the disjunction require a lot of time to generate and therefore the model requires a lot of time to construct
-        def _E1_UNIT(m,J,T):
-            return sum(sum(m.model().X[I,J,TP] for TP in m.model().T if TP<=T and TP>=T-pe.value(m.model().tau[I,J])+1) for I in m.model().I if  m.model().I_i_j_prod[I,J]==1) <=  1           
-        m.E1_UNIT=pe.Constraint(m.model().J,m.model().T,rule=_E1_UNIT,doc='UNIT UTILIZATION')
-        #m.E1_UNIT.display()
+        # current=-1
+        # for I in m.model().I_reactions:
+        #     for J in m.model().J_reactors:
+        #         current=current+1
+        #         m.model().tau[I,J]=disjunctionsset[current]
+        #         m.model().tau_p[I,J]=disjunctionsset[current]*m.model().delta #Both times are assumed to be discrete
+        # # #----------- Variable processing times----------------------------------------------------------------
+        # def _DEF_VAR_TIME(m,I,J):
+        #     return m.model().varTime[I,J]==pe.value(m.model().tau_p[I,J])
+        # m.DEF_VAR_TIME=pe.Constraint(m.model().I_reactions,m.model().J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
+        # # m.DEF_VAR_TIME.display()
+        # # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
+        # # TODO: The following equations make the disjunction require a lot of time to generate and therefore the model requires a lot of time to construct
+        # def _E1_UNIT(m,J,T):
+        #     return sum(sum(m.model().X[I,J,TP] for TP in m.model().T if TP<=T and TP>=T-pe.value(m.model().tau[I,J])+1) for I in m.model().I if  m.model().I_i_j_prod[I,J]==1) <=  1           
+        # m.E1_UNIT=pe.Constraint(m.model().J,m.model().T,rule=_E1_UNIT,doc='UNIT UTILIZATION')
+        # #m.E1_UNIT.display()
 
-        def _E3_BALANCE(m,K,T):
-            if T==0:
-                return pe.Constraint.Skip
-            else:
-                return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)#-m.model().demand[K,T]    
-        m.E3_BALANCE=pe.Constraint(m.model().K,m.model().T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
+        # def _E3_BALANCE(m,K,T):
+        #     if T==0:
+        #         return pe.Constraint.Skip
+        #     else:
+        #         return m.model().S[K,T]==m.model().S[K,T-1]+sum(m.model().rho_plus[I,K]*sum(m.model().B[I,J,T-pe.value(m.model().tau[I,J])] for J in m.model().J if m.model().I_i_j_prod[I,J]==1 and T-pe.value(m.model().tau[I,J])>=0) for I in m.model().I if m.model().I_i_k_plus[I,K]==1) - sum(m.model().rho_minus[I,K]*sum(m.model().B[I,J,T] for J in m.model().J if m.model().I_i_j_prod[I,J]==1) for I in m.model().I if m.model().I_i_k_minus[I,K]==1)#-m.model().demand[K,T]    
+        # m.E3_BALANCE=pe.Constraint(m.model().K,m.model().T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
     m.Y_disjuncts=Disjunct(m.disjunctionsset,rule=_build_disjuncts,doc="each disjunct defines a scheduling model with different operation times for reactor tasks")    
     # m.disjuncts.pprint()
 
@@ -585,12 +596,12 @@ def scheduling():
     #         setattr(m,'Cvar_(%s,%s)' %(I,J),m.Cvar[I,J]) 
 
     #         def _TRvar_bounds(m,N):
-    #             return (m.T_R_initial[I],m.T_R_max[J]) #TODO: Check bounds 
+    #             return (295,m.T_R_max[J]) #TODO: Check bounds 
     #         m.TRvar[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_TRvar_bounds,doc='Reactor temperatrue profile [K]')
     #         setattr(m,'TRvar_(%s,%s)' %(I,J),m.TRvar[I,J])
 
     #         def _TJvar_bounds(m,N):
-    #             return (m.T_J_initial[I],m.T_J_max[J]) #TODO: Check bounds 
+    #             return (295,m.T_J_max[J]) #TODO: Check bounds 
     #         m.TJvar[I,J]=pe.Var(m.N[I,J],within=pe.NonNegativeReals,bounds=_TJvar_bounds,doc='Jacket temperature profile [K]')
     #         setattr(m,'TJvar_(%s,%s)' %(I,J),m.TJvar[I,J])
 
@@ -696,15 +707,39 @@ def scheduling():
     #         # m.Q_balance['R2'].pprint()
     #         # m.Q_balance['R3'].pprint()
     #-----------Objective function----------------------------------------------
-    def _obj(m): 
-        return  (    
-          sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
-        + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
-        # + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J][m.N[I,J].last()]   +  m.cold_cost*m.Integral_cold[I,J][m.N[I,J].last()]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
-        + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
-        - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
-        )/100 
-    m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+    # def _obj(m): 
+    #     return  (    
+    #       sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J)for I in m.I)for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
+    #     + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
+    #     # + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J][m.N[I,J].last()]   +  m.cold_cost*m.Integral_cold[I,J][m.N[I,J].last()]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
+    #     + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
+    #     - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
+    #     )/100 
+    # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+
+    m.TCP1=pe.Var(within=pe.Reals,doc='TPC: Fixed costs for all unit-tasks')
+    def _C_TCP1(m):
+        return  m.TCP1==sum(sum(sum(m.fixed_cost[I, J]*m.X[I, J, T]for J in m.J) for I in m.I) for T in m.T) 
+    m.C_TCP1=pe.Constraint(rule=_C_TCP1)
+    m.TCP2=pe.Var(within=pe.Reals,doc='TPC: Variable cost for unit-tasks that do not consider dynamics')
+    def _C_TCP2(m):
+        return m.TCP2==sum(sum(sum(m.variable_cost[I, J]*m.B[I, J, T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
+    m.C_TCP2=pe.Constraint(rule=_C_TCP2)
+    # m.TCP3=pe.Var(within=pe.Reals,doc='TPC: Variable cost for unit-tasks that do consider dynamics')
+    # def _C_TCP3(m):
+    #     return m.TCP3== sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J][m.N[I, J].last()] + m.cold_cost*m.Integral_cold[I, J][m.N[I, J].last()]) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
+    # m.C_TCP3=pe.Constraint(rule=_C_TCP3)  
+    m.TMC= pe.Var(within=pe.Reals,doc='TMC: Total material cost')
+    def _C_TMC(m):
+        return m.TMC==sum(m.raw_cost[K]*(m.S0[K]-m.S[K, m.lastT]) for K in m.K_inputs) 
+    m.C_TMC=pe.Constraint(rule=_C_TMC)
+    m.SALES=pe.Var(within=pe.Reals,doc='SALES: Revenue form selling products')
+    def _C_SALES(m):
+        return m.SALES==sum(m.revenue[K]*m.S[K, m.lastT] for K in m.K_products)
+    m.C_SALES=pe.Constraint(rule=_C_SALES)
+    def _obj(m):
+        return ( m.TCP1+m.TCP2+m.TMC-m.SALES  )/100
+    m.obj = pe.Objective(rule=_obj, sense=pe.minimize) 
     
     # # # -------Discretization---------------------------------------------------
     # # discretizer = pe.TransformationFactory('dae.finite_difference')
