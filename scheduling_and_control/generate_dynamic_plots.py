@@ -29,7 +29,10 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     nlp_solver='conopt4'
-    ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2]
+    ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Best solution known from sequential iterative, short scheduling obj=-1148
+    ext_vars=[3, 5, 5, 6, 2, 5, 2, 2, 2, 3, 2, 3, 2, 3, 3, 3] #Solution fron infeasible initialization, obj=-1085
+    ext_vars=[4, 4, 5, 5, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
+    ext_vars=[1, 1, 1, 1, 1, 1, 3, 3, 2, 4, 4, 3, 4, 4, 4, 5] #Scheduling only. Remember to activate scheduling only in solution of subproblem
     sub_options={}
     # BRANCHING PRIORITIES (tHIS IS DOING NOTHING HERE BECAUSE I HAVE N_I_J FIXED)
     start=time.time()
@@ -50,7 +53,7 @@ if __name__ == "__main__":
     end=time.time()
     # print('ext_Ref_required time=',str(end-start))
     start=time.time()
-    m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=0)
+    m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
     end=time.time()
     # print('solve subproblem time=',str(end-start))
 
@@ -90,7 +93,7 @@ if __name__ == "__main__":
             Fhot=[]
             Fcold=[]
             for N in m.N[case]:
-                t.append(N)
+                t.append(N*m.varTime[I,J].value)
                 Tr.append(m.TRvar[case][N].value)
                 Tj.append(m.TJvar[case][N].value)
                 Fhot.append(m.Fhot[case][N].value)
@@ -103,28 +106,42 @@ if __name__ == "__main__":
             plt.plot(t, c1,label=list(m.Q_balance[I])[0],color='red')
             plt.plot(t, c2,label=list(m.Q_balance[I])[1],color='green')
             plt.plot(t, c3,label=list(m.Q_balance[I])[2],color='blue')
-            plt.xlabel('Time [-]')
+            plt.xlabel('Time [h]')
             plt.ylabel('$Concentration [kmol/m^{3}]$')
+            title=case[0]+' in '+case[1]+' Concentration'
             plt.title(case[0]+' in '+case[1])
             plt.legend()
-            plt.show()
-            
+            # plt.show()
+            plt.savefig("figures/"+title+".svg") 
+            plt.clf()
+            plt.cla()
+            plt.close()
+
             plt.plot(t,Tr,label='T_reactor',color='red')
             plt.plot(t,Tj,label='T_jacket',color='blue')
-            plt.xlabel('Time [-]')
+            plt.xlabel('Time [h]')
             plt.ylabel('Temperature [K]')
+            title=case[0]+' in '+case[1]+' Temperature'
             plt.title(case[0]+' in '+case[1])
             plt.legend()
-            plt.show()
+            # plt.show()
+            plt.savefig("figures/"+title+".svg") 
+            plt.clf()
+            plt.cla()
+            plt.close()
             
             plt.plot(t, Fhot,label='F_hot',color='red')
             plt.plot(t,Fcold,label='F_cold',color='blue')
-            plt.xlabel('Time [-]')
+            plt.xlabel('Time [h]')
             plt.ylabel('Flow rate $[m^{3}/h]$')
+            title=case[0]+' in '+case[1]+' Flow rate'
             plt.title(case[0]+' in '+case[1])
             plt.legend()
-            plt.show()    
-            
+            # plt.show()    
+            plt.savefig("figures/"+title+".svg") 
+            plt.clf()
+            plt.cla()
+            plt.close()
     # plot of states
     for k in m.K:
         t_pro=[]
@@ -135,9 +152,14 @@ if __name__ == "__main__":
 
         plt.plot(t_pro, state,color='red')
         plt.xlabel('Time [h]')
-        plt.ylabel('State level $[/m^{3}]$')
-        plt.title('state:'+k)
-        plt.show()
+        plt.ylabel('State level $[m^{3}]$')
+        title='state '+k
+        plt.title(title)
+        # plt.show()
+        plt.savefig("figures/"+title+".svg") 
+        plt.clf()
+        plt.cla()
+        plt.close()
 
     #--------------------------------- Gantt plot--------------------------------------------
     fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
@@ -215,6 +237,8 @@ if __name__ == "__main__":
     gnt.yaxis.label.set_size(15)
     gnt.xaxis.label.set_size(15)
     plt.legend()
-    plt.show()
-    # plt.savefig("figures/gantt_minlp.svg")   
-
+    # plt.show()
+    plt.savefig("figures/gantt_minlp.svg")   
+    plt.clf()
+    plt.cla()
+    plt.close()
