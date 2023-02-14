@@ -373,39 +373,40 @@ if __name__ == "__main__":
 
     
 
-    # for inner_val in range(6):
-    #     tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars
-    #     for j in range(len(tau_init)):
-    #         tau_init[j]=tau_init[j]+inner_val
-    #     print(tau_init)
-    #     kwargs={'x_initial':tau_init}
-    #     model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
-    #     m=model_fun(**kwargs)
-    #     m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=0)
+    for inner_val in range(6):
+        tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars
+        for j in range(len(tau_init)):
+            tau_init[j]=tau_init[j]+inner_val
+        print(tau_init)
+        kwargs={'x_initial':tau_init}
+        model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+        m=model_fun(**kwargs)
+        m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=0)
 
 
-    #     for I_J in m_scheduling.I_J:
-    #         tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
-    #     print("-----------------------Iter ",inner_val,"------------------------------")
-    #     print("Initialization of ext vars: ",tau_init)
-    #     if m_scheduling.results.solver.termination_condition == 'infeasible' or m_scheduling.results.solver.termination_condition == 'other' or m_scheduling.results.solver.termination_condition == 'unbounded' or m_scheduling.results.solver.termination_condition == 'invalidProblem' or m_scheduling.results.solver.termination_condition == 'solverFailure' or m_scheduling.results.solver.termination_condition == 'internalSolverError' or m_scheduling.results.solver.termination_condition == 'error'  or m_scheduling.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling.results.solver.termination_condition == 'licensingProblem' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'intermediateNonInteger':
-    #         print("Lower bound of ext vars infeasible")
-    #         break
+        for I_J in m_scheduling.I_J:
+            tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
+        print("-----------------------Iter ",inner_val,"------------------------------")
+        print("Initialization of ext vars: ",tau_init)
+        if m_scheduling.results.solver.termination_condition == 'infeasible' or m_scheduling.results.solver.termination_condition == 'other' or m_scheduling.results.solver.termination_condition == 'unbounded' or m_scheduling.results.solver.termination_condition == 'invalidProblem' or m_scheduling.results.solver.termination_condition == 'solverFailure' or m_scheduling.results.solver.termination_condition == 'internalSolverError' or m_scheduling.results.solver.termination_condition == 'error'  or m_scheduling.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling.results.solver.termination_condition == 'licensingProblem' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'intermediateNonInteger':
+            print("Lower bound of ext vars infeasible")
+            break
 
 
-    #     initialization=tau_init
+        initialization=tau_init
         
-    #     infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    #     maxiter=10000
-    #     neigh=neighborhood_k_eq_2(len(initialization))
-    #     model_fun =scheduling_and_control_GDP_complete_approx
-    #     logic_fun=problem_logic_scheduling_dummy
-    #     kwargs={}
-    #     m=model_fun(**kwargs)
-    #     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    #     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    #     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-    #     [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+        infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+        maxiter=10000
+        neigh=neighborhood_k_eq_2(len(initialization))
+        model_fun =scheduling_and_control_GDP_complete_approx
+        model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+        logic_fun=problem_logic_scheduling_dummy
+        kwargs={}
+        m=model_fun(**kwargs)
+        ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+        ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+        [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+        [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
         
 
 
@@ -604,53 +605,53 @@ if __name__ == "__main__":
 
 
     # # INFEASIBLE INITIALIZATION: scheduling only
-    cplex_config='naive'  # naive, benders_option1,benders_option2,priority_option1,priority_option2
-    tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars. This will also be the lower bound of processing times
+    # cplex_config='naive'  # naive, benders_option1,benders_option2,priority_option1,priority_option2
+    # tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars. This will also be the lower bound of processing times
 
 
-    if cplex_config=='naive':
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n']}
+    # if cplex_config=='naive':
+    #     sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n']}
     
-    elif cplex_config=='benders_option1':
-        benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
-        sub_options_infeas_init['add_options'].append(benders_partitioning)
-    elif cplex_config=='benders_option2':
-        benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
-        sub_options_infeas_init['add_options'].append(benders_partitioning)
+    # elif cplex_config=='benders_option1':
+    #     benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+    #     sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
+    #     sub_options_infeas_init['add_options'].append(benders_partitioning)
+    # elif cplex_config=='benders_option2':
+    #     benders_partitioning=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+    #     sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n','$onecho > cplex.opt \n','bendersstrategy 1','BendersPartitionInStage 1','$offecho \n']}
+    #     sub_options_infeas_init['add_options'].append(benders_partitioning)
     
-    elif cplex_config=='priority_option1':
-        priorities=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.PriorOpt = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
-        sub_options_infeas_init['add_options'].append(priorities)
-    elif cplex_config=='priority_option2':
-        priorities=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
-        sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.PriorOpt = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
-        sub_options_infeas_init['add_options'].append(priorities)    
+    # elif cplex_config=='priority_option1':
+    #     priorities=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+    #     sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.PriorOpt = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
+    #     sub_options_infeas_init['add_options'].append(priorities)
+    # elif cplex_config=='priority_option2':
+    #     priorities=open("scheduling_and_control/ext_ceplex_"+cplex_config+".txt").read()
+    #     sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.PriorOpt = 1;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
+    #     sub_options_infeas_init['add_options'].append(priorities)    
 
 
 
 
 
-    kwargs={'x_initial':tau_init,'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-    model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
-    m=model_fun(**kwargs)
-    m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options_infeas_init,timelimit=3600000,gams_output=True,tee=True,rel_tol=0.05)
+    # kwargs={'x_initial':tau_init,'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    # model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    # m=model_fun(**kwargs)
+    # m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options_infeas_init,timelimit=3600000,gams_output=True,tee=True,rel_tol=0.05)
 
-    for I_J in m_scheduling.I_J:
-        tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
+    # for I_J in m_scheduling.I_J:
+    #     tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
 
-    print('Infeasible initialization of ext-vars: ',tau_init)
+    # print('Infeasible initialization of ext-vars: ',tau_init)
 
-    textbuffer = io.StringIO()
-    for v in m_scheduling.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m_scheduling.obj)))    
-    with open('Results_variable_tau_scheduling_only_increased_horizon.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())  
+    # textbuffer = io.StringIO()
+    # for v in m_scheduling.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m_scheduling.obj)))    
+    # with open('Results_variable_tau_scheduling_only_increased_horizon.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())  
 
 
     # # # FEASIBLE INITIALIZATION: sequential iterative methodology
