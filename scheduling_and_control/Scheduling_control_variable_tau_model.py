@@ -867,7 +867,9 @@ def scheduling_and_control_gdp_N_approx(last_time_hours: float=14, demand_p1_kmo
     m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
     def _obj_dummy(m):
         return 1
-    m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)   
+    m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)  
+
+    m.cuts=pe.ConstraintList() 
     return m
 # Use this code to solve with enhanced DSDA. Only tau as external variables
 def scheduling_and_control_gdp_N_approx_only_tau():
