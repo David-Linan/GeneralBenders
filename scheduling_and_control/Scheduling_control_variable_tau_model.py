@@ -871,7 +871,7 @@ def scheduling_and_control_gdp_N_approx(last_time_hours: float=14, demand_p1_kmo
 
     m.cuts=pe.ConstraintList() 
     return m
-# Use this code to solve with enhanced DSDA. Only tau as external variables
+# Use this code to solve with enhanced DSDA or enhanced DBD. TODO: Only tau as external variables
 def scheduling_and_control_gdp_N_approx_only_tau():
 
     # Data
