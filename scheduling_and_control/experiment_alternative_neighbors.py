@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # BRANCHING PRIORITIES (tHIS IS DOING NOTHING HERE BECAUSE I HAVE N_I_J FIXED)
     start=time.time()
     model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-    kwargs={}
+    kwargs={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
     m=model_fun(**kwargs)
     end=time.time()
     # print('model generation time=',str(end-start))
@@ -50,11 +50,11 @@ if __name__ == "__main__":
     end=time.time()
     # print('get info from model time=',str(end-start))
     start=time.time()
-    m_fixed = external_ref_neighborhood(m=m,x=ext_vars,dict_extvar=reformulation_dict,mip_ref=True,tee=False)
+    m_fixed = external_ref_neighborhood(m=m,x=ext_vars,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
     end=time.time()
     # print('ext_Ref_required time=',str(end-start))
         # Transformation step
     start=time.time()
-    m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=0)
+    m =solve_with_minlp(m_fixed,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0) 
     end=time.time()
     # print('solve subproblem time=',str(end-start))

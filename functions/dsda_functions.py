@@ -462,6 +462,7 @@ def external_ref(
 def external_ref_neighborhood(
     m: pe.ConcreteModel(),
     x,
+    extra_logic_function,
     dict_extvar: dict = {},
     mip_ref: bool = False,
     transformation: str = 'bigm',
@@ -534,7 +535,15 @@ def external_ref_neighborhood(
             ext_var_position = ext_var_position+1
 
 
-
+    # Other Boolean and Indicator variables are fixed depending on the information provided by the user
+    logic_expr = extra_logic_function(m)
+    for i in logic_expr:
+        if i[0].is_fixed():
+            if not mip_ref:
+                i[1].fix(pe.value(i[0]))
+            else:
+                i[1].set_value(pe.value(i[0]))#TODO: this line has not been tested
+                
     pe.TransformationFactory('core.logical_to_linear').apply_to(m)
     if mip_ref:  # Transform problem to MINLP
         transformation_string = 'gdp.' + transformation
