@@ -35,11 +35,12 @@ if __name__ == "__main__":
     # ext_vars=[3, 5, 5, 6, 2, 5, 2, 2, 2, 3, 2, 3, 2, 3, 3, 3] #Solution fron infeasible initialization, obj=-1085
     ext_vars=[4, 4, 5, 5, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
     # ext_vars=[1, 1, 1, 1, 1, 1, 3, 3, 2, 4, 4, 3, 4, 4, 4, 5] #Scheduling only. Remember to activate scheduling only in solution of subproblem
-    sub_options={}
+    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
     # BRANCHING PRIORITIES (tHIS IS DOING NOTHING HERE BECAUSE I HAVE N_I_J FIXED)
     start=time.time()
     model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-    kwargs={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
+    logic_fun=problem_logic_scheduling
+    kwargs={}
     m=model_fun(**kwargs)
     end=time.time()
     # print('model generation time=',str(end-start))
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     end=time.time()
     # print('get info from model time=',str(end-start))
     start=time.time()
-    m_fixed = external_ref_neighborhood(m=m,x=ext_vars,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+    m_fixed = external_ref_neighborhood(m=m,x=ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
     end=time.time()
     # print('ext_Ref_required time=',str(end-start))
         # Transformation step
