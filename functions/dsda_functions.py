@@ -524,7 +524,7 @@ def external_ref_neighborhood(
     for i in dict_extvar:
         for j in range(dict_extvar[i]['exactly_number']):
             for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                if k>=x[ext_var_position]-1 or k<=x[ext_var_position]+1: #If Boolean var is within a neighborhood of the current value of external variables           
+                if k>=x[ext_var_position]-1 and k<=x[ext_var_position]+1: #If Boolean var is within a neighborhood of the current value of external variables           
                     if not mip_ref:
                         if dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
                             dict_extvar[i]['Boolean_vars'][k-1].unfix()
@@ -1004,13 +1004,20 @@ def solve_subproblem_aprox(
                 if approximate_solution:
                     # FIX SCHEDULING VARIABLES
                     for v in m.component_objects(pe.Var, descend_into=True):
-                        # if v.name=='X' or v.name=='B' or v.name=='S' or v.name=='Nref':
                         if v.name=='X' or v.name=='Nref':
                             for index in v:
                                 if index==None:
                                     v.fix(round(pe.value(v)))
                                 else:
                                     v[index].fix(round(pe.value(v[index])))
+
+                        # elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
+                        #     for index in v:
+                        #         if index==None:
+                        #             v.fix(pe.value(v))
+                        #         else:
+                        #             v[index].fix(pe.value(v[index]))
+
 
                 opt = SolverFactory(solvername, solver=subproblem_solver)
                 # start=time.time()
