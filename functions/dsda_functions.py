@@ -1004,13 +1004,20 @@ def solve_subproblem_aprox(
                 if approximate_solution:
                     # FIX SCHEDULING VARIABLES
                     for v in m.component_objects(pe.Var, descend_into=True):
-                        # if v.name=='X' or v.name=='B' or v.name=='S' or v.name=='Nref':
                         if v.name=='X' or v.name=='Nref':
                             for index in v:
                                 if index==None:
                                     v.fix(round(pe.value(v)))
                                 else:
                                     v[index].fix(round(pe.value(v[index])))
+
+                        # elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
+                        #     for index in v:
+                        #         if index==None:
+                        #             v.fix(pe.value(v))
+                        #         else:
+                        #             v[index].fix(pe.value(v[index]))
+
 
                 opt = SolverFactory(solvername, solver=subproblem_solver)
                 # start=time.time()
