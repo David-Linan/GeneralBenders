@@ -87,6 +87,7 @@ if __name__ == "__main__":
 
 
     feas_init=[4, 4, 5, 5, 3, 3, 4, 2, 5, 5, 6, 7, 2, 7, 6, 8] # for {'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
+    feas_init=[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7] # for {'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
     gap=0.05
 
     # ## EXPERIMENT 1: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DSDA, RIGUROUS SOLUTION OF SUBPROBLEMS
@@ -190,7 +191,7 @@ if __name__ == "__main__":
 
 
     infeas_init=[1, 1, 1, 1, 1, 1, 5, 3, 5, 9, 3, 9, 2, 8, 7, 9] # for {'last_time_hours':30,'demand_p1_kmol':4,'demand_p2_kmol':3}
-
+    infeas_init=[1, 1, 1, 1, 1, 1, 5, 3, 5, 10, 3, 7, 5, 8, 7, 9] #for {'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
     # ## EXPERIMENT 5: GAP 0.05, FROM INFEASIBLE INITIALIZATION, ENHANCED DBD, RIGUROUS SOLUTION OF SUBPROBLEMS, ONLY FEASIBILITY IN INITIALIZATION
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
     # initialization=infeas_init
