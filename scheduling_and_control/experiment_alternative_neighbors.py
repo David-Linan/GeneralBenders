@@ -30,6 +30,8 @@ if __name__ == "__main__":
 
     nlp_solver='conopt4'
     minlp_solver='dicopt'
+    mip_solver='cplex'
+    gdp_solver='LBB'
     # # SHORT SCHEDULING
     # ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Best solution known from sequential iterative, short scheduling obj=-1148
     # ext_vars=[3, 5, 5, 6, 2, 5, 2, 2, 2, 3, 2, 3, 2, 3, 3, 3] #Solution fron infeasible initialization, obj=-1085
@@ -56,6 +58,8 @@ if __name__ == "__main__":
     # print('ext_Ref_required time=',str(end-start))
         # Transformation step
     start=time.time()
-    m =solve_with_minlp(m_fixed,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0) 
+    # m =solve_with_minlp(m_fixed,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0) 
+    m = solve_with_gdpopt(m_fixed, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=3600000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+
     end=time.time()
     # print('solve subproblem time=',str(end-start))
