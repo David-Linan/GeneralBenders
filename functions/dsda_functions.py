@@ -2024,26 +2024,26 @@ def evaluate_neighbors(
 
                 # Assuming minimization problem
                 # Implements heuristic of largest move
-                if not improve:
+                # if not improve:
                     # We want a minimum improvement in the first found solution
-                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
-                else:
-                    # We want slightly worse solutions if the distance is larger
-                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
 
             if time.perf_counter() - current_time > timelimit:  # current
                 break
@@ -2179,26 +2179,26 @@ def evaluate_neighbors_aprox(
 
                 # Assuming minimization problem
                 # Implements heuristic of largest move
-                if not improve:
+                # if not improve:
                     # We want a minimum improvement in the first found solution
-                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
-                else:
-                    # We want slightly worse solutions if the distance is larger
-                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
             elif global_tee:
                 if m_solved.pruned_Status=='Pruned_SchedulingInfeasible':
                     print('Pruned:', temp[i], '   |   Lower bound problem infeasible   |   Global Time:', round(t_end - current_time, 2))                    
@@ -2336,26 +2336,26 @@ def evaluate_neighbors_aprox_tau_only(
 
                 # Assuming minimization problem
                 # Implements heuristic of largest move
-                if not improve:
+                # if not improve:
                     # We want a minimum improvement in the first found solution
-                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
-                else:
-                    # We want slightly worse solutions if the distance is larger
-                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
             elif global_tee:
                 if m_solved.pruned_Status=='Pruned_SchedulingInfeasible':
                     print('Pruned:', temp[i], '   |   Lower bound problem infeasible   |   Global Time:', round(t_end - current_time, 2))                    
