@@ -30,12 +30,13 @@ if __name__ == "__main__":
 
     nlp_solver='conopt4'
     minlp_solver='dicopt'
+    mip_solver='cplex'
     # # SHORT SCHEDULING
     # ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Best solution known from sequential iterative, short scheduling obj=-1148
     # ext_vars=[3, 5, 5, 6, 2, 5, 2, 2, 2, 3, 2, 3, 2, 3, 3, 3] #Solution fron infeasible initialization, obj=-1085
     ext_vars=[4, 4, 5, 5, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
     # ext_vars=[1, 1, 1, 1, 1, 1, 3, 3, 2, 4, 4, 3, 4, 4, 4, 5] #Scheduling only. Remember to activate scheduling only in solution of subproblem
-    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','infeasder 1','$offecho \n']}
+    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 200000 \n','infeasder 1','$offecho \n']}
     # BRANCHING PRIORITIES (tHIS IS DOING NOTHING HERE BECAUSE I HAVE N_I_J FIXED)
     start=time.time()
     model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
@@ -56,6 +57,21 @@ if __name__ == "__main__":
     # print('ext_Ref_required time=',str(end-start))
         # Transformation step
     start=time.time()
+    # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
     m =solve_with_minlp(m_fixed,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0) 
     end=time.time()
     # print('solve subproblem time=',str(end-start))
+
+    Init_found=[]
+
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            Init_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+    for I_J in m.I_J:
+        Init_found.append(1+round(pe.value(m.Nref[I_J])))
+
+    direction=[]
+    for i in range(len(Init_found)):
+        direction.append(Init_found[i]-ext_vars[i])
+    print('ext_vars: ',Init_found)
+    print('search direction: ', direction)

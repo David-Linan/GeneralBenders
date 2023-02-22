@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
 
     # ## EXPERIMENT 4: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS
-    sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
+    sub_options={'add_options':['GAMS_MODEL.optfile = 0;'+'\n','GAMS_MODEL.threads = 0;']}
     initialization=feas_init
     infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
     maxiter=10000
