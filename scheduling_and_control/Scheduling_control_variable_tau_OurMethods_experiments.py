@@ -163,6 +163,22 @@ if __name__ == "__main__":
 
 
     # ## EXPERIMENT 4: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS
+<<<<<<< HEAD
+    sub_options={'add_options':['GAMS_MODEL.optfile = 0;'+'\n','GAMS_MODEL.threads = 0;']}
+    initialization=feas_init
+    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    maxiter=10000
+    neigh=neighborhood_k_eq_2(len(initialization))
+    model_fun =scheduling_and_control_GDP_complete_approx
+    model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
+=======
     # sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
     # initialization=feas_init
     # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
@@ -177,6 +193,7 @@ if __name__ == "__main__":
     # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
     # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=gap)
+>>>>>>> d2ea89e891c5670a9dc6ddf01904ae240b664bfc
     
     # print('Objective value: ',str(pe.value(m.obj)))
     # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
