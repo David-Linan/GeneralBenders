@@ -32,50 +32,93 @@ if __name__ == "__main__":
     minlp_solver='dicopt'
     mip_solver='cplex'
     gdp_solver='LBB'
+    rel_tol=0
     # # SHORT SCHEDULING
     # ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Best solution known from sequential iterative, short scheduling obj=-1148
     # ext_vars=[3, 5, 5, 6, 2, 5, 2, 2, 2, 3, 2, 3, 2, 3, 3, 3] #Solution fron infeasible initialization, obj=-1085
     ext_vars=[4, 4, 5, 5, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
     # ext_vars=[1, 1, 1, 1, 1, 1, 3, 3, 2, 4, 4, 3, 4, 4, 4, 5] #Scheduling only. Remember to activate scheduling only in solution of subproblem
-    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 20000 \n','infeasder 1','$offecho \n']}
+    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 2 \n','infeasder 0','$offecho \n']}
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;','Option Threads =0;','Option SOLVER = OCTERACT;']}
     # BRANCHING PRIORITIES (tHIS IS DOING NOTHING HERE BECAUSE I HAVE N_I_J FIXED)
-    start=time.time()
-    model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-    logic_fun=problem_logic_scheduling
-    kwargs={}
-    m=model_fun(**kwargs)
-    end=time.time()
-    # print('model generation time=',str(end-start))
+    feas_cuts=[ext_vars]
+    current_objective=-10.3698
+    best_sol=current_objective
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    start=time.time()
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-    end=time.time()
-    print('get info from model time=',str(end-start))
+
+
+
     start=time.time()
-    m_fixed = external_ref_neighborhood(m=m,x=ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
-    end=time.time()
-    print('ext_Ref_required time=',str(end-start))
-        # Transformation step
-    start=time.time()
-    # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
-    m =solve_with_minlp(m_fixed,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0) 
-    # m =solve_with_minlp(m_fixed,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=0) 
-    # m = solve_with_gdpopt(m_fixed, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=3600000,strategy=gdp_solver, mip_output=False, nlp_output=False,rel_tol=0,tee=True)
+    contador=0
+    while 1:
+        contador=contador+1
+        print('-------------------Neighbor ',contador,'--------------------------------------------')
+        print('DICOPT:')
+        model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
+        logic_fun=problem_logic_scheduling
+        kwargs={}
+        m=model_fun(**kwargs)
+        m = external_ref_neighborhood(m=m,x=ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False,feasibility_cuts=feas_cuts)
+        # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=rel_tol)
+        m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=True,tee=True,rel_tol=rel_tol) 
+        
 
-    end=time.time()
-    # print('solve subproblem time=',str(end-start))
 
-    Init_found=[]
 
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            Init_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
-    for I_J in m.I_J:
-        Init_found.append(1+round(pe.value(m.Nref[I_J])))
 
-    direction=[]
-    for i in range(len(Init_found)):
-        direction.append(Init_found[i]-ext_vars[i])
-    print('ext_vars: ',Init_found)
-    print('search direction: ', direction)
+        Sol_found=[]
+        for I in m.I_reactions:
+            for J in m.J_reactors:
+                Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+        for I_J in m.I_J:
+            Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+        direction=[]
+        for i in range(len(Sol_found)):
+            direction.append(Sol_found[i]-ext_vars[i])
+
+            
+        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+            m.dicopt_status='Infeasible'
+        else:
+            m.dicopt_status='Optimal'
+        current_obj_dicopt=m.obj
+        if m.dicopt_status == 'Optimal':  
+
+            print('Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
+                        
+        else:
+            print('Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))        
+
+
+        print('SEARCH DIRECTION: ', direction)
+        # SOLVE APPROXIMATE SUBPROBLEM TO COMPARE OBJECTIVE FUNCTION
+        #TODO: HERE I HAVE TO DO THIS BECAUSE I HAVE MINLP SUBPROBLEMS, BUT IF SUBPROBLEMS ARE NLP , then only test by dicopt is required
+        model_fun =scheduling_and_control_GDP_complete_approx
+        logic_fun=problem_logic_scheduling_dummy
+        m=model_fun(**kwargs)
+
+        m_fixed = external_ref(m=m,x=Sol_found,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+        m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=rel_tol,best_sol=best_sol)
+        current_obj_subproblem=m.obj
+        if m.best_sol<=best_sol:
+            best_sol=m.best_sol
+
+
+        feas_cuts.append(Sol_found) #TODO: here I am jsut testing, hence I never stop. 
+
+
+        print('MINLP subproblem approximate evaluation:')
+        if m.dsda_status == 'Optimal':  
+
+            print('Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
+                        
+        else:
+            if m.pruned_Status=='Pruned_SchedulingInfeasible':
+                print('Pruned:', Sol_found, '   |   Lower bound problem infeasible   |   Global Time:', round(time.time()- start, 2))                    
+            elif m.pruned_Status=='Pruned_NoImprovementExpected':
+                print('Pruned:', Sol_found, '   |   No improvement expected   |   Global Time:', round(time.time()- start, 2))  
+            else:
+                print('Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))        
+
