@@ -34,8 +34,9 @@ if __name__ == "__main__":
     mip_solver='cplex'
     gdp_solver='GLOA'
     if minlp_solver=='dicopt':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
+        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
         # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n']}
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 20000 \n','infeasder 1','$offecho \n']}
     elif minlp_solver=='alphaecp':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
     elif minlp_solver=='antigone':
@@ -214,20 +215,21 @@ if __name__ == "__main__":
 
     # # Solve with MINLP
     # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    # m=model_fun(**kwargs)
-    # solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
-    # name='Results_variable_tau_minlp_complete_bigm_'+solvers+'.txt'
-    # m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0)
+    kwargs={'x_initial':[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7],'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    m=model_fun(**kwargs)
+    solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
+    name='Results_variable_tau_minlp_complete_bigm_'+solvers+'_scheduling28.txt'
+    m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0.05)
 
-    # textbuffer = io.StringIO()
-    # for v in m.component_objects(pe.Var, descend_into=True):
-    #     v.pprint(textbuffer)
-    #     textbuffer.write('\n')
-    # textbuffer.write('\n Objective: \n') 
-    # textbuffer.write(str(pe.value(m.obj)))    
-    # with open(name, 'w') as outputfile:
-    #     outputfile.write(textbuffer.getvalue())   
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open(name, 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())   
 # ####--------Objective function summary---------------------------------
 #     TPC1=sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)
 #     TPC2=sum(sum(sum( m.variable_cost[I,J]*pe.value(m.B[I,J,T]) for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
@@ -373,40 +375,40 @@ if __name__ == "__main__":
 
     
 
-    for inner_val in range(6):
-        tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars
-        for j in range(len(tau_init)):
-            tau_init[j]=tau_init[j]+inner_val
-        print(tau_init)
-        kwargs={'x_initial':tau_init}
-        model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
-        m=model_fun(**kwargs)
-        m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=0)
+    # for inner_val in range(6):
+    #     tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars
+    #     for j in range(len(tau_init)):
+    #         tau_init[j]=tau_init[j]+inner_val
+    #     print(tau_init)
+    #     kwargs={'x_initial':tau_init}
+    #     model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    #     m=model_fun(**kwargs)
+    #     m_scheduling = solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=0)
 
 
-        for I_J in m_scheduling.I_J:
-            tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
-        print("-----------------------Iter ",inner_val,"------------------------------")
-        print("Initialization of ext vars: ",tau_init)
-        if m_scheduling.results.solver.termination_condition == 'infeasible' or m_scheduling.results.solver.termination_condition == 'other' or m_scheduling.results.solver.termination_condition == 'unbounded' or m_scheduling.results.solver.termination_condition == 'invalidProblem' or m_scheduling.results.solver.termination_condition == 'solverFailure' or m_scheduling.results.solver.termination_condition == 'internalSolverError' or m_scheduling.results.solver.termination_condition == 'error'  or m_scheduling.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling.results.solver.termination_condition == 'licensingProblem' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'intermediateNonInteger':
-            print("Lower bound of ext vars infeasible")
-            break
+    #     for I_J in m_scheduling.I_J:
+    #         tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
+    #     print("-----------------------Iter ",inner_val,"------------------------------")
+    #     print("Initialization of ext vars: ",tau_init)
+    #     if m_scheduling.results.solver.termination_condition == 'infeasible' or m_scheduling.results.solver.termination_condition == 'other' or m_scheduling.results.solver.termination_condition == 'unbounded' or m_scheduling.results.solver.termination_condition == 'invalidProblem' or m_scheduling.results.solver.termination_condition == 'solverFailure' or m_scheduling.results.solver.termination_condition == 'internalSolverError' or m_scheduling.results.solver.termination_condition == 'error'  or m_scheduling.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling.results.solver.termination_condition == 'licensingProblem' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'intermediateNonInteger':
+    #         print("Lower bound of ext vars infeasible")
+    #         break
 
 
-        initialization=tau_init
+    #     initialization=tau_init
         
-        infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-        maxiter=10000
-        neigh=neighborhood_k_eq_2(len(initialization))
-        model_fun =scheduling_and_control_GDP_complete_approx
-        model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
-        logic_fun=problem_logic_scheduling_dummy
-        kwargs={}
-        m=model_fun(**kwargs)
-        ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-        ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-        [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-        [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    #     infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    #     maxiter=10000
+    #     neigh=neighborhood_k_eq_2(len(initialization))
+    #     model_fun =scheduling_and_control_GDP_complete_approx
+    #     model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    #     logic_fun=problem_logic_scheduling_dummy
+    #     kwargs={}
+    #     m=model_fun(**kwargs)
+    #     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    #     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    #     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    #     [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
         
 
 
