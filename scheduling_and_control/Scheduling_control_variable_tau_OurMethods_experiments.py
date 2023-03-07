@@ -35,6 +35,22 @@ if __name__ == "__main__":
 
 
 
+
+
+    ## TEST JUMP BORRAR
+    tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars. This will also be the lower bound of processing times
+    sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 1;','option mip=convert;\n','$onecho > convert.opt \n','JuMP model_david.jl \n','$offecho \n']}
+    kwargs={'x_initial':tau_init,'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    model_fun=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    m=model_fun(**kwargs)
+    m_scheduling = solve_with_minlp(m,transformation='hull',minlp='convert',minlp_options=sub_options_infeas_init,timelimit=3600000,gams_output=True,tee=True,rel_tol=0.05)
+
+    for I_J in m_scheduling.I_J:
+        tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
+
+    print('Infeasible initialization of ext-vars: ',tau_init)
+ 
+
     ##INFEASIBLE INITIALIZATION
     # tau_init=[1,1,1,1,1,1] # Initialization of ext vars in the domain of ext vars. This will also be the lower bound of processing times
     # sub_options_infeas_init={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=1;','option mip='+mip_solver+';\n']}
@@ -114,25 +130,25 @@ if __name__ == "__main__":
 
 
     # ## EXPERIMENT 2: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DSDA, APROX SOLUTION OF SUBPROBLEMS
-    sub_options={'add_options':['GAMS_MODEL.optfile = 0;'+'\n','GAMS_MODEL.threads = 0;']}
-    model_fun =scheduling_and_control_GDP_complete_approx
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,feas_init,ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = gap)
-    print('Objective value: ',str(pe.value(m.obj)))
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;'+'\n','GAMS_MODEL.threads = 0;']}
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,feas_init,ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = gap)
+    # print('Objective value: ',str(pe.value(m.obj)))
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open('Results_variable_tau_enhanced_dsda_aprox_k_2_increased_horizon28.txt', 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open('Results_variable_tau_enhanced_dsda_aprox_k_2_increased_horizon28.txt', 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
     # ## EXPERIMENT 3: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, RIGUROUS SOLUTION OF SUBPROBLEMS
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option mip=cplex; \n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','mipoptfile 1 \n','$offecho \n','$onecho > cplex.opt \n','epgap '+str(gap)+'\n','$offecho \n']}
     # initialization=feas_init
@@ -163,9 +179,9 @@ if __name__ == "__main__":
 
 
     # ## EXPERIMENT 4: GAP 0.05, FROM FEASIBLE INITIALIZATION, ENHANCED DBD, APROX SOLUTION OF SUBPROBLEMS
-    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;']}
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 0;'+'\n','GAMS_MODEL.threads = 0;']}
     # initialization=feas_init
-    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # infinity_val=1e+5 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
     # maxiter=10000
     # neigh=neighborhood_k_eq_2(len(initialization))
     # model_fun =scheduling_and_control_GDP_complete_approx
