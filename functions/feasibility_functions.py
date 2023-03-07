@@ -326,14 +326,14 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                 else:
                     # Check for infeasibilities
                     if constr.equality:
-                        if fabs(constr_lb_value - constr_body_value) >= tol:
+                        if fabs(constr_lb_value - constr_body_value)/(1+fabs(constr_lb_value)) >= tol:
                             equality_violated = True
                             sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)/(1+fabs(constr_lb_value))
                     else:
-                        if constr.has_lb() and constr_lb_value - constr_body_value >= tol:
+                        if constr.has_lb() and (constr_lb_value - constr_body_value)/(1+fabs(constr_lb_value)) >= tol:
                             lb_violated = True
                             sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)/(1+fabs(constr_lb_value))
-                        if constr.has_ub() and constr_body_value - constr_ub_value >= tol:
+                        if constr.has_ub() and (constr_body_value - constr_ub_value)/(1+fabs(constr_ub_value)) >= tol:
                             ub_violated = True
                             sum_infeasibility=sum_infeasibility+fabs(constr_body_value - constr_ub_value)/(1+fabs(constr_ub_value))
                 if not any((constr_undefined, equality_violated, lb_violated, ub_violated)):

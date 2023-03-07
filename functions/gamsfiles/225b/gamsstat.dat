@@ -14,7 +14,9 @@ by Ignacio E. Grossmann, Chemical Engineering Faculty,
 =C>> 
 =C>>  stop 1 
 =C>> 
-=C>>  maxcycles 2000 
+=C>>  maxcycles 20000 
+=C>> 
+=C>>  mipoptfile 1 
 =C>> 
 =CFinished reading from "C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\dicopt.opt"
 =2
@@ -30,6 +32,10 @@ by Ignacio E. Grossmann, Chemical Engineering Faculty,
                   DK-2880 Bagsvaerd, Denmark
  
 =2
+=1
+    Will use up to 8 threads.
+ 
+=2
  
   ***  Line    0  SET       LFEERR =            0
  
@@ -37,117 +43,114 @@ by Ignacio E. Grossmann, Chemical Engineering Faculty,
  
   ***  Line    0  SET       LFITER =   2147483647
  
-  ***  Line    0  SET       RVTIME =      100000.0000
+  ***  Line    0  SET       RVTIME =      100000000.0
 =1
  
-    The user model has 4307 constraints and 3914 variables
-    with 18645 Jacobian elements, 5046 of which are nonlinear.
-    The Hessian of the Lagrangian has 186 elements on the diagonal,
-    2694 elements below the diagonal, and 1278 nonlinear variables.
+    The user model has 13860 constraints and 13393 variables
+    with 55674 Jacobian elements, 14958 of which are nonlinear.
+    The Hessian of the Lagrangian has 546 elements on the diagonal,
+    7758 elements below the diagonal, and 3630 nonlinear variables.
 =2
  
     Iter Phase   Ninf   Infeasibility   RGmax      NSB   Step  InItr MX OK
-       0   0          1.3261176183E+03 (Input point)
+       0   0          1.2150100000E+04 (Input point)
 =1
  
-    The pre-triangular part of the model has 420 constraints and 327 variables.
+    The pre-triangular part of the model has 1738 constraints and 1993 variables.
 =2
 =1
-    The post-triangular part of the model has 139 constraints and variables.
+    The post-triangular part of the model has 30 constraints and variables.
 =2
 =1
-    There are 1431 definitional constraints and defined variables.
+    There are 5309 definitional constraints and defined variables.
 =2
 =1
  
-    Preprocessed model has 2317 constraints and 2017 variables
-    with 11390 Jacobian elements, 2736 of which are nonlinear.
+    Preprocessed model has 6783 constraints and 6061 variables
+    with 34440 Jacobian elements, 10896 of which are nonlinear.
 =2
-                      7.2612007716E+02 (Full preprocessed model)
-                      7.6183920186E+01 (After scaling)
-                      6.1191045822E+01 (After adjusting individual variables)
+                      1.8667997800E+04 (Full preprocessed model)
+                      9.8479260642E+01 (After scaling)
+                      8.4414077863E+01 (After adjusting individual variables)
  
     Iter Phase   Ninf   Infeasibility   RGmax      NSB   Step  InItr MX OK
-       1   0       0  4.3646539425E+01                 1.0E+00   231 T  T
-       2   0       0  4.1731414975E+01                 1.0E+00     3 T  T
-       3   0       0  4.1731414933E+01                 1.0E+00     4 T  T
-       4   1     389  4.1710203723E+01 1.9E+10      24 1.8E-01    25 F  F
-       5   1     364  4.1590279893E+01 1.4E+08      30 1.0E+00    25 T  T
-       6   1     363  4.1393097209E+01 3.8E+07      52 2.5E-01    50 F  F
-       7   1     363  4.1232938320E+01 6.5E+01      38 3.2E-01    35 F  F
-       8   1     362  4.1073419205E+01 5.8E+06      32 6.6E-01    25 F  F
-       9   1     346  4.0910832154E+01 1.4E+01      25 1.0E+00    25 T  T
-      10   1     304  4.0499282618E+01 4.2E+06      48 1.0E+00    50 T  T
-      11   1     253  3.9795653435E+01 7.5E+03      67 1.0E+00    71 T  T
-      12   1      93  3.4294620540E+01 4.0E+04     203 1.0E+00   123 T  T
-      13   1      49  2.8834454711E+01 1.6E+04     137 1.0E+00   117 T  T
-      14   1      46  2.4477450297E+01 1.7E+01      90 1.0E+00    32 T  T
-      15   1      41  2.0827834090E+01 2.7E+01      89 1.0E+00    25 T  T
-      16   1      39  1.7998425591E+01 2.8E+01      87 1.0E+00    30 T  T
-      17   1      32  1.6237298463E+01 4.4E+01      92 1.0E+00    27 T  T
-      18   1      31  1.5322144608E+01 8.7E+00      94 1.0E+00    35 T  T
-      19   1      25  1.4072094505E+01 1.5E+01      89 1.0E+00    37 T  T
+       1   0       0  8.3861709388E+01                 1.0E+00    64 T  T
+       2   0       0  8.3332915355E+01                 1.0E+00   243 T  T
+       3   0       0  8.2357919938E+01                 1.0E+00    57 T  T
+       4   0       0  8.2248835587E+01                 1.0E+00    84 T  T
+       5   0       0  7.4255323685E+01                 1.0E+00   102 T  T
+       6   0       0  6.9752885830E+01                 1.0E+00    86 T  T
+       7   0       0  6.8618018311E+01                 1.0E+00    25 T  T
+       8   0       0  6.8523125757E+01                 1.0E+00    36 T  T
+       9   0       0  6.8521597648E+01                 1.0E+00     1 T  T
+      10   0       0  6.8521597644E+01                 1.0E+00    22 T  T
+      11   1    1174  6.8520462507E+01 1.7E+06      28 2.1E-01    25 F  F
+      12   1    1174  6.8516857154E+01 2.0E+07      35 7.9E-02    25 F  F
+      13   1    1172  6.8514969979E+01 3.0E+03      41 9.7E-02    25 F  F
+      14   1    1171  6.8513762733E+01 4.5E+02      25 4.1E-02    25 F  F
+      15   1    1171  6.8513080366E+01 5.7E+03      29 4.8E-02    25 T  T
+      16   1    1134  6.8459286037E+01 3.7E+07      56 1.0E+00    50 T  T
+      17   1    1047  6.8267192788E+01 1.1E+07     107 1.0E+00   100 T  T
+      18   1     898  6.7675567005E+01 2.3E+08     184 1.0E+00   200 T  T
+      19   1     592  6.1020861677E+01 4.3E+08     348 1.0E+00   400 T  T
  
     Iter Phase   Ninf   Infeasibility   RGmax      NSB   Step  InItr MX OK
-      20   1      25  1.3080861450E+01 1.0E+01      86 8.6E-01    29 F  F
-      21   1      24  1.2781347555E+01 1.2E+01      94 1.0E+00    23 T  T
-      22   1      18  1.1914673269E+01 1.3E+01      93 1.0E+00    32 T  T
-      23   1      18  1.1587959274E+01 6.1E-01      91 1.0E+00    48 T  T
-      24   1      18  1.1181669555E+01 3.9E+01      91 1.0E+00    36 T  T
-      25   1      18  1.0683473596E+01 1.5E+00      90 1.0E+00    33 T  T
-      26   1      18  1.0118311273E+01 5.9E-01      86 1.0E+00    23 T  T
-      27   1      18  9.4724815000E+00 6.9E-01      86 1.0E+00    21 T  T
-      28   1      18  8.6768467743E+00 2.2E+00      85 1.0E+00    24 T  T
-      29   1      14  8.1445161559E+00 6.2E+01      87 1.0E+00    31 T  T
-      30   1      14  7.2567633503E+00 4.8E+00      85 1.0E+00    28 T  T
-      31   1      14  5.5768812280E+00 4.8E+00      84 1.0E+00    25 T  T
-      32   1      13  4.2766128348E+00 3.0E+00      97 1.0E+00    28 T  T
-      33   1      11  4.2427811234E+00 2.4E+00      98 4.4E-02    26 T  T
-      34   1      11  2.8068254026E+00 1.9E+00      78 1.0E+00    19 T  T
-      35   1       8  1.2074063714E+00 5.5E+00      80 1.0E+00    15 T  T
-      36   1       8  5.9019346742E-01 3.5E+00      63 9.1E-01    12 F  F
-      37   1       4  4.5635328395E-01 6.0E+01      67 1.0E+00    15 T  T
-      38   1       4  3.9524356491E-01 9.2E+00      65 1.0E+00    25 T  T
-      39   1       4  3.4812243708E-01 7.8E-01      59 1.0E+00    14 T  T
+      20   1      68  4.0340327861E+01 1.6E+07     667 1.0E+00   567 T  T
+      21   1      49  3.6041249075E+01 8.3E+03     106 1.0E+00   101 T  T
+      22   1      47  3.4534201195E+01 7.8E+00      94 1.0E+00    61 T  T
+      23   1      47  3.3767535870E+01 4.9E+01      83 1.0E+00    70 T  T
+      24   1      47  3.2993068702E+01 2.0E+01      81 1.0E+00    27 T  T
+      25   1      47  3.1994953275E+01 1.7E+00      85 1.0E+00    28 T  T
+      26   1      47  3.0649671316E+01 2.8E+00      84 1.0E+00    28 T  T
+      27   1      47  2.8837664423E+01 6.0E+00      88 1.0E+00    16 T  T
+      28   1      42  2.6763908914E+01 6.8E+00      91 1.0E+00    48 T  T
+      29   1      38  2.5015542875E+01 6.0E+01      90 1.0E+00    26 T  T
+      30   1      32  2.3551068282E+01 5.7E+00      90 1.0E+00    25 T  T
+      31   1      31  2.2082866853E+01 7.2E+00      70 1.0E+00    15 T  T
+      32   1      30  2.0322493172E+01 5.2E+00      69 1.0E+00    21 T  T
+      33   1      30  1.8792549352E+01 7.8E+00      68 1.0E+00    14 T  T
+      34   1      30  1.6406011746E+01 1.6E+02      70 1.0E+00    25 T  T
+      35   1      26  1.4454120281E+01 5.2E+01      73 1.0E+00    22 T  T
+      36   1      17  1.3210917775E+01 5.8E+01      83 1.0E+00    12 T  T
+      37   1      17  1.2681306727E+01 6.8E+01      48 1.0E+00    27 T  T
+      38   1      16  1.1903927233E+01 4.1E+00      45 1.0E+00    42 T  T
+      39   1      16  1.0990145307E+01 6.6E-01      34 1.0E+00     8 T  T
  
     Iter Phase   Ninf   Infeasibility   RGmax      NSB   Step  InItr MX OK
-      40   1       4  3.1142504209E-01 5.3E-01      57 1.0E+00    14 T  T
-      41   1       4  2.7385530564E-01 3.8E-01      57 1.0E+00    14 T  T
-      42   1       4  2.3126651829E-01 2.7E-01      54 1.0E+00     2 T  T
-      43   1       4  1.8899622579E-01 1.8E-01      55 1.0E+00     8 T  T
-      44   1       3  1.6036335253E-01 1.0E+00      34 1.0E+00     8 T  T
-      45   1       3  1.3144678097E-01 5.4E-02      32 1.0E+00     6 T  T
-      46   1       2  1.1508110183E-01 1.0E+00      38 1.0E+00    14 T  T
-      47   1       2  8.6792617072E-02 1.2E-01      22 9.3E-01     4 F  F
-      48   1       2  6.0515696180E-02 3.5E-01      24 1.0E+00     8 T  T
-      49   1       2  2.3394387306E-02 1.7E-01      23 1.1E+00     1 T  T
-      50   1       1  1.5525631425E-05 1.0E+00       4 1.0E+00     4 T  T
+      40   1      16  9.7767529418E+00 2.4E+00      36 9.7E-01    11 F  F
+      41   1      15  9.1478942117E+00 3.7E+00      40 1.0E+00    17 T  T
+      42   1      15  8.6311583186E+00 2.6E+00      39 1.0E+00    11 T  T
+      43   1      15  8.0618119181E+00 2.7E+00      38 1.0E+00    10 T  T
+      44   1      14  6.9073120576E+00 6.3E+00      42 1.0E+00     9 T  T
+      45   1      13  5.7828477283E+00 6.4E+00      23 1.0E+00     4 T  T
+      46   1      10  4.7169461297E+00 5.2E+01      24 1.0E+00     3 T  T
+      47   1       8  4.5564382986E+00 4.2E+01      22 1.0E+00     8 T  T
+      48   1       8  4.2316698063E+00 1.7E+00      12 1.4E+00    12 T  T
+      49   1       8  3.8491843855E+00 1.6E+00      12 1.0E+00     3 T  T
+      50   1       7  3.2034871804E+00 3.7E+01      11 1.2E+00     5 T  T
+      51   1       7  2.5172245002E+00 1.6E+00      11 1.0E+00     2 T  F
+      52   1       5  7.7526777732E-01 2.3E+00      12 1.3E+00     4 T  T
+      53   1       3  6.4024824848E-02 3.7E+00       5 1.0E+00     5 T  T
  
- ** Feasible solution. Value of objective =   -6.14942010874
+ ** Feasible solution. Value of objective =   -6.51824839284
  
 Search for an optimal solution.
  
  
     Iter Phase   Ninf     Objective     RGmax      NSB   Step  InItr MX OK
-      51   3         -1.2156714059E+01 9.9E+00      27 1.0E+00    25 T  T
-      52   3         -1.2693652358E+01 2.8E+00      40 2.5E-01    50 F  F
-      53   3         -1.4171351103E+01 2.9E+00      20 1.0E+00    28 T  T
-      54   3         -1.4221242257E+01 6.7E-01      73 7.1E-02    56 T  T
-      55   3         -1.4539233886E+01 6.7E-01      41 9.5E-01    28 F  F
-      56   3         -1.4543303153E+01 4.1E-01      27 1.0E+00    25 T  T
-      57   3         -1.4767292109E+01 6.6E-01      44 1.0E+00    50 T  T
-      58   3         -1.4850980172E+01 2.6E-01      62 6.4E-01    50 F  F
-      59   3         -1.4860154799E+01 1.7E-01      27 1.0E+00    25 T  T
-      60   3         -1.4907004616E+01 1.9E-01      39 1.0E+00    36 T  T
-      61   3         -1.4907748817E+01 3.6E-02       6 3.0E-01     6 F  T
-      62   3         -1.4907774001E+01 3.6E-02       6 8.7E-02     7 F  T
-      63   4         -1.4907787255E+01 4.0E-02       6 1.0E+00     5 T  T
-      64   3         -1.4907788687E+01 4.3E-03       2 1.8E-02     2 F  T
-      65   4         -1.4907788687E+01 4.3E-03       2 4.9E-04     1 F  F
-      66   4         -1.4907788687E+01 4.3E-03       2 0.0E+00     1 F  T
-      67   4         -1.4907788686E+01 4.3E-03       1 1.0E+00     1 T  T
-      68   4         -1.4907788686E+01 2.3E-05       1 2.6E+00     1 F  T
-      69   4         -1.4907788686E+01 2.1E-08       1
+      54   3         -8.4352739499E+00 1.7E+01      36 3.5E-01    25 F  F
+      55   3         -1.1750680755E+01 1.4E+01      29 1.0E+00    25 T  T
+      56   3         -1.2339809943E+01 3.0E-01      68 5.3E-01    50 F  F
+      57   3         -1.2506063862E+01 4.6E-01      24 8.6E-01    25 F  F
+      58   3         -1.2568954939E+01 4.5E-01      28 1.0E+00    25 T  T
+      59   3         -1.2723489045E+01 5.3E-01      48 1.0E+00    26 T  T
+      60   3         -1.2823995085E+01 5.4E-02      29 1.0E+00    26 T  T
+      61   3         -1.2899816552E+01 1.3E-01      26 9.9E-01    26 T  T
+      62   3         -1.2930864952E+01 1.2E-01      31 1.0E+00    25 T  T
+      63   3         -1.2940273344E+01 5.5E-02      10 1.0E+00    10 T  T
+      64   3         -1.2942108713E+01 2.7E-02       7 1.0E+00     7 T  T
+      65   3         -1.2942750251E+01 4.1E-03       2 1.0E+00     2 T  T
+      66   4         -1.2942750250E+01 2.8E-15      35
 =1
  
  ** Optimal solution. Reduced gradient less than tolerance.
@@ -155,17 +158,16 @@ Search for an optimal solution.
 =2
 =1
  
- CONOPT time Total                            1.472 seconds
-   of which: Function evaluations             0.246 = 16.7%
-             1st Derivative evaluations       0.066 =  4.5%
-             2nd Derivative evaluations       0.003 =  0.2%
-             Directional 2nd Deriv(Hess)      0.005 =  0.3%
-             Interval derivative evals        0.015 =  1.0%
+ CONOPT time Total                            5.938 seconds
+   of which: Function evaluations             1.199 = 20.2%
+             1st Derivative evaluations       0.227 =  3.8%
+             2nd Derivative evaluations       0.000 =  0.0%
+             Interval derivative evals        0.031 =  0.5%
  
 =2
  
- Memory: Max used =      8.20 Mbytes
-  Total Allocated =     11.42 Mbytes
+ Memory: Max used =     22.92 Mbytes
+  Total Allocated =     29.32 Mbytes
  
 =1
 =2
@@ -173,23 +175,31 @@ Search for an optimal solution.
 =1
 --- GAMS/Cplex Link licensed for continuous and discrete problems.
 =2
+=C
+=1
+=CReading parameter(s) from "cplex.opt"
+=C>> 
+=C>>  bendersstrategy 3
+=CFinished reading from "cplex.opt"
+=2
+=C
 =1
 --- GMO setup time: 0.00s
 =2
 =1
---- Space for names approximately 0.42 Mb
+--- Space for names approximately 1.34 Mb
 =2
 =1
 --- Use option 'names no' to turn use of names off
 =2
 =1
---- GMO memory 2.74 Mb (peak 2.79 Mb)
+--- GMO memory 7.51 Mb (peak 7.67 Mb)
 =2
 =1
 --- Dictionary memory 0.00 Mb
 =2
 =1
---- Cplex 20.1.0.1 link memory 0.17 Mb (peak 0.96 Mb)
+--- Cplex 20.1.0.1 link memory 0.56 Mb (peak 3.05 Mb)
 =2
 =1
 --- Starting Cplex
@@ -197,141 +207,414 @@ Search for an optimal solution.
 =C
 Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
 CPXPARAM_Advance                                 0
-CPXPARAM_Threads                                 1
+CPXPARAM_Benders_Strategy                        3
 CPXPARAM_MIP_Display                             4
 CPXPARAM_MIP_Pool_Capacity                       0
-CPXPARAM_TimeLimit                               99998.5
+CPXPARAM_TimeLimit                               99999994.077999994
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
 CPXPARAM_MIP_Tolerances_MIPGap                   0
-Generic callback                                 0x50
+Generic callback                                 0x10
 Tried aggregator 2 times.
-MIP Presolve eliminated 1142 rows and 2466 columns.
-MIP Presolve modified 149 coefficients.
-Aggregator did 392 substitutions.
-Reduced MIP has 2773 rows, 3575 columns, and 12444 nonzeros.
-Reduced MIP has 218 binaries, 6 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.02 sec. (11.66 ticks)
-Found incumbent of value 438060.739651 after 0.08 sec. (31.06 ticks)
-Probing fixed 0 vars, tightened 1005 bounds.
-Probing changed sense of 1 constraints.
-Probing time = 0.00 sec. (3.30 ticks)
-Cover probing fixed 0 vars, tightened 148 bounds.
-Tried aggregator 2 times.
-MIP Presolve eliminated 351 rows and 697 columns.
-Aggregator did 1 substitutions.
-Reduced MIP has 2421 rows, 2877 columns, and 10752 nonzeros.
-Reduced MIP has 217 binaries, 6 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.02 sec. (5.80 ticks)
-Probing fixed 0 vars, tightened 320 bounds.
-Probing time = 0.02 sec. (2.91 ticks)
-Cover probing fixed 0 vars, tightened 106 bounds.
+MIP Presolve eliminated 2027 rows and 6231 columns.
+Aggregator did 5499 substitutions.
+Reduced MIP has 6334 rows, 9226 columns, and 36000 nonzeros.
+Reduced MIP has 531 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.05 sec. (31.53 ticks)
+Found incumbent of value 8500480.672468 after 0.14 sec. (59.89 ticks)
 Tried aggregator 1 time.
-Detecting symmetries...
-MIP Presolve eliminated 59 rows and 87 columns.
-Reduced MIP has 2362 rows, 2790 columns, and 10380 nonzeros.
-Reduced MIP has 217 binaries, 6 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.02 sec. (6.60 ticks)
-Probing fixed 0 vars, tightened 183 bounds.
-Probing time = 0.01 sec. (2.79 ticks)
-Clique table members: 184.
-MIP emphasis: balance optimality and feasibility.
-MIP search method: dynamic search.
-Parallel mode: none, using 1 thread.
-Initializing dual steep norms . . .
-
-Iteration log . . .
-Iteration:     1   Dual objective     =          -230.167211
-Iteration:   154   Dual objective     =           -77.091520
-Perturbation started.
-Iteration:   303   Dual objective     =           -77.091520
-Iteration:   462   Dual objective     =           -62.041047
-Iteration:   594   Dual objective     =           -36.237233
-Iteration:   713   Dual objective     =           -29.731563
-Iteration:   829   Dual objective     =           -18.352099
-Iteration:   939   Dual objective     =           -17.960575
-Iteration:  1045   Dual objective     =           -16.907593
-Iteration:  1157   Dual objective     =           -16.323953
-Iteration:  1265   Dual objective     =           -16.319925
-Iteration:  1348   Dual objective     =           -15.375767
-Iteration:  1443   Dual objective     =           -15.369043
-Iteration:  1547   Dual objective     =           -15.173413
-Iteration:  1645   Dual objective     =           -14.845163
-Iteration:  1763   Dual objective     =           -14.489847
-Removing perturbation.
-Root relaxation solution time = 0.11 sec. (87.64 ticks)
+Reduced MIP has 6334 rows, 9226 columns, and 36000 nonzeros.
+Reduced MIP has 531 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (10.94 ticks)
 
         Nodes                                         Cuts/
    Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
 
-*     0+    0                       438060.7397     -236.7672           100.05%
-Found incumbent of value 438060.739651 after 0.27 sec. (157.53 ticks)
-      0     0      -14.4920    72   438060.7397      -14.4920     1782  100.00%
-      0     0      -14.2414    62   438060.7397      Cuts: 44     1862  100.00%
-      0     0      -14.2000    65   438060.7397      Cuts: 39     1909  100.00%
-      0     0      -14.1519    64   438060.7397      Cuts: 29     1952  100.00%
-      0     0      -14.0646    62   438060.7397      Cuts: 19     1995  100.00%
-*     0+    0                           -7.4419      -14.0646            88.99%
-Found incumbent of value -7.441949 after 0.72 sec. (482.81 ticks)
-      0     0      -13.9331    66       -7.4419      Cuts: 26     2046   87.22%
-      0     0      -13.8395    66       -7.4419      Cuts: 26     2099   85.97%
-      0     0      -13.3388    68       -7.4419      Cuts: 88     2214   79.24%
-      0     0      -13.1900    72       -7.4419      Cuts: 53     2283   77.24%
-      0     0      -13.0291    65       -7.4419      Cuts: 58     2338   75.08%
-      0     0      -12.8593    62       -7.4419      Cuts: 52     2397   72.79%
-      0     0      -12.7549    67       -7.4419      Cuts: 35     2442   71.39%
-      0     0      -12.7201    71       -7.4419      Cuts: 29     2470   70.92%
-      0     0      -12.6393    65       -7.4419      Cuts: 14     2494   69.84%
-      0     0      -12.6293    68       -7.4419       Cuts: 4     2503   69.70%
-      0     0      -12.6270    71       -7.4419    MIRcuts: 5     2510   69.67%
-      0     0      -12.6251    72       -7.4419      Cuts: 10     2517   69.65%
-Detecting symmetries...
-      0     2      -12.6251    69       -7.4419      -12.6239     2517   69.63%
-Elapsed time = 1.56 sec. (1138.46 ticks, tree = 0.01 MB)
-     40    34       -7.8286     6       -7.4419      -12.3749     3673   66.29%
-    100    73       -9.2479    31       -7.4419      -11.8075     4825   58.66%
-                                                  Impl Bds: 2                  
-*   130+   89                           -7.5688      -11.7100            54.71%
-Found incumbent of value -7.568841 after 2.16 sec. (1696.61 ticks)
-    180   123       -9.2471    20       -7.5688      -11.4676     5757   51.51%
-    244   171       -9.5550    28       -7.5688      -11.1752     6349   47.65%
-                                                  Impl Bds: 2                  
-    326   226       -9.2263    21       -7.5688      -11.0396     7617   45.86%
-                                                  Impl Bds: 3                  
-    420   282       -8.8038    20       -7.5688      -10.9432     8679   44.58%
-                                                  Impl Bds: 2                  
-    515   348       -9.5847    35       -7.5688      -10.7279     9797   41.74%
-                                                  Impl Bds: 4                  
-    610   416       -7.9766    12       -7.5688      -10.6943    11001   41.29%
-    700   475       -7.6932     7       -7.5688      -10.6218    12170   40.34%
-                                                  Impl Bds: 1                  
+      0     0     -262.3000        8500480.6725   Benders: 15        2  100.00%
+      0     0     -262.3000        8500480.6725    Benders: 6        5  100.00%
+      0     0     -262.3000        8500480.6725    Benders: 1        7  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 7      168  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 9      172  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 4      176  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      178  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      179  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 3      182  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      185  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      188  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      192  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      193  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 2      194  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      195  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      197  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      198  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      200  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      201  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      203  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      205  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 2      208  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      210  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 3      217  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 1      222  100.00%
+      0     0      -32.4348        8500480.6725    Benders: 4      226  100.00%
+      0     0      -30.3048        8500480.6725    Benders: 6      316  100.00%
+      0     0      -30.2547        8500480.6725    Benders: 1      320  100.00%
+      0     0      -19.8594        8500480.6725    Benders: 6      332  100.00%
+      0     0      -19.8594        8500480.6725    Benders: 6      339  100.00%
+      0     0      -19.8594        8500480.6725    Benders: 1      349  100.00%
+      0     0      -17.3399        8500480.6725    Benders: 1      392  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 1      489  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 1      491  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 2      500  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 6      506  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 1      508  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 2      522  100.00%
+      0     0      -13.1856        8500480.6725    Benders: 1      539  100.00%
+      0     0      -13.1843        8500480.6725    Benders: 1      551  100.00%
+      0     0      -13.1843        8500480.6725    Benders: 4      556  100.00%
+      0     0      -13.1843        8500480.6725    Benders: 1      562  100.00%
+      0     0      -13.1822        8500480.6725    Benders: 1      575  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      588  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      592  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      597  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      600  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 2      612  100.00%
+      0     0      -13.1659        8500480.6725   Benders: 10      619  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      636  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      637  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      643  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      656  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      678  100.00%
+      0     0      -13.1659        8500480.6725    Benders: 1      679  100.00%
+      0     0      -13.1314        8500480.6725    Benders: 1      686  100.00%
+      0     0      -13.1314        8500480.6725    Benders: 1      687  100.00%
+      0     0      -13.1314        8500480.6725    Benders: 1      689  100.00%
+      0     0      -13.1314        8500480.6725    Benders: 1      699  100.00%
+      0     0      -13.1314        8500480.6725    Benders: 1      702  100.00%
+      0     0      -13.1314        8500480.6725    Benders: 1      703  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      706  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 5      716  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      721  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      724  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      728  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      737  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      753  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      759  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      765  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      773  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      775  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      793  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      794  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      799  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      813  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      826  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 3      835  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      846  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      848  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      849  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      857  100.00%
+      0     0      -12.9428        8500480.6725    Benders: 1      864  100.00%
+Tried aggregator 1 time.
+MIP Presolve eliminated 2 rows and 0 columns.
+MIP Presolve modified 597 coefficients.
+Reduced MIP has 107 rows, 532 columns, and 2095 nonzeros.
+Reduced MIP has 531 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.33 ticks)
+Probing time = 0.00 sec. (1.54 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 107 rows, 532 columns, and 2095 nonzeros.
+Reduced MIP has 531 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (0.73 ticks)
+Probing time = 0.00 sec. (1.56 ticks)
+Clique table members: 539.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 8 threads.
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.00 sec. (0.17 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =           -12.942750
+Root relaxation solution time = 0.00 sec. (0.35 ticks)
+      0     0      -12.9428     3                    -12.9428      875         
+*     0+    0                            8.4006      -12.9428           254.07%
+Found incumbent of value 8.400621 after 9.98 sec. (12224.92 ticks)
+      0     0      -12.9428     4        8.4006       Cuts: 4      881  254.07%
+*     0+    0                            2.6843      -12.9428           582.17%
+Found incumbent of value 2.684255 after 10.95 sec. (13737.89 ticks)
+      0     0      -12.9428     2        2.6843       Cuts: 2      887  582.17%
+*     0+    0                           -5.3190      -12.9428           143.33%
+Found incumbent of value -5.318995 after 11.52 sec. (14253.69 ticks)
+      0     0      -12.9428     4       -5.3190       Cuts: 3      892  143.33%
+
+Repeating presolve.
+Tried aggregator 1 time.
+MIP Presolve eliminated 0 rows and 3 columns.
+Reduced MIP has 107 rows, 529 columns, and 2071 nonzeros.
+Reduced MIP has 528 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.74 ticks)
+Probing time = 0.00 sec. (1.54 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 107 rows, 529 columns, and 2071 nonzeros.
+Reduced MIP has 528 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.74 ticks)
+Represolve time = 0.05 sec. (8.03 ticks)
+Probing time = 0.00 sec. (1.54 ticks)
+Clique table members: 509.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 8 threads.
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.00 sec. (0.27 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =           -12.942750
+Root relaxation solution time = 0.00 sec. (0.60 ticks)
+*     0+    0                           -5.3190      -12.9428           143.33%
+Found incumbent of value -5.318995 after 13.19 sec. (16448.49 ticks)
+      0     0      -12.9428     2       -5.3190      -12.9428     1770  143.33%
+      0     2      -12.9428     2       -5.3190      -12.9428     1770  143.33%
+Elapsed time = 14.64 sec. (18483.50 ticks, tree = 0.02 MB)
+     40     3      -12.9428     2       -5.3190      -12.9428     1774  143.33%
+                                                     Cuts: 13                  
+     72     6      -12.9428     2       -5.3190      -12.9428     1877  143.33%
+                                                  Benders: 17                  
+*    75+   20                           -8.1600      -12.9428            58.61%
+                                                   Benders: 4                  
+Found incumbent of value -8.159975 after 17.50 sec. (19335.59 ticks)
+    123    59        cutoff             -8.1600      -12.9428     2031   58.61%
+                                                  Benders: 14                  
+*   167+   43                           -8.1600      -12.9428            58.61%
+                                                     Cuts: 21                  
+Found incumbent of value -8.159975 after 19.14 sec. (19669.39 ticks)
+    250   110       -8.3779     2       -8.1600      -12.9428     2283   58.61%
+                                                   Benders: 6                  
+    475   139       -8.2640     2       -8.1600      -12.9428     2393   58.61%
+                                                     Cuts: 23                  
+    573   242        cutoff             -8.1600      -12.9428     2955   58.61%
+                                                     Cuts: 23                  
+    789   364       -8.1894     2       -8.1600      -12.9428     3412   58.61%
+                                                  Benders: 26                  
+    904   448      -10.3125     2       -8.1600      -12.9428     3954   58.61%
+                                                  Benders: 30                  
+    990   626      -10.8373     2       -8.1600      -12.9428     4417   58.61%
+                                                  Benders: 19                  
+   1298   725      -10.6564     8       -8.1600      -12.9428     4934   58.61%
+                                                     Cuts: 78                  
+Elapsed time = 28.84 sec. (21998.69 ticks, tree = 0.23 MB)
+   1480  1039       -8.4601     2       -8.1600      -12.9428     5922   58.61%
+                                                  Benders: 38                  
+   1649  1091       -8.5132     6       -8.1600      -12.9428     6027   58.61%
+                                                  Benders: 51                  
+   1909  1287        cutoff             -8.1600      -12.9428     6541   58.61%
+                                                  Benders: 67                  
+   2173  1563       -8.7287     2       -8.1600      -12.9428     7036   58.61%
+                                                  Benders: 50                  
+   2462  1806       -8.2693     2       -8.1600      -12.9428     7772   58.61%
+                                                  Benders: 69                  
+   2674  1944        cutoff             -8.1600      -12.9428     8125   58.61%
+                                                  Benders: 35                  
+   2972  2037       -8.2693     2       -8.1600      -12.9428     8485   58.61%
+                                                  Benders: 75                  
+   3340  2379        cutoff             -8.1600      -12.9428     9775   58.61%
+                                                  Benders: 64                  
 
 Performing restart 1
 
 Repeating presolve.
-Tried aggregator 2 times.
-MIP Presolve eliminated 2 rows and 0 columns.
-MIP Presolve modified 251 coefficients.
-Aggregator did 7 substitutions.
-Reduced MIP has 2353 rows, 2783 columns, and 10339 nonzeros.
-Reduced MIP has 217 binaries, 6 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.00 sec. (5.65 ticks)
 Tried aggregator 1 time.
-MIP Presolve modified 124 coefficients.
-Reduced MIP has 2353 rows, 2783 columns, and 10339 nonzeros.
-Reduced MIP has 217 binaries, 6 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.02 sec. (6.16 ticks)
-Represolve time = 0.05 sec. (19.81 ticks)
+MIP Presolve modified 818 coefficients.
+Reduced MIP has 107 rows, 529 columns, and 1692 nonzeros.
+Reduced MIP has 528 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.24 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 107 rows, 529 columns, and 1692 nonzeros.
+Reduced MIP has 528 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.71 ticks)
+Represolve time = 0.17 sec. (34.40 ticks)
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.02 sec. (12.12 ticks)
 Initializing dual steep norms . . .
 
 Iteration log . . .
-Iteration:     1   Dual objective     =          -230.888229
-Iteration:   154   Dual objective     =          -222.489259
-Iteration:   316   Dual objective     =          -143.006323
-Iteration:   466   Dual objective     =           -91.565731
-Iteration:   636   Dual objective     =           -81.480434
-Perturbation started.
-Iteration:   707   Dual objective     =           -81.480434
-Iteration:   828   Dual objective     =           -65.101478
-Iteration:   952   Dual objective     =           -41.864776
-Iteration:  1095   Dual objective     =           -27.759951
-Iteration:  123
+Iteration:     1   Dual objective     =           -12.942750
+   3508     0      -12.9428     2       -8.1600      Fract: 1    11838   58.61%
+   3508     0      -12.9428     7       -8.1600       Cuts: 7    11840   58.61%
+   3508     0      -12.9428     4       -8.1600       Cuts: 3    11845   58.61%
+   3508     0      -12.9428     8       -8.1600       Cuts: 3    11849   58.61%
+   3508     0      -12.9428     6       -8.1600      Cuts: 10    11857   58.61%
+   3508     0      -12.9428    14       -8.1600       Cuts: 5    11870   58.61%
+
+Repeating presolve.
+Tried aggregator 1 time.
+Reduced MIP has 107 rows, 529 columns, and 1692 nonzeros.
+Reduced MIP has 528 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.71 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 107 rows, 529 columns, and 1692 nonzeros.
+Reduced MIP has 528 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.71 ticks)
+Represolve time = 0.09 sec. (33.88 ticks)
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.00 sec. (0.25 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =           -12.942750
+   3508     0      -12.9428     6       -8.1600       Cuts: 9    12760   58.61%
+   3508     0      -12.9428     6       -8.1600       Cuts: 8    12765   58.61%
+   3508     0      -12.9428     7       -8.1600       Cuts: 4    12767   58.61%
+   3508     0      -12.9428     4       -8.1600       Cuts: 5    12777   58.61%
+   3508     2      -12.9428     8       -8.1600      -12.9428    12777   58.61%
+   3533    10      -12.9428     4       -8.1600      -12.9428    12788   58.61%
+                                                  Benders: 36                  
+Elapsed time = 68.14 sec. (41361.33 ticks, tree = 0.02 MB)
+   3577    46      -12.9428     2       -8.1600      -12.9428    12877   58.61%
+                                                     Cuts: 46                  
+   3632    78        cutoff             -8.1600      -12.9428    12979   58.61%
+                                                  Benders: 41                  
+   3676    91      -12.9428     2       -8.1600      -12.9428    13092   58.61%
+                                                  Benders: 42                  
+*  3697+   78                           -8.1600      -12.9428            58.61%
+                                                  Benders: 28                  
+Found incumbent of value -8.159975 after 79.53 sec. (45069.86 ticks)
+   3724   117        cutoff             -8.1600      -12.9428    13186   58.61%
+                                                  Benders: 18                  
+   3810   130      -12.9428     8       -8.1600      -12.9428    13278   58.61%
+                                                     Cuts: 54                  
+   3889   164      -12.9428     2       -8.1600      -12.9428    13426   58.61%
+                                                  Benders: 52                  
+   4022   195       -9.6541     6       -8.1600      -12.9428    13665   58.61%
+                                                  Benders: 41                  
+   4103   214      -10.5117     2       -8.1600      -12.9428    13837   58.61%
+                                                  Benders: 63                  
+   4187   285      -12.9428     4       -8.1600      -12.9428    14139   58.61%
+                                                  Benders: 51                  
+   4282   294        cutoff             -8.1600      -12.9428    14176   58.61%
+                                                  Benders: 46                  
+Elapsed time = 103.11 sec. (51312.99 ticks, tree = 0.08 MB)
+   4397   330      -12.9428     2       -8.1600      -12.9428    14319   58.61%
+                                                  Benders: 52                  
+   4487   353      -10.2973     4       -8.1600      -12.9428    14384   58.61%
+                                                  Benders: 42                  
+*  4530+  368                           -8.1600      -12.9428            58.61%
+                                                  Benders: 20                  
+Found incumbent of value -8.159975 after 112.00 sec. (53600.54 ticks)
+*  4569+  471                           -8.1600      -12.9428            58.61%
+                                                  Benders: 20                  
+Found incumbent of value -8.159975 after 113.41 sec. (53890.91 ticks)
+   4635   516       -8.5339     4       -8.1600      -12.9428    14825   58.61%
+                                                  Benders: 24                  
+   4832   552       -8.6972     2       -8.1600      -12.9428    14973   58.61%
+                                                  Benders: 68                  
+   4969   702        cutoff             -8.1600      -12.9428    15290   58.61%
+                                                  Benders: 52                  
+   5081   733       -8.6375     4       -8.1600      -12.9428    15398   58.61%
+                                                  Benders: 54                  
+   5245  1007       -9.2690     8       -8.1600      -12.9428    16309   58.61%
+                                                  Benders: 33                  
+   5423  1024       -9.2690     2       -8.1600      -12.9428    16386   58.61%
+                                                  Benders: 53                  
+   5665  1194       -9.2690     3       -8.1600      -12.9428    16795   58.61%
+                                                  Benders: 61                  
+   5908  1330        cutoff             -8.1600      -12.9428    17201   58.61%
+                                                  Benders: 60                  
+Elapsed time = 145.78 sec. (61178.31 ticks, tree = 0.59 MB)
+   6065  1630       -8.3238     2       -8.1600      -12.9428    17946   58.61%
+                                                  Benders: 43                  
+   6174  1678        cutoff             -8.1600      -12.9428    18132   58.61%
+                                                  Benders: 43                  
+   6295  1728       -8.4601     2       -8.1600      -12.9428    18333   58.61%
+                                                  Benders: 51                  
+   6483  1840       -8.4774     2       -8.1600      -12.9428    18963   58.61%
+                                                  Benders: 55                  
+   6601  1930        cutoff             -8.1600      -12.9428    19169   58.61%
+                                                  Benders: 71                  
+   6802  1999      -12.9428     4       -8.1600      -12.9428    19395   58.61%
+                                                  Benders: 55                  
+   6976  2105       -8.8240     5       -8.1600      -12.9428    19945   58.61%
+                                                  Benders: 52                  
+   7181  2226       -9.9154     2       -8.1600      -12.9428    20324   58.61%
+                                                  Benders: 47                  
+   7311  2227       -8.8240     4       -8.1600      -12.9428    20326   58.61%
+                                                  Benders: 49                  
+   7494  2554       -8.3498     2       -8.1600      -12.9428    21051   58.61%
+                                                  Benders: 54                  
+Elapsed time = 186.89 sec. (71019.58 ticks, tree = 1.27 MB)
+   7652  2654        cutoff             -8.1600      -12.9428    21282   58.61%
+                                                  Benders: 38                  
+   7735  2825        cutoff             -8.1600      -12.9428    21630   58.61%
+                                                  Benders: 37                  
+   7836  2907       -8.6972     4       -8.1600      -12.9428    21782   58.61%
+                                                  Benders: 33                  
+   7924  2814       -8.6972     4       -8.1600      -12.9428    21636   58.61%
+                                                  Benders: 37                  
+   8065  3147        cutoff             -8.1600      -12.9428    22271   58.61%
+                                                  Benders: 43                  
+   8229  3166       -8.6381     2       -8.1600      -12.9428    22332   58.61%
+                                                  Benders: 56                  
+   8464  3290      -12.2074     2       -8.1600      -12.9428    22526   58.61%
+                                                  Benders: 36                  
+   8684  3423       -8.5343     2       -8.1600      -12.9428    22956   58.61%
+                                                  Benders: 26                  
+   8846  3692       -8.1744     2       -8.1600      -12.9428    23761   58.61%
+                                                  Benders: 70                  
+   8928  3772      -10.0427     5       -8.1600      -12.9428    24071   58.61%
+                                                  Benders: 19                  
+Elapsed time = 219.52 sec. (80787.43 ticks, tree = 1.92 MB)
+   9031  3877        cutoff             -8.1600      -12.9428    24255   58.61%
+                                                  Benders: 27                  
+   9139  3988       -8.5499     2       -8.1600      -12.9428    24694   58.61%
+                                                  Benders: 41                  
+   9205  4049       -8.8838     4       -8.1600      -12.9428    24916   58.61%
+                                                  Benders: 25                  
+   9366  4034       -8.2461     2       -8.1600      -12.9428    24861   58.61%
+                                                  Benders: 15                  
+   9572  4175        cutoff             -8.1600      -12.9428    25280   58.61%
+                                                  Benders: 63                  
+   9852  4456       -8.9392     3       -8.1600      -12.9428    25993   58.61%
+                                                  Benders: 70                  
+  10002  4569        cutoff             -8.1600      -12.9428    26352   58.61%
+                                                  Benders: 43                  
+  10188  4601        cutoff             -8.1600      -12.9428    26414   58.61%
+                                                  Benders: 43                  
+  10301  4819      -10.0827     2       -8.1600      -12.9428    27014   58.61%
+                                                  Benders: 29                  
+  10443  4872        cutoff             -8.1600      -12.9428    27155   58.61%
+                                                  Benders: 34                  
+Elapsed time = 251.70 sec. (90602.48 ticks, tree = 2.70 MB)
+                                                  Benders: 10                  
+  10538  5008    infeasible             -8.1600      -12.9428    27748   58.61%
+  10707  5124       -8.8327     2       -8.1600      -12.9428    28134   58.61%
+                                                  Benders: 31                  
+  10842  5167      -10.6810     2       -8.1600      -12.9428    28300   58.61%
+                                                  Benders: 47                  
+  11009  5207        cutoff             -8.1600      -12.9428    28444   58.61%
+                                                  Benders: 18                  
+  11101  5317       -8.3494     2       -8.1600      -12.9428    28750   58.61%
+                                                  Benders: 51                  
+  11319  5451       -9.1538     3       -8.1600      -12.9428    29300   58.61%
+                                                  Benders: 46                  
+  11496  5517       -8.5738     2       -8.1600      -12.9428    29589   58.61%
+                                                  Benders: 48                  
+  11731  5662       -8.8838     2       -8.1600      -12.9428    30095   58.61%
+                                                  Benders: 35                  
+  11873  5678       -8.8434     4       -8.1600      -12.9428    30120   58.61%
+                                                  Benders: 33                  
+  12094  6052       -8.4391     2       -8.1600      -12.9428    31343   58.61%
+                                                  Benders: 19                  
+Elapsed time = 284.97 sec. (100292.10 ticks, tree = 3.46 MB)
+  12435  6406      -11.4959     2       -8.1600      -12.9428    32287   58.61%
+                                                  Benders: 63                  
+  12743  6631       -8.8341     2       -8.1600      -12.9428    32764   58.61%
+                                                  Benders: 10                  
+  13020  6576       -9.1538     7       -8.1600      -12.9428    32647   58.61%
+                                                  Benders: 86                  
+  13240  6680        cutoff             -8.1600      -12.9428    32839   58.61%
+                                                  Benders: 25                  
+  13412  7194      -10.9405     2       -8.1600      -12.9428    34160   58.61%
+                              

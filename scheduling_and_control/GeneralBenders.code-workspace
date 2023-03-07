@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../ReactorsPrj"
+		},
+		{
+			"path": "../../cplusplus_Tests"
 		}
 	],
 	"settings": {}
