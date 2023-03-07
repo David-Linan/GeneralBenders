@@ -4,7 +4,7 @@ import numpy as np
 import pyomo.environ as pe
 from pyomo.opt.base.solvers import SolverFactory
 from functions.cuts_functions import convex_clousure,initialization_sampling_naive
-from functions.dsda_functions import get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem, solve_subproblem_aprox
+from functions.dsda_functions import get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem, solve_subproblem_aprox,solve_with_minlp
 from functions.feasibility_functions import feasibility_1,feasibility_2,feasibility_2_modified,feasibility_1_aprox,feasibility_2_aprox
 import time
 import random
@@ -316,7 +316,7 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
 
     return generated_dict,init_path,source
 
-def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False):
+def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False, rel_tol: float=0):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -347,7 +347,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
         #2: Initialize model
         m_initialized=initialize_model(m=model,json_path=init_path)
         m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved=solve_subproblem(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+        m_solved=solve_subproblem(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol)
         #print(m_solved.dsda_status)
         if m_solved.dsda_status=='Optimal':
             status[0]=1
@@ -380,7 +380,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
                 model = model_fun(**kwargs)
                 m_initialized2=initialize_model(m=model,json_path=init_path)
                 m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved2=solve_subproblem(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+                m_solved2=solve_subproblem(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol)
                 #print(m_solved2.dsda_status)
                 if m_solved2.dsda_status=='Optimal':
                     status[count]=1
@@ -393,7 +393,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path,m_solved
 
-def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False):
+def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,rel_tol: float=0):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -424,7 +424,7 @@ def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,r
         #2: Initialize model
         m_initialized=initialize_model(m=model,json_path=init_path)
         m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved=solve_subproblem(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+        m_solved=solve_subproblem(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol)
         #print(m_solved.dsda_status)
         if m_solved.dsda_status=='Optimal':
             status[0]=1
@@ -457,7 +457,7 @@ def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,r
                 model = model_fun(**kwargs)
                 m_initialized2=initialize_model(m=model,json_path=init_path)
                 m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved2=solve_subproblem(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+                m_solved2=solve_subproblem(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol)
                 #print(m_solved2.dsda_status)
                 if m_solved2.dsda_status=='Optimal':
                     status[count]=1
@@ -470,7 +470,7 @@ def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,r
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path
 
-def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8):
+def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8, rel_tol: float=0):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -501,7 +501,7 @@ def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,re
         #2: Initialize model
         m_initialized=initialize_model(m=model,json_path=init_path)
         m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol)
+        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol,best_sol=best_sol)
         if m_solved.best_sol<=best_sol:
             best_sol=m_solved.best_sol
         #print(m_solved.dsda_status)
@@ -547,7 +547,7 @@ def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,re
                 model = model_fun(**kwargs)
                 m_initialized2=initialize_model(m=model,json_path=init_path)
                 m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol)
+                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol,best_sol=best_sol)
                 if m_solved2.best_sol<=best_sol:
                     best_sol=m_solved2.best_sol
                     m_solved.best_sol=best_sol
@@ -574,7 +574,7 @@ def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,re
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path,m_solved
 
-def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8):
+def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8, rel_tol: float=0):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -605,7 +605,7 @@ def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity
         #2: Initialize model
         m_initialized=initialize_model(m=model,json_path=init_path)
         m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol)
+        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,best_sol=best_sol)
         if m_solved.best_sol<=best_sol:
             best_sol=m_solved.best_sol
         #print(m_solved.dsda_status)
@@ -651,7 +651,7 @@ def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity
                 model = model_fun(**kwargs)
                 m_initialized2=initialize_model(m=model,json_path=init_path)
                 m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol)
+                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,best_sol=best_sol)
                 if m_solved2.best_sol<=best_sol:
                     best_sol=m_solved2.best_sol
                 #print(m_solved2.dsda_status)
@@ -1102,7 +1102,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
     return important_info,important_info_preprocessing,D,x_actual,m_solved
 
-def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={}):
+def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_feasibility_scheduling,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={},rel_tol: float = 0):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
     #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
     important_info={}
@@ -1124,7 +1124,7 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
         model=initialize_model(m=model,json_path=init_path)
         m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
         #original line
-        m_init_solved=solve_subproblem_aprox(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False)
+        m_init_solved=solve_subproblem_aprox(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol)
         best_sol=m_init_solved.best_sol
         #m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= {'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver conopt4\n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}, timelimit=10000, tee=False)
         #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: uncomment last line for nonlinear scheduling problem      
@@ -1322,81 +1322,201 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                 x_dict[str(k)+', neighborhood']=x_actual
                 break
             #print(D)
-            #Calculate new convex hull and dd cuts to the current model  
-            #define model
-            m,not_eval=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,2,D,use_random)          
-            # for i in x_dict:
-            #     cuts=convex_clousure(D,x_dict[i])
-            #     #print(cuts)
-            #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
-            #     #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
-
-            #  # Multiple cuts per iteration: cuts for all points in D
-            for i in D:
-                cuts=convex_clousure(D,list(i))
-                m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
-
-
-            #CASE SPECIFIC CUTS: TODO: GENERALIZE
+ 
+             #CASE SPECIFIC CUTS: TODO: GENERALIZE
+            previous_tau=current_tau.copy()
             if len(source)!=0:
                 cuentass=-1
                 for element in source:
                     cuentass=cuentass+1
                     if source[element]=='Infeasible':
                         current_tau[cuentass]=x_actual[cuentass]+1
-            if tee==True:
-                print('Current cut for tau: ',current_tau)
-            secondcuent=-1
-            for posit in m.extset:
-                secondcuent=secondcuent+1
-                if secondcuent<=5:
-                    j=current_tau[secondcuent]
-                    m.cuts.add(m.x[posit]>=j)
+            #if cut for times is different, update D, and find new optimal point
+            if previous_tau!=current_tau:
+                for j in D.keys():
+                    list_j=list(j)
+                    list_j_tau=list_j[:6]
+                    if any([list_j_tau[posit]<current_tau[posit] for posit in range(len(current_tau))]):
+                        D.update({j:infinity_val})
+                
+                output_ext_vars=current_tau.copy()     
+                kwargs2=kwargs.copy()
+                kwargs2.update({'x_initial':output_ext_vars})
+                m_scheduling_only=model_fun_feasibility_scheduling(**kwargs2)
+                # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
+                sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
+                m_scheduling_only = solve_with_minlp(m_scheduling_only,transformation='hull',minlp='cplex',minlp_options=sub_options_cplex_Feas,timelimit=360000000,gams_output=False,tee=False,rel_tol=rel_tol)
 
-            #Solve master problem       
-            SolverFactory('gams', solver='cplex').solve(m, tee=False)
-            if tee==True:
-                print('S2--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
-            #Stop?
-            #print([pe.value(m.x1),pe.value(m.x2)])
-            #print(new_values)
+                for I_J in m_scheduling_only.I_J:
+                    output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
 
-            # print(list(min(D, key=D.get)))
-            # print(D)
-            # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
-            # print(D)
-            # print(list(min(D, key=D.get)))
-
-            if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: #TODO: use a general tolerance
-            #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-            #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
-            #if 
-            #if 0 in D.values():
-                if 0 in D.values():
+                if m_scheduling_only.results.solver.termination_condition == 'infeasible' or m_scheduling_only.results.solver.termination_condition == 'other' or m_scheduling_only.results.solver.termination_condition == 'unbounded' or m_scheduling_only.results.solver.termination_condition == 'invalidProblem' or m_scheduling_only.results.solver.termination_condition == 'solverFailure' or m_scheduling_only.results.solver.termination_condition == 'internalSolverError' or m_scheduling_only.results.solver.termination_condition == 'error'  or m_scheduling_only.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling_only.results.solver.termination_condition == 'licensingProblem' or m_scheduling_only.results.solver.termination_condition == 'noSolution' or m_scheduling_only.results.solver.termination_condition == 'noSolution' or m_scheduling_only.results.solver.termination_condition == 'intermediateNonInteger':
+                    print('No feasible solution for the scheduling problem for the current cut of processing times. The problem is infeasible')
                     break
                 else:
-                    if fabs(float(len([el for el in D.keys() if all(el[n_e-1]>=lower_bounds[n_e] for   n_e in lower_bounds.keys()) and all(el[n_e-1]<=upper_bounds[n_e] for   n_e in lower_bounds.keys()) ]))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+                    if tee:
+                        print('New point found that satisfies scheduling constraints: ', output_ext_vars)
+                    x_actual=output_ext_vars
+            else:
+                #Calculate new convex hull and dd cuts to the current model  
+                #define model
+                m,not_eval=build_master(number_of_external_variables,lower_bounds,upper_bounds,x_actual,2,D,use_random)          
+                # for i in x_dict:
+                #     cuts=convex_clousure(D,x_dict[i])
+                #     #print(cuts)
+                #     m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+                #     #m.cuts.add(m.x1*float(cuts[0])+m.x2*float(cuts[1])+float(cuts[2])<=m.zobj)
+
+                #  # Multiple cuts per iteration: cuts for all points in D
+                for i in D:
+                    cuts=convex_clousure(D,list(i))
+                    m.cuts.add(sum(m.x[posit]*float(cuts[posit-1]) for posit in m.extset)+float(cuts[-1])<=m.zobj)
+
+                if tee==True:
+                    print('Current cut for tau: ',current_tau)
+                secondcuent=-1
+                for posit in m.extset:
+                    secondcuent=secondcuent+1
+                    if secondcuent<=5:
+                        j=current_tau[secondcuent]
+                        m.cuts.add(m.x[posit]>=j)
+
+                #Solve master problem       
+                SolverFactory('gams', solver='cplex').solve(m, tee=False)
+                if tee==True:
+                    print('S2--'+'--iter '+str(k)+'---   |   master. obj= '+str(pe.value(m.zobj)))
+                #Stop?
+                #print([pe.value(m.x1),pe.value(m.x2)])
+                #print(new_values)
+
+                # print(list(min(D, key=D.get)))
+                # print(D)
+                # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
+                # print(D)
+                # print(list(min(D, key=D.get)))
+
+                if fabs(fobj_actual-pe.value(m.zobj))<=1e-5: #TODO: use a general tolerance
+                #if all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if [pe.value(m.x1),pe.value(m.x2)]==x_actual and all(list(new_values.values())[0]<=val for val in list(new_values.values())[1:]):
+                #if 
+                #if 0 in D.values():
+                    if 0 in D.values():
                         break
                     else:
-
-
-                        #TODO: ADDITIONAL VERIFICATIONS IMPOSED DOE TO THE PROBLEM-SPECIFIC CUTS!!!!. Since I evaluate a single point when starting, the solution of the first master dictated by the first cut
-                        # may return a soluton that closes the gap (because the cutting plane may be constant). SINCE THE GAP CLOSED, THE ALGORITHM AUTOMATICALLY SEARCH WITHIN D TO FIND A REINITIALIZATION POINT.
-                        # Since there was a single point evaluated. It goes to taht point in a loop. To fix this, I check first if the solution of the master is not in D. If that is the case, the it is worth trying that
-                        # soluton first!!!!  
-                        # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
-
-                        if tuple([round(pe.value(m.x[posita])) for posita in m.extset]) in D.keys():
-                            D.update({tuple(x_actual):infinity_val})
-                            x_actual=list(min(D, key=D.get))
-                            if D[min(D, key=D.get)]==infinity_val:
-                                print('There are no additional candidate solutions in D to explore')
-                                break
+                        if fabs(float(len([el for el in D.keys() if all(el[n_e-1]>=lower_bounds[n_e] for   n_e in lower_bounds.keys()) and all(el[n_e-1]<=upper_bounds[n_e] for   n_e in lower_bounds.keys()) ]))-float(math.prod(upper_bounds[n_e]-lower_bounds[n_e]+1 for n_e in lower_bounds)))<=0.01: #if every point has been evaluated
+                            break
                         else:
-                            x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
-            else:
-                x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+
+                            #TODO: ADDITIONAL VERIFICATIONS IMPOSED DOE TO THE PROBLEM-SPECIFIC CUTS!!!!. Since I evaluate a single point when starting, the solution of the first master dictated by the first cut
+                            # may return a soluton that closes the gap (because the cutting plane may be constant). SINCE THE GAP CLOSED, THE ALGORITHM AUTOMATICALLY SEARCH WITHIN D TO FIND A REINITIALIZATION POINT.
+                            # Since there was a single point evaluated. It goes to taht point in a loop. To fix this, I check first if the solution of the master is not in D. If that is the case, the it is worth trying that
+                            # soluton first!!!!  
+                            # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
+
+                            if tuple([round(pe.value(m.x[posita])) for posita in m.extset]) in D.keys():
+                                D.update({tuple(x_actual):infinity_val})
+                                x_actual=list(min(D, key=D.get))
+                                if D[min(D, key=D.get)]==infinity_val:
+
+                                    # input_ext_vars=current_tau.copy()
+                                    # output_ext_vars=current_tau.copy()
+                                    # kay=len(x_actual)-len(current_tau)
+                                    # kay2=len(current_tau)
+                                    # for i in range(kay): 
+                                    #     input_ext_vars.append(x_actual[i+kay2])        
+
+                                    # m_scheduling_only=model_fun(**kwargs)
+                                    # m_scheduling_only = external_ref(m=m_scheduling_only,x=input_ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+                                    # #REMOVE CONTROL CONSTRAINTS
+                                    # for I in m_scheduling_only.I_reactions:
+                                    #     for J in m_scheduling_only.J_reactors:
+                                    #         m_scheduling_only.c_dCdtheta[I,J].deactivate()
+                                    #         m_scheduling_only.c_dTRdtheta[I,J].deactivate()                        
+                                    #         m_scheduling_only.c_dTJdtheta[I,J].deactivate()
+                                    #         m_scheduling_only.c_dIntegral_hotdtheta[I,J].deactivate()
+                                    #         m_scheduling_only.c_dIntegral_colddtheta[I,J].deactivate()
+                                    #         m_scheduling_only.Constant_control1[I,J].deactivate()                        
+                                    #         m_scheduling_only.Constant_control2[I,J].deactivate()
+                                    #         m_scheduling_only.finalCon[I,J].deactivate()
+                                    #         m_scheduling_only.finalTemp[I,J].deactivate()
+                                    # for I_J in m_scheduling_only.I_J:
+                                    #     I=I_J[0]
+                                    #     J=I_J[1]  
+                                    #     m_scheduling_only.DEF_Nref[I,J].deactivate()
+                                    #     if I in m_scheduling_only.I_reactions and J in m_scheduling_only.J_reactors:
+                                    #         m_scheduling_only.finalCon[I,J].deactivate()
+                                    #         m_scheduling_only.finalTemp[I,J].deactivate()
+                                    # m_scheduling_only.C_TCP3.deactivate()
+                                    # m_scheduling_only.obj.deactivate()
+                                    # m_scheduling_only.obj_dummy.deactivate()
+                                    # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
+                                    # # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']}
+                                    # m_scheduling_only = solve_subproblem(m=m_scheduling_only,subproblem_solver='cplex',subproblem_solver_options=sub_options_cplex_Feas,timelimit=100000000,gams_output=False,tee=False,rel_tol=rel_tol)
+
+                                    # for I_J in m_scheduling_only.I_J:
+                                    #     output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
+
+
+
+                                    # if m_scheduling_only.dsda_status=='Optimal':
+                                    #     x_actual=output_ext_vars
+                                    # else:
+                                    print('Infeasible: There are no additional candidate solutions in D to explore')
+                                    break
+                            else:
+                                x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
+
+                else:
+                    if [round(pe.value(m.x[posita])) for posita in m.extset]==x_actual:
+
+                        # input_ext_vars=current_tau.copy()
+                        # output_ext_vars=current_tau.copy()
+                        # kay=len(x_actual)-len(current_tau)
+                        # kay2=len(current_tau)
+                        # for i in range(kay): 
+                        #     input_ext_vars.append(x_actual[i+kay2])        
+
+                        # m_scheduling_only=model_fun(**kwargs)
+                        # m_scheduling_only = external_ref(m=m_scheduling_only,x=input_ext_vars,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+                        # #REMOVE CONTROL CONSTRAINTS
+                        # for I in m_scheduling_only.I_reactions:
+                        #     for J in m_scheduling_only.J_reactors:
+                        #         m_scheduling_only.c_dCdtheta[I,J].deactivate()
+                        #         m_scheduling_only.c_dTRdtheta[I,J].deactivate()                        
+                        #         m_scheduling_only.c_dTJdtheta[I,J].deactivate()
+                        #         m_scheduling_only.c_dIntegral_hotdtheta[I,J].deactivate()
+                        #         m_scheduling_only.c_dIntegral_colddtheta[I,J].deactivate()
+                        #         m_scheduling_only.Constant_control1[I,J].deactivate()                        
+                        #         m_scheduling_only.Constant_control2[I,J].deactivate()
+                        #         m_scheduling_only.finalCon[I,J].deactivate()
+                        #         m_scheduling_only.finalTemp[I,J].deactivate()
+                        # for I_J in m_scheduling_only.I_J:
+                        #     I=I_J[0]
+                        #     J=I_J[1]  
+                        #     m_scheduling_only.DEF_Nref[I,J].deactivate()
+                        #     if I in m_scheduling_only.I_reactions and J in m_scheduling_only.J_reactors:
+                        #         m_scheduling_only.finalCon[I,J].deactivate()
+                        #         m_scheduling_only.finalTemp[I,J].deactivate()
+                        # m_scheduling_only.C_TCP3.deactivate()
+                        # m_scheduling_only.obj.deactivate()
+                        # m_scheduling_only.obj_dummy.deactivate()
+                        # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
+                        # # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
+                        # m_scheduling_only = solve_subproblem(m=m_scheduling_only,subproblem_solver='cplex',subproblem_solver_options=sub_options_cplex_Feas,timelimit=100000000,gams_output=False,tee=False,rel_tol=rel_tol)
+
+                        # for I_J in m_scheduling_only.I_J:
+                        #     output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
+
+
+
+                        # if m_scheduling_only.dsda_status=='Optimal':
+                        #     x_actual=output_ext_vars
+                        # else:
+                        print('Same value for external vars in two consecutive iteratons: the problem seems to be infeasible')
+                        break
+                    else:
+                        x_actual=[round(pe.value(m.x[posita])) for posita in m.extset]
 
         end = time.time()
         #print('stage 2: method_3 time:',end - start,'method_3 obj:',D[tuple(x_actual)])
@@ -1441,14 +1561,14 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
             #print(x_actual)
             #calculate objective function for current point and its neighborhood (subproblem)
             if tuple(x_actual) not in D:
-                new_values,init_path,m_solved=solve_subproblem_and_neighborhood_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee,best_sol=best_sol)
+                new_values,init_path,m_solved=solve_subproblem_and_neighborhood_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee,best_sol=best_sol,rel_tol=rel_tol)
 
             else:
-                new_values,init_path=solve_subproblem_and_neighborhood_aprox_except(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee,best_sol=best_sol)
+                new_values,init_path=solve_subproblem_and_neighborhood_aprox_except(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee,best_sol=best_sol,rel_tol=rel_tol)
                 model = model_fun(**kwargs)
                 m_initialized=initialize_model(m=model,json_path=init_path)
                 m_fixed = external_ref(m=m_initialized,x=x_actual,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol)
+                m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol,rel_tol=rel_tol)
                         
             if min(list(new_values.values()))<=best_sol:
                 best_sol=min(list(new_values.values()))

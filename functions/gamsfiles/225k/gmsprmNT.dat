@@ -1,7 +1,7 @@
 Input=model.gms
 Output=output.lst
 ScrDir=225k
-SysDir=D:\GAMS\37
+SysDir=C:\GAMS\41
 CurDir=""
 ScriptNext=225k\gamsnext.cmd
-LogOption=3
+LogOption=0

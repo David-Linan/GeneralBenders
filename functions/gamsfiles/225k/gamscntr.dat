@@ -1,18 +1,18 @@
 52
-11 0 0 0 371  0.00000000000000E+0000 5  0.00000000000000E+0000 0 0
-16468 3781 0 0 5847 9683 0 6785 0 0 0 0
-11096 3438 0 0 0 0 0 0
-70164 14766
-10629 457 10 0 0 0 0 6244 0 4385
-803 17 0 0 0 0 0
-0 644 0
+11 0 0 0 415  0.00000000000000E+0000 5  0.00000000000000E+0000 0 0
+19596 3781 0 0 636 13037 0 6559 0 0 0 0
+16006 3438 0 0 0 0 0 0
+69809 14766
+15634 362 10 0 0 0 0 9658 0 5976
+448 0 0 0 0 0 0
+0 631 0
 47486 44 20
- 0.00000000000000E+0000  0.00000000000000E+0000 0
+ 1.00000000000000E+0002  0.00000000000000E+0000 0
 0  0.00000000000000E+0000 0  0.00000000000000E+0000
- 3.59965712598600E+0005 2147483647 0
+ 3.60000000000000E+0006 2147483647 0
 1 1
- 0.00000000000000E+0000 0 0 0  1.00000000000000E+0000 0 1 0 0  1.00000000000000E-0005 1
-6712 100
+ 0.00000000000000E+0000 0 0 0  1.00000000000000E+0000 0 0 0 0  1.00000000000000E-0005 0
+10031 100
 0 0 0 0 0
  0.00000000000000E+0000  0.00000000000000E+0000  0.00000000000000E+0000  0.00000000000000E+0000  0.00000000000000E+0000
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\225k\gamsmatr.dat
@@ -22,35 +22,35 @@ C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\225k\gamsstat.dat
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\225k\gamssolu.dat
 
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\225k\gamsdict.dat
-3
-14:20:39
-01/25/23
+0
+09:13:37
+03/07/23
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\
-D:\GAMS\37\
+C:\GAMS\41\
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\225k\
 32767 2147483647
-0 0 49 44950 44931 60911
+0 0 90 44991 44931 60915
 Prof. Ignacio E. Grossmann                     G221207|0002AS-GEN0
 Carnegie Mellon University, Dept. of Chemical Engineering        0
 18409806010SECATBACOCTCPDEDIHIIPKNLDM5MBGEOAODPTSBSCSNXXGL       0
-0 1 16468 0
+0 1 19596 0
 225k\gmsprmNT.dat
-15 72 26
-LP          18 0
-MIP         18 0
-RMIP        18 0
-NLP         11 0
-MCP         60 0
-MPEC        52 0
-RMPEC       52 0
-CNS         11 0
-DNLP        11 0
-RMINLP      11 0
-MINLP       26 26
-QCP         11 0
-MIQCP       64 0
-RMIQCP      11 0
-EMP         34 0
+15 65 24
+LP          16 0
+MIP         16 0
+RMIP        16 0
+NLP         8 0
+MCP         54 0
+MPEC        46 0
+RMPEC       46 0
+CNS         8 0
+DNLP        8 0
+RMINLP      8 0
+MINLP       24 24
+QCP         8 0
+MIQCP       58 0
+RMIQCP      8 0
+EMP         33 0
 ALPHAECP    11 5 1 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0
 gmsecpnt.cmd
 gmsecpnx.exe
@@ -60,17 +60,8 @@ gmsgennx.exe
 BARON       1001 5 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 0
 gmsba_nt.cmd
 gmsba_nx.exe
-BONMIN      11 0 1 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0
-gmsgennt.cmd
-gmsgennx.exe
-BONMINH     11 0 1 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0
-gmsgennt.cmd optbonmin.def
-gmsgennx.exe
 CBC         2011 5 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0
 gmsgennt.cmd
-gmsgennx.exe
-COINBONMIN  11 0 1 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0
-gmsgennt.cmd optbonmin.def
 gmsgennx.exe
 COINCBC     2011 5 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0
 gmsgennt.cmd optcbc.def
@@ -102,6 +93,9 @@ gmsgennx.exe
 CONVERTOLD  103011 5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
 gmscv_nt.cmd
 gmscv_nx.exe
+COPT        1011 5 1 1 1 1 0 0 0 0 0 0 0 0 1 0 1 0
+gmsgennt.cmd
+gmsgennx.exe
 CPLEX       2011 5 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 0
 gmsgennt.cmd
 gmsgennx.exe
@@ -114,7 +108,7 @@ gmsgennx.exe
 CPOPTIMIZER 11 5 1 0 1 0 0 0 0 0 0 0 0 1 0 1 0 0
 gmsgennt.cmd
 gmsgennx.exe
-DE          101011 5 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+DE          102011 5 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
 gmsgennt.cmd
 gmsgennx.exe
 DECIS       2011 5 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
@@ -136,10 +130,13 @@ gmsgennx.exe
 GAMSCHK     103011 5 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 0
 gmsck_nt.cmd
 gmsck_nx.exe
-GLOMIQO     2011 0 1 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0
+GLOMIQO     2011 5 1 0 0 0 1 0 0 0 1 1 1 1 1 1 1 0
 gmsgennt.cmd
 gmsgennx.exe
-GUROBI      11 5 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 0
+GUROBI      11 5 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 0
+gmsgennt.cmd
+gmsgennx.exe
+HIGHS       11 5 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0
 gmsgennt.cmd
 gmsgennx.exe
 IPOPT       11 5 1 1 0 1 1 0 0 0 1 1 1 0 1 0 1 0
@@ -156,23 +153,11 @@ gmske_nt.cmd
 KNITRO      103011 0 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 0
 gmsgennt.cmd
 gmsgennx.exe
-LGO         1 5 1 1 0 1 1 0 0 0 0 1 1 0 1 0 1 0
-gmsgennt.cmd
-gmsgennx.exe
-LGOD        1 5 1 1 0 1 1 0 0 0 0 1 1 0 1 0 1 0
-gmsgennt.cmd optlgo.def
-gmsgennx.exe
 LINDO       1 5 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1
 gmsgennt.cmd
 gmsgennx.exe
 LINDOGLOBAL 1 5 1 1 1 1 1 0 0 0 0 1 1 1 1 1 1 0
 gmsgennt.cmd
-gmsgennx.exe
-LOCALSOLVER 11 5 1 0 1 0 1 0 0 0 1 1 1 1 1 1 1 0
-gmsgennt.cmd
-gmsgennx.exe
-LOCALSOLVER70 11 5 1 0 1 0 1 0 0 0 1 1 1 1 1 1 1 0
-gmsgennt.cmd optlocalsolver.def
 gmsgennx.exe
 LOGMIP      101011 5 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
 gmsja_nt.cmd optjams.def
@@ -198,15 +183,12 @@ gmsgennx.exe
 MPSGE       100001 5 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 gmsgewnt.cmd
 gmsgewnx.exe
-MSNLP       11 0 1 0 0 0 1 0 0 0 0 1 1 0 1 0 1 0
-gmsmn_nt.cmd
-gmsmn_nx.exe
 NLPEC       103001 0 1 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0
 gmscvnnt.cmd
 gmscvnnx.exe
 OCTERACT    1001 0 1 0 0 0 1 0 0 0 0 1 1 1 1 1 1 0
-gmsoctnt.cmd
-octeract\gmsoctnx.exe
+gmsgennt.cmd
+gmsgennx.exe
 ODHCPLEX    2011 5 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0
 gmsgennt.cmd
 gmsgennx.exe
@@ -240,7 +222,7 @@ gmsgennx.exe
 SBB         11 5 1 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0
 gmssb_nt.cmd
 gmssb_nx.exe
-SCENSOLVER  1 5 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 0
+SCENSOLVER  1001 5 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 0
 gmsgennt.cmd
 gmsgennx.exe
 SCIP        2001 5 1 0 1 0 1 0 0 0 1 1 1 1 1 1 1 0
@@ -258,17 +240,14 @@ gmsgennx.exe
 SOPLEX      11 5 1 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0
 gmsgennt.cmd
 gmsgennx.exe
-XA          1 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0
-gmsxa_nt.cmd
-gmsxa_nx.exe
 XPRESS      11 5 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 0
 gmsgennt.cmd
 gmsgennx.exe
 264591620C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C       0
 DCE375       g 7                               A Eval            0
 License Admin: Ignacio E. Grossmann, grossmann@cmu.edu           0
-1 D:\GAMS\37\gamslice.txt
-1 D:\GAMS\37\gmscmpnt.txt
+1 C:\Users\dlinanro\Documents\GAMS\gamslice.txt
+1 C:\GAMS\41\gmscmpnt.txt
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\output.dat
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0  1.00000000000000E+0000 0 1046
@@ -283,4 +262,4 @@ dat
 
 
 C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\model.gms
- 7.01640000000000E+0004  1.47660000000000E+0004
+ 6.98090000000000E+0004  1.47660000000000E+0004

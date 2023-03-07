@@ -459,6 +459,235 @@ def external_ref(
 
 
 
+def external_ref_neighborhood(
+    m: pe.ConcreteModel(),
+    x,
+    extra_logic_function,
+    dict_extvar: dict = {},
+    mip_ref: bool = False,
+    transformation: str = 'bigm',
+    tee: bool = False,
+    feasibility_cuts: list=[],
+    dynamic_vars: bool=True, # if True: solve approximate problem in a vecinity of dynamic problem (processing times) If false: solve approximate problem in a vecinity of scheduling problem (batching variables)
+    neigh_size: int=1, # 1 means infinity neighborhood, 2 means second-nearest neighbors, etc
+    interactions: int=1, #1 means neighbors with no interaction, 2 means neighbors with at most double interactions, etc. a very large value means all interactions.
+):
+    """
+    Function that
+    Args:
+        m: GDP model that is going to be reformulated
+        x: List with current value of the external variables
+        dict_extvar: A dictionary of dictionaries that looks as follows:
+            {1:{'exactly_number':Number of external variables for this type,
+                'Boolean_vars_names':list with names of the ordered Boolean variables to be reformulated,
+                'Boolean_vars_ordered_index': Indexes where the external reformulation is applied,
+                'Binary_vars_names':list with names of the ordered Binary variables to be reformulated, [Potentially]
+                'Binary_vars_ordered_index': Indexes where the external reformulation is applied, [Potentially]
+                'Ext_var_lower_bound': Lower bound for this type of external variable,
+                'Ext_var_upper_bound': Upper bound for this type of external variable },
+             2:{...},...}
+
+            The first key (positive integer) represent a type of external variable identified in the model. For this type of external variable
+            a dictionary is created.
+        mip_ref: whether the reformulation will consider binary variables besides Booleans coming from a GDP->MIP reformulation
+        tee: Display reformulation
+    Returns:
+        m: A model that restricts boolean variables within a neighborhood of x
+
+    """
+
+    num_ext=len(x) #number of external variables
+    param_interaction=num_ext-interactions
+    # This part of code is required due to the deep copy issue: we have to compare Boolean variables by name
+    for i in dict_extvar:
+        dict_extvar[i]['Boolean_vars'] = []
+        for j in dict_extvar[i]['Boolean_vars_names']:
+            for boolean in m.component_data_objects(pe.BooleanVar, descend_into=True):
+                if(boolean.name == j):
+                    dict_extvar[i]['Boolean_vars'] = dict_extvar[i]['Boolean_vars']+[boolean]
+        if mip_ref:
+            # This part of code is required due to the deep copy issue: we have to compare binary variables by name
+            # By uncommenting in previous function extvars_gdp_to_mip we would pass directly dict_extvar[i]['Binary_vars']
+            dict_extvar[i]['Binary_vars'] = []
+            for j in dict_extvar[i]['Binary_vars_names']:
+                for binary in m.component_data_objects(pe.Var, descend_into=True):
+                    if(binary.name == j):
+                        dict_extvar[i]['Binary_vars'] = dict_extvar[i]['Binary_vars']+[binary]
+
+# The function would start here if there were no problems with deep copy.
+
+    #First, fix everything to false
+    for i in dict_extvar:
+            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                if not mip_ref:
+                    dict_extvar[i]['Boolean_vars'][k-1].fix(False)
+                else:
+                    dict_extvar[i]['Binary_vars'][k-1].fix(0)
+                    dict_extvar[i]['Boolean_vars'][k-1].set_value(False) #TODO: this line has not been tested
+
+
+    # Now unfixt those variables that are within a neighborhood of external variables.
+    ext_var_position = 0
+    for i in dict_extvar:
+        for j in range(dict_extvar[i]['exactly_number']):
+            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                if k>=x[ext_var_position]-neigh_size and k<=x[ext_var_position]+neigh_size: #If Boolean var is within a neighborhood of the current value of external variables           
+                    if not mip_ref:
+                        if dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
+                            dict_extvar[i]['Boolean_vars'][k-1].unfix()
+                    else:
+                        if dict_extvar[i]['Binary_vars'][k-1].is_fixed():
+                            dict_extvar[i]['Binary_vars'][k-1].unfix()
+                            dict_extvar[i]['Boolean_vars'][k-1].unfix() #TODO: this line has not been tested
+            ext_var_position = ext_var_position+1
+
+
+    if feasibility_cuts: # if there are feasibility cuts, add them
+        m.feas_cut_con={}
+        posit=0
+        for avoid in feasibility_cuts:
+            posit=posit+1
+            avoid_list=[]
+            ext_var_position = 0
+            for i in dict_extvar:
+                for j in range(dict_extvar[i]['exactly_number']):
+                    avoid_list.append(dict_extvar[i]['Boolean_vars'][avoid[ext_var_position]-1])
+                    ext_var_position = ext_var_position+1
+
+            def feas_cut_rule(m):
+                return pe.lnot(pe.land(avoid_list))
+            m.feas_cut_con[posit]=pe.LogicalConstraint(rule=feas_cut_rule)   
+            setattr(m,'feas_cut_con_%s' %str(posit),m.feas_cut_con[posit]) 
+                
+    
+    #Constraint to only accept interactions between 2, 3 ,4... variables
+    if param_interaction>=1:
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k:
+                        exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                ext_var_position = ext_var_position+1
+
+        def exactly_cont_rule(m):
+            return pe.exactly(param_interaction,exactly_list)
+        m.exactly_cont=pe.LogicalConstraint(rule=exactly_cont_rule)
+
+
+
+    if dynamic_vars:
+        #Constraint to fix external variables related to scheduling desicions (N_i,j)
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k and ext_var_position+1>=7:#TODO: GENERALIZE
+                        # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                ext_var_position = ext_var_position+1
+
+        # def fix_sched_rule(m):
+        #     return pe.exactly(10,exactly_list)
+        # m.fix_sched=pe.LogicalConstraint(rule=fix_sched_rule)
+
+
+
+        # DEACTIVATE SCHEDULING CONSTRAINTS
+        # m.E2_CAPACITY_LOW.deactivate()
+        # m.E2_CAPACITY_UP.deactivate()
+        # m.E3_BALANCE_INIT.deactivate()
+        # m.E_DEMAND_SATISFACTION.deactivate()
+        # m.linking1.deactivate()
+        # m.linking2.deactivate()
+        # m.E1_UNIT.deactivate()
+        # m.E3_BALANCE.deactivate()
+        # m.X_Z_relation.deactivate()
+        # m.DEF_AUX1_INDEP.deactivate()
+        # m.DEF_AUX2_INDEP.deactivate()
+    else:
+        #Constraint to fix external variables related to processing times (tau_i,j)
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k and ext_var_position+1<=6:#TODO: GENERALIZE
+                        # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                ext_var_position = ext_var_position+1
+
+        # def fix_ttimes_rule(m):
+        #     return pe.exactly(6,exactly_list)
+        # m.fix_ttimes=pe.LogicalConstraint(rule=fix_ttimes_rule)
+        
+        # DEACTIVATE DYNAMIC CONSTRAINTS
+        # for I in m.I_reactions:
+        #     for J in m.J_reactors:
+        #         m.c_dCdtheta[I,J].deactivate()
+        #         m.c_dTRdtheta[I,J].deactivate()                        
+        #         m.c_dTJdtheta[I,J].deactivate()
+        #         m.c_dIntegral_hotdtheta[I,J].deactivate()
+        #         m.c_dIntegral_colddtheta[I,J].deactivate()
+        #         m.Constant_control1[I,J].deactivate()                        
+        #         m.Constant_control2[I,J].deactivate()
+
+
+
+
+
+
+
+
+
+
+
+    # # Other Boolean and Indicator variables are fixed depending on the information provided by the user
+    logic_expr = extra_logic_function(m)
+    for i in logic_expr:
+        if i[0].is_fixed():
+            if not mip_ref:
+                i[1].fix(pe.value(i[0]))
+            else:
+                i[1].set_value(pe.value(i[0]))#TODO: this line has not been tested
+                
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    if mip_ref:  # Transform problem to MINLP
+        transformation_string = 'gdp.' + transformation
+        pe.TransformationFactory(transformation_string).apply_to(m)
+    # else:  # Deactivate disjunction's constraints in the case of pure GDP
+    #     pe.TransformationFactory('gdp.fix_disjuncts').apply_to(m)
+
+    pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
+        m, tmp=False, ignore_infeasible=True)
+
+
+    # if tee:
+    #     print('\nFixed variables at current iteration:\n')
+    #     print('\n Independent Boolean variables\n')
+    #     for i in dict_extvar:
+    #         for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+    #             print(dict_extvar[i]['Boolean_vars_names'][k-1] +
+    #                   '='+str(dict_extvar[i]['Boolean_vars'][k-1].value))
+
+    #     print('\n Dependent Boolean variables and disjunctions\n')
+    #     for i in logic_expr:
+    #         print(i[1].name+'='+str(i[1].value))
+
+    #     if mip_ref:
+    #         print('\n Independent binary variables\n')
+    #         for i in dict_extvar:
+    #             for k in range(1, len(dict_extvar[i]['Binary_vars'])+1):
+    #                 print(dict_extvar[i]['Binary_vars_names'][k-1] +
+    #                       '='+str(dict_extvar[i]['Binary_vars'][k-1].value))
+
+    return m
+
+
+
+
 def external_ref_sequential(
     m: pe.ConcreteModel(),
     x,
@@ -674,7 +903,7 @@ def solve_subproblem(
     timelimit: float = 1000,
     gams_output: bool = False,
     tee: bool = False,
-    rel_tol: float = 1e-3,
+    rel_tol: float = 0,
 ) -> pe.ConcreteModel():
     """
     Function that checks feasibility and optimizes subproblem model.
@@ -884,13 +1113,20 @@ def solve_subproblem_aprox(
                 if approximate_solution:
                     # FIX SCHEDULING VARIABLES
                     for v in m.component_objects(pe.Var, descend_into=True):
-                        # if v.name=='X' or v.name=='B' or v.name=='S' or v.name=='Nref':
                         if v.name=='X' or v.name=='Nref':
                             for index in v:
                                 if index==None:
                                     v.fix(round(pe.value(v)))
                                 else:
                                     v[index].fix(round(pe.value(v[index])))
+
+                        # elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
+                        #     for index in v:
+                        #         if index==None:
+                        #             v.fix(pe.value(v))
+                        #         else:
+                        #             v[index].fix(pe.value(v[index]))
+
 
                 opt = SolverFactory(solvername, solver=subproblem_solver)
                 # start=time.time()
@@ -1230,6 +1466,21 @@ def solve_subproblem_aprox_sequential(
             m.obj_dummy.deactivate()
             m.obj_scheduling.deactivate() 
 
+            # DEACTIVATE SCHEDULING CONSTRAINTS
+            m.E2_CAPACITY_LOW.deactivate()
+            m.E2_CAPACITY_UP.deactivate()
+            m.E3_BALANCE_INIT.deactivate()
+            m.E_DEMAND_SATISFACTION.deactivate()
+            m.linking1.deactivate()
+            m.linking2.deactivate()
+            m.E1_UNIT.deactivate()
+            m.E3_BALANCE.deactivate()
+            m.X_Z_relation.deactivate()
+            m.DEF_VAR_TIME.deactivate()            
+
+
+
+
             if approximate_solution:
                 # FIX SCHEDULING VARIABLES
                 for v in m.component_objects(pe.Var, descend_into=True):
@@ -1239,7 +1490,7 @@ def solve_subproblem_aprox_sequential(
                                 v.fix(round(pe.value(v)))
                             else:
                                 v[index].fix(round(pe.value(v[index])))
-                    elif v.name=='B' or v.name=='S':
+                    elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
                         for index in v:
                             if index==None:
                                 v.fix(pe.value(v))
@@ -1306,7 +1557,7 @@ def solve_subproblem_aprox_sequential(
                                                 v.fix(round(pe.value(v)))
                                             else:
                                                 v[index].fix(round(pe.value(v[index])))
-                                    elif v.name=='B' or v.name=='S':
+                                    elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
                                         for index in v:
                                             if index==None:
                                                 v.fix(pe.value(v))
@@ -1393,7 +1644,10 @@ def solve_with_minlp(
 
     # Solve
     solvername = 'gams'
-    opt = SolverFactory(solvername, solver=minlp)
+    if minlp=='OCTERACT':
+        opt = SolverFactory(solvername)
+    else:
+        opt = SolverFactory(solvername, solver=minlp)
     m.results = opt.solve(m, tee=tee,
                           **output_options,
                           **minlp_options,
@@ -1879,26 +2133,26 @@ def evaluate_neighbors(
 
                 # Assuming minimization problem
                 # Implements heuristic of largest move
-                if not improve:
+                # if not improve:
                     # We want a minimum improvement in the first found solution
-                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
-                else:
-                    # We want slightly worse solutions if the distance is larger
-                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
 
             if time.perf_counter() - current_time > timelimit:  # current
                 break
@@ -2034,26 +2288,26 @@ def evaluate_neighbors_aprox(
 
                 # Assuming minimization problem
                 # Implements heuristic of largest move
-                if not improve:
+                # if not improve:
                     # We want a minimum improvement in the first found solution
-                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
-                else:
-                    # We want slightly worse solutions if the distance is larger
-                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
             elif global_tee:
                 if m_solved.pruned_Status=='Pruned_SchedulingInfeasible':
                     print('Pruned:', temp[i], '   |   Lower bound problem infeasible   |   Global Time:', round(t_end - current_time, 2))                    
@@ -2191,26 +2445,26 @@ def evaluate_neighbors_aprox_tau_only(
 
                 # Assuming minimization problem
                 # Implements heuristic of largest move
-                if not improve:
+                # if not improve:
                     # We want a minimum improvement in the first found solution
-                    if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
-                else:
-                    # We want slightly worse solutions if the distance is larger
-                    if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
-                        fmin = act_obj
-                        best_var = temp[i]
-                        best_dir = i
-                        best_dist = dist
-                        improve = True
-                        best_path = generate_initialization(
-                            m_solved, starting_initialization=False, model_name='best')
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
             elif global_tee:
                 if m_solved.pruned_Status=='Pruned_SchedulingInfeasible':
                     print('Pruned:', temp[i], '   |   Lower bound problem infeasible   |   Global Time:', round(t_end - current_time, 2))                    
@@ -3450,6 +3704,7 @@ def sequential_iterative_2(
     ext_logic,
     starting_point: list,
     model_function,
+    kwargs,
     ext_dict,
     rate_tau: int=1,
     mip_transformation: bool = False,
@@ -3475,7 +3730,7 @@ def sequential_iterative_2(
 
 
 
-    m = model_function()
+    m = model_function(**kwargs)
     dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
         m, ext_dict)
     if len(starting_point) != num_ext_var:
@@ -3505,7 +3760,7 @@ def sequential_iterative_2(
                     if m.source[I,J]=='Infeasible' or m.source[I,J]=='Not_evaluated':
                         ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
 
-        m = model_function()
+        m = model_function(**kwargs)
         if mip_transformation:
             m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
         m = external_ref_sequential(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
@@ -3522,8 +3777,8 @@ def sequential_iterative_2(
             print("Current value of Ext vars (related to processing times): ",ext_var)
             print("Objective function:",m.best_sol) 
             print("CPU time[s]: ",time.perf_counter()-t_start)
-            return m
-    return m
+            return m,ext_var
+    return m,ext_var
 
 def visualize_dsda(
     route: list = [],

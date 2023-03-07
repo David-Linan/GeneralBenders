@@ -21,7 +21,7 @@ import itertools
 
 
 # Use this code to solve with enhanced DSDA and enhanced DBD
-def scheduling_and_control_gdp_N_approx():
+def scheduling_and_control_gdp_N_approx(last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -32,7 +32,7 @@ def scheduling_and_control_gdp_N_approx():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=math.floor(last_time_hours/m.delta),doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -286,9 +286,9 @@ def scheduling_and_control_gdp_N_approx():
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p1_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p2_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
@@ -867,9 +867,11 @@ def scheduling_and_control_gdp_N_approx():
     m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
     def _obj_dummy(m):
         return 1
-    m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)   
+    m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)  
+
+    # m.cuts=pe.LogicalConstraintList() 
     return m
-# Use this code to solve with enhanced DSDA. Only tau as external variables
+# Use this code to solve with enhanced DSDA or enhanced DBD. TODO: Only tau as external variables
 def scheduling_and_control_gdp_N_approx_only_tau():
 
     # Data
@@ -3415,7 +3417,7 @@ def scheduling_and_control_gdp_N_solvegdp(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
     return m
 # Use this code to solve with GDP methods. Here I have decreased the combinatorial complexity of the problem
-def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]):
+def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -3426,7 +3428,7 @@ def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=math.floor(last_time_hours/m.delta),doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -3680,9 +3682,9 @@ def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p1_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p2_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
@@ -4271,9 +4273,12 @@ def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3
     def _obj(m):
         return ( m.TCP1+m.TCP2+m.TCP3+m.TMC-m.SALES  )/100
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
+    m.cuts=pe.ConstraintList() 
     return m
+
+
 # Use this code to solve GDP scheduling problem. It is still disjunctive to consider variable processing times, so apply the required transformations first.  
-def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3]):
+def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -4284,7 +4289,7 @@ def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3]):
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=math.floor(last_time_hours/m.delta),doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -4538,9 +4543,9 @@ def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3]):
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p1_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p2_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
@@ -5127,7 +5132,7 @@ def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3]):
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
     return m
 # Use this code to solve GDP scheduling problem. It is still disjunctive to consider variable processing times, so apply the required transformations first. In this case x_initial is also the lower bound on processing times in the domain of ext vars
-def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,5,5,3,3]):
+def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -5138,7 +5143,7 @@ def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=math.floor(last_time_hours/m.delta),doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -5392,9 +5397,9 @@ def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p1_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p2_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
@@ -5991,7 +5996,7 @@ def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,
 
 
 #Use this code to solve with sequential algorithm.
-def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_large'):1.5,('R1','R_small'):1,('R2','R_large'):1.5,('R2','R_small'):1,('R3','R_large'):1.5,('R3','R_small'):1}):
+def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_large'):1.5,('R1','R_small'):1,('R2','R_large'):1.5,('R2','R_small'):1,('R3','R_large'):1.5,('R3','R_small'):1},last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -6002,7 +6007,7 @@ def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_la
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=0.5,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=28,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.lastT=pe.Param(initialize=math.floor(last_time_hours/m.delta),doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
 
     # -----------sets--------------------------------------------------------
@@ -6251,9 +6256,9 @@ def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_la
     
     def _demand(m,K,T):
         if K=='P1' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p1_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         elif K=='P2' and T==m.lastT:
-            return (1)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
+            return (demand_p2_kmol)/sum(m.C[K,Q] for Q in m.Q) #1 is the parameter in you article
         else:
             return 0
     m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
