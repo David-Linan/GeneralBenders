@@ -466,7 +466,8 @@ def external_ref_neighborhood(
     dict_extvar: dict = {},
     mip_ref: bool = False,
     transformation: str = 'bigm',
-    tee: bool = False
+    tee: bool = False,
+    feasibility_cuts: list=[]
 ):
     """
     Function that
@@ -533,6 +534,24 @@ def external_ref_neighborhood(
                             dict_extvar[i]['Binary_vars'][k-1].unfix()
                             dict_extvar[i]['Boolean_vars'][k-1].unfix() #TODO: this line has not been tested
             ext_var_position = ext_var_position+1
+
+
+    if feasibility_cuts: # if there are feasibility cuts, add them
+        m.feas_cut_con={}
+        posit=-1
+        for avoid in feasibility_cuts:
+            posit=posit+1
+            avoid_list=[]
+            ext_var_position = 0
+            for i in dict_extvar:
+                for j in range(dict_extvar[i]['exactly_number']):
+                    avoid_list.append(dict_extvar[i]['Boolean_vars'][avoid[ext_var_position]-1])
+                    ext_var_position = ext_var_position+1
+
+            def feas_cut_rule(m):
+                return pe.lnot(pe.land(avoid_list))
+            m.feas_cut_con[posit]=pe.LogicalConstraint(rule=feas_cut_rule)   
+            setattr(m,'feas_cut_con_%s' %posit,m.feas_cut_con[posit]) 
 
 
     # Other Boolean and Indicator variables are fixed depending on the information provided by the user

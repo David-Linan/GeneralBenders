@@ -869,7 +869,7 @@ def scheduling_and_control_gdp_N_approx(last_time_hours: float=14, demand_p1_kmo
         return 1
     m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)  
 
-    m.cuts=pe.ConstraintList() 
+    # m.cuts=pe.LogicalConstraintList() 
     return m
 # Use this code to solve with enhanced DSDA or enhanced DBD. TODO: Only tau as external variables
 def scheduling_and_control_gdp_N_approx_only_tau():
@@ -4273,6 +4273,7 @@ def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3
     def _obj(m):
         return ( m.TCP1+m.TCP2+m.TCP3+m.TMC-m.SALES  )/100
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
+    m.cuts=pe.ConstraintList() 
     return m
 # Use this code to solve GDP scheduling problem. It is still disjunctive to consider variable processing times, so apply the required transformations first.  
 def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
