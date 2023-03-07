@@ -471,6 +471,8 @@ def external_ref_neighborhood(
     dynamic_vars: bool=True, # if True: solve approximate problem in a vecinity of dynamic problem (processing times) If false: solve approximate problem in a vecinity of scheduling problem (batching variables)
     neigh_size: int=1, # 1 means infinity neighborhood, 2 means second-nearest neighbors, etc
     interactions: int=1, #1 means neighbors with no interaction, 2 means neighbors with at most double interactions, etc. a very large value means all interactions.
+    remove_cons: bool=False,
+    eval_inner: bool=True
 ):
     """
     Function that
@@ -576,73 +578,89 @@ def external_ref_neighborhood(
         m.exactly_cont=pe.LogicalConstraint(rule=exactly_cont_rule)
 
 
+    if eval_inner:
+        if dynamic_vars:
+            #Constraint to fix external variables related to scheduling desicions (N_i,j)
+            ext_var_position = 0
+            exactly_list=[]
+            for i in dict_extvar:
+                for j in range(dict_extvar[i]['exactly_number']):
+                    for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                        if x[ext_var_position] == k and ext_var_position+1>=7:#TODO: GENERALIZE
+                            # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                            dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                    ext_var_position = ext_var_position+1
 
-    if dynamic_vars:
-        #Constraint to fix external variables related to scheduling desicions (N_i,j)
-        ext_var_position = 0
-        exactly_list=[]
-        for i in dict_extvar:
-            for j in range(dict_extvar[i]['exactly_number']):
-                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                    if x[ext_var_position] == k and ext_var_position+1>=7:#TODO: GENERALIZE
-                        # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
-                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
-                ext_var_position = ext_var_position+1
-
-        # def fix_sched_rule(m):
-        #     return pe.exactly(10,exactly_list)
-        # m.fix_sched=pe.LogicalConstraint(rule=fix_sched_rule)
+            # def fix_sched_rule(m):
+            #     return pe.exactly(10,exactly_list)
+            # m.fix_sched=pe.LogicalConstraint(rule=fix_sched_rule)
 
 
+
+            # DEACTIVATE SCHEDULING CONSTRAINTS
+            # m.E2_CAPACITY_LOW.deactivate()
+            # m.E2_CAPACITY_UP.deactivate()
+            # m.E3_BALANCE_INIT.deactivate()
+            # m.E_DEMAND_SATISFACTION.deactivate()
+            # m.linking1.deactivate()
+            # m.linking2.deactivate()
+            # m.E1_UNIT.deactivate()
+            # m.E3_BALANCE.deactivate()
+            # m.X_Z_relation.deactivate()
+            # m.DEF_AUX1_INDEP.deactivate()
+            # m.DEF_AUX2_INDEP.deactivate()
+        else:
+            #Constraint to fix external variables related to processing times (tau_i,j)
+            ext_var_position = 0
+            exactly_list=[]
+            for i in dict_extvar:
+                for j in range(dict_extvar[i]['exactly_number']):
+                    for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                        if x[ext_var_position] == k and ext_var_position+1<=6:#TODO: GENERALIZE
+                            # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                            dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                    ext_var_position = ext_var_position+1
+
+            # def fix_ttimes_rule(m):
+            #     return pe.exactly(6,exactly_list)
+            # m.fix_ttimes=pe.LogicalConstraint(rule=fix_ttimes_rule)
+            
+            # DEACTIVATE DYNAMIC CONSTRAINTS
+            # for I in m.I_reactions:
+            #     for J in m.J_reactors:
+            #         m.c_dCdtheta[I,J].deactivate()
+            #         m.c_dTRdtheta[I,J].deactivate()                        
+            #         m.c_dTJdtheta[I,J].deactivate()
+            #         m.c_dIntegral_hotdtheta[I,J].deactivate()
+            #         m.c_dIntegral_colddtheta[I,J].deactivate()
+            #         m.Constant_control1[I,J].deactivate()                        
+            #         m.Constant_control2[I,J].deactivate()
+
+
+    if remove_cons:
+        # DEACTIVATE DYNAMIC CONSTRAINTS
+        for I in m.I_reactions:
+            for J in m.J_reactors:
+                m.c_dCdtheta[I,J].deactivate()
+                m.c_dTRdtheta[I,J].deactivate()                        
+                m.c_dTJdtheta[I,J].deactivate()
+                m.c_dIntegral_hotdtheta[I,J].deactivate()
+                m.c_dIntegral_colddtheta[I,J].deactivate()
+                m.Constant_control1[I,J].deactivate()                        
+                m.Constant_control2[I,J].deactivate()       
 
         # DEACTIVATE SCHEDULING CONSTRAINTS
-        # m.E2_CAPACITY_LOW.deactivate()
-        # m.E2_CAPACITY_UP.deactivate()
-        # m.E3_BALANCE_INIT.deactivate()
-        # m.E_DEMAND_SATISFACTION.deactivate()
-        # m.linking1.deactivate()
-        # m.linking2.deactivate()
-        # m.E1_UNIT.deactivate()
-        # m.E3_BALANCE.deactivate()
-        # m.X_Z_relation.deactivate()
-        # m.DEF_AUX1_INDEP.deactivate()
-        # m.DEF_AUX2_INDEP.deactivate()
-    else:
-        #Constraint to fix external variables related to processing times (tau_i,j)
-        ext_var_position = 0
-        exactly_list=[]
-        for i in dict_extvar:
-            for j in range(dict_extvar[i]['exactly_number']):
-                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                    if x[ext_var_position] == k and ext_var_position+1<=6:#TODO: GENERALIZE
-                        # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
-                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
-                ext_var_position = ext_var_position+1
-
-        # def fix_ttimes_rule(m):
-        #     return pe.exactly(6,exactly_list)
-        # m.fix_ttimes=pe.LogicalConstraint(rule=fix_ttimes_rule)
-        
-        # DEACTIVATE DYNAMIC CONSTRAINTS
-        # for I in m.I_reactions:
-        #     for J in m.J_reactors:
-        #         m.c_dCdtheta[I,J].deactivate()
-        #         m.c_dTRdtheta[I,J].deactivate()                        
-        #         m.c_dTJdtheta[I,J].deactivate()
-        #         m.c_dIntegral_hotdtheta[I,J].deactivate()
-        #         m.c_dIntegral_colddtheta[I,J].deactivate()
-        #         m.Constant_control1[I,J].deactivate()                        
-        #         m.Constant_control2[I,J].deactivate()
-
-
-
-
-
-
-
-
-
-
+        m.E2_CAPACITY_LOW.deactivate()
+        m.E2_CAPACITY_UP.deactivate()
+        m.E3_BALANCE_INIT.deactivate()
+        m.E_DEMAND_SATISFACTION.deactivate()
+        m.linking1.deactivate()
+        m.linking2.deactivate()
+        m.E1_UNIT.deactivate()
+        m.E3_BALANCE.deactivate()
+        m.X_Z_relation.deactivate()
+        m.DEF_AUX1_INDEP.deactivate()
+        m.DEF_AUX2_INDEP.deactivate()
 
     # # Other Boolean and Indicator variables are fixed depending on the information provided by the user
     logic_expr = extra_logic_function(m)

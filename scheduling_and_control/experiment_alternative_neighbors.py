@@ -61,7 +61,12 @@ if __name__ == "__main__":
     max_iter_out=10000000
     current_central=ext_vars
     upper_evaluated={}
-    
+    evaluate_inner_neighbors=True #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
+    remove_all_constraints_from_neighborhood_identification_subproblems=False #if problem constraints (main constraints only) are going to be reoved 
+    neighborhood_size_upper=2
+    interactions_upper=10000
+    neighborhood_size_lower=2
+    interactions_lower=10000    
 
 
 
@@ -76,9 +81,9 @@ if __name__ == "__main__":
             logic_fun=problem_logic_scheduling
             kwargs={}
             m=model_fun(**kwargs)
-            m = external_ref_neighborhood(m=m,x=current_central,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=True,feasibility_cuts=feas_cuts,dynamic_vars=True,neigh_size=2,interactions=10000)
+            m = external_ref_neighborhood(m=m,x=current_central,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=True,feasibility_cuts=feas_cuts,dynamic_vars=True,neigh_size=neighborhood_size_upper,interactions=interactions_upper,remove_cons=remove_all_constraints_from_neighborhood_identification_subproblems,eval_inner=evaluate_inner_neighbors)
             # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=rel_tol)
-            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=rel_tol) 
+            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
             
             Sol_found=[]
             for I in m.I_reactions:
@@ -158,42 +163,24 @@ if __name__ == "__main__":
                 print('   New trial point found: ', Sol_found)
                 break
             elif out_count+1==size_neigh_out:
-                coin=0  
-                for current_in in upper_evaluated[out+1]:
-                    coin=coin+1
-                    out_of_previous=False
-                    print('      -------evaluating the inner neighborhood of :',current_in)
-                    print('      ------- This is neighbor numer ',coin,' of the second layer')
-                    for in_count in range(size_neigh_in):
-                        print('      ------------------- Inner Neighbor ',in_count+1,'--------------------------------------------')
-                        print('      DICOPT:')
-                        model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-                        logic_fun=problem_logic_scheduling
-                        kwargs={}
-                        m=model_fun(**kwargs)
-                        m = external_ref_neighborhood(m=m,x=current_in,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=True,feasibility_cuts=feas_cuts,dynamic_vars=False,neigh_size=2,interactions=10000)
-                        # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=rel_tol)
-                        m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
-                        
-                        Sol_found=[]
-                        for I in m.I_reactions:
-                            for J in m.J_reactors:
-                                Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
-                        for I_J in m.I_J:
-                            Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-                        direction=[]
-                        for i in range(len(Sol_found)):
-                            direction.append(Sol_found[i]-current_in[i])
-
-
-
-                        if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try more DICOPT iterations #TODO: WHAT SHOULD I DO HERE!!!!??????
-
-                            cycles=3
-                            sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
-
-                            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
-                    
+                if evaluate_inner_neighbors:
+                    coin=0  
+                    for current_in in upper_evaluated[out+1]:
+                        coin=coin+1
+                        out_of_previous=False
+                        print('      -------evaluating the inner neighborhood of :',current_in)
+                        print('      ------- This is neighbor numer ',coin,' of the second layer')
+                        for in_count in range(size_neigh_in):
+                            print('      ------------------- Inner Neighbor ',in_count+1,'--------------------------------------------')
+                            print('      DICOPT:')
+                            model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
+                            logic_fun=problem_logic_scheduling
+                            kwargs={}
+                            m=model_fun(**kwargs)
+                            m = external_ref_neighborhood(m=m,x=current_in,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=True,feasibility_cuts=feas_cuts,dynamic_vars=False,neigh_size=neighborhood_size_lower,interactions=interactions_lower,remove_cons=remove_all_constraints_from_neighborhood_identification_subproblems,eval_inner=evaluate_inner_neighbors)
+                            # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=rel_tol)
+                            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
+                            
                             Sol_found=[]
                             for I in m.I_reactions:
                                 for J in m.J_reactors:
@@ -203,65 +190,88 @@ if __name__ == "__main__":
                             direction=[]
                             for i in range(len(Sol_found)):
                                 direction.append(Sol_found[i]-current_in[i])
-                            
-                        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
-                            m.dicopt_status='Infeasible'
-                        else:
-                            m.dicopt_status='Optimal'
-                        current_obj_dicopt=m.obj
-                        if m.dicopt_status == 'Optimal':  
-
-                            print('      Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
-                                        
-                        else:
-                            print('      Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))        
 
 
-                        print('      SEARCH DIRECTION: ', direction)
-                        # SOLVE APPROXIMATE SUBPROBLEM TO COMPARE OBJECTIVE FUNCTION
-                        #TODO: HERE I HAVE TO DO THIS BECAUSE I HAVE MINLP SUBPROBLEMS AND THERE ARE BINARY VARIABLES IN SUBPROBLEMS SUCH AS X_i,j,t, BUT IF SUBPROBLEMS ARE NLP , then only test by dicopt is required
-                        model_fun =scheduling_and_control_GDP_complete_approx
-                        logic_fun=problem_logic_scheduling_dummy
-                        m=model_fun(**kwargs)
 
-                        m_fixed = external_ref(m=m,x=Sol_found,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
-                        m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=rel_tol,best_sol=best_sol)
+                            if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try more DICOPT iterations #TODO: WHAT SHOULD I DO HERE!!!!??????
 
+                                cycles=3
+                                sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
+
+                                m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
                         
-
-
-                        print(' \n      MINLP subproblem approximate evaluation:')
-                        if m.dsda_status == 'Optimal':  
-
-                            print('      Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
-                                        
-                        else:
-                            if m.pruned_Status=='Pruned_SchedulingInfeasible':
-                                print('      Pruned:', Sol_found, '   |   Lower bound problem infeasible   |   Global Time:', round(time.time()- start, 2))                    
-                            elif m.pruned_Status=='Pruned_NoImprovementExpected':
-                                print('      Pruned:', Sol_found, '   |   No improvement expected   |   Global Time:', round(time.time()- start, 2))  
+                                Sol_found=[]
+                                for I in m.I_reactions:
+                                    for J in m.J_reactors:
+                                        Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+                                for I_J in m.I_J:
+                                    Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+                                direction=[]
+                                for i in range(len(Sol_found)):
+                                    direction.append(Sol_found[i]-current_in[i])
+                                
+                            if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+                                m.dicopt_status='Infeasible'
                             else:
-                                print('      Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))     
-                        
+                                m.dicopt_status='Optimal'
+                            current_obj_dicopt=m.obj
+                            if m.dicopt_status == 'Optimal':  
+
+                                print('      Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
+                                            
+                            else:
+                                print('      Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))        
 
 
-                        # UPDATE
-                        feas_cuts.append(Sol_found) 
-                        # VERIFY BREAK CONDITION       
-                        if m.best_sol<=best_sol:
-                            best_sol=m.best_sol
-                            current_central=Sol_found
-                            print('      New trial point found: ', Sol_found)
-                            out_of_previous=True
-                            break
-                        elif in_count+1==size_neigh_in and coin==len(upper_evaluated[out+1]):
-                            print('***The objective function is not improving. Optimal solution found')
-                            print('***Best objective function found: ',best_sol)
-                            print('***Best ext vars:',current_central)
-                            print('***CPU time:', round(time.time()- start, 2))
-                    if out_of_previous==True:
-                        break 
+                            print('      SEARCH DIRECTION: ', direction)
+                            # SOLVE APPROXIMATE SUBPROBLEM TO COMPARE OBJECTIVE FUNCTION
+                            #TODO: HERE I HAVE TO DO THIS BECAUSE I HAVE MINLP SUBPROBLEMS AND THERE ARE BINARY VARIABLES IN SUBPROBLEMS SUCH AS X_i,j,t, BUT IF SUBPROBLEMS ARE NLP , then only test by dicopt is required
+                            model_fun =scheduling_and_control_GDP_complete_approx
+                            logic_fun=problem_logic_scheduling_dummy
+                            m=model_fun(**kwargs)
 
+                            m_fixed = external_ref(m=m,x=Sol_found,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+                            m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=rel_tol,best_sol=best_sol)
+
+                            
+
+
+                            print(' \n      MINLP subproblem approximate evaluation:')
+                            if m.dsda_status == 'Optimal':  
+
+                                print('      Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
+                                            
+                            else:
+                                if m.pruned_Status=='Pruned_SchedulingInfeasible':
+                                    print('      Pruned:', Sol_found, '   |   Lower bound problem infeasible   |   Global Time:', round(time.time()- start, 2))                    
+                                elif m.pruned_Status=='Pruned_NoImprovementExpected':
+                                    print('      Pruned:', Sol_found, '   |   No improvement expected   |   Global Time:', round(time.time()- start, 2))  
+                                else:
+                                    print('      Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))     
+                            
+
+
+                            # UPDATE
+                            feas_cuts.append(Sol_found) 
+                            # VERIFY BREAK CONDITION       
+                            if m.best_sol<=best_sol:
+                                best_sol=m.best_sol
+                                current_central=Sol_found
+                                print('      New trial point found: ', Sol_found)
+                                out_of_previous=True
+                                break
+                            elif in_count+1==size_neigh_in and coin==len(upper_evaluated[out+1]):
+                                print('***The objective function is not improving. Optimal solution found')
+                                print('***Best objective function found: ',best_sol)
+                                print('***Best ext vars:',current_central)
+                                print('***CPU time:', round(time.time()- start, 2))
+                        if out_of_previous==True:
+                            break 
+                else:
+                    print('***The objective function is not improving. Optimal solution found')
+                    print('***Best objective function found: ',best_sol)
+                    print('***Best ext vars:',current_central)
+                    print('***CPU time:', round(time.time()- start, 2))                    
 
 
 
