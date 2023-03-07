@@ -141,8 +141,13 @@ if __name__ == "__main__":
                 current_central=Sol_found
                 print('   New trial point found: ', Sol_found)
                 break
-            elif out_count+1==size_neigh_out:  
+            elif out_count+1==size_neigh_out:
+                coin=0  
                 for current_in in upper_evaluated[out+1]:
+                    coin=coin+1
+                    out_of_previous=False
+                    print('      -------evaluating the inner neighborhood of :',current_in)
+                    print('      ------- This is neighbor numer ',coin,' of the second layer')
                     for in_count in range(size_neigh_in):
                         print('      ------------------- Inner Neighbor ',in_count+1,'--------------------------------------------')
                         print('      DICOPT:')
@@ -213,13 +218,15 @@ if __name__ == "__main__":
                             best_sol=m.best_sol
                             current_central=Sol_found
                             print('      New trial point found: ', Sol_found)
+                            out_of_previous=True
                             break
                         elif in_count+1==size_neigh_in:
                             print('***The objective function is not improving. Optimal solution found')
                             print('***Best objective function found: ',best_sol)
                             print('***Best ext vars:',current_central)
                             print('***CPU time:', round(time.time()- start, 2))
-
+                    if out_of_previous==True:
+                        break 
 
 
 
