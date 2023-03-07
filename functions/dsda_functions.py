@@ -467,7 +467,10 @@ def external_ref_neighborhood(
     mip_ref: bool = False,
     transformation: str = 'bigm',
     tee: bool = False,
-    feasibility_cuts: list=[]
+    feasibility_cuts: list=[],
+    dynamic_vars: bool=True, # if True: solve approximate problem in a vecinity of dynamic problem (processing times) If false: solve approximate problem in a vecinity of scheduling problem (batching variables)
+    neigh_size: int=1, # 1 means infinity neighborhood, 2 means second-nearest neighbors, etc
+    interactions: int=1, #1 means neighbors with no interaction, 2 means neighbors with at most double interactions, etc. a very large value means all interactions.
 ):
     """
     Function that
@@ -492,6 +495,9 @@ def external_ref_neighborhood(
         m: A model that restricts boolean variables within a neighborhood of x
 
     """
+
+    num_ext=len(x) #number of external variables
+    param_interaction=num_ext-interactions
     # This part of code is required due to the deep copy issue: we have to compare Boolean variables by name
     for i in dict_extvar:
         dict_extvar[i]['Boolean_vars'] = []
@@ -525,7 +531,7 @@ def external_ref_neighborhood(
     for i in dict_extvar:
         for j in range(dict_extvar[i]['exactly_number']):
             for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                if k>=x[ext_var_position]-2 and k<=x[ext_var_position]+2: #If Boolean var is within a neighborhood of the current value of external variables           
+                if k>=x[ext_var_position]-neigh_size and k<=x[ext_var_position]+neigh_size: #If Boolean var is within a neighborhood of the current value of external variables           
                     if not mip_ref:
                         if dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
                             dict_extvar[i]['Boolean_vars'][k-1].unfix()
@@ -538,7 +544,7 @@ def external_ref_neighborhood(
 
     if feasibility_cuts: # if there are feasibility cuts, add them
         m.feas_cut_con={}
-        posit=-1
+        posit=0
         for avoid in feasibility_cuts:
             posit=posit+1
             avoid_list=[]
@@ -551,12 +557,90 @@ def external_ref_neighborhood(
             def feas_cut_rule(m):
                 return pe.lnot(pe.land(avoid_list))
             m.feas_cut_con[posit]=pe.LogicalConstraint(rule=feas_cut_rule)   
-            setattr(m,'feas_cut_con_%s' %posit,m.feas_cut_con[posit]) 
+            setattr(m,'feas_cut_con_%s' %str(posit),m.feas_cut_con[posit]) 
+                
     
-    #Constraint to avoid 
+    #Constraint to only accept interactions between 2, 3 ,4... variables
+    if param_interaction>=1:
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k:
+                        exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                ext_var_position = ext_var_position+1
+
+        def exactly_cont_rule(m):
+            return pe.exactly(param_interaction,exactly_list)
+        m.exactly_cont=pe.LogicalConstraint(rule=exactly_cont_rule)
 
 
-    # Other Boolean and Indicator variables are fixed depending on the information provided by the user
+
+    if dynamic_vars:
+        #Constraint to fix external variables related to scheduling desicions (N_i,j)
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k and ext_var_position+1>=7:#TODO: GENERALIZE
+                        # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                ext_var_position = ext_var_position+1
+
+        # def fix_sched_rule(m):
+        #     return pe.exactly(10,exactly_list)
+        # m.fix_sched=pe.LogicalConstraint(rule=fix_sched_rule)
+    else:
+        #Constraint to fix external variables related to processing times (tau_i,j)
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k and ext_var_position+1<=6:#TODO: GENERALIZE
+                        # exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                ext_var_position = ext_var_position+1
+
+        # def fix_ttimes_rule(m):
+        #     return pe.exactly(6,exactly_list)
+        # m.fix_ttimes=pe.LogicalConstraint(rule=fix_ttimes_rule)
+
+
+    #EXPERIMENTS
+    # DEACTIVATE DYNAMIC CONSTRAINTS
+    # for I in m.I_reactions:
+    #     for J in m.J_reactors:
+    #         m.c_dCdtheta[I,J].deactivate()
+    #         m.c_dTRdtheta[I,J].deactivate()                        
+    #         m.c_dTJdtheta[I,J].deactivate()
+    #         m.c_dIntegral_hotdtheta[I,J].deactivate()
+    #         m.c_dIntegral_colddtheta[I,J].deactivate()
+    #         m.Constant_control1[I,J].deactivate()                        
+    #         m.Constant_control2[I,J].deactivate()
+
+
+    # DEACTIVATE SCHEDULING CONSTRAINTS
+    # m.E2_CAPACITY_LOW.deactivate()
+    # m.E2_CAPACITY_UP.deactivate()
+    # m.E3_BALANCE_INIT.deactivate()
+    # m.E_DEMAND_SATISFACTION.deactivate()
+    # m.linking1.deactivate()
+    # m.linking2.deactivate()
+    # m.E1_UNIT.deactivate()
+    # m.E3_BALANCE.deactivate()
+    # m.X_Z_relation.deactivate()
+    # m.DEF_AUX1_INDEP.deactivate()
+    # m.DEF_AUX2_INDEP.deactivate()
+
+
+
+
+
+
+    # # Other Boolean and Indicator variables are fixed depending on the information provided by the user
     logic_expr = extra_logic_function(m)
     for i in logic_expr:
         if i[0].is_fixed():
