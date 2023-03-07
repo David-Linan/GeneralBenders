@@ -78,7 +78,7 @@ if __name__ == "__main__":
             m=model_fun(**kwargs)
             m = external_ref_neighborhood(m=m,x=current_central,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=True,feasibility_cuts=feas_cuts,dynamic_vars=True,neigh_size=2,interactions=10000)
             # m=solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=rel_tol)
-            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
+            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=rel_tol) 
             
             Sol_found=[]
             for I in m.I_reactions:
@@ -88,9 +88,26 @@ if __name__ == "__main__":
                 Sol_found.append(1+round(pe.value(m.Nref[I_J])))
             direction=[]
             for i in range(len(Sol_found)):
-                direction.append(Sol_found[i]-ext_vars[i])
+                direction.append(Sol_found[i]-current_central[i])
 
-                
+            if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try one more DICOPT iterations #TODO: WHAT SHOULD I DO HERE??
+
+                cycles=3
+                sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
+
+                m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
+        
+                Sol_found=[]
+                for I in m.I_reactions:
+                    for J in m.J_reactors:
+                        Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+                for I_J in m.I_J:
+                    Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+                direction=[]
+                for i in range(len(Sol_found)):
+                    direction.append(Sol_found[i]-current_central[i])
+
+
             if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
                 m.dicopt_status='Infeasible'
             else:
@@ -119,7 +136,7 @@ if __name__ == "__main__":
 
             print(' \n   MINLP subproblem approximate evaluation:')
             if m.dsda_status == 'Optimal':  
-
+                upper_evaluated[out+1].append(Sol_found)
                 print('   Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
                             
             else:
@@ -133,8 +150,7 @@ if __name__ == "__main__":
 
 
             # UPDATE
-            feas_cuts.append(Sol_found) 
-            upper_evaluated[out+1].append(Sol_found) 
+            feas_cuts.append(Sol_found)
             # VERIFY BREAK CONDITION       
             if m.best_sol<=best_sol:
                 best_sol=m.best_sol
@@ -167,8 +183,26 @@ if __name__ == "__main__":
                             Sol_found.append(1+round(pe.value(m.Nref[I_J])))
                         direction=[]
                         for i in range(len(Sol_found)):
-                            direction.append(Sol_found[i]-ext_vars[i])
+                            direction.append(Sol_found[i]-current_in[i])
 
+
+
+                        if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try more DICOPT iterations #TODO: WHAT SHOULD I DO HERE!!!!??????
+
+                            cycles=3
+                            sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
+
+                            m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
+                    
+                            Sol_found=[]
+                            for I in m.I_reactions:
+                                for J in m.J_reactors:
+                                    Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+                            for I_J in m.I_J:
+                                Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+                            direction=[]
+                            for i in range(len(Sol_found)):
+                                direction.append(Sol_found[i]-current_in[i])
                             
                         if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
                             m.dicopt_status='Infeasible'
@@ -220,7 +254,7 @@ if __name__ == "__main__":
                             print('      New trial point found: ', Sol_found)
                             out_of_previous=True
                             break
-                        elif in_count+1==size_neigh_in:
+                        elif in_count+1==size_neigh_in and coin==len(upper_evaluated[out+1]):
                             print('***The objective function is not improving. Optimal solution found')
                             print('***Best objective function found: ',best_sol)
                             print('***Best ext vars:',current_central)

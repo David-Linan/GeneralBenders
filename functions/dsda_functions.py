@@ -592,6 +592,21 @@ def external_ref_neighborhood(
         # def fix_sched_rule(m):
         #     return pe.exactly(10,exactly_list)
         # m.fix_sched=pe.LogicalConstraint(rule=fix_sched_rule)
+
+
+
+        # DEACTIVATE SCHEDULING CONSTRAINTS
+        # m.E2_CAPACITY_LOW.deactivate()
+        # m.E2_CAPACITY_UP.deactivate()
+        # m.E3_BALANCE_INIT.deactivate()
+        # m.E_DEMAND_SATISFACTION.deactivate()
+        # m.linking1.deactivate()
+        # m.linking2.deactivate()
+        # m.E1_UNIT.deactivate()
+        # m.E3_BALANCE.deactivate()
+        # m.X_Z_relation.deactivate()
+        # m.DEF_AUX1_INDEP.deactivate()
+        # m.DEF_AUX2_INDEP.deactivate()
     else:
         #Constraint to fix external variables related to processing times (tau_i,j)
         ext_var_position = 0
@@ -607,33 +622,22 @@ def external_ref_neighborhood(
         # def fix_ttimes_rule(m):
         #     return pe.exactly(6,exactly_list)
         # m.fix_ttimes=pe.LogicalConstraint(rule=fix_ttimes_rule)
+        
+        # DEACTIVATE DYNAMIC CONSTRAINTS
+        # for I in m.I_reactions:
+        #     for J in m.J_reactors:
+        #         m.c_dCdtheta[I,J].deactivate()
+        #         m.c_dTRdtheta[I,J].deactivate()                        
+        #         m.c_dTJdtheta[I,J].deactivate()
+        #         m.c_dIntegral_hotdtheta[I,J].deactivate()
+        #         m.c_dIntegral_colddtheta[I,J].deactivate()
+        #         m.Constant_control1[I,J].deactivate()                        
+        #         m.Constant_control2[I,J].deactivate()
 
 
-    #EXPERIMENTS
-    # DEACTIVATE DYNAMIC CONSTRAINTS
-    # for I in m.I_reactions:
-    #     for J in m.J_reactors:
-    #         m.c_dCdtheta[I,J].deactivate()
-    #         m.c_dTRdtheta[I,J].deactivate()                        
-    #         m.c_dTJdtheta[I,J].deactivate()
-    #         m.c_dIntegral_hotdtheta[I,J].deactivate()
-    #         m.c_dIntegral_colddtheta[I,J].deactivate()
-    #         m.Constant_control1[I,J].deactivate()                        
-    #         m.Constant_control2[I,J].deactivate()
 
 
-    # DEACTIVATE SCHEDULING CONSTRAINTS
-    # m.E2_CAPACITY_LOW.deactivate()
-    # m.E2_CAPACITY_UP.deactivate()
-    # m.E3_BALANCE_INIT.deactivate()
-    # m.E_DEMAND_SATISFACTION.deactivate()
-    # m.linking1.deactivate()
-    # m.linking2.deactivate()
-    # m.E1_UNIT.deactivate()
-    # m.E3_BALANCE.deactivate()
-    # m.X_Z_relation.deactivate()
-    # m.DEF_AUX1_INDEP.deactivate()
-    # m.DEF_AUX2_INDEP.deactivate()
+
 
 
 
