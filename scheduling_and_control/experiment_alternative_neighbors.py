@@ -56,15 +56,17 @@ if __name__ == "__main__":
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
 
-    size_neigh_out=2*6
+
+    # SAME AS LRLAB 8 BUT TEST RECOMMENDED BY LUIS: simply second neares neighbors in upper loop, considering 0 interactios. This simulates a case where I am not choosing neighbors carefully
+    size_neigh_out=2*16
     size_neigh_in=2*10
     max_iter_out=10000000
     current_central=ext_vars
     upper_evaluated={}
-    evaluate_inner_neighbors=True #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
-    remove_all_constraints_from_neighborhood_identification_subproblems=False #if problem constraints (main constraints only) are going to be reoved 
+    evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
+    remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
     neighborhood_size_upper=2
-    interactions_upper=10000
+    interactions_upper=1
     neighborhood_size_lower=2
     interactions_lower=10000    
 
@@ -271,7 +273,8 @@ if __name__ == "__main__":
                     print('***The objective function is not improving. Optimal solution found')
                     print('***Best objective function found: ',best_sol)
                     print('***Best ext vars:',current_central)
-                    print('***CPU time:', round(time.time()- start, 2))                    
+                    print('***CPU time:', round(time.time()- start, 2))    
+                    break #TODO: I CAN DELETE THIS LINE IF I WANT TO SEE MORE ITERATIONS!!!!!                
 
 
 
