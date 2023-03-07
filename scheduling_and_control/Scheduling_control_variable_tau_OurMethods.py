@@ -29,7 +29,7 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='conopt4'
+    minlp_solver='dicopt'
     nlp_solver='conopt4'
     mip_solver='cplex'
     gdp_solver='GLOA'
@@ -387,7 +387,7 @@ if __name__ == "__main__":
 
 
     #     for I_J in m_scheduling.I_J:
-    #         tau_init.append(1+round(round(pe.value(m_scheduling.Nref[I_J]))))
+    #         tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
     #     print("-----------------------Iter ",inner_val,"------------------------------")
     #     print("Initialization of ext vars: ",tau_init)
     #     if m_scheduling.results.solver.termination_condition == 'infeasible' or m_scheduling.results.solver.termination_condition == 'other' or m_scheduling.results.solver.termination_condition == 'unbounded' or m_scheduling.results.solver.termination_condition == 'invalidProblem' or m_scheduling.results.solver.termination_condition == 'solverFailure' or m_scheduling.results.solver.termination_condition == 'internalSolverError' or m_scheduling.results.solver.termination_condition == 'error'  or m_scheduling.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling.results.solver.termination_condition == 'licensingProblem' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'intermediateNonInteger':
