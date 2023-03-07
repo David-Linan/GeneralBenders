@@ -29,10 +29,10 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     #Solver declaration
-    minlp_solver='dicopt'
+    minlp_solver='conopt4'
     nlp_solver='conopt4'
     mip_solver='cplex'
-    gdp_solver='LBB'
+    gdp_solver='GLOA'
     if minlp_solver=='dicopt':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option optcr=0;\n','option optca=0;\n','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
     elif minlp_solver=='alphaecp':
@@ -53,6 +53,9 @@ if __name__ == "__main__":
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
     elif minlp_solver=='xpress':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+    else:
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
+
     ##### ----------ONLY PROCESSING TIMES AS EXTERNAL VARIABLES------------------------
     ##### -----------------------------------------------------------------------------
 
@@ -172,14 +175,14 @@ if __name__ == "__main__":
     name='Results_variable_tau_gdp_complete_'+solvers+'.txt'
     m = solve_with_gdpopt(m, mip=mip_solver,minlp=minlp_solver,nlp=nlp_solver,minlp_options=sub_options, timelimit=50000,strategy=gdp_solver, mip_output=True, nlp_output=True,minlp_output=True,rel_tol=0,tee=True)
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open(name, 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open(name, 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())
 
     #Solve with MINLP
     # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
@@ -354,7 +357,7 @@ if __name__ == "__main__":
 
 
     #     for I_J in m_scheduling.I_J:
-    #         tau_init.append(1+pe.value(m_scheduling.Nref[I_J]))
+    #         tau_init.append(1+round(pe.value(m_scheduling.Nref[I_J])))
     #     print("-----------------------Iter ",inner_val,"------------------------------")
     #     print("Initialization of ext vars: ",tau_init)
     #     if m_scheduling.results.solver.termination_condition == 'infeasible' or m_scheduling.results.solver.termination_condition == 'other' or m_scheduling.results.solver.termination_condition == 'unbounded' or m_scheduling.results.solver.termination_condition == 'invalidProblem' or m_scheduling.results.solver.termination_condition == 'solverFailure' or m_scheduling.results.solver.termination_condition == 'internalSolverError' or m_scheduling.results.solver.termination_condition == 'error'  or m_scheduling.results.solver.termination_condition == 'resourceInterrupt' or m_scheduling.results.solver.termination_condition == 'licensingProblem' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'noSolution' or m_scheduling.results.solver.termination_condition == 'intermediateNonInteger':
