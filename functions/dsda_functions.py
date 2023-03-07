@@ -525,7 +525,7 @@ def external_ref_neighborhood(
     for i in dict_extvar:
         for j in range(dict_extvar[i]['exactly_number']):
             for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
-                if k>=x[ext_var_position]-1 and k<=x[ext_var_position]+1: #If Boolean var is within a neighborhood of the current value of external variables           
+                if k>=x[ext_var_position]-2 and k<=x[ext_var_position]+2: #If Boolean var is within a neighborhood of the current value of external variables           
                     if not mip_ref:
                         if dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
                             dict_extvar[i]['Boolean_vars'][k-1].unfix()
@@ -552,6 +552,8 @@ def external_ref_neighborhood(
                 return pe.lnot(pe.land(avoid_list))
             m.feas_cut_con[posit]=pe.LogicalConstraint(rule=feas_cut_rule)   
             setattr(m,'feas_cut_con_%s' %posit,m.feas_cut_con[posit]) 
+    
+    #Constraint to avoid 
 
 
     # Other Boolean and Indicator variables are fixed depending on the information provided by the user
