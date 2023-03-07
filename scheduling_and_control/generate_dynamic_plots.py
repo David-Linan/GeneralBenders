@@ -118,7 +118,7 @@ if __name__ == "__main__":
     
     # m.cuts.add(m.SALES<=100000000)
     start=time.time()
-    m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=0.1)
+    m = solve_subproblem_aprox(m=m_fixed,subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=False,rel_tol=0)
     end=time.time()
     # print('solve subproblem time=',str(end-start))
 
@@ -368,8 +368,8 @@ if __name__ == "__main__":
     print('TMC gams:',str(pe.value(m.TMC)))
     print('SALES gams:',str(pe.value(m.SALES)))
     m.E_DEMAND_SATISFACTION.pprint()
-    # print('S product 1: ' ,pe.value(m.S['P1',60]))
-    # print('S product 2: ' ,pe.value(m.S['P2',60]))
+    print('S product 1: ' ,pe.value(m.S['P1',56]))
+    print('S product 2: ' ,pe.value(m.S['P2',56]))
 
 # #######-------plots------------------------
 #     for I in m.I_reactions:
