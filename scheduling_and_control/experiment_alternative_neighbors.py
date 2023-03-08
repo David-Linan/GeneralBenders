@@ -74,6 +74,7 @@ if __name__ == "__main__":
 
     start=time.time()
     for out in range(max_iter_out):
+        out_of_master=False
         print('------Outer iteration= ',out+1)
         upper_evaluated[out+1]=[current_central]
         for out_count in range(size_neigh_out):
@@ -273,9 +274,11 @@ if __name__ == "__main__":
                     print('***The objective function is not improving. Optimal solution found')
                     print('***Best objective function found: ',best_sol)
                     print('***Best ext vars:',current_central)
-                    print('***CPU time:', round(time.time()- start, 2))    
+                    print('***CPU time:', round(time.time()- start, 2)) 
+                    out_of_master=True
                     break #TODO: I CAN DELETE THIS LINE IF I WANT TO SEE MORE ITERATIONS!!!!!                
-
+        if out_of_master:
+            break
 
 
 

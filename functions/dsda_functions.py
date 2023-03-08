@@ -638,29 +638,38 @@ def external_ref_neighborhood(
 
 
     if remove_cons:
-        # DEACTIVATE DYNAMIC CONSTRAINTS
-        for I in m.I_reactions:
-            for J in m.J_reactors:
-                m.c_dCdtheta[I,J].deactivate()
-                m.c_dTRdtheta[I,J].deactivate()                        
-                m.c_dTJdtheta[I,J].deactivate()
-                m.c_dIntegral_hotdtheta[I,J].deactivate()
-                m.c_dIntegral_colddtheta[I,J].deactivate()
-                m.Constant_control1[I,J].deactivate()                        
-                m.Constant_control2[I,J].deactivate()       
+        # # DEACTIVATE DYNAMIC CONSTRAINTS
+        # for I in m.I_reactions:
+        #     for J in m.J_reactors:
+        #         m.c_dCdtheta[I,J].deactivate()
+        #         m.c_dTRdtheta[I,J].deactivate()                        
+        #         m.c_dTJdtheta[I,J].deactivate()
+        #         m.c_dIntegral_hotdtheta[I,J].deactivate()
+        #         m.c_dIntegral_colddtheta[I,J].deactivate()
+        #         m.Constant_control1[I,J].deactivate()                        
+        #         m.Constant_control2[I,J].deactivate()       
 
-        # DEACTIVATE SCHEDULING CONSTRAINTS
-        m.E2_CAPACITY_LOW.deactivate()
-        m.E2_CAPACITY_UP.deactivate()
-        m.E3_BALANCE_INIT.deactivate()
-        m.E_DEMAND_SATISFACTION.deactivate()
-        m.linking1.deactivate()
-        m.linking2.deactivate()
-        m.E1_UNIT.deactivate()
-        m.E3_BALANCE.deactivate()
-        m.X_Z_relation.deactivate()
-        m.DEF_AUX1_INDEP.deactivate()
-        m.DEF_AUX2_INDEP.deactivate()
+        # # DEACTIVATE SCHEDULING CONSTRAINTS
+        # m.E2_CAPACITY_LOW.deactivate()
+        # m.E2_CAPACITY_UP.deactivate()
+        # m.E3_BALANCE_INIT.deactivate()
+        # m.E_DEMAND_SATISFACTION.deactivate()
+        # m.linking1.deactivate()
+        # m.linking2.deactivate()
+        # m.E1_UNIT.deactivate()
+        # m.E3_BALANCE.deactivate()
+        # m.X_Z_relation.deactivate()
+        # m.DEF_AUX1_INDEP.deactivate()
+        # m.DEF_AUX2_INDEP.deactivate()
+
+        #DEACTIVATE ALL CONSTRAINTS
+        for consts in m.component_objects(pe.Constraint,descend_into=True):
+            # print(consts.name)
+            if consts.name =='C_TCP1' or consts.name =='C_TCP2' or consts.name =='C_TCP3' or consts.name =='C_TMC' or consts.name =='C_SALES':
+                continue
+            else:
+                consts.deactivate()
+        #
 
     # # Other Boolean and Indicator variables are fixed depending on the information provided by the user
     logic_expr = extra_logic_function(m)
