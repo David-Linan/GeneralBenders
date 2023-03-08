@@ -57,16 +57,16 @@ if __name__ == "__main__":
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
 
 
-    # SAME AS LRLAB 8 BUT TEST RECOMMENDED BY LUIS: simply second neares neighbors in upper loop, considering 0 interactios. This simulates a case where I am not choosing neighbors carefully
-    size_neigh_out=2*16
+
+    size_neigh_out=2*6
     size_neigh_in=2*10
     max_iter_out=10000000
     current_central=ext_vars
     upper_evaluated={}
-    evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
-    remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
+    evaluate_inner_neighbors=True #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
+    remove_all_constraints_from_neighborhood_identification_subproblems=False #if problem constraints (main constraints only) are going to be reoved 
     neighborhood_size_upper=2
-    interactions_upper=1
+    interactions_upper=10000
     neighborhood_size_lower=2
     interactions_lower=10000    
 
@@ -98,22 +98,23 @@ if __name__ == "__main__":
             for i in range(len(Sol_found)):
                 direction.append(Sol_found[i]-current_central[i])
 
-            if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try one more DICOPT iterations #TODO: WHAT SHOULD I DO HERE??
+            if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try one more DICOPT iterations #TODO: WHAT SHOULD I DO HERE??               
+                cycles=2
+                while feas_cuts.count(Sol_found)>0:
+                    cycles=cycles+1
+                    sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
 
-                cycles=3
-                sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
-
-                m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
-        
-                Sol_found=[]
-                for I in m.I_reactions:
-                    for J in m.J_reactors:
-                        Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
-                for I_J in m.I_J:
-                    Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-                direction=[]
-                for i in range(len(Sol_found)):
-                    direction.append(Sol_found[i]-current_central[i])
+                    m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
+            
+                    Sol_found=[]
+                    for I in m.I_reactions:
+                        for J in m.J_reactors:
+                            Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+                    for I_J in m.I_J:
+                        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+                    direction=[]
+                    for i in range(len(Sol_found)):
+                        direction.append(Sol_found[i]-current_central[i])
 
 
             if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
@@ -197,21 +198,22 @@ if __name__ == "__main__":
 
 
                             if feas_cuts.count(Sol_found)>0: #If dicopt reported a repeated solution, try more DICOPT iterations #TODO: WHAT SHOULD I DO HERE!!!!??????
+                                cycles=2
+                                while feas_cuts.count(Sol_found)>0: 
+                                    cycles=cycles+1
+                                    sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
 
-                                cycles=3
-                                sub_options_partial={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 0 \n','maxcycles '+str(cycles)+'\n','infeasder 0','$offecho \n']}
-
-                                m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
-                        
-                                Sol_found=[]
-                                for I in m.I_reactions:
-                                    for J in m.J_reactors:
-                                        Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
-                                for I_J in m.I_J:
-                                    Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-                                direction=[]
-                                for i in range(len(Sol_found)):
-                                    direction.append(Sol_found[i]-current_in[i])
+                                    m =solve_with_minlp(m,transformation='hull',minlp=minlp_solver,minlp_options=sub_options_partial,timelimit=3600000,gams_output=False,tee=False,rel_tol=rel_tol) 
+                            
+                                    Sol_found=[]
+                                    for I in m.I_reactions:
+                                        for J in m.J_reactors:
+                                            Sol_found.append(math.ceil(pe.value(m.varTime[I,J])/m.delta)-m.minTau[I,J]+1)
+                                    for I_J in m.I_J:
+                                        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+                                    direction=[]
+                                    for i in range(len(Sol_found)):
+                                        direction.append(Sol_found[i]-current_in[i])
                                 
                             if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
                                 m.dicopt_status='Infeasible'
