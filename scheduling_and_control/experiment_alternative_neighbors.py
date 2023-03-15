@@ -57,20 +57,42 @@ if __name__ == "__main__":
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
 
 
+    # PREVIOUS RESUTLS AVAILABLE
+    # size_neigh_out=2*16
+    # size_neigh_in=2*10
+    # max_iter_out=10000000
+    # current_central=ext_vars
+    # upper_evaluated={}
+    # evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
+    # remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
+    # neighborhood_size_upper=2
+    # interactions_upper=1
+    # neighborhood_size_lower=2
+    # interactions_lower=10000    
 
-    size_neigh_out=2*6
+    # size_neigh_out=50
+    # size_neigh_in=2*10
+    # max_iter_out=10000000
+    # current_central=ext_vars
+    # upper_evaluated={}
+    # evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
+    # remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
+    # neighborhood_size_upper=2
+    # interactions_upper=2
+    # neighborhood_size_lower=2
+    # interactions_lower=10000  
+
+    size_neigh_out=50
     size_neigh_in=2*10
     max_iter_out=10000000
     current_central=ext_vars
     upper_evaluated={}
-    evaluate_inner_neighbors=True #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
-    remove_all_constraints_from_neighborhood_identification_subproblems=False #if problem constraints (main constraints only) are going to be reoved 
-    neighborhood_size_upper=2
-    interactions_upper=10000
-    neighborhood_size_lower=2
-    interactions_lower=10000    
-
-
+    evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
+    remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
+    neighborhood_size_upper=1
+    interactions_upper=2
+    neighborhood_size_lower=1
+    interactions_lower=10000
 
     start=time.time()
     for out in range(max_iter_out):
