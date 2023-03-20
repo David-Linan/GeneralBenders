@@ -4275,6 +4275,8 @@ def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
     m.cuts=pe.ConstraintList() 
     return m
+
+
 # Use this code to solve GDP scheduling problem. It is still disjunctive to consider variable processing times, so apply the required transformations first.  
 def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
 

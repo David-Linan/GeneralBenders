@@ -172,26 +172,26 @@ if __name__ == "__main__":
 
 
 
-    ###### test that subproblems are feasible and tehre is an issue with gdp and minlp solvers
+    # ###### test that subproblems are feasible and tehre is an issue with gdp # and minlp solvers
     # start=time.time()
     # model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
     # logic_fun=problem_logic_scheduling
     # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
     # m=model_fun(**kwargs)
-    # end=time.time()
+    # # end=time.time()
     # print('model generation time=',str(end-start))
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     # start=time.time()
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
     # end=time.time()
     # print('get info from model time=',str(end-start))
     # start=time.time()
-    # m_fixed = external_ref(m=m,x=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+    # # m_fixed = external_ref(m=m,x=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
     # end=time.time()
-    # print('ext_Ref_required time=',str(end-start))
+    # # print('ext_Ref_required time=',str(end-start))
     # start=time.time()
-    # m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
+    # # m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
     # end=time.time()
     # print('solve subproblem time=',str(end-start))
 
