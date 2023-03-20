@@ -39,15 +39,15 @@ if __name__ == "__main__":
     gdp_solver='LBB'
     rel_tol=0
     # # SHORT SCHEDULING
-    # ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Best solution known from sequential iterative, short scheduling obj=-1148
+    ext_vars=[4, 4, 6, 6, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Best solution known from sequential iterative, short scheduling obj=-1148
     # ext_vars=[3, 5, 5, 6, 2, 5, 2, 2, 2, 3, 2, 3, 2, 3, 3, 3] #Solution fron infeasible initialization, obj=-1085
-    ext_vars=[4, 4, 5, 5, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
+    # ext_vars=[4, 4, 5, 5, 3, 3, 3, 2, 2, 3, 3, 2, 2, 2, 3, 2] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
     # ext_vars=[1, 1, 1, 1, 1, 1, 3, 3, 2, 4, 4, 3, 4, 4, 4, 5] #Scheduling only. Remember to activate scheduling only in solution of subproblem
     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 2 \n','infeasder 0','$offecho \n']}
     # sub_options={'add_options':['GAMS_MODEL.optfile = 0;','Option Threads =0;','Option SOLVER = OCTERACT;']}
     # BRANCHING PRIORITIES (tHIS IS DOING NOTHING HERE BECAUSE I HAVE N_I_J FIXED)
     feas_cuts=[ext_vars]
-    current_objective=-10.3698 #-11.480940951614194
+    current_objective=-11.480940951614194#-10.3698 #-11.480940951614194
     best_sol=current_objective
     model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
     kwargs={}
@@ -57,42 +57,20 @@ if __name__ == "__main__":
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
 
 
-    # PREVIOUS RESUTLS AVAILABLE
-    # size_neigh_out=2*16
-    # size_neigh_in=2*10
-    # max_iter_out=10000000
-    # current_central=ext_vars
-    # upper_evaluated={}
-    # evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
-    # remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
-    # neighborhood_size_upper=2
-    # interactions_upper=1
-    # neighborhood_size_lower=2
-    # interactions_lower=10000    
 
-    # size_neigh_out=50
-    # size_neigh_in=2*10
-    # max_iter_out=10000000
-    # current_central=ext_vars
-    # upper_evaluated={}
-    # evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
-    # remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
-    # neighborhood_size_upper=2
-    # interactions_upper=2
-    # neighborhood_size_lower=2
-    # interactions_lower=10000  
-
-    size_neigh_out=50
+    size_neigh_out=2*16
     size_neigh_in=2*10
     max_iter_out=10000000
     current_central=ext_vars
     upper_evaluated={}
     evaluate_inner_neighbors=False #if false, parameter dynamic_Vars will not affect. If true, neighborhood verification will be performed in upper and lower layers, if false, only a single layer
     remove_all_constraints_from_neighborhood_identification_subproblems=True #if problem constraints (main constraints only) are going to be reoved 
-    neighborhood_size_upper=1
-    interactions_upper=2
-    neighborhood_size_lower=1
-    interactions_lower=10000
+    neighborhood_size_upper=2
+    interactions_upper=1
+    neighborhood_size_lower=2
+    interactions_lower=10000    
+
+
 
     start=time.time()
     for out in range(max_iter_out):
