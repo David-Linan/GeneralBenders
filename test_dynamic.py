@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 from pyomo.opt import SolverFactory
 from pyomo.gdp import Disjunct, Disjunction
 import itertools
+import pickle
+import numpy as np
+from functions.cuts_functions import convex_clousure
+from itertools import product
 
 # def reactor_dynamics_one_time_step():
 
@@ -547,101 +551,653 @@ import itertools
 
 
 
+
 def test_process():
     m = pe.ConcreteModel(name='reactor_dynamics_one_time_Step')
 
 
-    m.t=dae.ContinuousSet(bounds=(0,5),doc='Continuous time set [units of time]')
+    m.t=dae.ContinuousSet(bounds=(0,1),doc='Continuous time set [units of time]')
 
 
     #PARAMETERS
-    m.a1=pe.Param(initialize=0.5)
-    m.a3=pe.Param(initialize=0.1)
-    m.y10=pe.Param(initialize=0.05)
-    m.y20=pe.Param(initialize=0)
+
+    w1=13.1
+    w2=0.005
+    w3=30
+    w4=0.94
+    w5=1.71
+    w6=20
+    y10=0.03
+    y20=0
+    # y1f=1
+    # y2f=1
 
 
     #VARIABLES
-    m.a2=pe.Var(within=pe.NonNegativeReals,bounds=(25,25),initialize=25)
-    m.y1=pe.Var(m.t,within=pe.Reals) #TODO:  define bounds
-    m.y2=pe.Var(m.t,within=pe.Reals) #TODO: define bounds
-    m.u=pe.Var(m.t,within=pe.NonNegativeReals,bounds=(0,5))
 
-    m.dy1_dt= dae.DerivativeVar(m.y1, withrespectto=m.t, doc='Derivative of y1')
-    m.dy2_dt= dae.DerivativeVar(m.y2, withrespectto=m.t, doc='Derivative of y2')
+    m.y1=pe.Var(m.t,within=pe.NonNegativeReals,initialize=0.5,bounds=(0,1.075)) #TODO:  how to define these bounds (here I defined them maximizing the value of the state at the end, with negligible sampling time)
+    m.y2=pe.Var(m.t,within=pe.NonNegativeReals,initialize=0.5,bounds=(0,1.243)) #TODO: how to define these bounds (here I defined them maximizing the value of the state at the end, with negligible sampling time)
+    m.temp=pe.Var(m.t,within=pe.NonNegativeReals,bounds=(20,30))
+    m.b1=pe.Var(m.t,within=pe.NonNegativeReals,initialize=1)
+    m.b2=pe.Var(m.t,within=pe.NonNegativeReals,initialize=1)
+    m.b3=pe.Var(m.t,within=pe.NonNegativeReals,initialize=1)
 
-    #CONSTRAINTS
-    def _dy1_dt(m,t):
-        if t == m.t.first(): 
-            return m.y1[t] ==m.y10  # Initial condition
-        else:                            
-            return m.dy1_dt[t]==-2*m.y1[t]-m.a1+(m.y1[t]+m.a1)*pe.exp((m.a2*m.y1[t])/(m.y1[t]+4*m.a1))-(m.y1[t]+0.5*m.a1)*m.u[t] 
-    m.c_dy1_dt = pe.Constraint(m.t, rule=_dy1_dt)   
-
+    m.dy1dt= dae.DerivativeVar(m.y1, withrespectto=m.t, doc='Derivative of y1')
+    m.dy2dt= dae.DerivativeVar(m.y2, withrespectto=m.t,doc='Derivative of y2')
 
     #CONSTRAINTS
-    def _dy2_dt(m,t):
+    def cdy1(m,t):
         if t == m.t.first(): 
-            return m.y2[t] ==m.y20  # Initial condition
-        else:                            
-            return m.dy2_dt[t]==m.a1-m.y2[t]-(m.y2[t]+m.a1)*pe.exp((m.a2*m.y1[t])/(m.y1[t]+4*m.a1))
-    m.c_dy2_dt = pe.Constraint(m.t, rule=_dy2_dt) 
+            return m.y1[t] ==y10  # Initial condition
+        else:
+            return m.dy1dt[t]==m.b1[t]*m.y1[t]-((m.b1[t]/m.b2[t])*((m.y1[t])**2))
+    m.cdy1dt=pe.Constraint(m.t,rule=cdy1)
+
+    def cdy2(m,t):
+        if t == m.t.first(): 
+            return m.y2[t] ==y20  # Initial condition
+        else:
+            return m.dy2dt[t]==m.b3[t]*m.y1[t]
+    m.cdy2dt=pe.Constraint(m.t,rule=cdy2)
+
+    def b1m(m,t):
+        return m.b1[t]==w1*((1-w2*(m.temp[t]-w3)**2)/(1-w2*(25-w3)**2))
+    m.cb1=pe.Constraint(m.t,rule=b1m)
+
+    def b2m(m,t):
+        return m.b2[t]==w4*((1-w2*(m.temp[t]-w3)**2)/(1-w2*(25-w3)**2))
+    m.cb2=pe.Constraint(m.t,rule=b2m)
+
+    def b3m(m,t):
+        return m.b3[t]==w5*((1-w2*(m.temp[t]-w6)**2)/(1-w2*(25-w6)**2))
+    m.cb3=pe.Constraint(m.t,rule=b3m)
 
 
 
     #ENDPOINT CONSTRAINTS
-    def _end1(m,t):
-        if t == m.t.last(): 
-            return m.y1[t] ==0
-        else:                            
-            return pe.Constraint.Skip      
-    m.endpoint1=pe.Constraint(m.t,rule=_end1)
+    # def _end1(m,t):
+    #     if t == m.t.last(): 
+    #         return m.y1[t] ==y1f
+    #     else:                            
+    #         return pe.Constraint.Skip      
+    # m.endpoint1=pe.Constraint(m.t,rule=_end1)
 
-    def _end2(m,t):
-        if t == m.t.last(): 
-            return m.y2[t] ==0
-        else:                            
-            return pe.Constraint.Skip      
-    m.endpoint2=pe.Constraint(m.t,rule=_end2)
+    # def _end2(m,t):
+    #     if t == m.t.last(): 
+    #         return m.y2[t] ==y2f
+    #     else:                            
+    #         return pe.Constraint.Skip      
+    # m.endpoint2=pe.Constraint(m.t,rule=_end2)
     #OBJECTIVE FUNCTION
 
-    def _integralu(m,t):
-        return m.a3*m.u[t]
-    m.integralu=dae.Integral(m.t,wrt=m.t,rule=_integralu)
+    # def _integralu(m,t):
+    #     return m.temp[t]
+    # m.integraltemp=dae.Integral(m.t,wrt=m.t,rule=_integralu)
 
     def _obj(m):
-        return m.integralu
+        return -m.y2[max(m.t)]#m.integraltemp
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
         
     discretizer = pe.TransformationFactory('dae.finite_difference')
     discretizer.apply_to(m,nfe=100,wrt=m.t,scheme='BACKWARD') 
 
-    keep_constant=5
+    keep_constant=10
 
     def _Constant_control1(m,t):
         if (t!=m.t.first() and (m.t.ord(t)-1)%keep_constant!=0) or (t==m.t.last()):
-            return m.u[t] == m.u[m.t.prev(t)]
+            return m.temp[t] == m.temp[m.t.prev(t)]
         else:
             return pe.Constraint.Skip
     m.Constant_control1=pe.Constraint(m.t,rule=_Constant_control1,doc='Constant control action every keep_constant discrete points and the last one')
     return m
 
-# def test_process_one_time_step():
-#     m = pe.ConcreteModel(name='reactor_dynamics')
+def test_process_one_time_step(inputval,y10,y20):
+    m = pe.ConcreteModel(name='reactor_dynamics')
+    m = pe.ConcreteModel(name='reactor_dynamics_one_time_Step')
 
 
-#     return m
+    m.t=dae.ContinuousSet(bounds=(0,0.1),doc='Continuous time set [units of time]')
 
-# def test_process_mip():
-#     m = pe.ConcreteModel(name='reactor_dynamics_one_time_Step')
 
-#     return m
+    #PARAMETERS
+
+    w1=13.1
+    w2=0.005
+    w3=30
+    w4=0.94
+    w5=1.71
+    w6=20
+    # y10=0.03
+    # y20=0
+    # y1f=1
+    # y2f=1
+
+
+    #VARIABLES
+
+    m.y1=pe.Var(m.t,within=pe.NonNegativeReals,initialize=0.5) #TODO: Here i dont need to define bounds (or that is what I think, but maybe if there are really some constraints over the states I can accout for them here to avoid exploring certain states) 
+    m.y2=pe.Var(m.t,within=pe.NonNegativeReals,initialize=0.5) #TODO: 
+    m.temp=pe.Var(m.t,within=pe.NonNegativeReals,bounds=(20,30))
+    m.b1=pe.Var(m.t,within=pe.NonNegativeReals,initialize=1)
+    m.b2=pe.Var(m.t,within=pe.NonNegativeReals,initialize=1)
+    m.b3=pe.Var(m.t,within=pe.NonNegativeReals,initialize=1)
+
+    m.dy1dt= dae.DerivativeVar(m.y1, withrespectto=m.t, doc='Derivative of y1')
+    m.dy2dt= dae.DerivativeVar(m.y2, withrespectto=m.t,doc='Derivative of y2')
+
+    #CONSTRAINTS
+    def cdy1(m,t):
+        if t == m.t.first(): 
+            return m.y1[t] ==y10  # Initial condition
+        else:
+            return m.dy1dt[t]==m.b1[t]*m.y1[t]-((m.b1[t]/m.b2[t])*((m.y1[t])**2))
+    m.cdy1dt=pe.Constraint(m.t,rule=cdy1)
+
+    def cdy2(m,t):
+        if t == m.t.first(): 
+            return m.y2[t] ==y20  # Initial condition
+        else:
+            return m.dy2dt[t]==m.b3[t]*m.y1[t]
+    m.cdy2dt=pe.Constraint(m.t,rule=cdy2)
+
+    def b1m(m,t):
+        return m.b1[t]==w1*((1-w2*(m.temp[t]-w3)**2)/(1-w2*(25-w3)**2))
+    m.cb1=pe.Constraint(m.t,rule=b1m)
+
+    def b2m(m,t):
+        return m.b2[t]==w4*((1-w2*(m.temp[t]-w3)**2)/(1-w2*(25-w3)**2))
+    m.cb2=pe.Constraint(m.t,rule=b2m)
+
+    def b3m(m,t):
+        return m.b3[t]==w5*((1-w2*(m.temp[t]-w6)**2)/(1-w2*(25-w6)**2))
+    m.cb3=pe.Constraint(m.t,rule=b3m)
+
+
+
+    #ENDPOINT CONSTRAINTS
+    # def _end1(m,t):
+    #     if t == m.t.last(): 
+    #         return m.y1[t] ==y1f
+    #     else:                            
+    #         return pe.Constraint.Skip      
+    # m.endpoint1=pe.Constraint(m.t,rule=_end1)
+
+    # def _end2(m,t):
+    #     if t == m.t.last(): 
+    #         return m.y2[t] ==y2f
+    #     else:                            
+    #         return pe.Constraint.Skip      
+    # m.endpoint2=pe.Constraint(m.t,rule=_end2)
+    #OBJECTIVE FUNCTION
+
+    # def _integralu(m,t):
+    #     return m.temp[t]
+    # m.integraltemp=dae.Integral(m.t,wrt=m.t,rule=_integralu)
+
+    def _obj(m):
+        return 1#-m.y2[max(m.t)]#m.integraltemp
+    m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
+        
+    discretizer = pe.TransformationFactory('dae.finite_difference')
+    discretizer.apply_to(m,nfe=10,wrt=m.t,scheme='BACKWARD') 
+
+    # keep_constant=10
+
+    # def _Constant_control1(m,t):
+    #     if (t!=m.t.first() and (m.t.ord(t)-1)%keep_constant!=0) or (t==m.t.last()):
+    #         return m.temp[t] == m.temp[m.t.prev(t)]
+    #     else:
+    #         return pe.Constraint.Skip
+    # m.Constant_control1=pe.Constraint(m.t,rule=_Constant_control1,doc='Constant control action every keep_constant discrete points and the last one')
+    for t in m.t:
+        m.temp[t].fix(inputval)
+    return m
+
+def test_process_mip(neighbors_k,alpha_k_state,rho_k_state,theta_k_state,n_states,n_inputs,bounds_states,bounds_inputs,initial_state):
+    m = pe.ConcreteModel(name='mip representation of dynamic process')
+    m.k=pe.Set(initialize=neighbors_k.keys(),doc='Set of regions, each one having a linearization')
+    m.t=dae.ContinuousSet(bounds=(0,1),doc='Continuous time set [units of time]')
+    m.s=pe.RangeSet(0,n_states-1,doc='states') #starts from 0
+    m.i=pe.RangeSet(0,n_inputs-1,doc='inputs') #starts from 0
+    m.s_alias=pe.SetOf(m.s)
+
+    number_finite=100
+    keep_constant=10 #10 elements cosntant
+    discretizer = pe.TransformationFactory('dae.finite_difference')
+    discretizer.apply_to(m,nfe=round(number_finite/keep_constant),wrt=m.t,scheme='BACKWARD') 
+
+    # m.i=pe.RangeSet(0,m.t.__len__()-1,1)
+
+    m.alpha_param=pe.Param(m.k,m.s,initialize=alpha_k_state)
+    def _rule_rho_param(m,k,state,inp):
+        return rho_k_state[(k,state)][inp]
+    m.rho_param=pe.Param(m.k,m.s,m.i,initialize=_rule_rho_param)
+
+    def _rule_theta_param(m,k,state,alias):
+        return theta_k_state[(k,state)][alias]
+    m.theta_param=pe.Param(m.k,m.s,m.s_alias,initialize=_rule_theta_param)
+
+
+    def _rule_lower_input(m,k,inp):
+        min_bound_sampling=min([min([b[inp] for b in neighbors_k[kprima]]) for kprima in neighbors_k.keys()])
+        bound_to_return=min([b[inp] for b in neighbors_k[k]])
+
+        if min_bound_sampling==bound_to_return:
+            return bounds_inputs[inp][0]
+        else:
+            return bound_to_return
+    m.lower_input=pe.Param(m.k,m.i,initialize=_rule_lower_input)
+
+    def _rule_upper_input(m,k,inp):
+        max_bound_sampling=max([max([b[inp] for b in neighbors_k[kprima]]) for kprima in neighbors_k.keys()])
+        bound_to_return=max([b[inp] for b in neighbors_k[k]])
+
+        if max_bound_sampling==bound_to_return:
+            return bounds_inputs[inp][1]
+        else:
+            return bound_to_return
+    m.upper_input=pe.Param(m.k,m.i,initialize=_rule_upper_input)
+
+
+
+    def _rule_lower_state(m,k,state):
+        loc=n_inputs+state
+        min_bound_sampling=min([min([b[loc] for b in neighbors_k[kprima]]) for kprima in neighbors_k.keys()])
+        bound_to_return=min([b[loc] for b in neighbors_k[k]])
+        if min_bound_sampling==bound_to_return:
+            return bounds_states[state][0]
+        else:
+            return bound_to_return
+    m.lower_state=pe.Param(m.k,m.s,initialize=_rule_lower_state)
+
+    def _rule_upper_state(m,k,state):
+        loc=n_inputs+state
+        max_bound_sampling=max([max([b[loc] for b in neighbors_k[kprima]]) for kprima in neighbors_k.keys()])
+        bound_to_return=max([b[loc] for b in neighbors_k[k]])
+        if max_bound_sampling==bound_to_return:
+            return bounds_states[state][1]
+        else:
+            return bound_to_return
+    m.upper_state=pe.Param(m.k,m.s,initialize=_rule_upper_state)
+
+
+
+
+
+    m.Y=pe.Var(m.k,m.t,within=pe.Binary,initialize=1)
+    m.Xk=pe.Var(m.k,m.t,m.s,within=pe.Reals,initialize=0)
+    m.Uk=pe.Var(m.k,m.t,m.i,within=pe.Reals,initialize=0)
+    m.alpha=pe.Var(m.k,m.t,m.s,within=pe.Reals,initialize=0)
+    m.X=pe.Var(m.t,m.s,within=pe.Reals,initialize=0)
+    m.U=pe.Var(m.t,m.i,within=pe.Reals,initialize=0)
+
+
+
+    #  CONSTRAINTS
+    # ONLY ONE Y IS SELECTED
+    def _oneY(m,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip
+        else:
+            return sum(m.Y[k,t] for k in m.k)== 1 
+    m.oneY=pe.Constraint(m.t,rule=_oneY)
+
+    # Constraint to update dynamic process
+
+    def _xupdate(m,s,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip#m.Xk[k,t,s]==m.Y[k,t]*initial_state[s]
+        else:
+            return m.X[t,s]==sum(m.alpha[k,t,s]+sum(m.rho_param[k,s,i]*m.Uk[k,m.t.prev(t),i] for i in m.i)+sum(m.theta_param[k,s,sprim]*m.Xk[k,m.t.prev(t),sprim] for sprim in m.s_alias) for k in m.k)
+    m.xupdate=pe.Constraint(m.s,m.t,rule=_xupdate)
+
+
+
+    def _defalpha(m,s,k,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip
+        else:
+            return m.alpha[k,t,s]==m.Y[k,t]*m.alpha_param[k,s]
+    m.defalpha=pe.Constraint(m.s,m.k,m.t, rule=_defalpha)
+
+
+
+
+    # def _u_lower(m,i,k,t):
+    #     if t==m.t.last():
+    #         return pe.Constraint.Skip
+    #     else:
+    #         return m.Y[k,t]*m.lower_input[k,i]<=m.Uk[k,t,i]      
+    # m.u_lower=pe.Constraint(m.i,m.k,m.t,rule=_u_lower)
+
+    # def _u_upper(m,i,k,t):
+    #     if t==m.t.last():
+    #         return pe.Constraint.Skip
+    #     else:
+    #         return m.Uk[k,t,i]<=m.Y[k,t]*m.upper_input[k,i]      
+    # m.u_upper=pe.Constraint(m.i,m.k,m.t,rule=_u_upper)
+
+    # def _x_lower(m,s,k,t):
+    #     if t==m.t.last():
+    #         return pe.Constraint.Skip
+    #     else:
+    #         return m.Y[k,t]*m.lower_state[k,s]<=m.Xk[k,t,s]      
+    # m.x_lower=pe.Constraint(m.s,m.k,m.t,rule=_x_lower)
+
+    # def _x_upper(m,s,k,t):
+    #     if t==m.t.last():
+    #         return pe.Constraint.Skip
+    #     else:
+    #         return m.Xk[k,t,s]<=m.Y[k,t]*m.upper_state[k,s]      
+    # m.x_upper=pe.Constraint(m.s,m.k,m.t,rule=_x_upper)
+
+
+    def _u_lower(m,i,k,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip
+        else:
+            return m.Y[k,t]*m.lower_input[k,i]<=m.Uk[k,m.t.prev(t),i]      
+    m.u_lower=pe.Constraint(m.i,m.k,m.t,rule=_u_lower)
+
+    def _u_upper(m,i,k,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip
+        else:
+            return m.Uk[k,m.t.prev(t),i]<=m.Y[k,t]*m.upper_input[k,i]      
+    m.u_upper=pe.Constraint(m.i,m.k,m.t,rule=_u_upper)
+
+    def _x_lower(m,s,k,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip
+        else:
+            return m.Y[k,t]*m.lower_state[k,s]<=m.Xk[k,m.t.prev(t),s]      
+    m.x_lower=pe.Constraint(m.s,m.k,m.t,rule=_x_lower)
+
+    def _x_upper(m,s,k,t):
+        if t==m.t.first():
+            return pe.Constraint.Skip
+        else:
+            return m.Xk[k,m.t.prev(t),s]<=m.Y[k,t]*m.upper_state[k,s]      
+    m.x_upper=pe.Constraint(m.s,m.k,m.t,rule=_x_upper)
+
+    # Definition of X
+    def _defXINIT(m,s,t):
+        if t==m.t.first():
+            return m.X[t,s]==initial_state[s]
+        else:
+            return pe.Constraint.Skip
+    m.defXINIT=pe.Constraint(m.s,m.t,rule=_defXINIT)
+
+    def _defX(m,s,t):
+        return m.X[t,s]==sum(m.Xk[k,t,s] for k in m.k)
+    m.defX=pe.Constraint(m.s,m.t,rule=_defX)
+    #Definition of U
+    def _defU(m,i,t):
+        # if t==m.t.first():
+        #     return pe.Constraint.Skip
+        # else:
+        return m.U[t,i]==sum(m.Uk[k,t,i] for k in m.k)       
+    m.defU=pe.Constraint(m.i,m.t,rule=_defU)
+
+    def _obj(m):
+        return -m.X[max(m.t),1]#m.integraltemp
+    m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
+
+    return m
 
 
 if __name__ == "__main__":
-    m=test_process()
 
-    opt = SolverFactory('gams', solver='conopt')
+    ###--------TEST 1: ORIGINAL DYNAMIC MODEL---------------------------------------
+    # m=test_process()
 
+    # opt = SolverFactory('gams', solver='conopt')
+
+    # m.results = opt.solve(m, tee=True,skip_trivial_constraints=True)
+
+    # y1=[pe.value(m.y1[i]) for i in m.t]
+    # y2=[pe.value(m.y2[i]) for i in m.t]
+    # T=[pe.value(m.temp[i]) for i in m.t]
+
+    # t=list(m.t)
+
+    # plt.figure(1)
+    # plt.plot(t,y1,'b',t,y2,'g')
+    # plt.xlabel('time')
+    # plt.ylabel('Concentration')
+    # plt.title('Production Profile')
+    # plt.legend(['Cell_Mass','Penicillin'],loc=0)
+    # plt.grid(True)
+    # plt.show()
+    # plt.clf()
+    # plt.cla()
+    # plt.close()
+
+    # plt.figure(2)
+    # plt.plot(t,T,'r')
+    # plt.xlabel('time')
+    # plt.ylabel('Value')
+    # plt.title('Temperature Profile')
+    # plt.legend(['Temperature'],loc=0)
+    # plt.grid(True)
+    # plt.show()
+    # plt.clf()
+    # plt.cla()
+    # plt.close()
+
+
+    ###--------TEST 2: ONE TIME STEP---------------------------------------
+    # inputval=22
+    # inity1=0.5
+    # inity2=0.6
+    # m=test_process_one_time_step(inputval,inity1,inity2)
+
+    # opt = SolverFactory('gams', solver='conopt')
+    # m.results = opt.solve(m, tee=False,skip_trivial_constraints=True)
+
+    # if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+    #     outstatus='Infeasible'
+    # else:
+    #     outstatus='Optimal'
+
+    # outy1=pe.value(m.y1[m.t.last()])
+    # outy2=pe.value(m.y2[m.t.last()])
+    # print('output: ','y1=',outy1,'y2=',outy2,'output status=',outstatus)
+    # # y1=[pe.value(m.y1[i]) for i in m.t]
+    # # y2=[pe.value(m.y2[i]) for i in m.t]
+    # # T=[pe.value(m.temp[i]) for i in m.t]
+
+    # # t=list(m.t)
+
+    # # plt.figure(1)
+    # # plt.plot(t,y1,'b',t,y2,'g')
+    # # plt.xlabel('time')
+    # # plt.ylabel('Concentration')
+    # # plt.title('Production Profile')
+    # # plt.legend(['Cell_Mass','Penicillin'],loc=0)
+    # # plt.grid(True)
+    # # plt.show()
+    # # plt.clf()
+    # # plt.cla()
+    # # plt.close()
+
+    # # plt.figure(2)
+    # # plt.plot(t,T,'r')
+    # # plt.xlabel('time')
+    # # plt.ylabel('Value')
+    # # plt.title('Temperature Profile')
+    # # plt.legend(['Temperature'],loc=0)
+    # # plt.grid(True)
+    # # plt.show()
+    # # plt.clf()
+    # # plt.cla()
+    # # plt.close()
+
+
+    ###--------TEST 3: SAMPLING LOOP---------------------------------------
+    # input_val_range=pe.RangeSet(20,30,1) # 5, 2, 1
+    # initial_y1_range=pe.RangeSet(0,1.075,0.1)#0.5, 0.2, 0.1
+    # initial_y2_range=pe.RangeSet(0,1.243,0.1)#0.5, 0.2, 0.1
+    # dictvals={}
+    # for inp in input_val_range:
+    #     for y10 in initial_y1_range:
+    #         for y20 in initial_y2_range:
+
+    #             inputval=inp
+    #             inity1=y10
+    #             inity2=y20
+    #             m=test_process_one_time_step(inputval,inity1,inity2)
+    #             opt = SolverFactory('gams', solver='conopt')
+    #             m.results = opt.solve(m, tee=False,skip_trivial_constraints=True)
+    #             if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+    #                 outstatus='Infeasible'
+    #             else:
+    #                 outstatus='Optimal'
+    #             outy1=pe.value(m.y1[m.t.last()])
+    #             outy2=pe.value(m.y2[m.t.last()])
+    #             dictvals[(inp,y10,y20)]=[outy1,outy2,outstatus]
+    #             print('Input: ','u1=',round(inp,4),'y10=',round(y10,4),'y20=',round(y20,4),'      |     output: ','y1=',round(outy1,4),'y2=',round(outy2,4),'output status=',outstatus)        
+
+
+    # a_file = open("sample_dict_larger_larger.pkl", "wb")
+    # pickle.dump(dictvals, a_file)
+    # a_file.close()
+
+
+        ###--------TEST 4: GENERATION OF PLANES---------------------------------------
+#TODO: A STEP IS MISSING WHERE I DELETE FROM DICTVALS THOSE SIMULATIONS THAT WERE INFEASIBLE. IN THIS CASE EVERYTHING IS FEASIBLE, SO I DO NOT HAVE TO DO THAT!!!!
+#TODO: HOW TO CONSIDER SUROUNDINGS??? FOR THE MOMENT I AM NOT CONSIDERING THE BOUNDS OF INPUTS AND STATES IN MY CALCULATIONS. 
+
+    # f_name="sample_dict_larger_larger"
+    # a_file = open(f_name+".pkl", "rb")
+    # dictvals = pickle.load(a_file)   
+    # print(dictvals)    
+
+    # #TODO: THINK HOW TO INCLUDE FRONTERA
+    # new_input_range=pe.RangeSet(20+1/2,30-1/2,1) # 5, 2, 1 #TODO: GENERALIZE
+    # new_y1_range=pe.RangeSet(0+0.1/2,1.075-0.1/2,0.1)#0.5, 0.2, 0.1 #TODO: GENERALIZE
+    # new_y2_range=pe.RangeSet(0+0.1/2,1.243-0.1/2,0.1)#0.5, 0.2, 0.1 #TODO: GENERALIZE
+
+
+    # k=0
+    # num_states=2# Number of states
+    # num_inputs=1#number of inputs
+
+    # #Information that needs to be saved
+    # central_points_k={}
+    # neighbors_k={}
+    # alpha_k_state={}
+    # rho_k_state={}
+    # theta_k_state={}
+
+    # for inp in new_input_range:
+    #     for y10 in new_y1_range:
+    #         for y20 in new_y2_range:
+    #             k=k+1
+    #             central_point=[inp,y10,y20]
+    #             central_points_k[k]=central_point
+
+    #             neighbors=[]
+
+    #             #TODO: GENERALIZE
+    #             central_up=[inp+1/2,y10+0.1/2,y20+0.1/2]
+    #             central_lo=[inp-1/2,y10-0.1/2,y20-0.1/2]
+    #             neigh_points=[(x,y,z) for x in [central_lo[0],central_up[0]] for y in [central_lo[1],central_up[1]] for z in [central_lo[2],central_up[2]]]
+    #             # print(neigh_points)
+    #             for state in range(num_states):
+                    
+    #                 # neighbors={j:dictvals[j][state] for j in dictvals.keys() if np.linalg.norm(np.asarray((inp,y10,y20))-np.asarray(j))<=min([np.linalg.norm(np.asarray((inp,y10,y20))-np.asarray(k)) for k in dictvals.keys() ])}
+    #                 neighbors={j:dictvals[j][state] for j in dictvals.keys() if any([sum(abs(j[k]-hola[k]) for k in range(len(central_point)))<=1e-4 for hola in neigh_points])}
+    #                 if len(neighbors.keys())!=8:
+    #                     print('error!!!')
+    #                 # print('central point:',central_point)
+    #                 # print(neighbors)
+    #                 coef=convex_clousure(neighbors,central_point)  #TODO: define planes using more data, minimizatio of square error with bounds to guarantee that  # In general, other strategies can be used, here I am using the convex clousure strategy
+    #                 # print(coef)
+    #                 alpha_k_state[(k,state)]=coef[-1]
+    #                 rho_k_state[(k,state)]=coef[0:num_inputs]
+    #                 theta_k_state[(k,state)]=coef[num_inputs:num_states+1]
+    #                 # neighbors_approx={j:coef[-1]+coef[0]*j[0]+coef[1]*j[1]+coef[2]*j[2] for j in neighbors.keys()}
+    #                 # print(neighbors_approx)
+    #                 # print(alpha_k_state[(k,state)],rho_k_state[(k,state)],theta_k_state[(k,state)])
+
+    #             neighbors_k[k]=[j for j in neighbors.keys()]
+    
+    # print('central poits:', central_points_k)
+    # print('neighbors:',neighbors_k)
+
+
+    # generated_info=[central_points_k,neighbors_k,alpha_k_state,rho_k_state,theta_k_state]
+
+
+    # a_file = open("sample_dict_info_larger_larger.pkl", "wb")
+    # pickle.dump(generated_info, a_file)
+    # a_file.close()
+
+        ###--------TEST 5: GENERATION AND SOLUTION OF MIP---------------------------------------
+
+    f_name="sample_dict_info_larger_larger"
+    a_file = open(f_name+".pkl", "rb")
+    generated_info = pickle.load(a_file)   
+    central_points_k=generated_info[0]
+    neighbors_k=generated_info[1]
+    alpha_k_state=generated_info[2]
+    rho_k_state=generated_info[3]
+    theta_k_state=generated_info[4]
+    # print('central poits:', central_points_k)
+    # print('neighbors:',neighbors_k) 
+    # print('alpha:',alpha_k_state) 
+    # print('rho:',rho_k_state) 
+    # print('theta:',theta_k_state) 
+
+    num_states=2
+    num_inputs=1
+    bounds_states=[(0,1.075),(0,1.243)]
+    bounds_inputs=[(20,30)]
+    initial_state=[0.03,0]
+    m=test_process_mip(neighbors_k,alpha_k_state,rho_k_state,theta_k_state,num_states,num_inputs,bounds_states,bounds_inputs,initial_state)
+    # m.pprint()
+    opt = SolverFactory('gams', solver='cplex')
     m.results = opt.solve(m, tee=True,skip_trivial_constraints=True)
-    m.u.pprint()
+    # m.pprint()
+
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))    
+    with open('results_penicilin.txt', 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
+
+
+    
+    y1=[pe.value(m.X[i,0]) for i in m.t]
+    y2=[pe.value(m.X[i,1]) for i in m.t]
+    T=[pe.value(m.U[i,0]) for i in m.t]
+
+    t=list(m.t)
+
+    plt.figure(1)
+    plt.plot(t,y1,'b',t,y2,'g')
+    plt.xlabel('time')
+    plt.ylabel('Concentration')
+    plt.title('Production Profile')
+    plt.legend(['Cell_Mass','Penicillin'],loc=0)
+    plt.grid(True)
+    plt.show()
+    plt.clf()
+    plt.cla()
+    plt.close()
+
+    plt.figure(2)
+    plt.plot(t,T,'r')
+    plt.xlabel('time')
+    plt.ylabel('Value')
+    plt.title('Temperature Profile')
+    plt.legend(['Temperature'],loc=0)
+    plt.grid(True)
+    plt.show()
+    plt.clf()
+    plt.cla()
+    plt.close()
