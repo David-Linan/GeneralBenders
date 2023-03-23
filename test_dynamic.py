@@ -12,6 +12,7 @@ import pickle
 import numpy as np
 from functions.cuts_functions import convex_clousure
 from itertools import product
+import time
 
 # def reactor_dynamics_one_time_step():
 
@@ -649,6 +650,7 @@ def test_process():
         else:
             return pe.Constraint.Skip
     m.Constant_control1=pe.Constraint(m.t,rule=_Constant_control1,doc='Constant control action every keep_constant discrete points and the last one')
+
     return m
 
 def test_process_one_time_step(inputval,y10,y20):
@@ -945,19 +947,135 @@ def test_process_mip(neighbors_k,alpha_k_state,rho_k_state,theta_k_state,n_state
 
     return m
 
+def test_process_lp():
+    m = pe.ConcreteModel(name='reactor_dynamics_one_time_Step')
+
+
+    m.t=dae.ContinuousSet(bounds=(0,1),doc='Continuous time set [units of time]')
+
+
+    #PARAMETERS
+
+    w1=13.1
+    w2=0.005
+    w3=30
+    w4=0.94
+    w5=1.71
+    w6=20
+    y10=0.03
+    y20=0
+    
+    ul=29.33
+    y1l=y10
+    y2l=y20
+
+    b1=w1*((1-w2*(ul-w3)**2)/(1-w2*(25-w3)**2))
+    b2=w4*((1-w2*(ul-w3)**2)/(1-w2*(25-w3)**2))
+    b3=w5*((1-w2*(ul-w6)**2)/(1-w2*(25-w6)**2))
+
+    df1dy1=b1-(b1/b2)*2*y1l
+
+    df1db1=y1l-(y1l**2)/b2
+    df1db2=(b1*(y1l**2))/(b2**2)
+    db1dtemp=w1*((-w2*(ul-w3)*2)/(1-w2*(25-w3)**2))
+    db2dtemp=w4*((-w2*(ul-w3)*2)/(1-w2*(25-w3)**2))
+    db3dtemp=w5*((-w2*(ul-w6)*2)/(1-w2*(25-w6)**2))
+
+    df2dy1=b3
+
+    df1dtemp=df1db1*db1dtemp+df1db2*db2dtemp
+    df2dtemp=y1l*db3dtemp
+
+    f1l=b1*y1l-((b1/b2)*((y1l)**2))
+    f2l=b3*y1l
+
+
+    #VARIABLES
+
+    m.y1=pe.Var(m.t,within=pe.NonNegativeReals,initialize=0.5)#,bounds=(0,1.075)) #TODO:  how to define these bounds (here I defined them maximizing the value of the state at the end, with negligible sampling time)
+    m.y2=pe.Var(m.t,within=pe.NonNegativeReals,initialize=0.5)#,bounds=(0,1.243)) #TODO: how to define these bounds (here I defined them maximizing the value of the state at the end, with negligible sampling time)
+    m.temp=pe.Var(m.t,within=pe.NonNegativeReals,bounds=(20,29.33))
+
+
+    m.dy1dt= dae.DerivativeVar(m.y1, withrespectto=m.t, doc='Derivative of y1')
+    m.dy2dt= dae.DerivativeVar(m.y2, withrespectto=m.t,doc='Derivative of y2')
+
+    #CONSTRAINTS
+    def cdy1(m,t):
+        if t == m.t.first(): 
+            return m.y1[t] ==y10  # Initial condition
+        else:
+            return m.dy1dt[t]==f1l+df1dy1*(m.y1[t]-y1l)+df1dtemp*(m.temp[t]-ul)        
+    m.cdy1dt=pe.Constraint(m.t,rule=cdy1)
+
+    def cdy2(m,t):
+        if t == m.t.first(): 
+            return m.y2[t] ==y20  # Initial condition
+        else:
+            return m.dy2dt[t]==f2l+df2dy1*(m.y1[t]-y1l)+df2dtemp*(m.temp[t]-ul)                      
+    m.cdy2dt=pe.Constraint(m.t,rule=cdy2)
+
+
+
+
+
+    #ENDPOINT CONSTRAINTS
+    # def _end1(m,t):
+    #     if t == m.t.last(): 
+    #         return m.y1[t] ==y1f
+    #     else:                            
+    #         return pe.Constraint.Skip      
+    # m.endpoint1=pe.Constraint(m.t,rule=_end1)
+
+    # def _end2(m,t):
+    #     if t == m.t.last(): 
+    #         return m.y2[t] ==y2f
+    #     else:                            
+    #         return pe.Constraint.Skip      
+    # m.endpoint2=pe.Constraint(m.t,rule=_end2)
+    #OBJECTIVE FUNCTION
+
+    # def _integralu(m,t):
+    #     return m.temp[t]
+    # m.integraltemp=dae.Integral(m.t,wrt=m.t,rule=_integralu)
+
+    def _obj(m):
+        return -m.y2[max(m.t)]#m.integraltemp
+    m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
+        
+    discretizer = pe.TransformationFactory('dae.finite_difference')
+    discretizer.apply_to(m,nfe=1000,wrt=m.t,scheme='BACKWARD') 
+
+    keep_constant=10
+
+    def _Constant_control1(m,t):
+        if (t!=m.t.first() and (m.t.ord(t)-1)%keep_constant!=0) or (t==m.t.last()):
+            return m.temp[t] == m.temp[m.t.prev(t)]
+        else:
+            return pe.Constraint.Skip
+    m.Constant_control1=pe.Constraint(m.t,rule=_Constant_control1,doc='Constant control action every keep_constant discrete points and the last one')
+    return m
+
+
+def mystep(x,y, ax=None, **kwargs):
+    X = np.c_[x[:-1],x[1:],x[1:]]
+    Y = np.c_[y[:-1],y[:-1],np.zeros_like(x[:-1])*np.nan]
+    if not ax: ax=plt.gca()
+    return ax.plot(X.flatten(), Y.flatten(), **kwargs)
 
 if __name__ == "__main__":
 
-    ###--------TEST 1: ORIGINAL DYNAMIC MODEL---------------------------------------
+    ##--------TEST 1: ORIGINAL DYNAMIC MODEL---------------------------------------
     # m=test_process()
 
     # opt = SolverFactory('gams', solver='conopt')
 
-    # m.results = opt.solve(m, tee=True,skip_trivial_constraints=True)
+    # m.results = opt.solve(m, tee=False,skip_trivial_constraints=True)
 
     # y1=[pe.value(m.y1[i]) for i in m.t]
     # y2=[pe.value(m.y2[i]) for i in m.t]
     # T=[pe.value(m.temp[i]) for i in m.t]
+
 
     # t=list(m.t)
 
@@ -974,7 +1092,8 @@ if __name__ == "__main__":
     # plt.close()
 
     # plt.figure(2)
-    # plt.plot(t,T,'r')
+    # # plt.plot(t,T,'r')
+    # mystep(t,T,color="red")
     # plt.xlabel('time')
     # plt.ylabel('Value')
     # plt.title('Temperature Profile')
@@ -1135,8 +1254,72 @@ if __name__ == "__main__":
     # a_file.close()
 
         ###--------TEST 5: GENERATION AND SOLUTION OF MIP---------------------------------------
+    start=time.time()
+    m=test_process()
 
-    f_name="sample_dict_info_larger_larger"
+    opt = SolverFactory('gams', solver='conopt')
+
+    m.results = opt.solve(m, tee=False,skip_trivial_constraints=True)
+    end=time.time()
+
+    print('CPU time NLP=',end-start)
+    y1_base=[pe.value(m.y1[i]) for i in m.t]
+    y2_base=[pe.value(m.y2[i]) for i in m.t]
+    T_base=[pe.value(m.temp[i]) for i in m.t]
+
+
+    t_base=list(m.t)
+
+    
+    start=time.time()
+    m=test_process_lp()
+
+    opt = SolverFactory('gams', solver='cplex')
+
+    m.results = opt.solve(m, tee=True,skip_trivial_constraints=True)
+    end=time.time()
+
+    print('CPU time LP=',end-start)
+    y1_lp=[pe.value(m.y1[i]) for i in m.t]
+    y2_lp=[pe.value(m.y2[i]) for i in m.t]
+    T_lp=[pe.value(m.temp[i]) for i in m.t]
+
+
+    t_lp=list(m.t)
+
+    # plt.figure(1)
+    # plt.plot(t_base,y1_base,'b--',t_base,y2_base,'g--')
+    # plt.xlabel('time')
+    # plt.ylabel('Concentration')
+    # plt.title('Production Profile')
+    # plt.legend(['Cell_Mass (NLP)','Penicillin (NLP)'],loc=0)
+    # plt.grid(False)
+    # plt.show()
+    # plt.clf()
+    # plt.cla()
+    # plt.close()
+
+    # plt.figure(2)
+    # plt.plot(t_base,T_base,'r--')
+    # # mystep(t_base,T_base,color="red",marker='.')
+    # plt.xlabel('time')
+    # plt.ylabel('Value')
+    # plt.title('Temperature Profile')
+    # plt.legend(['Temperature (NLP)'],loc=0)
+    # plt.grid(False)
+    # plt.show()
+    # plt.clf()
+    # plt.cla()
+    # plt.close()
+
+
+    f_name="sample_dict"
+    a_file = open(f_name+".pkl", "rb")
+    dictvals = pickle.load(a_file) 
+
+    print('number points sampled: ',len(dictvals.keys())) 
+
+    f_name="sample_dict_info"
     a_file = open(f_name+".pkl", "rb")
     generated_info = pickle.load(a_file)   
     central_points_k=generated_info[0]
@@ -1155,13 +1338,18 @@ if __name__ == "__main__":
     bounds_states=[(0,1.075),(0,1.243)]
     bounds_inputs=[(20,30)]
     initial_state=[0.03,0]
+    start=time.time()
     m=test_process_mip(neighbors_k,alpha_k_state,rho_k_state,theta_k_state,num_states,num_inputs,bounds_states,bounds_inputs,initial_state)
-    # m.pprint()
-    opt = SolverFactory('gams', solver='cplex')
-    m.results = opt.solve(m, tee=True,skip_trivial_constraints=True)
-    # m.pprint()
 
+
+    opt = SolverFactory('gams', solver='cplex')
+    m.results = opt.solve(m, tee=False,skip_trivial_constraints=True)
+    # m.pprint()
+    end=time.time()
+    print('CPU time MIP=',end-start)
     textbuffer = io.StringIO()
+
+
     for v in m.component_objects(pe.Var, descend_into=True):
         v.pprint(textbuffer)
         textbuffer.write('\n')
@@ -1170,11 +1358,24 @@ if __name__ == "__main__":
     with open('results_penicilin.txt', 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
 
+    num_continuous=0
+    num_binary=0
+    num_constraints=0
+    for v in m.component_data_objects(pe.Var, descend_into=True):
+        if not v.is_continuous():
+            num_binary=num_binary+1
+        else:
+            num_continuous=num_continuous+1
+    for v in m.component_data_objects(pe.Constraint, descend_into=True):
+            num_constraints=    num_constraints+1
+    print('num_continuous_Vars=',num_continuous)
+    print('num_binary_Vars=',num_binary)
+    print('num_constraints=',num_constraints)
 
-    
     y1=[pe.value(m.X[i,0]) for i in m.t]
     y2=[pe.value(m.X[i,1]) for i in m.t]
     T=[pe.value(m.U[i,0]) for i in m.t]
+    T[-1]=T[-2]
 
     t=list(m.t)
 
@@ -1183,20 +1384,54 @@ if __name__ == "__main__":
     plt.xlabel('time')
     plt.ylabel('Concentration')
     plt.title('Production Profile')
-    plt.legend(['Cell_Mass','Penicillin'],loc=0)
-    plt.grid(True)
+    # plt.legend(['Cell_Mass (MIP)','Penicillin (MIP)'],loc=0)
+
+
+    plt.plot(t_base,y1_base,'b--',t_base,y2_base,'g--')
+    plt.xlabel('time')
+    plt.ylabel('Concentration')
+    plt.title('Production Profile')
+
+    plt.plot(t_lp,y1_lp,'b.',t_lp,y2_lp,'g.')
+    plt.xlabel('time')
+    plt.ylabel('Concentration')
+    plt.title('Production Profile')
+
+
+    plt.legend(['Cell_Mass (MIP)','Penicillin (MIP)','Cell_Mass (NLP)','Penicillin (NLP)','Cell_Mass (LP)','Penicillin (LP)'],loc=0)
+    plt.ylim([0, 1.3])
+    plt.grid(False)  
     plt.show()
     plt.clf()
     plt.cla()
     plt.close()
 
     plt.figure(2)
-    plt.plot(t,T,'r')
+    
+    # plt.plot(t,T,'r')
+    mystep(t,T,color="red")
     plt.xlabel('time')
     plt.ylabel('Value')
     plt.title('Temperature Profile')
-    plt.legend(['Temperature'],loc=0)
-    plt.grid(True)
+    # plt.legend(['Temperature (MIP)'],loc=0)
+
+    plt.plot(t_base,T_base,'r--')
+    # mystep(t_base,T_base,color="red",marker='.')
+    plt.xlabel('time')
+    plt.ylabel('Value')
+    plt.title('Temperature Profile')
+
+    plt.plot(t_lp,T_lp,'r.')
+    # mystep(t_base,T_base,color="red",marker='.')
+    plt.xlabel('time')
+    plt.ylabel('Value')
+    plt.title('Temperature Profile')
+
+
+    plt.legend(['Temperature (MIP)','Temperature (NLP)','Temperature (LP)'],loc=0)    
+
+
+    plt.grid(False)
     plt.show()
     plt.clf()
     plt.cla()
