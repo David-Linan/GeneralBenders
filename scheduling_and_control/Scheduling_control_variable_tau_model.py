@@ -6868,7 +6868,7 @@ def problem_logic_scheduling_dummy(m):
         
     return logic_expr
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     #--- Run problem
     # m=scheduling_and_control()
     # m.Y_disjuncts.pprint()

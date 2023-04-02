@@ -307,13 +307,14 @@ if __name__ == "__main__":
     neigh=neighborhood_k_eq_2(len(initialization))
     # neigh=neighborhood_k_eq_m_natural(len(initialization))
     model_fun =scheduling_and_control_GDP_complete_approx
+    model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
     logic_fun=problem_logic_scheduling_dummy
     kwargs={}
     m=model_fun(**kwargs)
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
     
     print('Objective value: ',str(pe.value(m.obj)))
     print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
