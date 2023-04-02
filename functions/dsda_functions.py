@@ -33,7 +33,7 @@ def complementary_model(m,x):
             # print(pe.value(m.tau_p[I,J]))
     # #----------- Variable processing times----------------------------------------------------------------
     def _DEF_VAR_TIME(m,I,J):
-        return m.varTime[I,J]==pe.value(m.tau_p[I,J])
+        return m.varTime[I,J]<=pe.value(m.tau_p[I,J])
     m.DEF_VAR_TIME=pe.Constraint(m.I_reactions,m.J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
     # m.DEF_VAR_TIME.display()
     # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
@@ -1061,7 +1061,7 @@ def solve_subproblem_aprox(
     # Solve
     solvername = 'gams'
 
-    approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
+    approximate_solution=False# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
                                 # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
     scheduling_only=False #True: only perform scheduling subproblems
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    

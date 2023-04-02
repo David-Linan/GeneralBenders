@@ -214,22 +214,22 @@ if __name__ == "__main__":
     #     outputfile.write(textbuffer.getvalue())
 
     # # Solve with MINLP
-    # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-    kwargs={'x_initial':[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7],'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
-    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    m=model_fun(**kwargs)
-    solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
-    name='Results_variable_tau_minlp_complete_bigm_'+solvers+'_scheduling28.txt'
-    m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0.05)
+    # # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+    # kwargs={'x_initial':[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7],'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
+    # name='Results_variable_tau_minlp_complete_bigm_'+solvers+'_scheduling28.txt'
+    # m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0.05)
 
-    textbuffer = io.StringIO()
-    for v in m.component_objects(pe.Var, descend_into=True):
-        v.pprint(textbuffer)
-        textbuffer.write('\n')
-    textbuffer.write('\n Objective: \n') 
-    textbuffer.write(str(pe.value(m.obj)))    
-    with open(name, 'w') as outputfile:
-        outputfile.write(textbuffer.getvalue())   
+    # textbuffer = io.StringIO()
+    # for v in m.component_objects(pe.Var, descend_into=True):
+    #     v.pprint(textbuffer)
+    #     textbuffer.write('\n')
+    # textbuffer.write('\n Objective: \n') 
+    # textbuffer.write(str(pe.value(m.obj)))    
+    # with open(name, 'w') as outputfile:
+    #     outputfile.write(textbuffer.getvalue())   
 # ####--------Objective function summary---------------------------------
 #     TPC1=sum(sum(sum(  m.fixed_cost[I,J]*pe.value(m.X[I,J,T]) for J in m.J)for I in m.I)for T in m.T)
 #     TPC2=sum(sum(sum( m.variable_cost[I,J]*pe.value(m.B[I,J,T]) for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
@@ -297,26 +297,26 @@ if __name__ == "__main__":
     #     outputfile.write(textbuffer.getvalue())
 
 
-    # # Enhanced DBD WITH APPROXIMATE AND OPTIMAL SOLUTION OF SUBPROBLEMS
-    # # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
-    # # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    # Enhanced DBD WITH APPROXIMATE AND OPTIMAL SOLUTION OF SUBPROBLEMS
+    initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     # initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
-    # # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
-    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    # maxiter=10000
-    # # neigh=neighborhood_k_eq_2(len(initialization))
+    # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
+    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    maxiter=10000
+    neigh=neighborhood_k_eq_2(len(initialization))
     # neigh=neighborhood_k_eq_m_natural(len(initialization))
-    # model_fun =scheduling_and_control_GDP_complete_approx
-    # logic_fun=problem_logic_scheduling_dummy
-    # kwargs={}
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    model_fun =scheduling_and_control_GDP_complete_approx
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
     
-    # print('Objective value: ',str(pe.value(m.obj)))
-    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    print('Objective value: ',str(pe.value(m.obj)))
+    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
