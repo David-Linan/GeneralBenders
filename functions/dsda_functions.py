@@ -458,7 +458,7 @@ def external_ref(
     return m
 
 
-
+#this only keeps disjunctions and boolean variables within a neighborhood of the current point active. 
 def external_ref_neighborhood(
     m: pe.ConcreteModel(),
     x,
@@ -714,7 +714,7 @@ def external_ref_neighborhood(
 
 
 
-
+#for sequential scheduling and control
 def external_ref_sequential(
     m: pe.ConcreteModel(),
     x,
@@ -3726,7 +3726,7 @@ def sequential_iterative_1(
             return m
     return m
 
-# IMPROVED VERSION OF SEQUENTIAL ITERATIVE STRATEGY
+# IMPROVED VERSION OF SEQUENTIAL ITERATIVE STRATEGY. This is the one that ggoes to the scheduling and dynamics article
 def sequential_iterative_2(
     ext_logic,
     starting_point: list,
