@@ -431,7 +431,7 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
-    m=complementary_model(m,x)
+    # m=complementary_model(m,x)
     #TODO
     #TODO
     #TODO
@@ -920,7 +920,7 @@ def preprocess_problem(m, simple: bool = True):
         pe.TransformationFactory('contrib.propagate_zero_sum').apply_to(m)
         pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
             m, tmp=False, ignore_infeasible=True)
-    # fbbt(m)
+    fbbt(m)
 
 
 def solve_subproblem(
