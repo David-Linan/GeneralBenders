@@ -92,8 +92,8 @@ if __name__ == "__main__":
 #     # print('solve subproblem time=',str(end-start))
 
 #     # MEDIUM SCHEDULING 28
-    # ext_vars= #Best solution known from sequential iterative, short scheduling obj=-1148
-    # ext_vars= #Solution fron infeasible initialization, obj=-1085
+    # ext_vars= #Best solution known from sequential iterative, short scheduling obj=
+    # ext_vars= #Solution fron infeasible initialization, obj=
     ext_vars=[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7] #Sequential iterative, Also change solve_subproblem_aprox to fix all scheduling desitions
     # ext_vars= #Scheduling only. Remember to activate scheduling only in solution of subproblem
     sub_options={}

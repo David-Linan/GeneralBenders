@@ -6868,12 +6868,41 @@ def problem_logic_scheduling_dummy(m):
         
     return logic_expr
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     #--- Run problem
     # m=scheduling_and_control()
     # m.Y_disjuncts.pprint()
     # print(m.Y.index_set().pprint())
     # m.Y.pprint()
     # m.tau.pprint()
-    m=scheduling_and_control_gdp_N_solvegdp_simpler()
-    m.DEF_AUX1_INDEP.pprint()
+    # m=scheduling_and_control_gdp_N_solvegdp_simpler()
+    # m.DEF_AUX1_INDEP.pprint()
+
+
+
+    ## ACCESS CONSTRAINTS IN DUSJUNCTIONS, AND ACTICATE OR DEACTIVATE THEM
+    # m=scheduling_and_control_gdp_N_solvegdp_simpler()
+    
+    # disjunct=m.YR_disjunct['R3','R_small'][2]
+    # for constr in disjunct.component_objects(pe.Constraint, descend_into=True):
+    #     #print(constr.name) #not name, but local_name
+    #     #print(constr.local_name) #not name, but local_name
+    #     if constr.local_name=='DEF_VAR_TIME':
+    #         constr.deactivate()
+    #         constr.pprint()
+
+    # THE ABOVE CODE IS A SAMPLE CODE TO RETRIEVE DISJUNCTIONS INFORMATION
+    # def constraints_in_True_disjuncts(model, config):
+    #     """Yield constraints in disjuncts where the indicator value is set or fixed to True."""
+    #     for constr in model.component_data_objects(Constraint):
+    #         yield constr
+    #     observed_disjuncts = ComponentSet()
+    #     for disjctn in model.component_data_objects(Disjunction):
+    #         # get all the disjuncts in the disjunction. Check which ones are True.
+    #         for disj in disjctn.disjuncts:
+    #             if disj in observed_disjuncts:
+    #                 continue
+    #             observed_disjuncts.add(disj)
+    #             if fabs(disj.indicator_var.value - 1) &lt;= config.integer_tolerance:
+    #                 for constr in disj.component_data_objects(Constraint):
+    #                     yield constr    

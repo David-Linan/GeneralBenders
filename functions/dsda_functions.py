@@ -33,7 +33,7 @@ def complementary_model(m,x):
             # print(pe.value(m.tau_p[I,J]))
     # #----------- Variable processing times----------------------------------------------------------------
     def _DEF_VAR_TIME(m,I,J):
-        return m.varTime[I,J]==pe.value(m.tau_p[I,J])
+        return m.varTime[I,J]<=pe.value(m.tau_p[I,J])
     m.DEF_VAR_TIME=pe.Constraint(m.I_reactions,m.J_reactors,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
     # m.DEF_VAR_TIME.display()
     # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------
@@ -431,7 +431,7 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
-    m=complementary_model(m,x)
+    # m=complementary_model(m,x)
     #TODO
     #TODO
     #TODO
@@ -458,7 +458,7 @@ def external_ref(
     return m
 
 
-
+#this only keeps disjunctions and boolean variables within a neighborhood of the current point active. 
 def external_ref_neighborhood(
     m: pe.ConcreteModel(),
     x,
@@ -714,7 +714,7 @@ def external_ref_neighborhood(
 
 
 
-
+#for sequential scheduling and control
 def external_ref_sequential(
     m: pe.ConcreteModel(),
     x,
@@ -920,7 +920,7 @@ def preprocess_problem(m, simple: bool = True):
         pe.TransformationFactory('contrib.propagate_zero_sum').apply_to(m)
         pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
             m, tmp=False, ignore_infeasible=True)
-    # fbbt(m)
+    fbbt(m)
 
 
 def solve_subproblem(
@@ -1061,7 +1061,7 @@ def solve_subproblem_aprox(
     # Solve
     solvername = 'gams'
 
-    approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
+    approximate_solution=False# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
                                 # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
     scheduling_only=False #True: only perform scheduling subproblems
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
@@ -3726,7 +3726,7 @@ def sequential_iterative_1(
             return m
     return m
 
-# IMPROVED VERSION OF SEQUENTIAL ITERATIVE STRATEGY
+# IMPROVED VERSION OF SEQUENTIAL ITERATIVE STRATEGY. This is the one that ggoes to the scheduling and dynamics article
 def sequential_iterative_2(
     ext_logic,
     starting_point: list,
