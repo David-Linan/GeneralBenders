@@ -1790,6 +1790,23 @@ def solve_with_gdpopt(
     return m
 
 
+
+def neighborhood_k_eq_all(dimension: int = 2) -> dict:
+    """
+    Function creates a k=2 neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+
+    num_neigh = 2
+    directions={}
+    directions[1]=list(1*np.ones(dimension, dtype=int))
+    directions[2]=list(-1*np.ones(dimension, dtype=int))
+    return directions
+
+
 def neighborhood_k_eq_2(dimension: int = 2) -> dict:
     """
     Function creates a k=2 neighborhood of the given dimension
@@ -2042,6 +2059,7 @@ def find_actual_neighbors(
 
 
 def evaluate_neighbors(
+    stop_when_improvement_found: bool,
     ext_vars: dict,
     fmin: float,
     model_function,
@@ -2170,6 +2188,8 @@ def evaluate_neighbors(
                     improve = True
                     best_path = generate_initialization(
                         m_solved, starting_initialization=False, model_name='best')
+                    if stop_when_improvement_found:
+                        break
                 # else:
                 #     # We want slightly worse solutions if the distance is larger
                 #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
@@ -2915,6 +2935,11 @@ def solve_with_dsda(
     tee: bool = False,
     global_tee: bool = True,
     rel_tol: float = 1e-3,
+    scaling: bool=False,
+    scale_factor: float = 1,
+    stop_neigh_verif_when_improv: bool=False,
+    route_initial: list=[],
+    obj_route_initial: list=[]
 ):
     """
     Function that computes Discrete-Steepest Descend Algorithm
@@ -2948,9 +2973,9 @@ def solve_with_dsda(
         print('--------------------------------------------------------------------------')
 
     # Initialize
-    route = []
-    obj_route = []
-    global_evaluated = []
+    route =[]# route_initial
+    obj_route =[]# obj_route_initial
+    global_evaluated =[]# route_initial
     ext_var = starting_point
 
     # Check if  feasible initialization is provided
@@ -3020,9 +3045,15 @@ def solve_with_dsda(
     elif k == 'L_natural_modified':
         neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var)) 
     elif k == 'M_natural':
-        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))    
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))   
+    elif k == 'all_interactions':
+        neighborhood = neighborhood_k_eq_all(len(ext_var))  
     else:
         return "Enter a valid neighborhood"
+    
+    if scaling:
+        for i in neighborhood.keys():
+            neighborhood[i]=list(scale_factor*np.asarray(neighborhood[i]))
 
     looking_in_neighbors = True
 
@@ -3040,6 +3071,7 @@ def solve_with_dsda(
             break
 
         fmin, best_var, best_dir, improve, eval_time, ns_evaluated, best_path = evaluate_neighbors(
+            stop_when_improvement_found=stop_neigh_verif_when_improv,
             ext_vars=neighbors,
             fmin=fmin,
             model_function=model_function,
@@ -3269,7 +3301,9 @@ def solve_with_dsda_aprox(
     elif k == 'L_natural_modified':
         neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var))  
     elif k == 'M_natural':
-        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))    
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))  
+    elif k == 'all_interactions':
+        neighborhood = neighborhood_k_eq_all(len(ext_var))   
     else:
         return "Enter a valid neighborhood"
 
@@ -3522,7 +3556,9 @@ def solve_with_dsda_aprox_tau_only(
     elif k == 'L_natural_modified':
         neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var))  
     elif k == 'M_natural':
-        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))    
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))  
+    elif k == 'all_interactions':
+        neighborhood = neighborhood_k_eq_all(len(ext_var))   
     else:
         return "Enter a valid neighborhood"
 

@@ -10,7 +10,7 @@ from pyomo.gdp import Disjunct, Disjunction
 import itertools
 
 
-def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max'):
+def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=120,last_time_hours: float=120,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3}):
 
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
@@ -18,10 +18,9 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     m = pe.ConcreteModel(name='scheduling_gdp_var_proc_time')
 
     # ------------scalars    ------------------------------------------------   
-    m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=120,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.delta=pe.Param(initialize=last_time_hours/last_disc_point,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
+    m.lastT=pe.Param(initialize=last_disc_point,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
     
-
     # -----------sets--------------------------------------------------------
     #Main sets
     m.T=pe.RangeSet(0,m.lastT,1,doc='Discrete time set')
@@ -32,7 +31,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     m.K_inputs=pe.Set(initialize=['S1','S2','S3'],within=m.K)
     m.K_products=pe.Set(initialize=['S8','S9'],within=m.K)
     #----------Scalars that depend on sets
-    m.eta=pe.Param(initialize=(m.T.__len__()-1)*m.delta, doc='scheduling horizon [units of nntime]')
+    m.eta=pe.Param(initialize=last_time_hours, doc='scheduling horizon [units of nntime]')
     m.t_p=pe.Param(m.T,initialize=[m.delta*j for j in m.T],doc='physical time [units of time]')
     # -----------parameters--------------------------------------------------
     _I_i_k_minus={}
@@ -272,19 +271,19 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
     #*****DISJUNCTIVE SECTION**********************************   
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
-    _minTau={}
-    _minTau['T1','U1']=1
+    # _minTau={}
+    # _minTau['T1','U1']=math.ceil(1/m.delta)
 
-    _minTau['T2','U2']=1
-    _minTau['T2','U3']=1
+    # _minTau['T2','U2']=math.ceil(1/m.delta)
+    # _minTau['T2','U3']=math.ceil(1/m.delta)
 
-    _minTau['T3','U2']=1
-    _minTau['T3','U3']=1
+    # _minTau['T3','U2']=math.ceil(1/m.delta)
+    # _minTau['T3','U3']=math.ceil(1/m.delta)
 
-    _minTau['T4','U2']=1
-    _minTau['T4','U3']=4
+    # _minTau['T4','U2']=math.ceil(1/m.delta)
+    # _minTau['T4','U3']=math.ceil(4/m.delta)
 
-    _minTau['T5','U4']=1
+    # _minTau['T5','U4']=math.ceil(1/m.delta)
 
     # _minTau['T1','U1']=1
 
@@ -298,22 +297,27 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     # _minTau['T4','U3']=5
 
     # _minTau['T5','U4']=2
-    m.minTau=pe.Param(m.I,m.J,initialize=_minTau,doc='Minimum number of discrete elements required to complete task [dimensionless]')
+    def _minTau_rule(m,I,J):
+        if m.I_i_j_prod[I,J]==1:
+            return math.ceil(lower_t_h[(I,J)]/m.delta)
+        else:
+            return 0
+    m.minTau=pe.Param(m.I,m.J,initialize=_minTau_rule,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
 #TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
-    _maxTau={}
-    _maxTau['T1','U1']=2
+    # _maxTau={}
+    # _maxTau['T1','U1']=math.ceil(2/m.delta)
 
-    _maxTau['T2','U2']=2
-    _maxTau['T2','U3']=3
+    # _maxTau['T2','U2']=math.ceil(2/m.delta)
+    # _maxTau['T2','U3']=math.ceil(3/m.delta)
 
-    _maxTau['T3','U2']=2
-    _maxTau['T3','U3']=6
+    # _maxTau['T3','U2']=math.ceil(2/m.delta)
+    # _maxTau['T3','U3']=math.ceil(6/m.delta)
 
-    _maxTau['T4','U2']=2
-    _maxTau['T4','U3']=6
+    # _maxTau['T4','U2']=math.ceil(2/m.delta)
+    # _maxTau['T4','U3']=math.ceil(6/m.delta)
 
-    _maxTau['T5','U4']=3
+    # _maxTau['T5','U4']=math.ceil(3/m.delta)
 
     # _maxTau['T1','U1']=1
 
@@ -327,11 +331,17 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     # _maxTau['T4','U3']=5
 
     # _maxTau['T5','U4']=2
-    m.maxTau=pe.Param(m.I,m.J,initialize=_maxTau,doc='Maximum number of discrete elements required to complete task [dimensionless]')
+    def _maxTau_rule(m,I,J):
+        if m.I_i_j_prod[I,J]==1:
+            return math.ceil(upper_t_h[(I,J)]/m.delta)
+        else:
+            return 0
+    m.maxTau=pe.Param(m.I,m.J,initialize=_maxTau_rule,doc='Maximum number of discrete elements required to complete task [dimensionless]')
+    
     ### NEW ###################
     def _varTime_bounds(m,I,J,T):
         if m.I_i_j_prod[I,J]==1:
-            return (0,m.maxTau[I,J]*m.delta)
+            return (0,upper_t_h[(I,J)])
         else:
             return (0,0)
     m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
@@ -356,7 +366,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         if  m.I_i_j_prod[I,J]!=1:
             return pe.Constraint.Skip
         else:
-            return m.varTime[I,J,T]-m.beta_time[I,J]*m.B[I,J,T]<=m.maxTau[I,J]*m.delta*(1-m.X[I,J,T])
+            return m.varTime[I,J,T]-m.beta_time[I,J]*m.B[I,J,T]<=upper_t_h[(I,J)]*(1-m.X[I,J,T])
     
     m.ineq_rel_1=pe.Constraint(m.I,m.J,m.T,rule=_rule_ineqrel_1)
     m.ineq_rel_2=pe.Constraint(m.I,m.J,m.T,rule=_rule_ineqrel_2)
@@ -418,10 +428,10 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                 setattr(m,'YR_Disjunct_%s_%s' %(I,J),m.YR_disjunct[I,J])
                 
                 #Create disjunction
-                # def Disjunction1(m):    #Disjunction for first Boolean variable
-                #     return [m.YR_disjunct[I,J][dis_set] for dis_set in m.ordered_set[I,J]]
-                # m.Disjunction1[I,J]=Disjunction(rule=Disjunction1,xor=True)
-                # setattr(m,'Disjunction1_%s_%s' %(I,J),m.Disjunction1[I,J])
+                def Disjunction1(m):    #Disjunction for first Boolean variable
+                    return [m.YR_disjunct[I,J][dis_set] for dis_set in m.ordered_set[I,J]]
+                m.Disjunction1[I,J]=Disjunction(rule=Disjunction1,xor=True)
+                setattr(m,'Disjunction1_%s_%s' %(I,J),m.Disjunction1[I,J])
 
                 # Associate disjuncts with boolean variables
                 for index in m.ordered_set[I,J]:
@@ -446,48 +456,48 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
 
-        #Create disjunction
-        # def Disjunction2(m):   
-        #     return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        # m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        # setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     #Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
 
 
-    # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    # # Associate disjuncts with boolean variables
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
 
     # # -----------------------------------------------------------------------
@@ -538,11 +548,11 @@ def problem_logic_scheduling(m):
                 for index in m.ordered_set[I,J]:
                     logic_expr.append([m.YR[I,J][index],m.YR_disjunct[I,J][index].indicator_var])              
 
-    for I_J in m.I_J:
-        I=I_J[0]
-        J=I_J[1]
-        for index in m.ordered_set2[I,J]:
-            logic_expr.append([m.YR2[I,J][index],m.YR2_Disjunct[I,J][index].indicator_var])  
+    # for I_J in m.I_J:
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     for index in m.ordered_set2[I,J]:
+    #         logic_expr.append([m.YR2[I,J][index],m.YR2_Disjunct[I,J][index].indicator_var])  
     return logic_expr
 
 if __name__ == "__main__":
