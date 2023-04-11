@@ -34,9 +34,9 @@ if __name__ == "__main__":
     mip_solver='cplex'
     gdp_solver='GLOA'
     if minlp_solver=='dicopt':
-        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
         # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n']}
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 20000 \n','infeasder 1','$offecho \n']}
+        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 20000 \n','infeasder 1','$offecho \n']}
     elif minlp_solver=='alphaecp':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','option nlp='+nlp_solver+';\n','option mip='+mip_solver+';\n']}
     elif minlp_solver=='antigone':
@@ -277,15 +277,15 @@ if __name__ == "__main__":
 
 
     #Solve with enhanced LD-SDA_COMPLETE GDP. Approximated solution of subproblems with pruning depending on parameter aproximate_solution in solve_subproblem_aprox
-    # model_fun =scheduling_and_control_GDP_complete_approx
-    # logic_fun=problem_logic_scheduling_dummy
-    # kwargs={}
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    # m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = nlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
-    # print('Objective value: ',str(pe.value(m.obj)))
+    model_fun =scheduling_and_control_GDP_complete_approx
+    logic_fun=problem_logic_scheduling_dummy
+    kwargs={}
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    m,routeDSDA,obj_route=solve_with_dsda_aprox(model_fun,kwargs,[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],ext_ref,logic_fun,k = '2',provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 100000,timelimit = 360000,gams_output = False,tee= False,global_tee = True,rel_tol = 0)
+    print('Objective value: ',str(pe.value(m.obj)))
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
@@ -298,26 +298,26 @@ if __name__ == "__main__":
 
 
     # Enhanced DBD WITH APPROXIMATE AND OPTIMAL SOLUTION OF SUBPROBLEMS
-    initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
-    # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    # initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
-    # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
-    infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
-    maxiter=10000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    # neigh=neighborhood_k_eq_m_natural(len(initialization))
-    model_fun =scheduling_and_control_GDP_complete_approx
-    model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
-    logic_fun=problem_logic_scheduling_dummy
-    kwargs={}
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    # initialization=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    # # initialization=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    # # initialization=[1,1,1,1,1,1,3,3,2,4,4,3,4,4,4,5]
+    # # initialization=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] #TODO: to run this I hae to activate fbbt in dsda_functions (it was deactivated)
+    # infinity_val=1e+4 #TODO: DBD FROM FEASIBLE WORKED VERY WELL WITH 1E+4. I HAVE TO USE DIFFFERENT INFINITY VALUES DEPENDING ON STAGE 1 2 OR 3. I have scaled objective in phase 2
+    # maxiter=10000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # # neigh=neighborhood_k_eq_m_natural(len(initialization))
+    # model_fun =scheduling_and_control_GDP_complete_approx
+    # model_fun_scheduling=scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau
+    # logic_fun=problem_logic_scheduling_dummy
+    # kwargs={}
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
     
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):

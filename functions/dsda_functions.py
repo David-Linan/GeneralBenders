@@ -431,7 +431,7 @@ def external_ref(
         m, tmp=False, ignore_infeasible=True)
 
     #TODO: Generalize this, I am updating the portion of the model that depends on tau for scheduling. This is to avoid using very large models
-    # m=complementary_model(m,x)
+    m=complementary_model(m,x)
     #TODO
     #TODO
     #TODO
@@ -1061,7 +1061,7 @@ def solve_subproblem_aprox(
     # Solve
     solvername = 'gams'
 
-    approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
+    approximate_solution=False# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
                                 # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
     scheduling_only=False #True: only perform scheduling subproblems
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
