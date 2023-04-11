@@ -34,8 +34,12 @@ if __name__ == "__main__":
     mip_solver='cplex'
     gdp_solver='GLOA'
     if minlp_solver=='dicopt':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','maxcycles 20000 \n','$offecho \n']}
-        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}
+        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','maxcycles 20000 \n','$offecho \n']}
+        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','$offecho \n']}  #USED FOR THE DIFFEREN RUNS!!!!!!! because stop 1 decreases time, withouth affecting solution quaility of subproblems.
+
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 1 \n','maxcycles 20000 \n','relaxed 0 \n','$offecho \n']}
+
+
         # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n']}
         # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver '+nlp_solver+'\n','stop 2 \n','maxcycles 20000 \n','infeasder 1','$offecho \n']}
     elif minlp_solver=='alphaecp':
@@ -63,28 +67,28 @@ if __name__ == "__main__":
     
 
     ###### test that subproblems are feasible and tehre is an issue with gdp # and minlp solvers
-    start=time.time()
-    model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-    logic_fun=problem_logic_scheduling
-    kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-    m=model_fun(**kwargs)
-    end=time.time()
-    print('model generation time=',str(end-start))
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    start=time.time()
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    end=time.time()
-    print('get info from model time=',str(end-start))
-    start=time.time()
-    m_fixed = external_ref(m=m,x=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
-    end=time.time()
-    print('ext_Ref_required time=',str(end-start))
-    start=time.time()
-    m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
-    end=time.time()
-    print('solve subproblem time=',str(end-start))
-    solved=generate_initialization(m=m,model_name='sequential_iterative14')
+    # start=time.time()
+    # model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
+    # logic_fun=problem_logic_scheduling
+    # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+    # m=model_fun(**kwargs)
+    # end=time.time()
+    # print('model generation time=',str(end-start))
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # start=time.time()
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # end=time.time()
+    # print('get info from model time=',str(end-start))
+    # start=time.time()
+    # m_fixed = external_ref(m=m,x=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
+    # end=time.time()
+    # print('ext_Ref_required time=',str(end-start))
+    # start=time.time()
+    # m = solve_subproblem(m=m_fixed,subproblem_solver=minlp_solver,subproblem_solver_options=sub_options,timelimit=100000000,gams_output=False,tee=True,rel_tol=0)
+    # end=time.time()
+    # print('solve subproblem time=',str(end-start))
+    # solved=generate_initialization(m=m,model_name='sequential_iterative14')
 
 
     #############Solve with pyomo.GDP COMPLETE GDP
@@ -105,14 +109,14 @@ if __name__ == "__main__":
     #     outputfile.write(textbuffer.getvalue())
 
     # Solve with MINLP
-    # kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
-    # # kwargs={'x_initial':[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7],'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
-    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    # m=model_fun(**kwargs) #do not provide init
-    # m=initialize_model(m,from_feasible=True,feasible_model='sequential_iterative14')#provide init
-    # solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
-    # name='Results_variable_tau_minlp_complete_bigm_'+solvers+'_scheduling14.txt'
-    # m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0)
+    kwargs={'x_initial':[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]}
+    # kwargs={'x_initial':[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7],'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    m=model_fun(**kwargs) #do not provide init
+    m=initialize_model(m,from_feasible=True,feasible_model='sequential_iterative14')#provide init
+    solvers=minlp_solver+'_'+nlp_solver+'_'+mip_solver
+    name='Results_variable_tau_minlp_complete_bigm_'+solvers+'_scheduling14.txt'
+    m = solve_with_minlp(m,transformation='bigm',minlp=minlp_solver,minlp_options=sub_options,timelimit=50000,gams_output=False,tee=True,rel_tol=0)
 
     # textbuffer = io.StringIO()
     # for v in m.component_objects(pe.Var, descend_into=True):
