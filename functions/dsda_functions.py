@@ -1776,13 +1776,15 @@ def solve_with_gdpopt(
                               solver=nlp, warmstart=True, tee=tee, **nlp_options),
                           minlp_solver='gams',
                           minlp_solver_args=dict(
+                              solver=minlp, warmstart=True, tee=tee, **minlp_options), local_minlp_solver='gams', local_minlp_solver_args=dict(
                               solver=minlp, warmstart=True, tee=tee, **minlp_options),
                         #   mip_presolve=True, #True is the default
-                        #   init_strategy='fix_disjuncts',#'fix_disjuncts'##'set_covering'#
+                          init_strategy='fix_disjuncts',#'fix_disjuncts'##'set_covering'#
+                          init_algorithm='fix_disjuncts',
                           #   set_cover_iterlim=0,
                           #iterlim#=1000,
                         #   force_subproblem_nlp=False,
-                          #subproblem_presolve=False
+                          subproblem_presolve=False,
                           #   bound_tolerance=rel_tol
                           #   calc_disjunctive_bounds=True
                           )
