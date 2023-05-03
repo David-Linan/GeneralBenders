@@ -920,7 +920,7 @@ def preprocess_problem(m, simple: bool = True):
         pe.TransformationFactory('contrib.propagate_zero_sum').apply_to(m)
         pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
             m, tmp=False, ignore_infeasible=True)
-    fbbt(m)
+    # fbbt(m)
 
 
 def solve_subproblem(
