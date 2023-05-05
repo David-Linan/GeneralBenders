@@ -554,7 +554,7 @@ import time
 
 
 def test_process():
-    m = pe.ConcreteModel(name='reactor_dynamics_one_time_Step')
+    m = pe.ConcreteModel(name='reactor_dynamics')
 
 
     m.t=dae.ContinuousSet(bounds=(0,1),doc='Continuous time set [units of time]')
@@ -654,7 +654,7 @@ def test_process():
     return m
 
 def test_process_one_time_step(inputval,y10,y20):
-    m = pe.ConcreteModel(name='reactor_dynamics')
+
     m = pe.ConcreteModel(name='reactor_dynamics_one_time_Step')
 
 
