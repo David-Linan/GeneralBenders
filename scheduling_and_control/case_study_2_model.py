@@ -29,7 +29,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.K=pe.Set(initialize=['S1','S2','S3','S4','S5','S6','S7','S8','S9'],doc='Set of states')
     #Subsets
     m.J_dynamics=pe.Set(initialize=['U2','U3'],within=m.J)
-    m.I_dynamics=pe.Set(initialize=['T4'],within=m.I)   
+    m.I_dynamics=pe.Set(initialize=['T2'],within=m.I)   
     m.J_noDynamics=m.J-m.J_dynamics
     m.I_noDynamics=m.I-m.I_dynamics
     m.K_inputs=pe.Set(initialize=['S1','S2','S3'],within=m.K)
@@ -91,11 +91,11 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     for T in m.T:
         m.rho_minus['T1','S1',T].fix(1)
 
-        m.rho_minus['T2','S3',T].fix(0.5)
-        m.rho_minus['T2','S2',T].fix(0.5)
-
         m.rho_minus['T3','S4',T].fix(0.4)
         m.rho_minus['T3','S5',T].fix(0.6)
+
+        m.rho_minus['T4','S6',T].fix(0.8)
+        m.rho_minus['T4','S3',T].fix(0.2)
 
         m.rho_minus['T5','S7',T].fix(1)     
 
@@ -435,13 +435,29 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     #****END OF DISJUNCTIVE SECTION*****************************
 
 
-    # # ----------Linking constraints-------------------------------------------
-
-# In this case I will create disjunctions that will activate and deactivate constraints depending on the value of Xijt
-
     #-----------Reactors dynamic models--------------------------------
 
+
+
+    m.CA0=pe.Param(initialize=10,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+    m.CB0=pe.Param(initialize=1.1685,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+    m.CC0=pe.Param(initialize=0,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+
+    m.CBIN=pe.Param(initialize=20,doc='Concentration of B in inlet flow [kmol/m^3]')
+    m.V0=pe.Param(initialize=0.001,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.Vmax=pe.Param(initialize=m.V0+m.V0*0.1,doc='Fixed initial volume for dynamic tast [m^3]')
+
     m.N={} #Continuous time set
+    m.CA={}
+    m.CB={}
+    m.CC={}
+    m.TRvar={}
+    m.u_input={}
+    m.Vol={}
+    m.dCAdtheta={}
+    m.dCBdtheta={}
+    m.dCCdtheta={}
+    m.dVdtheta={}
 
 
     for I in m.I_dynamics:
@@ -449,13 +465,51 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
             for T in m.T:
                 m.N[I,J,T]=dae.ContinuousSet(bounds=(0,1),doc='Continuous time set for reaction I in reactor J [-]') #No units!!
                 setattr(m,'N_%s_%s_%s' %(I,J,T),m.N[I,J,T]) # TODO: I think the name of the pyomo object do not affect, because I can access these sets through dictionary m.N. Check if this is correct
+                
+                def _CA_bounds(m,N):
+                    return (0,100)
+                m.CA[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_CA_bounds, doc='Component composition profile [kmol/m^3]') 
+                setattr(m,'CA_%s_%s_%s' %(I,J,T),m.CA[I,J,T])
 
+                def _CB_bounds(m,N):
+                    return (0,100)
+                m.CB[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_CB_bounds, doc='Component composition profile [kmol/m^3]') 
+                setattr(m,'CB_%s_%s_%s' %(I,J,T),m.CB[I,J,T])
 
+                def _CC_bounds(m,N):
+                    return (0,100)
+                m.CC[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_CC_bounds, doc='Component composition profile [kmol/m^3]') 
+                setattr(m,'CC_%s_%s_%s' %(I,J,T),m.CC[I,J,T])
 
+                def _TRvar_bounds(m,N):
+                    return (293.15,323.15)  
+                m.TRvar[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_TRvar_bounds,doc='Reactor temperatrue profile [K]')
+                setattr(m,'TRvar_%s_%s_%s' %(I,J,T),m.TRvar[I,J,T])
+                
+                def _u_input_bounds(m,N):
+                    return (0,m.V0)
+                m.u_input[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_u_input_bounds,doc='Feed rate of B with inlet concentration CBIN [m^3/h]')
+                setattr(m,'u_input_%s_%s_%s' %(I,J,T),m.u_input[I,J,T])
 
+                def _Vol_bounds(m,N):
+                    return (0,m.Vmax)
+                m.Vol[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_Vol_bounds,doc='Variable reactor volume [m^3]')
+                setattr(m,'Vol_%s_%s_%s' %(I,J,T),m.Vol[I,J,T])
 
+                m.dCAdtheta[I,J,T] = dae.DerivativeVar(m.CA[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition A')
+                setattr(m,'dCAdtheta_%s_%s_%s' %(I,J,T),m.dCAdtheta[I,J,T])               
 
+                m.dCBdtheta[I,J,T] = dae.DerivativeVar(m.CB[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition B')
+                setattr(m,'dCBdtheta_%s_%s_%s' %(I,J,T),m.dCBdtheta[I,J,T])
 
+                m.dCCdtheta[I,J,T] = dae.DerivativeVar(m.CC[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition C')
+                setattr(m,'dCCdtheta_%s_%s_%s' %(I,J,T),m.dCCdtheta[I,J,T])
+
+                m.dVdtheta[I,J,T] = dae.DerivativeVar(m.Vol[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition C')
+                setattr(m,'dVdtheta_%s_%s_%s' %(I,J,T),m.dVdtheta[I,J,T])
+    # # ----------Linking constraints-------------------------------------------
+# TODO: discretize models before linking constraints
+# In this case I will create disjunctions that will activate and deactivate constraints depending on the value of Xijt
     # # -------Reformulation----------------------------------------------------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
