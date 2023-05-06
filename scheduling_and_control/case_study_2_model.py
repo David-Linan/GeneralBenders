@@ -446,6 +446,16 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.CBIN=pe.Param(initialize=20,doc='Concentration of B in inlet flow [kmol/m^3]')
     m.V0=pe.Param(initialize=0.001,doc='Fixed initial volume for dynamic tast [m^3]')
     m.Vmax=pe.Param(initialize=m.V0+m.V0*0.1,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.qrmax=pe.Param(initialize=(1.5e+5)*(1/1000)*(m.V0/0.001),doc='upper bound on the heat rate produced by the reaction [kJ/h]') #TODO: check if assumed linear relationship holds
+
+    m.k10=pe.Param(initialize=4,doc='[m^3/kmol h]')
+    m.k20=pe.Param(initialize=800*(0.001),doc='  [m^3/h]')
+    m.E1=pe.Param(initialize=6e+3,doc='  [kJ/kmol]')
+    m.E2=pe.Param(initialize=20e+3,doc='  [kJ/kmol]')
+    m.R=pe.Param(initialize=8.31,doc='  [kJ/kmol K]')
+    m.DH1=pe.Param(initialize=-3e+4,doc='  [kJ/kmol]')
+    m.DH2=pe.Param(initialize=-1e+4,doc='  [kJ/kmol]')
+
 
     m.N={} #Continuous time set
     m.CA={}
@@ -458,6 +468,15 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.dCBdtheta={}
     m.dCCdtheta={}
     m.dVdtheta={}
+    # m.aux1={}
+    # m.aux2={}
+    # m.aux3={}
+    # m.aux4={}
+
+    m.c_dCAdtheta={}
+    m.c_dCBdtheta={}
+    m.c_dCCdtheta={}
+    m.c_dVdtheta={}
 
 
     for I in m.I_dynamics:
@@ -492,9 +511,22 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
                 setattr(m,'u_input_%s_%s_%s' %(I,J,T),m.u_input[I,J,T])
 
                 def _Vol_bounds(m,N):
-                    return (0,m.Vmax)
+                    return (m.V0,m.Vmax)
                 m.Vol[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_Vol_bounds,doc='Variable reactor volume [m^3]')
                 setattr(m,'Vol_%s_%s_%s' %(I,J,T),m.Vol[I,J,T])
+
+
+                # m.aux1[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 1 (CA)')
+                # setattr(m,'aux1_%s_%s_%s' %(I,J,T),m.aux1[I,J,T])
+
+                # m.aux2[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 2 (CB)')
+                # setattr(m,'aux2_%s_%s_%s' %(I,J,T),m.aux2[I,J,T])
+
+                # m.aux3[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 3 (CC)')
+                # setattr(m,'aux3_%s_%s_%s' %(I,J,T),m.aux3[I,J,T])
+
+                # m.aux4[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 4 (V)')
+                # setattr(m,'aux4_%s_%s_%s' %(I,J,T),m.aux4[I,J,T])
 
                 m.dCAdtheta[I,J,T] = dae.DerivativeVar(m.CA[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition A')
                 setattr(m,'dCAdtheta_%s_%s_%s' %(I,J,T),m.dCAdtheta[I,J,T])               
@@ -507,6 +539,40 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
 
                 m.dVdtheta[I,J,T] = dae.DerivativeVar(m.Vol[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition C')
                 setattr(m,'dVdtheta_%s_%s_%s' %(I,J,T),m.dVdtheta[I,J,T])
+
+                def _dCAdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.CA[I,J,T][N] == m.CA0 # Initial condition
+                    else:                                    
+                        return m.dCAdtheta[I,J,T][N] == m.varTime[I,J,T]*(   -((m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))       -(((m.u_input[I,J,T][N])/(m.Vol[I,J,T][N]))*(m.CA[I,J,T][N]))       ) 
+                m.c_dCAdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dCAdtheta)
+                setattr(m,'c_dCAdtheta_%s_%s_%s' %(I,J,T),m.c_dCAdtheta[I,J,T])
+
+                def _dCBdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.CB[I,J,T][N] == m.CB0 # Initial condition
+                    else:                                    
+                        return m.dCBdtheta[I,J,T][N] == m.varTime[I,J,T]*( -((m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))      +    (((m.u_input[I,J,T][N])/(m.Vol[I,J,T][N]))*(m.CBIN-m.CB[I,J,T][N]))  ) 
+                m.c_dCBdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dCBdtheta)
+                setattr(m,'c_dCBdtheta_%s_%s_%s' %(I,J,T),m.c_dCBdtheta[I,J,T])
+
+                def _dCCdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.CC[I,J,T][N] == m.CC0 # Initial condition
+                    else:                                    
+                        return m.dCCdtheta[I,J,T][N] == m.varTime[I,J,T]*(  ((m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))    -((m.k20*pe.exp(-((m.E2)/(m.R*m.TRvar[I,J,T][N]))))*m.CC[I,J,T][N])       -(((m.u_input[I,J,T][N])/(m.Vol[I,J,T][N]))*m.CC[I,J,T][N]) ) 
+                m.c_dCCdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dCCdtheta)
+                setattr(m,'c_dCCdtheta_%s_%s_%s' %(I,J,T),m.c_dCCdtheta[I,J,T])
+
+                def _dVdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.Vol[I,J,T][N] == m.V0 # Initial condition
+                    else:                                    
+                        return m.dVdtheta[I,J,T][N] == m.varTime[I,J,T]*(  m.u_input[I,J,T][N] ) 
+                m.c_dVdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dVdtheta)
+                setattr(m,'c_dVdtheta_%s_%s_%s' %(I,J,T),m.c_dVdtheta[I,J,T])
+
+
     # # ----------Linking constraints-------------------------------------------
 # TODO: discretize models before linking constraints
 # In this case I will create disjunctions that will activate and deactivate constraints depending on the value of Xijt
@@ -629,4 +695,5 @@ def problem_logic_scheduling(m):
 
 if __name__ == "__main__":
     m=case_2_scheduling_control_gdp_var_proc_time()
+
   
