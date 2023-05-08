@@ -10,7 +10,7 @@ from pyomo.gdp import Disjunct, Disjunction
 import itertools
 
 
-def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=120,last_time_hours: float=120,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3}):
+def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=12,last_time_hours: float=12,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3}):
 
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
@@ -38,6 +38,27 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.eta=pe.Param(initialize=last_time_hours, doc='scheduling horizon [units of nntime]')
     m.t_p=pe.Param(m.T,initialize=[m.delta*j for j in m.T],doc='physical time [units of time]')
     # -----------parameters--------------------------------------------------
+    # REACTOR MODEL
+
+    m.CA0=pe.Param(initialize=10,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+    m.CB0=pe.Param(initialize=1.1685,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+    m.CC0=pe.Param(initialize=0,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+
+    m.CBIN=pe.Param(initialize=20,doc='Concentration of B in inlet flow [kmol/m^3]')
+    m.V0=pe.Param(initialize=10,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.Vmax2=pe.Param(initialize=m.V0+m.V0*0.1,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.Vmax3=pe.Param(initialize=m.V0+m.V0*0.2,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.qrmax=pe.Param(initialize=(1.5e+5)*(1/1000)*(m.V0/0.001),doc='upper bound on the heat rate produced by the reaction [kJ/h]') #TODO: check if assumed linear relationship holds
+
+    m.k10=pe.Param(initialize=4,doc='[m^3/kmol h]')
+    m.k20=pe.Param(initialize=800*(0.001),doc='  [m^3/h]')
+    m.E1=pe.Param(initialize=6e+3,doc='  [kJ/kmol]')
+    m.E2=pe.Param(initialize=20e+3,doc='  [kJ/kmol]')
+    m.R=pe.Param(initialize=8.31,doc='  [kJ/kmol K]')
+    m.DH1=pe.Param(initialize=-3e+4,doc='  [kJ/kmol]')
+    m.DH2=pe.Param(initialize=-1e+4,doc='  [kJ/kmol]')
+
+    # SCHEDULING
     _I_i_k_minus={}
     _I_i_k_minus['T1','S1']=1
 
@@ -131,8 +152,8 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     _beta_min={}
     _beta_min['T1','U1']=10
 
-    _beta_min['T2','U2']=10
-    _beta_min['T2','U3']=10
+    _beta_min['T2','U2']=m.V0
+    _beta_min['T2','U3']=m.V0
 
     _beta_min['T3','U2']=10
     _beta_min['T3','U3']=10
@@ -146,8 +167,8 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     _beta_max={}
     _beta_max['T1','U1']=100
 
-    _beta_max['T2','U2']=50
-    _beta_max['T2','U3']=80
+    _beta_max['T2','U2']=m.Vmax2
+    _beta_max['T2','U3']=m.Vmax3
 
     _beta_max['T3','U2']=50
     _beta_max['T3','U3']=80
@@ -439,22 +460,6 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
 
 
 
-    m.CA0=pe.Param(initialize=10,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
-    m.CB0=pe.Param(initialize=1.1685,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
-    m.CC0=pe.Param(initialize=0,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
-
-    m.CBIN=pe.Param(initialize=20,doc='Concentration of B in inlet flow [kmol/m^3]')
-    m.V0=pe.Param(initialize=0.001,doc='Fixed initial volume for dynamic tast [m^3]')
-    m.Vmax=pe.Param(initialize=m.V0+m.V0*0.1,doc='Fixed initial volume for dynamic tast [m^3]')
-    m.qrmax=pe.Param(initialize=(1.5e+5)*(1/1000)*(m.V0/0.001),doc='upper bound on the heat rate produced by the reaction [kJ/h]') #TODO: check if assumed linear relationship holds
-
-    m.k10=pe.Param(initialize=4,doc='[m^3/kmol h]')
-    m.k20=pe.Param(initialize=800*(0.001),doc='  [m^3/h]')
-    m.E1=pe.Param(initialize=6e+3,doc='  [kJ/kmol]')
-    m.E2=pe.Param(initialize=20e+3,doc='  [kJ/kmol]')
-    m.R=pe.Param(initialize=8.31,doc='  [kJ/kmol K]')
-    m.DH1=pe.Param(initialize=-3e+4,doc='  [kJ/kmol]')
-    m.DH2=pe.Param(initialize=-1e+4,doc='  [kJ/kmol]')
 
 
     m.N={} #Continuous time set
@@ -511,7 +516,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
                 setattr(m,'u_input_%s_%s_%s' %(I,J,T),m.u_input[I,J,T])
 
                 def _Vol_bounds(m,N):
-                    return (m.V0,m.Vmax)
+                    return (m.model().beta_min[I,J],m.model().beta_max[I,J])
                 m.Vol[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_Vol_bounds,doc='Variable reactor volume [m^3]')
                 setattr(m,'Vol_%s_%s_%s' %(I,J,T),m.Vol[I,J,T])
 
@@ -572,10 +577,108 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
                 m.c_dVdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dVdtheta)
                 setattr(m,'c_dVdtheta_%s_%s_%s' %(I,J,T),m.c_dVdtheta[I,J,T])
 
+    # # -------Discretization---------------------------------------------------
+    # discretizer = pe.TransformationFactory('dae.finite_difference')
+    # discretizer.apply_to(m, nfe=60, wrt=m.t, scheme='BACKWARD')
+    # # discretizer = TransformationFactory('dae.collocation')
+    # # discretizer.apply_to(m,nfe=60,ncp=3,wrt=m.t,scheme='LAGRANGE-RADAU')
+    #Constant control actions
+    m.Constant_control1={}
+    m.Constant_control2={}
+    keep_constant_u=9 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
+    keep_constant_temp=9 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
 
+
+    discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
+
+    for I in m.I_dynamics:
+        for J in m.J_dynamics: 
+            for T in m.T:
+                discretizer.apply_to(m, nfe=30, ncp=3, wrt=m.N[I,J,T], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            # print(dir(m.N[I,J]))
+            # print(m.N[I,J].value_list)
+            # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
+                        
+            #------Constant control
+    for I in m.I_dynamics:
+        for J in m.J_dynamics: 
+            for T in m.T: 
+                def _Constant_control1(m,N):
+                    if (N!=m.N[I,J,T].first() and (m.N[I,J,T].ord(N)-1)%keep_constant_u!=0) or (N==m.N[I,J,T].last()):
+                        return m.u_input[I,J,T][N] == m.u_input[I,J,T][m.N[I,J,T].prev(N)]
+                    else:
+                        return pe.Constraint.Skip
+                m.Constant_control1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_Constant_control1,doc='Constant control action every keep_constant_u discrete points and the last one')
+                setattr(m,'Constant_control1_%s_%s_%s' %(I,J,T),m.Constant_control1[I,J,T])
+
+                def _Constant_control2(m,N):
+                    if (N!=m.N[I,J,T].first() and (m.N[I,J,T].ord(N)-1)%keep_constant_temp!=0) or (N==m.N[I,J,T].last()):
+                        return m.TRvar[I,J,T][N] == m.TRvar[I,J,T][m.N[I,J,T].prev(N)]
+                    else:
+                        return pe.Constraint.Skip
+                m.Constant_control2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_Constant_control2,doc='Constant control action every keep_constant_temp discrete points and the last one')
+                setattr(m,'Constant_control2_%s_%s_%s' %(I,J,T),m.Constant_control2[I,J,T])   
     # # ----------Linking constraints-------------------------------------------
 # TODO: discretize models before linking constraints
 # In this case I will create disjunctions that will activate and deactivate constraints depending on the value of Xijt
+
+    m.linking1_1={} #B and Vol relationship 
+    m.linking1_2={} #B and Vol relationship 
+
+    m.linking2_1={} #rho and Vol relationship 
+    m.linking2_2={} #rho and Vol relationship 
+
+    # m.linking3_1={} #end point constraint relationship 
+    # m.linking3_2={} #end point constraint relationship 
+
+    for I in m.I_dynamics:
+        for J in m.J_dynamics: 
+            for T in m.T: 
+                def _linking1_1(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.B[I,J,T]-m.Vol[I,J,T][N] <= (m.beta_max[I,J]-m.beta_min[I,J])*(1-m.X[I,J,T])  
+                    else:
+                        return pe.Constraint.Skip
+                m.linking1_1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking1_1,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+                setattr(m,'linking1_1_%s_%s_%s' %(I,J,T),m.linking1_1[I,J,T])
+
+                def _linking1_2(m,N):
+                    if N==m.N[I,J,T].last():
+                        return -(m.B[I,J,T]-m.Vol[I,J,T][N]) <= m.beta_max[I,J]*(1-m.X[I,J,T]) 
+                    else:
+                        return pe.Constraint.Skip 
+                m.linking1_2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking1_2,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+                setattr(m,'linking1_2_%s_%s_%s' %(I,J,T),m.linking1_2[I,J,T])
+
+                def _linking2_1(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.rho_minus[I,'S2',T]*m.Vol[I,J,T][N]-m.V0*(1-(m.CB0/m.CBIN))<=(m.beta_max[I,J]-m.V0*(1-(m.CB0/m.CBIN)))*(1-m.X[I,J,T]) 
+                    else:  
+                        return pe.Constraint.Skip
+                m.linking2_1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking2_1,doc='') 
+                setattr(m,'linking2_1_%s_%s_%s' %(I,J,T),m.linking2_1[I,J,T])
+
+                def _linking2_2(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.V0*(1-(m.CB0/m.CBIN))-m.rho_minus[I,'S2',T]*m.Vol[I,J,T][N]<=m.V0*(1-(m.CB0/m.CBIN))*(1-m.X[I,J,T])
+                    else:
+                        return pe.Constraint.Skip 
+                m.linking2_2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking2_2,doc='') 
+                setattr(m,'linking2_2_%s_%s_%s' %(I,J,T),m.linking2_2[I,J,T])
+
+                # def _linking3_1(m,N):
+                #     if N==m.N[I,J,T].last():
+                #         return 
+                #     else:
+                #         return pe.Constraint.Skip
+                # m.linking3_1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking3_1,doc='') 
+
+                # def _linking3_2(m,N):
+                #     if N==m.N[I,J,T].last():
+                #         return 
+                #     else:
+                #         return pe.Constraint.Skip 
+                # m.linking3_2=pe.Constraint(m.N[I,J,T],rule=_linking3_2,doc='') 
     # # -------Reformulation----------------------------------------------------
     def _I_J(m):
         return ((I,J) for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1)
@@ -594,48 +697,48 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
 
-        #Create disjunction
-        def Disjunction2(m):   
-            return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
 
 
     # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
 
     # # -----------------------------------------------------------------------
@@ -667,9 +770,12 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
         return m.SALES==sum(m.revenue[K]*m.S[K, m.lastT] for K in m.K_products)
     m.C_SALES=pe.Constraint(rule=_C_SALES)
 
+
+
     if obj_type=='profit_max':
         def _obj(m):
-            return m.TCP1+m.TCP2+m.TMC-m.SALES  
+            # return m.TCP1+m.TCP2+m.TMC-m.SALES  
+            return -sum(sum(sum(sum(m.CC[I,J,T][N]*m.X[I, J, T] for N in m.N[I,J,T] if N==m.N[I,J,T].last()) for J in m.J_dynamics) for I in m.I_dynamics) for T in m.T) 
         m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
     elif obj_type=='cost_min': 
         def _obj(m):
