@@ -1,0 +1,214 @@
+=1
+-------------------------------------------------------------------------------
+=CDicopt 2         41.5.0 2a5a4ddc Jan 3, 2023           WEI x86 64bit/MS Window
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+=1
+=2
+=0CONOPT 4         41.5.0 2a5a4ddc Jan 3, 2023           WEI x86 64bit/MS Window
+=1
+ 
+ 
+    C O N O P T   version 4.29
+    Copyright (C) ARKI Consulting and Development A/S
+                  Bagsvaerdvej 246 A
+                  DK-2880 Bagsvaerd, Denmark
+ 
+=2
+=1
+    Will use up to 8 threads.
+ 
+=2
+ 
+  ***  Line    0  SET       LFEERR =            0
+ 
+  ***  Line    0  SET       LFEERR =            0
+ 
+  ***  Line    0  SET       LFITER =   2147483647
+ 
+  ***  Line    0  SET       RVTIME =      86400.00000
+=1
+ 
+    The user model has 77532 constraints and 87413 variables
+    with 404330 Jacobian elements, 171300 of which are nonlinear.
+    The Hessian of the Lagrangian has 9000 elements on the diagonal,
+    108200 elements below the diagonal, and 40800 nonlinear variables.
+=2
+ 
+    Iter Phase   Ninf   Infeasibility   RGmax      NSB   Step  InItr MX OK
+       0   0          8.1790425000E+04 (Input point)
+=1
+ 
+    The pre-triangular part of the model has 786 constraints and 441 variables.
+=2
+=1
+    The post-triangular part of the model has 130 constraints and variables.
+=2
+=1
+    There are 31327 definitional constraints and defined variables.
+=2
+=1
+ 
+    Preprocessed model has 45289 constraints and 55515 variables
+    with 325939 Jacobian elements, 171000 of which are nonlinear.
+=2
+                      5.5011041764E+04 (Full preprocessed model)
+                      8.0803111613E+02 (After scaling)
+                      4.2909989797E+02 (After adjusting individual variables)
+ 
+    Iter Phase   Ninf   Infeasibility   RGmax      NSB   Step  InItr MX OK
+       1   0       0  8.5502160907E-10                 1.0E+00     1 T  T
+ 
+ ** Feasible solution. Value of objective =    0.00000000000
+ 
+Search for an optimal solution.
+ 
+ 
+    Iter Phase   Ninf     Objective     RGmax      NSB   Step  InItr MX OK
+       2   3         -7.1128786459E+04 5.8E+03      17 1.0E+00     7 T  T
+       3   3         -8.0867054201E+04 1.2E+04      29 1.0E+00    33 T  T
+       4   3         -8.5321846814E+04 5.8E+03      21 1.0E+00    42 T  T
+       5   3         -1.0898507926E+05 4.2E+03      36 1.0E+00    58 T  T
+       6   3         -1.6496354413E+05 5.1E+04      81 1.0E+00    75 T  T
+       7   3         -1.6985409862E+05 1.0E+03      65 1.0E+00   109 T  T
+       8   3         -1.7367631417E+05 2.0E+03      97 1.0E+00   170 T  T
+       9   3         -1.7896026405E+05 8.2E+02     115 1.0E+00   219 T  T
+      10   3         -1.9189453896E+05 9.5E+02     207 1.0E+00   284 T  T
+      11   3         -1.9402902976E+05 2.2E+02     173 1.0E+00   333 T  T
+      12   3         -1.9412130477E+05 1.2E+02     149 1.0E+00   231 T  T
+      13   4         -1.9412130477E+05 0.0E+00       0
+=1
+ 
+ ** Optimal solution. There are no superbasic variables.
+ 
+=2
+=1
+ 
+ CONOPT time Total                           11.040 seconds
+   of which: Function evaluations             0.186 =  1.7%
+             1st Derivative evaluations       0.136 =  1.2%
+             2nd Derivative evaluations       0.003 =  0.0%
+             Interval derivative evals        0.394 =  3.6%
+ 
+=2
+ 
+ Memory: Max used =    168.36 Mbytes
+  Total Allocated =    213.14 Mbytes
+ 
+=1
+=2
+=0IBM ILOG CPLEX   41.5.0 2a5a4ddc Jan 3, 2023           WEI x86 64bit/MS Window
+=1
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+=2
+=1
+--- GMO setup time: 0.00s
+=2
+=1
+--- Space for names approximately 7.73 Mb
+=2
+=1
+--- Use option 'names no' to turn use of names off
+=2
+=1
+--- GMO memory 50.94 Mb (peak 52.16 Mb)
+=2
+=1
+--- Dictionary memory 0.00 Mb
+=2
+=1
+--- Cplex 22.1.0.0 link memory 3.93 Mb (peak 20.38 Mb)
+=2
+=1
+--- Starting Cplex
+=2
+=C
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+CPXPARAM_Advance                                 0
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               86388.937999999995
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0
+Generic callback                                 0x50
+Tried aggregator 2 times.
+MIP Presolve eliminated 65262 rows and 141820 columns.
+MIP Presolve modified 1707 coefficients.
+Aggregator did 4167 substitutions.
+Reduced MIP has 8103 rows, 13529 columns, and 38590 nonzeros.
+Reduced MIP has 427 binaries, 8 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.30 sec. (271.41 ticks)
+Probing time = 0.00 sec. (1.56 ticks)
+Cover probing fixed 5 vars, tightened 53 bounds.
+Tried aggregator 1 time.
+MIP Presolve eliminated 4210 rows and 12439 columns.
+MIP Presolve modified 224 coefficients.
+Reduced MIP has 3893 rows, 1090 columns, and 13647 nonzeros.
+Reduced MIP has 471 binaries, 8 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (10.92 ticks)
+Probing fixed 0 vars, tightened 16 bounds.
+Probing time = 0.00 sec. (0.99 ticks)
+Cover probing fixed 2 vars, tightened 28 bounds.
+Tried aggregator 1 time.
+Detecting symmetries...
+MIP Presolve eliminated 30 rows and 9 columns.
+MIP Presolve modified 82 coefficients.
+Reduced MIP has 3863 rows, 1081 columns, and 13531 nonzeros.
+Reduced MIP has 468 binaries, 8 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (7.54 ticks)
+Probing fixed 0 vars, tightened 5 bounds.
+Probing time = 0.00 sec. (0.97 ticks)
+Cover probing fixed 0 vars, tightened 13 bounds.
+Clique table members: 405.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 8 threads.
+Parallel mode: deterministic, using up to 2 threads for parallel tasks at root LP.
+Parallel mode: deterministic, using up to 6 threads for concurrent optimization:
+ * Starting dual Simplex on 1 thread...
+ * Starting Barrier on 4 threads...
+ * Starting primal Simplex on 1 thread...
+Tried aggregator 1 time.
+LP Presolve eliminated 4 rows and 1 columns.
+Reduced LP has 3859 rows, 1080 columns, and 13522 nonzeros.
+Presolve time = 0.00 sec. (2.09 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =       -183880.000000
+Iteration:   176   Dual objective     =       -183263.020833
+Iteration:   351   Dual objective     =       -181378.629261
+Iteration:   474   Dual objective     =       -180341.410222
+Iteration:   633   Dual objective     =       -180099.528713
+Iteration:   744   Dual objective     =       -180029.992102
+Iteration:   857   Dual objective     =       -179981.823887
+Iteration:   975   Dual objective     =       -179328.931055
+Iteration:  1104   Dual objective     =       -179313.653343
+Iteration:  1198   Dual objective     =       -179297.710092
+Iteration:  1291   Dual objective     =       -179285.967726
+Initializing dual steep norms . . .
+
+Dual simplex solved model.
+
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =       -179285.491706
+Root relaxation solution time = 0.08 sec. (67.95 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                            0.0000  -192080.0000              --- 
+Found incumbent of value 0.000000 after 0.48 sec. (455.52 ticks)
+      0     0  -179285.4917   183        0.0000  -179285.4917     1324     --- 
+      0     0  -174064.6127   192        0.0000     Cuts: 413     2050     --- 
+      0     0  -172430.1351   195        0.0000     Cuts: 737     2627     --- 
+      0     0  -171201.4949   201        0.0000     Cuts: 258     2909     --- 
+      0     0  -171126.7149   210        0.0000     Cuts: 156     3022     --- 
+      0     0  -171106.2968   214        0.0000     Cuts: 102     3101     --- 
+Detecting

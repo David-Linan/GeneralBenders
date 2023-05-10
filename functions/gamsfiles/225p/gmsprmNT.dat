@@ -1,0 +1,7 @@
+Input=model.gms
+Output=output.lst
+ScrDir=225p
+SysDir=C:\GAMS\41
+CurDir=""
+ScriptNext=225p\gamsnext.cmd
+LogOption=3

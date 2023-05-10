@@ -30,7 +30,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     #Subsets
     m.J_dynamics=pe.Set(initialize=['U2','U3'],within=m.J)
     m.I_dynamics=pe.Set(initialize=['T2'],within=m.I)   
-    m.J_noDynamics=m.J-m.J_dynamics
+    m.J_noDynamics=pe.Set(initialize=['U1','U2','U3','U4'],within=m.J)
     m.I_noDynamics=m.I-m.I_dynamics
     m.K_inputs=pe.Set(initialize=['S1','S2','S3'],within=m.K)
     m.K_products=pe.Set(initialize=['S8','S9'],within=m.K)
@@ -71,7 +71,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.T_C=pe.Param(m.J_dynamics,initialize={'U3':293.15,'U2':293.15},doc='Temperature of cooling water [K]')
     m.T_R_max=pe.Param(m.J_dynamics,initialize={'U3':323.15,'U2':323.15},doc='Maximum temperature of reactor [K]')
     m.T_J_max=pe.Param(m.J_dynamics,initialize={'U3':323.15,'U2':323.15},doc='Maximum temperature of jacket [K]')
-    m.F_max=pe.Param(m.J_dynamics,initialize={'U3':10,'U2':5},doc='Maximum flow rate of heating and cooling water [m^3/h]')
+    m.F_max=pe.Param(m.J_dynamics,initialize={'U3':10,'U2':8},doc='Maximum flow rate of heating and cooling water [m^3/h]')
 
 
         # Initial temperature of reactors and heating medium for each task
@@ -414,6 +414,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
             return (0,0)
     m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
 
+
     m.ordered_set={}
     m.YR={}
     m.oneYR={}
@@ -480,7 +481,29 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
                     m.YR[I,J][index].associate_binary_var(m.YR_disjunct[I,J][index].indicator_var)
 
     #****END OF DISJUNCTIVE SECTION*****************************
+    # ### THIS SECTION CONSIDERS THE RELATIONSHIP BETWEEN varTime and b for noDynamic tasks
+    # def _rule_beta_time(m,I,J):
+    #     if m.I_i_j_prod[I,J]==1:
+    #         return pe.value(m.tau_p[I,J])/m.beta_max[I,J] #TODO: Instead of writing this relationship, simply indicate the constant used.
+    #     else:
+    #         return 0 
+    # m.beta_time=pe.Param(m.I_noDynamics,m.J_noDynamics,initialize=_rule_beta_time,doc='constant that relates processing times and size of batches')
 
+
+    # def _rule_ineqrel_1(m,I,J,T):
+    #     if  m.I_i_j_prod[I,J]!=1:
+    #         return pe.Constraint.Skip
+    #     else:
+    #         return m.varTime[I,J,T]-m.beta_time[I,J]*m.B[I,J,T]>=0
+    # def _rule_ineqrel_2(m,I,J,T):
+    #     if  m.I_i_j_prod[I,J]!=1:
+    #         return pe.Constraint.Skip
+    #     else:
+    #         return m.varTime[I,J,T]-m.beta_time[I,J]*m.B[I,J,T]<=upper_t_h[(I,J)]*(1-m.X[I,J,T])
+    
+    # m.ineq_rel_1=pe.Constraint(m.I_noDynamics,m.J_noDynamics,m.T,rule=_rule_ineqrel_1)
+    # m.ineq_rel_2=pe.Constraint(m.I_noDynamics,m.J_noDynamics,m.T,rule=_rule_ineqrel_2)
+    # ### END OF THE SECTION
 
     #-----------Reactors dynamic models--------------------------------
 
@@ -559,7 +582,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
                 setattr(m,'TRvar_%s_%s_%s' %(I,J,T),m.TRvar[I,J,T])
                 
                 def _u_input_bounds(m,N):
-                    return (0,m.V0)
+                    return (0,5)
                 m.u_input[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_u_input_bounds,doc='Feed rate of B with inlet concentration CBIN [m^3/h]')
                 setattr(m,'u_input_%s_%s_%s' %(I,J,T),m.u_input[I,J,T])
 
@@ -704,9 +727,9 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.Constant_control1={}
     m.Constant_control2={}
     m.Constant_control3={}
-    keep_constant_u=9 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
-    keep_constant_fcold=9 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
-    keep_constant_fhot=9 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+    keep_constant_u=9*2 #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
+    keep_constant_fcold=9*2 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+    keep_constant_fhot=9*2 #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
 
 
     discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
@@ -714,7 +737,7 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     for I in m.I_dynamics:
         for J in m.J_dynamics: 
             for T in m.T:
-                discretizer.apply_to(m, nfe=30, ncp=3, wrt=m.N[I,J,T], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+                discretizer.apply_to(m, nfe=30*2, ncp=3, wrt=m.N[I,J,T], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
             # print(dir(m.N[I,J]))
             # print(m.N[I,J].value_list)
             # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
@@ -828,48 +851,48 @@ def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
 
-        # Create disjunction
-        def Disjunction2(m):   
-            return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     # Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
 
 
-    # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    # # Associate disjuncts with boolean variables
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
 
     # # -----------------------------------------------------------------------

@@ -1,0 +1,255 @@
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 05/09/23 15:55:59 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+
+
+COMPILATION TIME     =        1.375 SECONDS     91 MB  41.5.0 2a5a4ddc WEX-WEI
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 05/09/23 15:55:59 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Range Statistics    SOLVE GAMS_MODEL Using MINLP From line 342710
+
+
+RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
+
+RHS       [min, max] : [ 1.000E-01, 8.000E+04] - Zero values observed as well
+Bound     [min, max] : [ 1.000E+00, 4.000E+02] - Zero values observed as well
+Matrix    [min, max] : [ 1.000E-01, 4.000E+02] - Zero values observed as well
+
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 05/09/23 15:55:59 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE GAMS_MODEL Using MINLP From line 342710
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS      90,082     SINGLE EQUATIONS       89,982
+BLOCKS OF VARIABLES      87,563     SINGLE VARIABLES       87,563  13,650 projected
+NON ZERO ELEMENTS       429,426     NON LINEAR N-Z        171,500
+CODE LENGTH             626,552     CONSTANT POOL              37     DISCRETE VARIABLES        440
+
+
+GENERATION TIME      =        0.781 SECONDS    141 MB  41.5.0 2a5a4ddc WEX-WEI
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 05/09/23 15:55:59 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE GAMS_MODEL Using MINLP From line 342710
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  DICOPT              FROM LINE  342710
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      8 Integer Solution
+**** OBJECTIVE VALUE                0.0000
+
+ RESOURCE USAGE, LIMIT         15.125     86400.000
+ ITERATION COUNT, LIMIT       391    2147483647
+ EVALUATION ERRORS              0             0
+-------------------------------------------------------------------------------
+Dicopt 2         41.5.0 2a5a4ddc Jan 3, 2023           WEI x86 64bit/MS Window
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+ 
+ 
+    C O N O P T 3   version 3.17N
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 87563 variables and 89982 constraints
+    with 429426 Jacobian elements, 171500 of which are nonlinear.
+    The Hessian of the Lagrangian has 9000 elements on the diagonal,
+    108250 elements below the diagonal, and 40800 nonlinear variables.
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483647 to 1000000000.
+ 
+ ** Warning **  The number of nonlinear derivatives equal to zero
+                in the initial point is large (= 39 percent).
+                A better initial point will probably help the
+                optimization.
+ 
+ 
+                   Pre-triangular equations:   402
+                   Post-triangular equations:  420
+                   Definitional equations:     46505
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                           11.661 seconds
+   of which: Function evaluations             4.524 = 38.8%
+             1st Derivative evaluations       0.354 =  3.0%
+ 
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 8.26 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 53.85 Mb (peak 55.07 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.0.0 link memory 4.08 Mb (peak 21.36 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.30sec (det. 229.26 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.25sec (det. 134.09 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T 3   version 3.17N
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 87563 variables and 89982 constraints
+    with 429426 Jacobian elements, 171500 of which are nonlinear.
+    The Hessian of the Lagrangian has 9000 elements on the diagonal,
+    108250 elements below the diagonal, and 40800 nonlinear variables.
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483267 to 1000000000.
+ 
+ ** Warning **  The number of nonlinear derivatives equal to zero
+                in the initial point is large (= 39 percent).
+                A better initial point will probably help the
+                optimization.
+ 
+ 
+                   Pre-triangular equations:   844
+                   Post-triangular equations:  3806
+                   Definitional equations:     46505
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.985 seconds
+   of which: Function evaluations             0.082 =  8.3%
+             1st Derivative evaluations       0.082 =  8.3%
+ 
+--- GMO Resort Time 0ms
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 10.52 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 80.89 Mb (peak 82.66 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.0.0 link memory 5.87 Mb (peak 30.11 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.42sec (det. 316.47 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.38sec (det. 186.98 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (1 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- DICOPT: Setting up next NLP
+ 
+ 
+    C O N O P T 3   version 3.17N
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 87563 variables and 89982 constraints
+    with 429426 Jacobian elements, 171500 of which are nonlinear.
+    The Hessian of the Lagrangian has 9000 elements on the diagonal,
+    108250 elements below the diagonal, and 40800 nonlinear variables.
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483261 to 1000000000.
+ 
+ ** Warning **  The number of nonlinear derivatives equal to zero
+                in the initial point is large (= 39 percent).
+                A better initial point will probably help the
+                optimization.
+ 
+ 
+                   Pre-triangular equations:   844
+                   Post-triangular equations:  3807
+                   Definitional equations:     46505
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            1.002 seconds
+   of which: Function evaluations             0.088 =  8.8%
+             1st Derivative evaluations       0.078 =  7.8%
+ 
+--- DICOPT: Stopped on NLP worsening
+
+      The search was stopped because the objective function
+      of the NLP subproblems started to deteriorate.
+
+--- DICOPT: Best integer solution found: 0.000000
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 05/09/23 15:55:59 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+**** REPORT FILE SUMMARY
+
+results C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\results.dat
+statresults C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\resultsstat.dat
+
+
+EXECUTION TIME       =       18.047 SECONDS    141 MB  41.5.0 2a5a4ddc WEX-WEI
+
+
+USER: Prof. Ignacio E. Grossmann                     G221207|0002AS-GEN
+      Carnegie Mellon University, Dept. of Chemical Engineering  DCE375
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\model.gms
+Output     C:\Users\dlinanro\Desktop\GeneralBenders\functions\gamsfiles\output.lst
