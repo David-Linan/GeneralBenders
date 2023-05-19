@@ -980,7 +980,12 @@ def solve_subproblem(
         'option optcr=%s;' % rel_tol)
     # Solve
     solvername = 'gams'
-    opt = SolverFactory(solvername, solver=subproblem_solver)
+    
+    if subproblem_solver=='OCTERACT':
+        opt = SolverFactory(solvername)
+    else:
+        opt = SolverFactory(solvername, solver=subproblem_solver)
+
     m.results = opt.solve(m, tee=tee,
                           **output_options,
                           **subproblem_solver_options,

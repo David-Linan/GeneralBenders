@@ -359,7 +359,7 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
     #Generate first feasible initialization
     if sum_infeasibility==0:
         init_path = generate_initialization(m=m)
-    #Identify source of infeasibility
+    #Identify source of infeasibility, when the scheduling was feasible, but there is infeasibility in dynamics
     elif sum_infeasibility!=infty_val:
 
         m.E2_CAPACITY_LOW.deactivate()
