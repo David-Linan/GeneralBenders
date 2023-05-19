@@ -980,7 +980,12 @@ def solve_subproblem(
         'option optcr=%s;' % rel_tol)
     # Solve
     solvername = 'gams'
-    opt = SolverFactory(solvername, solver=subproblem_solver)
+    
+    if subproblem_solver=='OCTERACT':
+        opt = SolverFactory(solvername)
+    else:
+        opt = SolverFactory(solvername, solver=subproblem_solver)
+
     m.results = opt.solve(m, tee=tee,
                           **output_options,
                           **subproblem_solver_options,
@@ -1795,7 +1800,7 @@ def solve_with_gdpopt(
 
 def neighborhood_k_eq_all(dimension: int = 2) -> dict:
     """
-    Function creates a k=2 neighborhood of the given dimension
+    Function creates a k=all neighborhood of the given dimension
     Args:
         dimension: Dimension of the neighborhood
     Returns:

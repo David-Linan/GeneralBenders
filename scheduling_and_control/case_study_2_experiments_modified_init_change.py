@@ -13,7 +13,7 @@ import io
 import time
 from functions.dsda_functions import neighborhood_k_eq_all,neighborhood_k_eq_l_natural,neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
 import logging
-from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_2_scheduling_control_gdp_var_proc_time_simplified,case_2_scheduling_control_gdp_var_proc_time_simplified_2,problem_logic_scheduling
+from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_2_scheduling_control_gdp_var_proc_time_simplified,problem_logic_scheduling
 import os
 import matplotlib.pyplot as plt
 
@@ -26,71 +26,108 @@ if __name__ == "__main__":
 ###############################################################################
 ###############################################################################
 
-#     obj_Selected='profit_max'
+    obj_Selected='profit_max'
 
 
-#     # initialization=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    # initialization=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 
-#     initialization=[1, 1, 1, 1, 1, 1, 1, 1]
+    initialization=[1, 2, 2, 1, 1, 1, 1, 1]
 
-#     # # DICOPT SOLUTION   
-#     mip_solver='CPLEX'
-#     minlp_solver='DICOPT'
-#     nlp_solver='conopt4'
-#     transform='bigm'
-#     last_disc=7
-#     last_time_h=10
-#     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    # # DICOPT SOLUTION   
+    mip_solver='CPLEX'
+    minlp_solver='DICOPT'
+    nlp_solver='conopt4'
+    transform='bigm'
+    last_disc=20
+    last_time_h=10
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
 
-#     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=7;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-#     LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
-#     UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
+    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='OCTERACT':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
+    
+    LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
+    UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
 
-#     print('\n-------DICOPT-------------------------------------')
-#     m=case_2_scheduling_control_gdp_var_proc_time_simplified_2(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
-#     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
-#     # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-#     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+
+    m=case_2_scheduling_control_gdp_var_proc_time_simplified(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    print('\n-------DICOPT-------------------------------------')
+    # m=case_2_scheduling_control_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    # # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
+    # start=time.time()
+    # m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    # save=generate_initialization(m=m,model_name='case_study_2_opt_dicopt') 
+    # end=time.time()    
+    # # UPDATE MODEL WITH INITIALZIATION
+    # m=case_2_scheduling_control_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+    # # Transformation step
+    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    # transformation_string = 'gdp.'+transform
+    # pe.TransformationFactory(transformation_string).apply_to(m)
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_study_2_opt_dicopt')   
+
+    # Sol_found=[]
+    # for I in m.I:
+    #     for J in m.J:
+    #         if m.I_i_j_prod[I,J]==1:
+    #             for K in m.ordered_set[I,J]:
+    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                     Sol_found.append(K-m.minTau[I,J]+1)
+    # for I_J in m.I_J:
+    #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+
+    #     textbuffer = io.StringIO()
+    #     for v in m.component_objects(pe.Var, descend_into=True):
+    #         v.pprint(textbuffer)
+    #         textbuffer.write('\n')
+    #     textbuffer.write('\n Objective: \n') 
+    #     textbuffer.write(str(pe.value(m.obj)))  
+    #     file_name='Case_2_results_var_proc_time_dicopt.txt'  
+    #     with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
+    #         outputfile.write(textbuffer.getvalue())
+    # print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_found,'cputime DICOPT=',str(end-start))
+
+
+    # TPC1=pe.value(m.TCP1)
+    # TPC2=pe.value(m.TCP2)
+    # TPC3=pe.value(m.TCP3)
+    # TMC=pe.value(m.TMC)
+    # SALES=pe.value(m.SALES)
+    # OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
+    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    # print('TMC: Total material cost: ',str(TMC))
+    # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJ:',str(OBJVAL))
+
+
+# SOLUTION USING DSDA
+    print('\n-------DSDA-------------------------------------')
+#     infinity_val=1e+2
+#     maxiter=10000
+#     neighdef='2'
+#     logic_fun=problem_logic_scheduling
+#     model_fun=case_2_scheduling_control_gdp_var_proc_time
+#     kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME}
 #     start=time.time()
-#     m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
-#     save=generate_initialization(m=m,model_name='case_study_2_opt_dicopt') 
-#     end=time.time()    
-#     # UPDATE MODEL WITH INITIALZIATION
-#     m=case_2_scheduling_control_gdp_var_proc_time_simplified_2(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
-#     # Transformation step
-#     pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-#     transformation_string = 'gdp.'+transform
-#     pe.TransformationFactory(transformation_string).apply_to(m)
-#     m=initialize_model(m,from_feasible=True,feasible_model='case_study_2_opt_dicopt')   
-
-#     Sol_found=[]
-#     for I in m.I:
-#         for J in m.J:
-#             if m.I_i_j_prod[I,J]==1:
-#                 for K in m.ordered_set[I,J]:
-#                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-#                         Sol_found.append(K-m.minTau[I,J]+1)
-#     for I_J in m.I_J:
-#         Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-
-#         textbuffer = io.StringIO()
-#         for v in m.component_objects(pe.Var, descend_into=True):
-#             v.pprint(textbuffer)
-#             textbuffer.write('\n')
-#         textbuffer.write('\n Objective: \n') 
-#         textbuffer.write(str(pe.value(m.obj)))  
-#         file_name='Case_2_results_var_proc_time_dicopt.txt'  
-#         with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
-#             outputfile.write(textbuffer.getvalue())
-#     print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_found,'cputime DICOPT=',str(end-start))
-
-
-#     TPC1=pe.value(m.TCP1)
-#     TPC2=pe.value(m.TCP2)
-#     TPC3=pe.value(m.TCP3)
-#     TMC=pe.value(m.TMC)
-#     SALES=pe.value(m.SALES)
+#     D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,initialization,ext_ref,logic_fun,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= True,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+#     m=D_SDAsol
+#     save=generate_initialization(m=m,model_name='case_study_2_opt_dsda') 
+#     end=time.time()
+#     print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
+#     TPC1=pe.value(D_SDAsol.TCP1)
+#     TPC2=pe.value(D_SDAsol.TCP2)
+#     TPC3=pe.value(D_SDAsol.TCP3)
+#     TMC=pe.value(D_SDAsol.TMC)
+#     SALES=pe.value(D_SDAsol.SALES)
 #     OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
 #     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
 #     print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
@@ -98,32 +135,6 @@ if __name__ == "__main__":
 #     print('TMC: Total material cost: ',str(TMC))
 #     print('SALES: Revenue form selling products: ',str(SALES))
 #     print('OBJ:',str(OBJVAL))
-
-
-# # SOLUTION USING DSDA
-#     # print('\n-------DSDA-------------------------------------')
-#     # infinity_val=1e+2
-#     # maxiter=10000
-#     # neighdef='2'
-#     # logic_fun=problem_logic_scheduling
-#     # model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_2
-#     # kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME}
-#     # start=time.time()
-#     # D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,initialization,ext_ref,logic_fun,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= True,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
-#     # end=time.time()
-#     # print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
-#     # TPC1=pe.value(D_SDAsol.TCP1)
-#     # TPC2=pe.value(D_SDAsol.TCP2)
-#     # TPC3=pe.value(D_SDAsol.TCP3)
-#     # TMC=pe.value(D_SDAsol.TMC)
-#     # SALES=pe.value(D_SDAsol.SALES)
-#     # OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-#     # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-#     # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-#     # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-#     # print('TMC: Total material cost: ',str(TMC))
-#     # print('SALES: Revenue form selling products: ',str(SALES))
-#     # print('OBJ:',str(OBJVAL))
  
 # #######-------plots------------------------
 #     for I in m.I_dynamics:
@@ -314,42 +325,32 @@ if __name__ == "__main__":
 
     initialization=[1, 1, 1, 1, 1, 1, 1, 1]
 
-    # # DICOPT SOLUTION   
-    mip_solver='CPLEX'
-    minlp_solver='DICOPT'
-    nlp_solver='conopt4'
-    transform='bigm'
-    last_time_h=10
-    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-
-    sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-    LO_PROC_TIME={('T1','U1'):0.1,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):0.1,('T3','U3'):0.1,('T4','U2'):0.1,('T4','U3'):0.1,('T5','U4'):0.1}
+    LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
     UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
 
+    for init1 in range(1,5):
+        init2=init1
+        initialization[1]=init1
+        initialization[2]=init2
+        print('initialization:'+str(initialization))
 
-
-    for kb in range(2,100):
-        last_disc=kb
         print('\n----------------------------------------')
-        print('--NUMBER OF DISCRETIZATION POINTS '+str(kb))
 
         print('\n-------DICOPT-------------------------------------')
-        m=case_2_scheduling_control_gdp_var_proc_time_simplified_2(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
-        ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
-        # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-        [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+        m=case_2_scheduling_control_gdp_var_proc_time_simplified(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+
         start=time.time()
-        m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0) 
+        m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
         end=time.time()    
-        save=generate_initialization(m=m,model_name='case_study_2_discretization_loop_dicopt_'+str(last_disc))
+        solname='opt_'+minlp_solver+'_init_'+str(init1)+'_'+str(init2)
+        save=generate_initialization(m=m,model_name=solname)
         # UPDATE MODEL WITH INITIALZIATION
-        # m=case_2_scheduling_control_gdp_var_proc_time_simplified_2(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+        # m=case_2_scheduling_control_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
         # Transformation step
         # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
         # transformation_string = 'gdp.'+transform
         # pe.TransformationFactory(transformation_string).apply_to(m)
         # m=initialize_model(m,from_feasible=True,feasible_model='case_study_2_opt_dicopt')   
-
         if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
             m.dicopt_status='Infeasible'
         else:
@@ -366,30 +367,31 @@ if __name__ == "__main__":
             for I_J in m.I_J:
                 Sol_found.append(1+round(pe.value(m.Nref[I_J])))
 
-            textbuffer = io.StringIO()
-            for v in m.component_objects(pe.Var, descend_into=True):
-                v.pprint(textbuffer)
-                textbuffer.write('\n')
-            textbuffer.write('\n Objective: \n') 
-            textbuffer.write(str(pe.value(m.obj)))  
-            file_name='Case_2_results_var_proc_time_dicopt.txt'  
-            with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
-                outputfile.write(textbuffer.getvalue())
-        print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_found,'cputime DICOPT=',str(end-start))
+                # textbuffer = io.StringIO()
+                # for v in m.component_objects(pe.Var, descend_into=True):
+                #     v.pprint(textbuffer)
+                #     textbuffer.write('\n')
+                # textbuffer.write('\n Objective: \n') 
+                # textbuffer.write(str(pe.value(m.obj)))  
+                # file_name='Case_2_results_var_proc_time_dicopt.txt'  
+                # with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
+                #     outputfile.write(textbuffer.getvalue())
+            print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_found,'cputime DICOPT=',str(end-start))
+        else:
+            print('DICOPT infeasible')
 
-
-        TPC1=pe.value(m.TCP1)
-        TPC2=pe.value(m.TCP2)
-        TPC3=pe.value(m.TCP3)
-        TMC=pe.value(m.TMC)
-        SALES=pe.value(m.SALES)
-        OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-        print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-        print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-        print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-        print('TMC: Total material cost: ',str(TMC))
-        print('SALES: Revenue form selling products: ',str(SALES))
-        print('OBJ:',str(OBJVAL))
+            TPC1=pe.value(m.TCP1)
+            TPC2=pe.value(m.TCP2)
+            TPC3=pe.value(m.TCP3)
+            TMC=pe.value(m.TMC)
+            SALES=pe.value(m.SALES)
+            OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
+            print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+            print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+            print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+            print('TMC: Total material cost: ',str(TMC))
+            print('SALES: Revenue form selling products: ',str(SALES))
+            print('OBJ:',str(OBJVAL))
 
 
     # SOLUTION USING DSDA
@@ -398,13 +400,16 @@ if __name__ == "__main__":
         maxiter=10000
         neighdef='2'
         logic_fun=problem_logic_scheduling
-        model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_2
+        model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified
         kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME}
         start=time.time()
-        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,initialization,ext_ref,logic_fun,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = False,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,initialization,ext_ref,logic_fun,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
         end=time.time()
         m=D_SDAsol
-        save=generate_initialization(m=D_SDAsol,model_name='case_study_2_discretization_loop_dsda_'+str(last_disc))
+        solname='opt_dsda_init_'+str(init1)+'_'+str(init2)+minlp_solver
+        save=generate_initialization(m=m,model_name=solname) 
+        
+
         if m.dsda_status=='optimal':
             print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
             TPC1=pe.value(D_SDAsol.TCP1)
