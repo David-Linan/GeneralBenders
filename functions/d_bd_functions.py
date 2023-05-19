@@ -1410,7 +1410,7 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
 
                             #TODO: ADDITIONAL VERIFICATIONS IMPOSED DOE TO THE PROBLEM-SPECIFIC CUTS!!!!. Since I evaluate a single point when starting, the solution of the first master dictated by the first cut
                             # may return a soluton that closes the gap (because the cutting plane may be constant). SINCE THE GAP CLOSED, THE ALGORITHM AUTOMATICALLY SEARCH WITHIN D TO FIND A REINITIALIZATION POINT.
-                            # Since there was a single point evaluated. It goes to taht point in a loop. To fix this, I check first if the solution of the master is not in D. If that is the case, the it is worth trying that
+                            # Since there was a single point evaluated. It goes to taht point in a loop. To fix this, I check first if the solution of the master is not in D. If that is the case, then it is worth trying that
                             # soluton first!!!!  
                             # D.update({tuple([round(pe.value(m.x[posita])) for posita in m.extset]):infinity_val})
 
