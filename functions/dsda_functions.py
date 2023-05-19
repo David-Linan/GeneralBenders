@@ -1800,7 +1800,7 @@ def solve_with_gdpopt(
 
 def neighborhood_k_eq_all(dimension: int = 2) -> dict:
     """
-    Function creates a k=2 neighborhood of the given dimension
+    Function creates a k=all neighborhood of the given dimension
     Args:
         dimension: Dimension of the neighborhood
     Returns:
