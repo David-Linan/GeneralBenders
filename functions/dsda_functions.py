@@ -4347,7 +4347,8 @@ def sequential_non_iterative_2_case2(
     transformation: str = 'bigm',
     provide_starting_initialization: bool = False,
     feasible_model: str = '',
-    subproblem_solver: str = 'conopt4',
+    subproblem_solver: str = 'dicopt',
+    subproblem_solver_options: dict = {},
     tee: bool = False,
     global_tee: bool = True,
     rel_tol: float = 0):
@@ -4362,7 +4363,8 @@ def sequential_non_iterative_2_case2(
         print('--------------------------------------------------------------------------')
 
     ### FIRST SOLVE MINIMIZATION OF PROCESSING TIMES!!!!
-    kwargs['sequential']=False
+    kwargs['sequential']=True
+    kwargs['max_capacity']=True
     m = model_function(**kwargs)
     dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
         m, ext_dict)
@@ -4392,23 +4394,113 @@ def sequential_non_iterative_2_case2(
     m.C_TMC.deactivate()
     m.C_SALES.deactivate()
 
+    m.obj_scheduling.deactivate()
+    m.obj_dummy.deactivate()
 
+
+    # Only consider one execution of dynamic tasks
     for Index in m.I_J:
             m.Nref[Index].fix(1)
-            
-    for I in m.I_dynamics:
-        for J in m.J_dynamics:
-            for T in m.T:
-                m.B[I, J, T].fix(m.beta_max[I,J])
-                if T==m.T.first():
+            I=Index[0]
+            J=Index[1]
+            for T in m.T:           
+                if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
                     m.X[I,J,T].fix(1)
                 else:
                     m.X[I,J,T].fix(0)
 
 
-    opt1 = SolverFactory('gams')
-    results = opt1.solve(m, solver=subproblem_solver, tee=tee)
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
+    save=generate_initialization(m=m,model_name='partial_borrar')
 
+    # retrieve maximum capacity
+    max_Capa={}
+    for I in m.I_dynamics:
+        for J in m.J_dynamics:
+            for T in m.T:
+                if T==m.T.first():
+                    max_Capa[I, J, T]=pe.value(m.B[I, J, T])   
+
+    kwargs['max_capacity']=False
+    m = model_function(**kwargs)
+    m = external_ref_sequential_case_2(m=m,x=starting_point,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)
+
+    # DEACTIVATE SCHEDULING CONSTRAINTS
+    m.E2_CAPACITY_LOW.deactivate()
+    m.E2_CAPACITY_UP.deactivate()
+    m.E3_BALANCE_INIT.deactivate()
+    m.E1_UNIT.deactivate()
+    m.E3_BALANCE.deactivate()
+    m.X_Z_relation.deactivate()
+
+    m.C_TCP1.deactivate()
+    m.C_TCP2.deactivate()
+    m.C_TCP3.deactivate()
+    m.C_TMC.deactivate()
+    m.C_SALES.deactivate()
+
+    m.obj_scheduling.deactivate()
+    m.obj_dummy.deactivate()
+
+    # Only consider one execution of dynamic tasks
+    for Index in m.I_J:
+            m.Nref[Index].fix(1)
+            I=Index[0]
+            J=Index[1]
+            for T in m.T:           
+                if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
+                    m.X[I,J,T].fix(1)
+                else:
+                    m.X[I,J,T].fix(0)
+    #fix operation at maximum capacity
+    for I in m.I_dynamics:
+        for J in m.J_dynamics:
+            for T in m.T:
+                if T==m.T.first():
+                    m.B[I, J, T].fix(max_Capa[I, J, T]) 
+
+    m=initialize_model(m,from_feasible=True,feasible_model='partial_borrar')  
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee)    
+    save=generate_initialization(m=m,model_name='case_2_min_proc_time_solution')
+    min_proc_time={}
+    for I in m.I_dynamics:
+        for J in m.J_dynamics:
+            min_proc_time[I,J]=pe.value(m.varTime[I,J,0])
+
+    # Solve scheduling
+    m = model_function(**kwargs)
+    for I in m.I_dynamics:
+        for J in m.J_dynamics:
+            for T in m.T:
+                m.c_defCT0[I,J,T].deactivate()
+                m.c_dCAdtheta[I,J,T].deactivate() 
+                m.c_dCBdtheta[I,J,T].deactivate() 
+                m.c_dCCdtheta[I,J,T].deactivate() 
+                m.c_dVdtheta[I,J,T].deactivate() 
+                m.c_dTRdtheta[I,J,T].deactivate() 
+                m.c_dTJdtheta[I,J,T].deactivate() 
+                m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                m.Constant_control1[I,J,T].deactivate() 
+                m.Constant_control2[I,J,T].deactivate() 
+                m.Constant_control3[I,J,T].deactivate() 
+    m.C_TCP3.deactivate()
+
+    m.obj_scheduling.activate()
+    m.obj.deactivate()
+    m.obj_dummy.deactivate()
+
+    def _linking1_11(m,I,J,T):
+        return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
+    m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+
+    def _linking1_22(m,I,J,T):
+        return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
+    m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+
+
+    m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    save=generate_initialization(m=m,model_name='case_2_scheduling_solution')
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
 

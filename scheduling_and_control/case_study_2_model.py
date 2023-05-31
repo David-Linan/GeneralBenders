@@ -2874,7 +2874,7 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential(x_init
 
 
 # used to minimize variable processing times. s.t. max capacity and satisfy product requirements.
-def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=12,last_time_hours: float=12,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3},sequential: bool=False):
+def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=12,last_time_hours: float=12,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3},sequential: bool=False,max_capacity: bool=False):
 
     # ------------pyomo model------------------------------------------------
     #------------------------------------------------------------------------
@@ -2909,8 +2909,8 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1
     m.CCDESIRED=pe.Param(initialize=4,doc='Desired concentration of C [kmol/m^3]')
     m.TBIN=pe.Param(initialize=293.15, doc='Inlet temperature of feed B [K]')
     m.V0=pe.Param(initialize=1,doc='Fixed initial volume for dynamic tast [m^3]')
-    m.Vmax2=pe.Param(initialize=5,doc='Fixed initial volume for dynamic tast [m^3]')
-    m.Vmax3=pe.Param(initialize=8,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.Vmax2=pe.Param(initialize=5,doc='Maximum capacity [m^3]')
+    m.Vmax3=pe.Param(initialize=8,doc='Maximum capacity [m^3]')
     # m.qrmax=pe.Param(initialize=(1.5e+5)*(1/1000)*(m.V0/0.001),doc='upper bound on the heat rate produced by the reaction [kJ/h]') #TODO: check if assumed linear relationship holds
 
     m.k10=pe.Param(initialize=4,doc='[m^3/kmol h]')
@@ -3822,10 +3822,16 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1
 
 
     if obj_type=='profit_max':
-        def _obj(m):
-            return sum(sum(sum(m.X[I, J, T]*m.varTime[I,J,T]  for J in m.J_dynamics)  for I in m.I_dynamics)  for T in m.T)  
-            # return -sum(sum(sum(sum(m.CC[I,J,T][N]*m.X[I, J, T] for N in m.N[I,J,T] if N==m.N[I,J,T].last()) for J in m.J_dynamics) for I in m.I_dynamics) for T in m.T) 
-        m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
+        if max_capacity:
+            def _obj(m):
+                return -sum(sum(sum(m.X[I, J, T]*m.B[I,J,T]  for J in m.J_dynamics)  for I in m.I_dynamics)  for T in m.T)  
+                # return -sum(sum(sum(sum(m.CC[I,J,T][N]*m.X[I, J, T] for N in m.N[I,J,T] if N==m.N[I,J,T].last()) for J in m.J_dynamics) for I in m.I_dynamics) for T in m.T) 
+            m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
+        else:
+            def _obj(m):
+                return sum(sum(sum(m.X[I, J, T]*m.varTime[I,J,T]  for J in m.J_dynamics)  for I in m.I_dynamics)  for T in m.T)  
+                # return -sum(sum(sum(sum(m.CC[I,J,T][N]*m.X[I, J, T] for N in m.N[I,J,T] if N==m.N[I,J,T].last()) for J in m.J_dynamics) for I in m.I_dynamics) for T in m.T) 
+            m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
         if sequential:
             def _obj_scheduling(m):
                 return ( m.TCP1+m.TCP2+m.TMC-m.SALES  )
