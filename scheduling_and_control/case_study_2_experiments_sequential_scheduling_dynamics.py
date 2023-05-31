@@ -13,7 +13,7 @@ import io
 import time
 from functions.dsda_functions import neighborhood_k_eq_all,neighborhood_k_eq_l_natural,neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
 import logging
-from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_2_scheduling_control_gdp_var_proc_time_simplified,problem_logic_scheduling,case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
+from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_2_scheduling_control_gdp_var_proc_time_simplified,problem_logic_scheduling,case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential,case_2_scheduling_control_gdp_var_proc_time_min_proc_time
 import os
 import matplotlib.pyplot as plt
 
@@ -48,6 +48,33 @@ if __name__ == "__main__":
     LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
     UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
     kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
+
+
+
+
+###############################################################################
+#########--------------sequential naive-------------###########################
+###############################################################################
+###############################################################################
+    print('\n-------SEQUENTIAL NAIVE-------------------------------------')
+    kwargs['sequential']=True
+
+    logic_fun=problem_logic_scheduling
+    model_fun=case_2_scheduling_control_gdp_var_proc_time_min_proc_time
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+
+    m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = 0)
+    save=generate_initialization(m=m,model_name='case_2_sequential')
+    Sol_found=[]
+    for I in m.I:
+        for J in m.J:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m.minTau[I,J]+1)
+
 
 ###############################################################################
 #########--------------sequential ------------------###########################

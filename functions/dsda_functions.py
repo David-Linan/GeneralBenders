@@ -4404,14 +4404,13 @@ def sequential_non_iterative_2_case2(
             for T in m.T:
                 m.B[I, J, T].fix(m.beta_max[I,J])
 
-    
-
-
+    opt1 = SolverFactory('gams')
+    results = opt1.solve(m, solver=subproblem_solver, tee=tee)
 
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
 
-    return m,ext_var
+    return m
 
 def visualize_dsda(
     route: list = [],
