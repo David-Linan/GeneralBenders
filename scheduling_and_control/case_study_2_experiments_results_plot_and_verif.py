@@ -67,7 +67,8 @@ if __name__ == "__main__":
     # transformation_string = 'gdp.'+transform
     # pe.TransformationFactory(transformation_string).apply_to(m)
 
-    feasible_mod_name='case_2_sequential'
+    # feasible_mod_name='case_2_sequential'
+    feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified'
     m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
     Sol_found=[]
