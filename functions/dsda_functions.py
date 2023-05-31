@@ -4382,11 +4382,9 @@ def sequential_non_iterative_2_case2(
     m.E2_CAPACITY_LOW.deactivate()
     m.E2_CAPACITY_UP.deactivate()
     m.E3_BALANCE_INIT.deactivate()
-    m.E_DEMAND_SATISFACTION.deactivate()
     m.E1_UNIT.deactivate()
     m.E3_BALANCE.deactivate()
     m.X_Z_relation.deactivate()
-    m.DEF_VAR_TIME.deactivate() 
 
     m.C_TCP1.deactivate()
     m.C_TCP2.deactivate()
@@ -4395,14 +4393,18 @@ def sequential_non_iterative_2_case2(
     m.C_SALES.deactivate()
 
 
-    # for I in m.I:
-    #     for J in m.J:
-    #         m.Nref[I,J].fixed(True)
+    for Index in m.I_J:
+            m.Nref[Index].fix(1)
             
     for I in m.I_dynamics:
         for J in m.J_dynamics:
             for T in m.T:
                 m.B[I, J, T].fix(m.beta_max[I,J])
+                if T==m.T.first():
+                    m.X[I,J,T].fix(1)
+                else:
+                    m.X[I,J,T].fix(0)
+
 
     opt1 = SolverFactory('gams')
     results = opt1.solve(m, solver=subproblem_solver, tee=tee)

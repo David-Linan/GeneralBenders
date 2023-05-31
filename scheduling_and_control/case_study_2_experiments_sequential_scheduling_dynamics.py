@@ -4,7 +4,7 @@ from pickle import TRUE
 import sys
 sys.path.append('C:/Users/dlinanro/Desktop/GeneralBenders/') #for LRSRV1
 from functions.d_bd_functions import run_function_dbd,run_function_dbd_scheduling_cost_min_ref_2
-from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_minlp,sequential_iterative_2_case2
+from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_minlp,sequential_iterative_2_case2,sequential_non_iterative_2_case2
 import pyomo.environ as pe
 from pyomo.gdp import Disjunct, Disjunction
 import math
@@ -56,6 +56,7 @@ if __name__ == "__main__":
 #########--------------sequential naive-------------###########################
 ###############################################################################
 ###############################################################################
+    initialization_test=[1, 6, 6, 1, 1, 1, 1, 1]
     print('\n-------SEQUENTIAL NAIVE-------------------------------------')
     kwargs['sequential']=True
 
@@ -65,15 +66,17 @@ if __name__ == "__main__":
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
-    m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = 0)
-    save=generate_initialization(m=m,model_name='case_2_sequential')
-    Sol_found=[]
-    for I in m.I:
-        for J in m.J:
-            if m.I_i_j_prod[I,J]==1:
-                for K in m.ordered_set[I,J]:
-                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-m.minTau[I,J]+1)
+    m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=minlp_solver,tee = True, global_tee= True,rel_tol = 0)
+
+
+    # save=generate_initialization(m=m,model_name='case_2_sequential_naive')
+    # Sol_found=[]
+    # for I in m.I:
+    #     for J in m.J:
+    #         if m.I_i_j_prod[I,J]==1:
+    #             for K in m.ordered_set[I,J]:
+    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                     Sol_found.append(K-m.minTau[I,J]+1)
 
 
 ###############################################################################
