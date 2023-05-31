@@ -13,7 +13,7 @@ import io
 import time
 from functions.dsda_functions import neighborhood_k_eq_all,neighborhood_k_eq_l_natural,neighborhood_k_eq_2,get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_dsda
 import logging
-from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,problem_logic_scheduling
+from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,problem_logic_scheduling,case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
 import os
 import matplotlib.pyplot as plt
 from math import fabs
@@ -40,18 +40,19 @@ if __name__ == "__main__":
     minlp_solver='DICOPT'
     nlp_solver='conopt4'
     transform='bigm'
-    last_disc=20
-    last_time_h=10
+    last_disc=15
+    last_time_h=5
     logic_fun=problem_logic_scheduling
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
 
     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=7;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
     LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
     UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):1.5}
-
+    kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
 
     print('\n-------DICOPT-------------------------------------')
-    m=case_2_scheduling_control_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+    model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
+    m=model_fun(**kwargs)
     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
     # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
@@ -60,13 +61,14 @@ if __name__ == "__main__":
     # save=generate_initialization(m=m,model_name='case_study_2_opt_dicopt') 
     end=time.time()    
     # UPDATE MODEL WITH INITIALZIATION
-    m=case_2_scheduling_control_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=last_disc,last_time_hours=last_time_h,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+    m=model_fun(**kwargs)
     # Transformation step
     # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
     # transformation_string = 'gdp.'+transform
     # pe.TransformationFactory(transformation_string).apply_to(m)
 
-    feasible_mod_name='4_4'
+    # feasible_mod_name='case_2_sequential'
+    feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified'
     m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
     Sol_found=[]
@@ -119,7 +121,7 @@ if __name__ == "__main__":
 
         output_dict = dict(name=constr.name)
         infeasible_const.append(output_dict)
-
+    print('If the following list is empty, then everything is feasible')
     print(infeasible_const)
 
     Sol_found=[]
@@ -138,7 +140,7 @@ if __name__ == "__main__":
             textbuffer.write('\n')
         textbuffer.write('\n Objective: \n') 
         textbuffer.write(str(pe.value(m.obj)))  
-        file_name=feasible_mod_name+'_dsda.txt'  
+        file_name=feasible_mod_name+'.txt'  
         with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
             outputfile.write(textbuffer.getvalue())
 

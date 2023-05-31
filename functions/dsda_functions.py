@@ -4337,7 +4337,81 @@ def sequential_iterative_2_case2(
             return m,ext_var
     return m,ext_var
 
+def sequential_non_iterative_2_case2(
+    ext_logic,
+    starting_point: list,
+    model_function,
+    kwargs,
+    ext_dict,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    provide_starting_initialization: bool = False,
+    feasible_model: str = '',
+    subproblem_solver: str = 'conopt4',
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 0):
 
+    """
+    rate_beta_ub: Real, rate to decrease upper bound of beta
+    rate_tau: integer, rate to increase external variables related to variable processing time
+
+    """
+    if global_tee:
+        print('\nStarting Sequential Scheduling and control (non_iterative)')
+        print('--------------------------------------------------------------------------')
+
+    ### FIRST SOLVE MINIMIZATION OF PROCESSING TIMES!!!!
+    kwargs['sequential']=False
+    m = model_function(**kwargs)
+    dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
+        m, ext_dict)
+    if len(starting_point) != num_ext_var:
+        print("The size of the initialization vector must be equal to "+str(num_ext_var))
+
+    t_start = time.perf_counter()
+
+
+    if provide_starting_initialization:
+        m = initialize_model(m, from_feasible=True, feasible_model=feasible_model, json_path=None)
+
+
+    m = external_ref_sequential_case_2(m=m,x=starting_point,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)
+
+    # DEACTIVATE SCHEDULING CONSTRAINTS
+    m.E2_CAPACITY_LOW.deactivate()
+    m.E2_CAPACITY_UP.deactivate()
+    m.E3_BALANCE_INIT.deactivate()
+    m.E_DEMAND_SATISFACTION.deactivate()
+    m.E1_UNIT.deactivate()
+    m.E3_BALANCE.deactivate()
+    m.X_Z_relation.deactivate()
+    m.DEF_VAR_TIME.deactivate() 
+
+    m.C_TCP1.deactivate()
+    m.C_TCP2.deactivate()
+    m.C_TCP3.deactivate()
+    m.C_TMC.deactivate()
+    m.C_SALES.deactivate()
+
+
+    # for I in m.I:
+    #     for J in m.J:
+    #         m.Nref[I,J].fixed(True)
+            
+    for I in m.I_dynamics:
+        for J in m.J_dynamics:
+            for T in m.T:
+                m.B[I, J, T].fix(m.beta_max[I,J])
+
+    
+
+
+
+    if global_tee:
+        print(" CPU time [s]:",time.perf_counter()-t_start)
+
+    return m,ext_var
 
 def visualize_dsda(
     route: list = [],
