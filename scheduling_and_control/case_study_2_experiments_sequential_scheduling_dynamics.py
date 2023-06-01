@@ -4,7 +4,7 @@ from pickle import TRUE
 import sys
 sys.path.append('C:/Users/dlinanro/Desktop/GeneralBenders/') #for LRSRV1
 from functions.d_bd_functions import run_function_dbd,run_function_dbd_scheduling_cost_min_ref_2
-from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_minlp,sequential_iterative_2_case2,sequential_non_iterative_2_case2
+from functions.dsda_functions import get_external_information,external_ref,solve_subproblem,generate_initialization,initialize_model,solve_with_minlp,sequential_iterative_2_case2,sequential_non_iterative_2_case2,sequential_non_iterative_2
 import pyomo.environ as pe
 from pyomo.gdp import Disjunct, Disjunction
 import math
@@ -16,10 +16,101 @@ import logging
 from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_2_scheduling_control_gdp_var_proc_time_simplified,problem_logic_scheduling,case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential,case_2_scheduling_control_gdp_var_proc_time_min_proc_time
 import os
 import matplotlib.pyplot as plt
+from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential_naive,problem_logic_scheduling_tau_only
 
 if __name__ == "__main__":
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
+
+
+####CASE STUDY 1###############################
+
+    print('******CASE STUDY 1************')
+
+
+###############################################################################
+#########--------------base case ------------------############################
+###############################################################################
+###############################################################################
+
+    initialization=[1, 1, 1, 1, 1, 1]
+  
+    mip_solver='CPLEX'
+    minlp_solver='DICOPT'
+    nlp_solver='conopt4'
+    transform='bigm'
+
+
+    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='OCTERACT':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
+    
+    kwargs={}
+
+
+###############################################################################
+#########--------------sequential naive-------------###########################
+###############################################################################
+###############################################################################
+
+    print('\n-------SEQUENTIAL NAIVE-------------------------------------')
+    kwargs2=kwargs.copy()
+    kwargs2['sequential']=True
+
+    logic_fun=problem_logic_scheduling_tau_only
+    model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
+    m=model_fun(**kwargs2)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+
+    initialization_test=[]
+    for k in upper_bounds.keys():
+        initialization_test.append(upper_bounds[k]) 
+
+    ## RUN THIS TO SOLVE
+    m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
+    ## RUN THIS TO RETRIEVE SOLUTION    
+
+    m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution')
+
+    Sol_found=[]
+    for I in m.I:
+        for J in m.J:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m.minTau[I,J]+1)
+    for I_J in m.I_J:
+        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    print('EXT_VARS_FOUND',Sol_found)
+    TPC1=pe.value(m.TCP1)
+    TPC2=pe.value(m.TCP2)
+    TPC3=pe.value(m.TCP3)
+    TMC=pe.value(m.TMC)
+    SALES=pe.value(m.SALES)
+
+    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    print('TMC: Total material cost: ',str(TMC))
+    print('SALES: Revenue form selling products: ',str(SALES))
+
+
+
+
+    m2=model_fun(**kwargs2)
+    m2=initialize_model(m2,from_feasible=True,feasible_model='case_1_min_proc_time_solution')
+    ActualTPC3=sum(sum(pe.value(m.Nref[I,J])*(m2.hot_cost*pe.value(m2.Integral_hot[I, J,0][m2.N[I, J,0].last()]) + m2.cold_cost*pe.value(m2.Integral_cold[I, J,0][m2.N[I, J,0].last()])) for I in m2.I_reactions)for J in m2.J_reactors)
+    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(ActualTPC3))
+    OBJVAL=(TPC1+TPC2+ActualTPC3+TMC-SALES)
+    print('OBJ:',str(OBJVAL))
+
+
+
+####CASE STUDY 2###############################
+
+print('******CASE STUDY 2************')
 
 ###############################################################################
 #########--------------base case ------------------############################

@@ -4513,6 +4513,184 @@ def sequential_non_iterative_2_case2(
 
     return m
 
+
+
+def sequential_non_iterative_2(
+    ext_logic,
+    starting_point: list,
+    model_function,
+    kwargs,
+    ext_dict,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    provide_starting_initialization: bool = False,
+    feasible_model: str = '',
+    subproblem_solver: str = 'dicopt',
+    subproblem_solver_options: dict = {},
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 0):
+
+    """
+    rate_beta_ub: Real, rate to decrease upper bound of beta
+    rate_tau: integer, rate to increase external variables related to variable processing time
+
+    """
+    if global_tee:
+        print('\nStarting Sequential Scheduling and control (non_iterative)')
+        print('--------------------------------------------------------------------------')
+
+    ### FIRST SOLVE MINIMIZATION OF PROCESSING TIMES!!!!
+    kwargs['sequential']=True
+    kwargs['max_capacity']=True
+    m = model_function(**kwargs)
+    dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
+        m, ext_dict)
+    if len(starting_point) != num_ext_var:
+        print("The size of the initialization vector must be equal to "+str(num_ext_var))
+
+    t_start = time.perf_counter()
+
+
+    if provide_starting_initialization:
+        m = initialize_model(m, from_feasible=True, feasible_model=feasible_model, json_path=None)
+
+
+    m = external_ref_sequential_case_2(m=m,x=starting_point,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)
+
+    # DEACTIVATE SCHEDULING CONSTRAINTS
+    m.E2_CAPACITY_LOW.deactivate()
+    m.E2_CAPACITY_UP.deactivate()
+    m.E3_BALANCE_INIT.deactivate()
+    m.E1_UNIT.deactivate()
+    m.E3_BALANCE.deactivate()
+    m.X_Z_relation.deactivate()
+
+    m.C_TCP1.deactivate()
+    m.C_TCP2.deactivate()
+    m.C_TCP3.deactivate()
+    m.C_TMC.deactivate()
+    m.C_SALES.deactivate()
+
+    m.obj_scheduling.deactivate()
+    m.obj_dummy.deactivate()
+
+
+    # Only consider one execution of dynamic tasks
+    for Index in m.I_J:
+            m.Nref[Index].fix(1)
+            I=Index[0]
+            J=Index[1]
+            for T in m.T:           
+                if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
+                    m.X[I,J,T].fix(1)
+                else:
+                    m.X[I,J,T].fix(0)
+
+
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
+    save=generate_initialization(m=m,model_name='partial_borrar')
+
+    # retrieve maximum capacity
+    max_Capa={}
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            for T in m.T:
+                if T==m.T.first():
+                    max_Capa[I, J, T]=pe.value(m.B[I, J, T])   
+
+    kwargs['max_capacity']=False
+    m = model_function(**kwargs)
+    m = external_ref_sequential_case_2(m=m,x=starting_point,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)
+
+    # DEACTIVATE SCHEDULING CONSTRAINTS
+    m.E2_CAPACITY_LOW.deactivate()
+    m.E2_CAPACITY_UP.deactivate()
+    m.E3_BALANCE_INIT.deactivate()
+    m.E1_UNIT.deactivate()
+    m.E3_BALANCE.deactivate()
+    m.X_Z_relation.deactivate()
+
+    m.C_TCP1.deactivate()
+    m.C_TCP2.deactivate()
+    m.C_TCP3.deactivate()
+    m.C_TMC.deactivate()
+    m.C_SALES.deactivate()
+
+    m.obj_scheduling.deactivate()
+    m.obj_dummy.deactivate()
+
+    # Only consider one execution of dynamic tasks
+    for Index in m.I_J:
+            m.Nref[Index].fix(1)
+            I=Index[0]
+            J=Index[1]
+            for T in m.T:           
+                if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
+                    m.X[I,J,T].fix(1)
+                else:
+                    m.X[I,J,T].fix(0)
+    #fix operation at maximum capacity
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            for T in m.T:
+                if T==m.T.first():
+                    m.B[I, J, T].fix(max_Capa[I, J, T]) 
+
+    m=initialize_model(m,from_feasible=True,feasible_model='partial_borrar')  
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee)    
+    save=generate_initialization(m=m,model_name='case_1_min_proc_time_solution')
+    min_proc_time={}
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            min_proc_time[I,J]=pe.value(m.varTime[I,J,0])
+
+    # Solve scheduling
+    m = model_function(**kwargs)
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            m.c_dCdtheta[I,J].deactivate()
+            m.c_dTRdtheta[I,J].deactivate()                        
+            m.c_dTJdtheta[I,J].deactivate()
+            m.c_dIntegral_hotdtheta[I,J].deactivate()
+            m.c_dIntegral_colddtheta[I,J].deactivate()
+            m.Constant_control1[I,J].deactivate()                        
+            m.Constant_control2[I,J].deactivate()
+            m.finalCon[I,J].deactivate()
+            m.finalTemp[I,J].deactivate()
+
+    m.C_TCP3.deactivate()
+
+    m.obj_scheduling.activate()
+    m.obj.deactivate()
+    m.obj_dummy.deactivate()
+
+    def _linking1_11(m,I,J,T):
+        return m.varTime[I,J]-min_proc_time[I,J] <= (m.maxTau[I,J]*m.delta-min_proc_time[I,J])*(1-m.X[I,J,T])  
+    m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+    def _linking1_22(m,I,J,T):
+        return -(m.varTime[I,J]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
+    m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+    def _linking2_11(m,I,J,T):
+        return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+    m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+
+    def _linking2_22(m,I,J,T):
+        return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+    m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+
+    m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
+    if global_tee:
+        print(" CPU time [s]:",time.perf_counter()-t_start)
+
+    return m
+
+
+
+
 def visualize_dsda(
     route: list = [],
     feas_x: list = [],

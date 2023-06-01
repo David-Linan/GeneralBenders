@@ -137,7 +137,7 @@ if __name__ == "__main__":
     initialization=Sol_found
     infinity_val=1e+2
     maxiter=10000
-    neighdef='2'
+    neighdef='L_natural'
     logic_fun=problem_logic_scheduling
     model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
     start=time.time()
