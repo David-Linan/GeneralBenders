@@ -16,7 +16,7 @@ import logging
 from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_2_scheduling_control_gdp_var_proc_time_simplified,problem_logic_scheduling,case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential,case_2_scheduling_control_gdp_var_proc_time_min_proc_time
 import os
 import matplotlib.pyplot as plt
-from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential_naive,problem_logic_scheduling_tau_only
+from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential_naive,problem_logic_scheduling as problem_logic_scheduling_case1
 
 if __name__ == "__main__":
     #Do not show warnings
@@ -58,25 +58,27 @@ if __name__ == "__main__":
     kwargs2=kwargs.copy()
     kwargs2['sequential']=True
 
-    logic_fun=problem_logic_scheduling_tau_only
+    logic_fun=problem_logic_scheduling_case1
     model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
     m=model_fun(**kwargs2)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors if m.I_i_j_prod[I,J]==1}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
     initialization_test=[]
     for k in upper_bounds.keys():
         initialization_test.append(upper_bounds[k]) 
-
+    print('upper bound ext var related to proc time',initialization_test)
     ## RUN THIS TO SOLVE
-    m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
+    m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = 0)
     ## RUN THIS TO RETRIEVE SOLUTION    
 
     m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution')
-
+    m.varTime.pprint()
+    m.B.pprint()
     Sol_found=[]
-    for I in m.I:
-        for J in m.J:
+    for I in m.I_reactions:
+        for J in m.J_reactors:
             if m.I_i_j_prod[I,J]==1:
                 for K in m.ordered_set[I,J]:
                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
@@ -101,7 +103,7 @@ if __name__ == "__main__":
 
     m2=model_fun(**kwargs2)
     m2=initialize_model(m2,from_feasible=True,feasible_model='case_1_min_proc_time_solution')
-    ActualTPC3=sum(sum(pe.value(m.Nref[I,J])*(m2.hot_cost*pe.value(m2.Integral_hot[I, J,0][m2.N[I, J,0].last()]) + m2.cold_cost*pe.value(m2.Integral_cold[I, J,0][m2.N[I, J,0].last()])) for I in m2.I_reactions)for J in m2.J_reactors)
+    ActualTPC3=sum(sum(pe.value(m.Nref[I,J])*(m2.hot_cost*pe.value(m2.Integral_hot[I, J][m2.N[I, J].last()]) + m2.cold_cost*pe.value(m2.Integral_cold[I, J][m2.N[I, J].last()])) for I in m2.I_reactions)for J in m2.J_reactors)
     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(ActualTPC3))
     OBJVAL=(TPC1+TPC2+ActualTPC3+TMC-SALES)
     print('OBJ:',str(OBJVAL))
@@ -110,7 +112,7 @@ if __name__ == "__main__":
 
 ####CASE STUDY 2###############################
 
-print('******CASE STUDY 2************')
+    print('******CASE STUDY 2************')
 
 ###############################################################################
 #########--------------base case ------------------############################

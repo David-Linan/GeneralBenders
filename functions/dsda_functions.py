@@ -4506,7 +4506,7 @@ def sequential_non_iterative_2_case2(
         return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
     m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-    m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
     save=generate_initialization(m=m,model_name='case_2_scheduling_solution')
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
@@ -4582,7 +4582,7 @@ def sequential_non_iterative_2(
             I=Index[0]
             J=Index[1]
             for T in m.T:           
-                if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
+                if T==m.T.first() and I in m.I_reactions and J in m.J_reactors:
                     m.X[I,J,T].fix(1)
                 else:
                     m.X[I,J,T].fix(0)
@@ -4626,7 +4626,7 @@ def sequential_non_iterative_2(
             I=Index[0]
             J=Index[1]
             for T in m.T:           
-                if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
+                if T==m.T.first() and I in m.I_reactions and J in m.J_reactors:
                     m.X[I,J,T].fix(1)
                 else:
                     m.X[I,J,T].fix(0)
@@ -4643,7 +4643,7 @@ def sequential_non_iterative_2(
     min_proc_time={}
     for I in m.I_reactions:
         for J in m.J_reactors:
-            min_proc_time[I,J]=pe.value(m.varTime[I,J,0])
+            min_proc_time[I,J]=pe.value(m.varTime[I,J])
 
     # Solve scheduling
     m = model_function(**kwargs)
@@ -4656,8 +4656,8 @@ def sequential_non_iterative_2(
             m.c_dIntegral_colddtheta[I,J].deactivate()
             m.Constant_control1[I,J].deactivate()                        
             m.Constant_control2[I,J].deactivate()
-            m.finalCon[I,J].deactivate()
-            m.finalTemp[I,J].deactivate()
+            # m.finalCon[I,J].deactivate()
+            # m.finalTemp[I,J].deactivate()
 
     m.C_TCP3.deactivate()
 
@@ -4665,23 +4665,23 @@ def sequential_non_iterative_2(
     m.obj.deactivate()
     m.obj_dummy.deactivate()
 
-    def _linking1_11(m,I,J,T):
-        return m.varTime[I,J]-min_proc_time[I,J] <= (m.maxTau[I,J]*m.delta-min_proc_time[I,J])*(1-m.X[I,J,T])  
-    m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
+    def _linking1_11(m,I,J):
+        return m.varTime[I,J]-min_proc_time[I,J] <= 0 
+    m.linking111=pe.Constraint(m.I_reactions,m.J_reactors,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
 
-    def _linking1_22(m,I,J,T):
-        return -(m.varTime[I,J]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
-    m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+    def _linking1_22(m,I,J):
+        return -(m.varTime[I,J]-min_proc_time[I,J]) <=0
+    m.linking122=pe.Constraint(m.I_reactions,m.J_reactors,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
 
     def _linking2_11(m,I,J,T):
         return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
-    m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+    m.linking211=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
     def _linking2_22(m,I,J,T):
         return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-    m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+    m.linking222=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-    m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
     save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
