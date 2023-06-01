@@ -4492,12 +4492,19 @@ def sequential_non_iterative_2_case2(
 
     def _linking1_11(m,I,J,T):
         return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
-    m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+    m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
 
     def _linking1_22(m,I,J,T):
         return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
-    m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+    m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
 
+    def _linking2_11(m,I,J,T):
+        return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+    m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+
+    def _linking2_22(m,I,J,T):
+        return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+    m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
 
     m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=True,rel_tol=0)
     save=generate_initialization(m=m,model_name='case_2_scheduling_solution')

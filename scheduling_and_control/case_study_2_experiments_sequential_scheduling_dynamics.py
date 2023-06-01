@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
 
     ## RUN THIS TO SOLVE
-    # m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
+    m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
     ## RUN THIS TO RETRIEVE SOLUTION    
 
     m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_solution')
