@@ -3834,7 +3834,7 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1
             m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
         if sequential:
             def _obj_scheduling(m):
-                return ( m.TCP1+m.TCP2+m.TMC-m.SALES  )
+                return ( m.TCP1+m.TCP2+m.TMC-m.SALES   +   sum(sum(m.YR_disjunct[I,J][index].indicator_var for index in m.ordered_set[I,J]) for (I,J) in m.I_J if m.I_i_j_prod[I,J]==1)  ) 
             m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
             
             def _obj_dummy(m):
