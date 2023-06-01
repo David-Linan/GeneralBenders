@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = 0)
     # save=generate_initialization(m=m,model_name='case_2_sequential')
-    m=initialize_model(m,from_feasible=True,feasible_model='case_2_sequential')   
+    m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_solution')   
     Sol_found=[]
     for I in m.I:
         for J in m.J:
@@ -141,10 +141,10 @@ if __name__ == "__main__":
     logic_fun=problem_logic_scheduling
     model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
     start=time.time()
-    D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,initialization,ext_ref,logic_fun,k = neighdef,provide_starting_initialization= True,feasible_model='case_2_sequential',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 500,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+    D_SDAsol,routeDSDA,obj_route=solve_with_dsda(model_fun,kwargs,initialization,ext_ref,logic_fun,k = neighdef,provide_starting_initialization= True,feasible_model='case_2_scheduling_solution',subproblem_solver = minlp_solver,subproblem_solver_options=sub_options,iter_timelimit= 500,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
     end=time.time()
     m=D_SDAsol
-    solname='case_2_dsda_'+minlp_solver+'_'+neighdef+'_all_neigh_Verified_all_vars'
+    solname='case_2_dsda_'+minlp_solver+'_'+neighdef+'_all_neigh_Verified_all_vars_from_naive'
     save=generate_initialization(m=m,model_name=solname) 
     
 
