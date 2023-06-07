@@ -67,8 +67,14 @@ if __name__ == "__main__":
     # transformation_string = 'gdp.'+transform
     # pe.TransformationFactory(transformation_string).apply_to(m)
 
-    # feasible_mod_name='case_2_sequential'
-    feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified'
+
+
+    sequential_naive=False #true if i am ploting results from sequential naive
+    # feasible_mod_name2='case_2_scheduling_solution'  #sequential naive: scheduling solution
+    # feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
+    feasible_mod_name='case_2_sequential' #sequential iterative
+    # feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars_from_naive'    #DSDA from sequential naive
+    # feasible_mod_name= 'case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars'  #DSDA from sequential iterative
     m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
     Sol_found=[]
@@ -84,45 +90,45 @@ if __name__ == "__main__":
     # m = external_ref(m=m,x=Sol_found,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,mip_ref=False,tee=False)
 
 
-    tol=1e-6
-    sum_infeasibility=0  #sum of infeasibility
-    infeasible_const=[]  #infeasible constraints
+    # tol=1e-6
+    # sum_infeasibility=0  #sum of infeasibility
+    # infeasible_const=[]  #infeasible constraints
 
-    for constr in m.component_data_objects(ctype=pe.Constraint, active=True, descend_into=True):
-        constr_body_value = pe.value(constr.body, exception=False)
-        constr_lb_value = pe.value(constr.lower, exception=False)
-        constr_ub_value = pe.value(constr.upper, exception=False)
+    # for constr in m.component_data_objects(ctype=pe.Constraint, active=True, descend_into=True):
+    #     constr_body_value = pe.value(constr.body, exception=False)
+    #     constr_lb_value = pe.value(constr.lower, exception=False)
+    #     constr_ub_value = pe.value(constr.upper, exception=False)
 
-        constr_undefined = False
-        equality_violated = False
-        lb_violated = False
-        ub_violated = False
+    #     constr_undefined = False
+    #     equality_violated = False
+    #     lb_violated = False
+    #     ub_violated = False
 
-        if constr_body_value is None:
-            # Undefined constraint body value due to missing variable value
-            constr_undefined = True
-            pass
-        else:
-            # Check for infeasibilities
-            if constr.equality:
-                if fabs(constr_lb_value - constr_body_value) >= tol:
-                    equality_violated = True
-                    sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
-            else:
-                if constr.has_lb() and constr_lb_value - constr_body_value >= tol:
-                    lb_violated = True
-                    sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
-                if constr.has_ub() and constr_body_value - constr_ub_value >= tol:
-                    ub_violated = True
-                    sum_infeasibility=sum_infeasibility+fabs(constr_body_value - constr_ub_value)
-        if not any((constr_undefined, equality_violated, lb_violated, ub_violated)):
-            # constraint is fine. skip to next constraint
-            continue
+    #     if constr_body_value is None:
+    #         # Undefined constraint body value due to missing variable value
+    #         constr_undefined = True
+    #         pass
+    #     else:
+    #         # Check for infeasibilities
+    #         if constr.equality:
+    #             if fabs(constr_lb_value - constr_body_value) >= tol:
+    #                 equality_violated = True
+    #                 sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
+    #         else:
+    #             if constr.has_lb() and constr_lb_value - constr_body_value >= tol:
+    #                 lb_violated = True
+    #                 sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
+    #             if constr.has_ub() and constr_body_value - constr_ub_value >= tol:
+    #                 ub_violated = True
+    #                 sum_infeasibility=sum_infeasibility+fabs(constr_body_value - constr_ub_value)
+    #     if not any((constr_undefined, equality_violated, lb_violated, ub_violated)):
+    #         # constraint is fine. skip to next constraint
+    #         continue
 
-        output_dict = dict(name=constr.name)
-        infeasible_const.append(output_dict)
-    print('If the following list is empty, then everything is feasible')
-    print(infeasible_const)
+    #     output_dict = dict(name=constr.name)
+    #     infeasible_const.append(output_dict)
+    # print('If the following list is empty, then everything is feasible')
+    # print(infeasible_const)
 
     Sol_found=[]
     for I in m.I:
@@ -185,179 +191,368 @@ if __name__ == "__main__":
     # print('TMC: Total material cost: ',str(TMC))
     # print('SALES: Revenue form selling products: ',str(SALES))
     # print('OBJ:',str(OBJVAL))
- 
+
 #######-------plots------------------------
-    for I in m.I_dynamics:
-        for J in m.J_dynamics:
-            for T in m.T:
-                if pe.value(m.X[I,J,T])==1: 
-                    case=(I,J,T)
-                    t=[]
-                    CA=[]
-                    CB=[]
-                    CC=[]
-                    Tr=[]
-                    Tj=[]
-                    Fhot=[]
-                    Fcold=[]
-                    u_input=[]
-                    for N in m.N[case]:
-                        t.append(N*m.varTime[case].value)
-                        Tr.append(m.TRvar[case][N].value)
-                        Tj.append(m.TJvar[case][N].value)
-                        Fhot.append(m.Fhot[case][N].value)
-                        Fcold.append(m.Fcold[case][N].value)
-                        CA.append( m.CA[case][N].value)
-                        CB.append( m.CB[case][N].value)
-                        CC.append( m.CC[case][N].value)
-                        u_input.append(m.u_input[case][N].value)
+
+    if sequential_naive:
+        for I in m.I_dynamics:
+            for J in m.J_dynamics:
+                for T in m.T:
+                    if pe.value(m.X[I,J,T])==1: 
+                        case=(I,J,T)
+                        t=[]
+                        CA=[]
+                        CB=[]
+                        CC=[]
+                        Tr=[]
+                        Tj=[]
+                        Fhot=[]
+                        Fcold=[]
+                        u_input=[]
+                        for N in m.N[case]:
+                            t.append(N*m.varTime[case].value)
+                            Tr.append(m.TRvar[case][N].value)
+                            Tj.append(m.TJvar[case][N].value)
+                            Fhot.append(m.Fhot[case][N].value)
+                            Fcold.append(m.Fcold[case][N].value)
+                            CA.append( m.CA[case][N].value)
+                            CB.append( m.CB[case][N].value)
+                            CC.append( m.CC[case][N].value)
+                            u_input.append(m.u_input[case][N].value)
+                            
+                            
+                        plt.plot(t, CA,label='CA',color='red')
+                        plt.plot(t, CB,label='CB',color='green')
+                        plt.plot(t, CC,label='CC',color='blue')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('$Concentration [kmol/m^{3}]$')
+                        title=case[0]+' in '+case[1]+' Concentration'
+                        plt.title(case[0]+' in '+case[1])
+                        plt.legend()
+                        # plt.show()
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
+
+                        plt.plot(t,Tr,label='T_reactor',color='red')
+                        plt.plot(t,Tj,label='T_jacket',color='blue')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('Temperature [K]')
+                        title=case[0]+' in '+case[1]+' Temperature'
+                        plt.title(case[0]+' in '+case[1])
+                        plt.legend()
+                        # plt.show()
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
                         
+                        plt.plot(t, Fhot,label='F_hot',color='red')
+                        plt.plot(t,Fcold,label='F_cold',color='blue')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('Flow rate $[m^{3}/h]$')
+                        title=case[0]+' in '+case[1]+' Flow rate'
+                        plt.title(case[0]+' in '+case[1])
+                        plt.legend()
+                        # plt.show()    
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
+
+                        plt.plot(t, u_input,color='red')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                        title=case[0]+' in '+case[1]+' Flow rate of B'
+                        plt.title(case[0]+' in '+case[1])
+                        # plt.show()    
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
+    else: 
+        for I in m.I_dynamics:
+            for J in m.J_dynamics:
+                for T in m.T:
+                    if pe.value(m.X[I,J,T])==1: 
+                        case=(I,J,T)
+                        t=[]
+                        CA=[]
+                        CB=[]
+                        CC=[]
+                        Tr=[]
+                        Tj=[]
+                        Fhot=[]
+                        Fcold=[]
+                        u_input=[]
+                        for N in m.N[case]:
+                            t.append(N*m.varTime[case].value)
+                            Tr.append(m.TRvar[case][N].value)
+                            Tj.append(m.TJvar[case][N].value)
+                            Fhot.append(m.Fhot[case][N].value)
+                            Fcold.append(m.Fcold[case][N].value)
+                            CA.append( m.CA[case][N].value)
+                            CB.append( m.CB[case][N].value)
+                            CC.append( m.CC[case][N].value)
+                            u_input.append(m.u_input[case][N].value)
+                            
+                            
+                        plt.plot(t, CA,label='CA',color='red')
+                        plt.plot(t, CB,label='CB',color='green')
+                        plt.plot(t, CC,label='CC',color='blue')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('$Concentration [kmol/m^{3}]$')
+                        title=case[0]+' in '+case[1]+' Concentration'+' at '+str(m.t_p[T])+' h'
+                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                        plt.legend()
+                        # plt.show()
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
+
+                        plt.plot(t,Tr,label='T_reactor',color='red')
+                        plt.plot(t,Tj,label='T_jacket',color='blue')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('Temperature [K]')
+                        title=case[0]+' in '+case[1]+' Temperature'+' at '+str(m.t_p[T])+' h'
+                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                        plt.legend()
+                        # plt.show()
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
                         
-                    plt.plot(t, CA,label='CA',color='red')
-                    plt.plot(t, CB,label='CB',color='green')
-                    plt.plot(t, CC,label='CC',color='blue')
-                    plt.xlabel('Time [h]')
-                    plt.ylabel('$Concentration [kmol/m^{3}]$')
-                    title=case[0]+' in '+case[1]+' Concentration'
-                    plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                    plt.legend()
-                    plt.show()
-                    # plt.savefig("figures/"+title+".svg") 
-                    plt.clf()
-                    plt.cla()
-                    plt.close()
+                        plt.plot(t, Fhot,label='F_hot',color='red')
+                        plt.plot(t,Fcold,label='F_cold',color='blue')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('Flow rate $[m^{3}/h]$')
+                        title=case[0]+' in '+case[1]+' Flow rate'+' at '+str(m.t_p[T])+' h'
+                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                        plt.legend()
+                        # plt.show()    
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
 
-                    plt.plot(t,Tr,label='T_reactor',color='red')
-                    plt.plot(t,Tj,label='T_jacket',color='blue')
-                    plt.xlabel('Time [h]')
-                    plt.ylabel('Temperature [K]')
-                    title=case[0]+' in '+case[1]+' Temperature'
-                    plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                    plt.legend()
-                    plt.show()
-                    # plt.savefig("figures/"+title+".svg") 
-                    plt.clf()
-                    plt.cla()
-                    plt.close()
-                    
-                    plt.plot(t, Fhot,label='F_hot',color='red')
-                    plt.plot(t,Fcold,label='F_cold',color='blue')
-                    plt.xlabel('Time [h]')
-                    plt.ylabel('Flow rate $[m^{3}/h]$')
-                    title=case[0]+' in '+case[1]+' Flow rate'
-                    plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                    plt.legend()
-                    plt.show()    
-                    # plt.savefig("figures/"+title+".svg") 
-                    plt.clf()
-                    plt.cla()
-                    plt.close()
+                        plt.plot(t, u_input,color='red')
+                        plt.xlabel('Time [h]')
+                        plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                        title=case[0]+' in '+case[1]+' Flow rate of B'+' at '+str(m.t_p[T])+' h'
+                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                        # plt.show()    
+                        plt.savefig("figures/"+title+".svg") 
+                        plt.clf()
+                        plt.cla()
+                        plt.close()
 
-                    plt.plot(t, u_input,color='red')
-                    plt.xlabel('Time [h]')
-                    plt.ylabel('Flow rate of B $[m^{3}/h]$')
-                    title=case[0]+' in '+case[1]+' Flow rate'
-                    plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                    plt.show()    
-                    # plt.savefig("figures/"+title+".svg") 
-                    plt.clf()
-                    plt.cla()
-                    plt.close()
-    # plot of states
-    for k in m.K:
-        t_pro=[]
-        state=[]
-        for t in m.T:
-            t_pro.append(m.t_p[t])
-            state.append(pe.value(m.S[k,t]))
 
-        plt.plot(t_pro, state,color='red')
-        plt.xlabel('Time [h]')
-        plt.ylabel('State level $[m^{3}]$')
-        title='state '+k
-        plt.title(title)
-        plt.show()
-        # plt.savefig("figures/"+title+".svg") 
+
+
+
+    if sequential_naive:
+
+        model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
+        m=model_fun(**kwargs)
+        m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
+
+        # plot of states
+        for k in m.K:
+            t_pro=[]
+            state=[]
+            for t in m.T:
+                t_pro.append(m.t_p[t])
+                state.append(pe.value(m.S[k,t]))
+
+            plt.plot(t_pro, state,color='red')
+            plt.xlabel('Time [h]')
+            plt.ylabel('State level $[m^{3}]$')
+            title='state '+k
+            plt.title(title)
+            # plt.show()
+            plt.savefig("figures/"+title+".svg") 
+            plt.clf()
+            plt.cla()
+            plt.close()
+
+        #--------------------------------- Gantt plot--------------------------------------------
+        fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+        # Setting Y-axis limits
+        gnt.set_ylim(8, 52) #TODO: change depending case study
+        
+        # Setting X-axis limits
+        gnt.set_xlim(0, m.lastT.value*m.delta.value)
+        
+        # Setting labels for x-axis and y-axis
+        gnt.set_xlabel('Time [h]')
+        gnt.set_ylabel('Units')
+        
+        # Setting ticks on y-axis
+        gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+        # Labelling tickes of y-axis
+        gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+        
+        
+        # Setting graph attribute
+        gnt.grid(False)
+        
+        # Declaring bars in schedule
+        height=9
+        already_used=[]
+        for j in m.J:
+
+            if j=='U1':
+                lower_y_position=40    
+            elif j=='U2':
+                lower_y_position=30    
+            elif j=='U3':
+                lower_y_position=20
+            elif j=='U4':
+                lower_y_position=10
+            for i in m.I:
+                if i=='T1':
+                    bar_color='tab:red'
+                elif i=='T2':
+                    bar_color='tab:green'    
+                elif i=='T3':
+                    bar_color='tab:blue'    
+                elif i=='T4':
+                    bar_color='tab:orange' 
+                elif i=='T5':
+                    bar_color='tab:olive'
+                for t in m.T:
+                    try:
+                        if i in m.I_dynamics and j in m.J_dynamics:
+                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                already_used.append(i)
+                            elif round(pe.value(m.X[i,j,t]))==1:
+                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                        else:
+                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                already_used.append(i)
+                            elif round(pe.value(m.X[i,j,t]))==1:
+                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                    except:
+                        pass 
+        gnt.tick_params(axis='both', which='major', labelsize=15)
+        gnt.tick_params(axis='both', which='minor', labelsize=15) 
+        gnt.yaxis.label.set_size(15)
+        gnt.xaxis.label.set_size(15)
+        plt.legend()
+        # plt.show()
+        plt.savefig("figures/gantt_minlp.svg")   
         plt.clf()
         plt.cla()
         plt.close()
 
-    #--------------------------------- Gantt plot--------------------------------------------
-    fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
-    # Setting Y-axis limits
-    gnt.set_ylim(8, 52) #TODO: change depending case study
-    
-    # Setting X-axis limits
-    gnt.set_xlim(0, m.lastT.value*m.delta.value)
-    
-    # Setting labels for x-axis and y-axis
-    gnt.set_xlabel('Time [h]')
-    gnt.set_ylabel('Units')
-    
-    # Setting ticks on y-axis
-    gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
-    # Labelling tickes of y-axis
-    gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
-    
-    
-    # Setting graph attribute
-    gnt.grid(False)
-    
-    # Declaring bars in schedule
-    height=9
-    already_used=[]
-    for j in m.J:
 
-        if j=='U1':
-            lower_y_position=40    
-        elif j=='U2':
-            lower_y_position=30    
-        elif j=='U3':
-            lower_y_position=20
-        elif j=='U4':
-            lower_y_position=10
-        for i in m.I:
-            if i=='T1':
-                bar_color='tab:red'
-            elif i=='T2':
-                bar_color='tab:green'    
-            elif i=='T3':
-                bar_color='tab:blue'    
-            elif i=='T4':
-                bar_color='tab:orange' 
-            elif i=='T5':
-                bar_color='tab:olive'
+    else:
+
+        # plot of states
+        for k in m.K:
+            t_pro=[]
+            state=[]
             for t in m.T:
-                try:
-                    if i in m.I_dynamics and j in m.J_dynamics:
-                        if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                            gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                            already_used.append(i)
-                        elif pe.value(m.X[i,j,t])==1:
-                            gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
-                    else:
-                        if pe.value(m.X[i,j,t])==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                            gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                            already_used.append(i)
-                        elif pe.value(m.X[i,j,t])==1:
-                            gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+                t_pro.append(m.t_p[t])
+                state.append(pe.value(m.S[k,t]))
 
-                except:
-                    pass 
-    gnt.tick_params(axis='both', which='major', labelsize=15)
-    gnt.tick_params(axis='both', which='minor', labelsize=15) 
-    gnt.yaxis.label.set_size(15)
-    gnt.xaxis.label.set_size(15)
-    plt.legend()
-    plt.show()
-    # plt.savefig("figures/gantt_minlp.svg")   
-    plt.clf()
-    plt.cla()
-    plt.close()
+            plt.plot(t_pro, state,color='red')
+            plt.xlabel('Time [h]')
+            plt.ylabel('State level $[m^{3}]$')
+            title='state '+k
+            plt.title(title)
+            # plt.show()
+            plt.savefig("figures/"+title+".svg") 
+            plt.clf()
+            plt.cla()
+            plt.close()
+
+        #--------------------------------- Gantt plot--------------------------------------------
+        fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+        # Setting Y-axis limits
+        gnt.set_ylim(8, 52) #TODO: change depending case study
+        
+        # Setting X-axis limits
+        gnt.set_xlim(0, m.lastT.value*m.delta.value)
+        
+        # Setting labels for x-axis and y-axis
+        gnt.set_xlabel('Time [h]')
+        gnt.set_ylabel('Units')
+        
+        # Setting ticks on y-axis
+        gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+        # Labelling tickes of y-axis
+        gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+        
+        
+        # Setting graph attribute
+        gnt.grid(False)
+        
+        # Declaring bars in schedule
+        height=9
+        already_used=[]
+        for j in m.J:
+
+            if j=='U1':
+                lower_y_position=40    
+            elif j=='U2':
+                lower_y_position=30    
+            elif j=='U3':
+                lower_y_position=20
+            elif j=='U4':
+                lower_y_position=10
+            for i in m.I:
+                if i=='T1':
+                    bar_color='tab:red'
+                elif i=='T2':
+                    bar_color='tab:green'    
+                elif i=='T3':
+                    bar_color='tab:blue'    
+                elif i=='T4':
+                    bar_color='tab:orange' 
+                elif i=='T5':
+                    bar_color='tab:olive'
+                for t in m.T:
+                    try:
+                        if i in m.I_dynamics and j in m.J_dynamics:
+                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                already_used.append(i)
+                            elif round(pe.value(m.X[i,j,t]))==1:
+                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                        else:
+                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                already_used.append(i)
+                            elif round(pe.value(m.X[i,j,t]))==1:
+                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                    except:
+                        pass 
+        gnt.tick_params(axis='both', which='major', labelsize=15)
+        gnt.tick_params(axis='both', which='minor', labelsize=15) 
+        gnt.yaxis.label.set_size(15)
+        gnt.xaxis.label.set_size(15)
+        plt.legend()
+        # plt.show()
+        plt.savefig("figures/gantt_minlp.svg")   
+        plt.clf()
+        plt.cla()
+        plt.close()
 
 
 
