@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from pyomo.opt import SolverFactory
 from pyomo.gdp import Disjunct, Disjunction
 import itertools
+from Working_Distillation_Model import create_distillation_model
 
 ## V1
 def case_2_scheduling_control_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=12,last_time_hours: float=12,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3}):
@@ -3867,8 +3868,10 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
     #Subsets
     m.J_dynamics=pe.Set(initialize=['U2','U3'],within=m.J)
     m.I_dynamics=pe.Set(initialize=['T2'],within=m.I)   
-    m.J_noDynamics=pe.Set(initialize=['U1','U2','U3','U4'],within=m.J)
-    m.I_noDynamics=m.I-m.I_dynamics
+    m.J_distil=pe.Set(initialize=['U4'],within=m.J)
+    m.I_distil=pe.Set(initialize=['T5'],within=m.I)
+    m.J_noDynamics=pe.Set(initialize=['U1','U2','U3'],within=m.J)
+    m.I_noDynamics=m.I-m.I_dynamics-m.I_distil
     m.K_inputs=pe.Set(initialize=['S1','S2','S3'],within=m.K)
     m.K_products=pe.Set(initialize=['S8','S9'],within=m.K)
     #----------Scalars that depend on sets
@@ -4052,7 +4055,7 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
     _variable_cost_param['T4','U2']=20
     _variable_cost_param['T4','U3']=35
 
-    _variable_cost_param['T5','U4']=10
+    # _variable_cost_param['T5','U4']=10
     m.variable_cost=pe.Param(m.I,m.J,default=0,initialize=_variable_cost_param,doc="Variabe batch cost [m.u/m^3]") 
 
     def _raw_cost(m,K):
@@ -4384,8 +4387,6 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
                 setattr(m,'N_%s_%s_%s' %(I,J,T),m.N[I,J,T]) # TODO: I think the name of the pyomo object do not affect, because I can access these sets through dictionary m.N. Check if this is correct
 
 
-
-
                 m.CA0[I,J,T]=pe.Var(within=pe.NonNegativeReals,bounds=(0,m.CAIN),doc='Initial composition of A [kmol/m^3]')
                 setattr(m,'CA0_%s_%s_%s' %(I,J,T),m.CA0[I,J,T])
 
@@ -4609,6 +4610,87 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
                 m.Constant_control3[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_Constant_control3,doc='Constant control action every keep_constant_temp discrete points and the last one')
                 setattr(m,'Constant_control3_%s_%s_%s' %(I,J,T),m.Constant_control3[I,J,T])   
 
+
+
+    # DISTILLATION COLUMN CONSTRAINTS
+    N_imp = 10
+    x0 = 0.8
+    a = 2.5
+    V_up = 1000 #upper bound
+    HT = 0.01
+    HC = 0.1
+    CV = 2.309
+    ZS = 0.5
+    xdset = 0.95
+
+    cost_distillation=10
+
+    m.dist_models={} #distillation column models
+
+    m.dist_linking1_1={} #B and Hold-up relationship
+    m.dist_linking1_2={} #B and Hold-up relationship
+
+    m.dist_linking2_1={} #rho and hold-up distillate relationship
+    m.dist_linking2_2={} #rho and hold-up distillate relationship
+
+    m.dist_linking3_1={} #end point onstraint: final product requirement
+
+    m.dist_linking4_1={} #Processing time
+    m.dist_linking4_2={} #Processing time
+
+    for I in m.I_distil:
+        for J in m.J_distil:
+            for T in m.T:
+                m.dist_models[I,J,T]=create_distillation_model(N_imp, upper_t_h[(I,J)], x0, a, V_up, HT, HC, m.beta_max[I,J], CV, ZS, xdset)
+                setattr(m,'dist_modelsL_%s_%s_%s' %(I,J,T),m.dist_models[I,J,T]) 
+
+                m.dist_models[I,J,T].objective.deactivate()
+                m.dist_models[I,J,T].xd_average_final_constraint.deactivate()
+                m.dist_models[I,J,T].product_fraction_Rquirement.deactivate()
+    
+                # DISTILLATION COLUMN LINKING CONSTRAINTS
+
+
+                def _dist_linking1_1(m):
+                    return m.B[I,J,T]-(m.dist_models[I,J,T].HB0var+N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC)<=(m.beta_max[I,J]-(N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC))*(1-m.X[I,J,T])
+                m.dist_linking1_1[I,J,T]=pe.Constraint(rule=_dist_linking1_1)
+                setattr(m,'dist_linking1_1_%s_%s_%s' %(I,J,T),m.dist_linking1_1[I,J,T]) 
+
+                def _dist_linking1_2(m):
+                    return (m.dist_models[I,J,T].HB0var+N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC)-m.B[I,J,T]<=(m.beta_max[I,J]+N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC)*(1-m.X[I,J,T])
+                m.dist_linking1_2[I,J,T]=pe.Constraint(rule=_dist_linking1_2)
+                setattr(m,'dist_linking1_2_%s_%s_%s' %(I,J,T),m.dist_linking1_2[I,J,T]) 
+
+
+                def _dist_linking2_1(m):
+                    return m.dist_models[I,J,T].I2[m.dist_models[I,J,T].T.last()] - m.rho_plus[I,'S9']*(m.dist_models[I,J,T].HB0var+N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC)<=(m.beta_max[I,J]-m.rho_plus[I,'S9']*(N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC))*(1-m.X[I,J,T])
+                m.dist_linking2_1[I,J,T]=pe.Constraint(rule=_dist_linking2_1)
+                setattr(m,'dist_linking2_1_%s_%s_%s' %(I,J,T),m.dist_linking2_1[I,J,T]) 
+
+                def _dist_linking2_2(m):
+                    return m.rho_plus[I,'S9']*(m.dist_models[I,J,T].HB0var+N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC)-m.dist_models[I,J,T].I2[m.dist_models[I,J,T].T.last()]<=(m.rho_plus[I,'S9']*(m.beta_max[I,J]+N_imp*m.dist_models[I,J,T].HT+m.dist_models[I,J,T].HC))*(1-m.X[I,J,T])
+                m.dist_linking2_2[I,J,T]=pe.Constraint(rule=_dist_linking2_2)
+                setattr(m,'dist_linking2_2_%s_%s_%s' %(I,J,T),m.dist_linking2_2[I,J,T]) 
+
+
+                def _dist_linking3_1(m):
+                    return m.dist_models[I,J,T].xdset-m.dist_models[I,J,T].xd_average[m.dist_models[I,J,T].T.last()] <= m.dist_models[I,J,T].xdset*(1-m.X[I,J,T]) 
+                m.dist_linking3_1[I,J,T]=pe.Constraint(rule=_dist_linking3_1)
+                setattr(m,'dist_linking3_1_%s_%s_%s' %(I,J,T),m.dist_linking3_1[I,J,T]) 
+
+
+                def _dist_linking4_1(m):
+                    return  m.dist_models[I,J,T].variableTime-m.varTime[I,J,T] <=(upper_t_h[(I,J)])*(1-m.X[I,J,T])
+                m.dist_linking4_1[I,J,T]=pe.Constraint(rule=_dist_linking4_1)
+                setattr(m,'dist_linking4_1_%s_%s_%s' %(I,J,T),m.dist_linking4_1[I,J,T]) 
+
+                def _dist_linking4_2(m):
+                    return  m.varTime[I,J,T]-m.dist_models[I,J,T].variableTime  <=(upper_t_h[(I,J)])*(1-m.X[I,J,T])
+                m.dist_linking4_2[I,J,T]=pe.Constraint(rule=_dist_linking4_2)
+                setattr(m,'dist_linking4_2_%s_%s_%s' %(I,J,T),m.dist_linking4_2[I,J,T]) 
+
+
+
     # # ----------Linking constraints-------------------------------------------
 # TODO: discretize models before linking constraints
 # In this case I will create disjunctions that will activate and deactivate constraints depending on the value of Xijt
@@ -4781,7 +4863,7 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
     m.C_TCP2=pe.Constraint(rule=_C_TCP2)
     m.TCP3=pe.Var(within=pe.NonNegativeReals,initialize=0,doc='TPC: Variable cost for unit-tasks that do consider dynamics')
     def _C_TCP3(m):
-        return m.TCP3== sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J,T][m.N[I, J,T].last()] + m.cold_cost*m.Integral_cold[I, J,T][m.N[I, J,T].last()]) for T in m.T) for I in m.I_dynamics)for J in m.J_dynamics)
+        return m.TCP3== sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J,T][m.N[I, J,T].last()] + m.cold_cost*m.Integral_cold[I, J,T][m.N[I, J,T].last()]) for T in m.T) for I in m.I_dynamics)for J in m.J_dynamics)   +    sum(sum(sum(m.X[I, J, T]*( cost_distillation*m.dist_models[I,J,T].I_V[m.dist_models[I,J,T].T.last()]  ) for T in m.T) for I in m.I_distil)for J in m.J_distil)
     m.C_TCP3=pe.Constraint(rule=_C_TCP3) 
     m.TMC= pe.Var(within=pe.Reals,initialize=0,doc='TMC: Total material cost')
     def _C_TMC(m):
@@ -5794,6 +5876,7 @@ def problem_logic_scheduling(m):
     return logic_expr
 
 if __name__ == "__main__":
+
     m=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation()
 
   
