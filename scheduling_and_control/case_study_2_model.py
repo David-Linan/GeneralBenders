@@ -4644,9 +4644,10 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
                 m.dist_models[I,J,T]=create_distillation_model(N_imp, upper_t_h[(I,J)], x0, a, V_up, HT, HC, m.beta_max[I,J], CV, ZS, xdset)
                 setattr(m,'dist_modelsL_%s_%s_%s' %(I,J,T),m.dist_models[I,J,T]) 
 
-                m.dist_models[I,J,T].objective.deactivate()
-                m.dist_models[I,J,T].xd_average_final_constraint.deactivate()
-                m.dist_models[I,J,T].product_fraction_Rquirement.deactivate()
+                #Constraints of this model I am not interested
+                m.dist_models[I,J,T].del_component(m.dist_models[I,J,T].objective)
+                m.dist_models[I,J,T].del_component(m.dist_models[I,J,T].xd_average_final_constraint)
+                m.dist_models[I,J,T].del_component(m.dist_models[I,J,T].product_fraction_Rquirement)
     
                 # DISTILLATION COLUMN LINKING CONSTRAINTS
 
@@ -4796,48 +4797,48 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
 
-        # Create disjunction
-        def Disjunction2(m):   
-            return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     # Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
 
 
-    # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    # # Associate disjuncts with boolean variables
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
 
     # # -----------------------------------------------------------------------
@@ -5876,7 +5877,29 @@ def problem_logic_scheduling(m):
     return logic_expr
 
 if __name__ == "__main__":
+    obj_Selected='profit_max'
 
-    m=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation()
+
+
+    initialization=[1, 1, 1, 1, 1, 1, 1, 1]
+  
+    mip_solver='CPLEX'
+    minlp_solver='DICOPT'
+    nlp_solver='conopt4'
+    transform='bigm'
+    #tried 5 and no improvement. With 15 DICOT is unable, and now DSDA can solve the problem.
+    last_disc=15
+    last_time_h=5
+
+    LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):0.1}
+    UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):3}
+    kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
+    m_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
+    m=m_fun(**kwargs)
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    pe.TransformationFactory('gdp.bigm').apply_to(m)
+    solver = pe.SolverFactory('gams', solver=minlp_solver)
+    res = solver.solve(m, tee=True)
+
 
   

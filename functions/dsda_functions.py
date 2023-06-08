@@ -1750,7 +1750,8 @@ def solve_subproblem_aprox_sequential_case_2(
     timelimit: float = 1000,
     gams_output: bool = False,
     tee: bool = False,
-    rel_tol: float = 1e-3
+    rel_tol: float = 1e-3,
+    dynamic_dist_model: bool = False
 ) -> pe.ConcreteModel():
     """
     Function that solves scheduling and then solves control. In scheduling is infeasible control is not solved.
@@ -1835,7 +1836,15 @@ def solve_subproblem_aprox_sequential_case_2(
         m.C_TCP3.deactivate()              
         m.obj.deactivate()
         m.obj_dummy.deactivate()
-        m.obj_scheduling.activate()       
+        m.obj_scheduling.activate()  
+
+
+        if dynamic_dist_model:
+                for I in m.I_distil:
+                    for J in m.J_distil:
+                        for T in m.T:   
+                            for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                cons.deactivate()
 
     #SOLVE SCHEDULING ONLY PROBLEM
     opt = SolverFactory(solvername, solver='cplex')
@@ -1874,6 +1883,10 @@ def solve_subproblem_aprox_sequential_case_2(
             for I in m.I_dynamics:
                 for J in m.J_dynamics:
                     m.source[I,J]="Not_evaluated"
+            if dynamic_dist_model:
+                for I in m.I_distil:
+                    for J in m.J_distil:
+                        m.source[I,J]="Not_evaluated"
         else:
              
             # ACTIVATE DYNAMIC CONSTRAINTS
@@ -1898,6 +1911,13 @@ def solve_subproblem_aprox_sequential_case_2(
                 m.obj.activate()
                 m.obj_dummy.deactivate()
                 m.obj_scheduling.deactivate()  
+
+                if dynamic_dist_model:
+                    for I in m.I_distil:
+                        for J in m.J_distil:
+                            for T in m.T:   
+                                for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                    cons.activate()                    
 
             # DEACTIVATE SCHEDULING CONSTRAINTS
             #TODO: I THINK THIS SHOULD BE OPTIONAL, BECAUSE I WILL FIX SCHEDULING CONSTRAINTS IN NEXT STEP 
@@ -1949,6 +1969,17 @@ def solve_subproblem_aprox_sequential_case_2(
                 m.obj_scheduling.deactivate() 
                 m.obj_dummy.activate()
 
+
+
+
+                # Identify if source is in reactors
+
+                if dynamic_dist_model:
+                    for I in m.I_distil:
+                        for J in m.J_distil:
+                            for T in m.T:   
+                                for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                    cons.deactivate()  
 
                 for II in m.I_dynamics:
                     for JJ in m.J_dynamics:     
@@ -2014,7 +2045,72 @@ def solve_subproblem_aprox_sequential_case_2(
                         else:
                             m.source[II,JJ]="Feasible"
 
-               
+
+                # Identify if source is in distillation
+
+                if dynamic_dist_model:
+                    for I in m.I_dynamics:
+                        for J in m.J_dynamics:
+                            for T in m.T:
+                                m.c_defCT0[I,J,T].deactivate()
+                                m.c_dCAdtheta[I,J,T].deactivate() 
+                                m.c_dCBdtheta[I,J,T].deactivate() 
+                                m.c_dCCdtheta[I,J,T].deactivate() 
+                                m.c_dVdtheta[I,J,T].deactivate() 
+                                m.c_dTRdtheta[I,J,T].deactivate() 
+                                m.c_dTJdtheta[I,J,T].deactivate() 
+                                m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                                m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                                m.Constant_control1[I,J,T].deactivate() 
+                                m.Constant_control2[I,J,T].deactivate() 
+                                m.Constant_control3[I,J,T].deactivate()  
+
+                    for II in m.I_distil:
+                        for JJ in m.J_distil:     
+                            # if round(pe.value(m.Nref[II,JJ]))>=1:
+                            for I in m.I_distil:
+                                for J in m.J_distil:
+                                    for T in m.T:
+                                        for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                            cons.deactivate()  
+
+                            for TT in m.T:
+                                for cons in m.dist_models[II,JJ,TT].component_data_objects(pe.Constraint,descend_into=True):
+                                    cons.activate() 
+
+
+                            if approximate_solution:
+                                # FIX SCHEDULING VARIABLES
+                                for v in m.component_objects(pe.Var, descend_into=True):
+                                    if v.name=='X' or v.name=='Nref':
+                                        for index in v:
+                                            if index==None:
+                                                v.fix(round(pe.value(v)))
+                                            else:
+                                                v[index].fix(round(pe.value(v[index])))
+                                    elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':
+                                        for index in v:
+                                            if index==None:
+                                                v.fix(pe.value(v))
+                                            else:
+                                                v[index].fix(pe.value(v[index]))                           
+
+                            opt = SolverFactory(solvername, solver=subproblem_solver)
+                            # start=time.time()
+                            m.results = opt.solve(m, tee=tee,
+                                                **output_options,
+                                                **subproblem_solver_options,
+                                                skip_trivial_constraints=True,
+                                                )
+                            # save=generate_initialization(m=m,model_name='in_borrar_partial')
+                            
+                            if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+                                m.source[II,JJ]="Infeasible"
+                            else:
+                                m.source[II,JJ]="Feasible"
+
+
+
             else:  
                 m.cont_Status="Dynamcis_feasible"
                 m.dsda_status = 'Optimal'
@@ -2023,7 +2119,10 @@ def solve_subproblem_aprox_sequential_case_2(
                 for I in m.I_dynamics:
                     for J in m.J_dynamics:
                         m.source[I,J]="Feasible"
-
+                if dynamic_dist_model:
+                    for I in m.I_distil:
+                        for J in m.J_distil:
+                            m.source[I,J]="Feasible"                
 
     return m
 
@@ -4271,7 +4370,8 @@ def sequential_iterative_2_case2(
     gams_output: bool = False,
     tee: bool = False,
     global_tee: bool = True,
-    rel_tol: float = 1e-3):
+    rel_tol: float = 1e-3,
+    dynamic_dist_model: bool=False):
 
     """
     rate_beta_ub: Real, rate to decrease upper bound of beta
@@ -4316,14 +4416,23 @@ def sequential_iterative_2_case2(
                         print(min([ext_var[posit]+rate_tau,max_allowed[posit+1]]))
                         ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
                         print(ext_var)
-
+            if dynamic_dist_model: 
+                posit=6
+                for I in m.I_distil:
+                    for J in m.J_distil:
+                        print(m.source[I,J])
+                        posit=posit+1
+                        if m.source[I,J]=='Infeasible' or m.source[I,J]=='Not_evaluated':
+                            print(min([ext_var[posit]+rate_tau,max_allowed[posit+1]]))
+                            ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
+                            print(ext_var)
         m = model_function(**kwargs)
         if mip_transformation:
             m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
         m = external_ref_sequential_case_2(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
         if global_tee:
             print("-------Current value of Ext vars: ",ext_var)      
-        m = solve_subproblem_aprox_sequential_case_2(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=iter_timelimit,gams_output=gams_output,tee=tee,rel_tol=rel_tol)           
+        m = solve_subproblem_aprox_sequential_case_2(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=iter_timelimit,gams_output=gams_output,tee=tee,rel_tol=rel_tol, dynamic_dist_model= dynamic_dist_model)           
         if global_tee:
             print("-------Status: ",m.sched_Status," ",m.cont_Status,"  |  Current CPU time [s]:",time.perf_counter()-t_start)
             print("-------Dynamic models: ",m.source)
