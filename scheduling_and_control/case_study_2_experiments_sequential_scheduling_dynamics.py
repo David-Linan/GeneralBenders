@@ -752,7 +752,7 @@ if __name__ == "__main__":
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
     m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0,dynamic_dist_model=True)
-    save=generate_initialization(m=m,model_name='case_2_sequential')
+    save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation')
     Sol_found=[]
     for I in m.I:
         for J in m.J:

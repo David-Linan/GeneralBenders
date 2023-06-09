@@ -4623,7 +4623,7 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
     ZS = 0.5
     xdset = 0.95
 
-    cost_distillation=10
+    cost_distillation=10/100
 
     m.dist_models={} #distillation column models
 
