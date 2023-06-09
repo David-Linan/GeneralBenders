@@ -4427,6 +4427,8 @@ def sequential_iterative_2_case2(
                             ext_var[posit]=min([ext_var[posit]+rate_tau,max_allowed[posit+1]])
                             print(ext_var)
         m = model_function(**kwargs)
+        if provide_starting_initialization:
+            m = initialize_model(m, from_feasible=True, feasible_model=feasible_model, json_path=None)
         if mip_transformation:
             m, dict_extvar = extvars_gdp_to_mip(m=m,gdp_dict_extvar=dict_extvar,transformation=transformation,)
         m = external_ref_sequential_case_2(m=m,x=ext_var,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)    
