@@ -369,210 +369,424 @@ if __name__ == "__main__":
 
 
 
+    if not with_distillation:
+        if sequential_naive:
+            model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
+            m=model_fun(**kwargs)
+            m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
 
-    if sequential_naive:
+            # plot of states
+            for k in m.K:
+                t_pro=[]
+                state=[]
+                for t in m.T:
+                    t_pro.append(m.t_p[t])
+                    state.append(pe.value(m.S[k,t]))
 
-        model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
-        m=model_fun(**kwargs)
-        m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
+                plt.plot(t_pro, state,color='red')
+                plt.xlabel('Time [h]')
+                plt.ylabel('State level $[m^{3}]$')
+                title='state '+k
+                plt.title(title)
+                # plt.show()
+                plt.savefig("figures/"+title+".svg") 
+                plt.clf()
+                plt.cla()
+                plt.close()
 
-        # plot of states
-        for k in m.K:
-            t_pro=[]
-            state=[]
-            for t in m.T:
-                t_pro.append(m.t_p[t])
-                state.append(pe.value(m.S[k,t]))
+            #--------------------------------- Gantt plot--------------------------------------------
+            fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+            # Setting Y-axis limits
+            gnt.set_ylim(8, 52) #TODO: change depending case study
+            
+            # Setting X-axis limits
+            gnt.set_xlim(0, m.lastT.value*m.delta.value)
+            
+            # Setting labels for x-axis and y-axis
+            gnt.set_xlabel('Time [h]')
+            gnt.set_ylabel('Units')
+            
+            # Setting ticks on y-axis
+            gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+            # Labelling tickes of y-axis
+            gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+            
+            
+            # Setting graph attribute
+            gnt.grid(False)
+            
+            # Declaring bars in schedule
+            height=9
+            already_used=[]
+            for j in m.J:
 
-            plt.plot(t_pro, state,color='red')
-            plt.xlabel('Time [h]')
-            plt.ylabel('State level $[m^{3}]$')
-            title='state '+k
-            plt.title(title)
+                if j=='U1':
+                    lower_y_position=40    
+                elif j=='U2':
+                    lower_y_position=30    
+                elif j=='U3':
+                    lower_y_position=20
+                elif j=='U4':
+                    lower_y_position=10
+                for i in m.I:
+                    if i=='T1':
+                        bar_color='tab:red'
+                    elif i=='T2':
+                        bar_color='tab:green'    
+                    elif i=='T3':
+                        bar_color='tab:blue'    
+                    elif i=='T4':
+                        bar_color='tab:orange' 
+                    elif i=='T5':
+                        bar_color='tab:olive'
+                    for t in m.T:
+                        try:
+                            if i in m.I_dynamics and j in m.J_dynamics:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                            else:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                        except:
+                            pass 
+            gnt.tick_params(axis='both', which='major', labelsize=15)
+            gnt.tick_params(axis='both', which='minor', labelsize=15) 
+            gnt.yaxis.label.set_size(15)
+            gnt.xaxis.label.set_size(15)
+            plt.legend()
             # plt.show()
-            plt.savefig("figures/"+title+".svg") 
+            plt.savefig("figures/gantt_minlp.svg")   
             plt.clf()
             plt.cla()
             plt.close()
 
-        #--------------------------------- Gantt plot--------------------------------------------
-        fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
-        # Setting Y-axis limits
-        gnt.set_ylim(8, 52) #TODO: change depending case study
-        
-        # Setting X-axis limits
-        gnt.set_xlim(0, m.lastT.value*m.delta.value)
-        
-        # Setting labels for x-axis and y-axis
-        gnt.set_xlabel('Time [h]')
-        gnt.set_ylabel('Units')
-        
-        # Setting ticks on y-axis
-        gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
-        # Labelling tickes of y-axis
-        gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
-        
-        
-        # Setting graph attribute
-        gnt.grid(False)
-        
-        # Declaring bars in schedule
-        height=9
-        already_used=[]
-        for j in m.J:
 
-            if j=='U1':
-                lower_y_position=40    
-            elif j=='U2':
-                lower_y_position=30    
-            elif j=='U3':
-                lower_y_position=20
-            elif j=='U4':
-                lower_y_position=10
-            for i in m.I:
-                if i=='T1':
-                    bar_color='tab:red'
-                elif i=='T2':
-                    bar_color='tab:green'    
-                elif i=='T3':
-                    bar_color='tab:blue'    
-                elif i=='T4':
-                    bar_color='tab:orange' 
-                elif i=='T5':
-                    bar_color='tab:olive'
+        else:
+
+            # plot of states
+            for k in m.K:
+                t_pro=[]
+                state=[]
                 for t in m.T:
-                    try:
-                        if i in m.I_dynamics and j in m.J_dynamics:
-                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                                already_used.append(i)
-                            elif round(pe.value(m.X[i,j,t]))==1:
-                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
-                        else:
-                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                                already_used.append(i)
-                            elif round(pe.value(m.X[i,j,t]))==1:
-                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+                    t_pro.append(m.t_p[t])
+                    state.append(pe.value(m.S[k,t]))
 
-                    except:
-                        pass 
-        gnt.tick_params(axis='both', which='major', labelsize=15)
-        gnt.tick_params(axis='both', which='minor', labelsize=15) 
-        gnt.yaxis.label.set_size(15)
-        gnt.xaxis.label.set_size(15)
-        plt.legend()
-        # plt.show()
-        plt.savefig("figures/gantt_minlp.svg")   
-        plt.clf()
-        plt.cla()
-        plt.close()
+                plt.plot(t_pro, state,color='red')
+                plt.xlabel('Time [h]')
+                plt.ylabel('State level $[m^{3}]$')
+                title='state '+k
+                plt.title(title)
+                # plt.show()
+                plt.savefig("figures/"+title+".svg") 
+                plt.clf()
+                plt.cla()
+                plt.close()
 
+            #--------------------------------- Gantt plot--------------------------------------------
+            fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+            # Setting Y-axis limits
+            gnt.set_ylim(8, 52) #TODO: change depending case study
+            
+            # Setting X-axis limits
+            gnt.set_xlim(0, m.lastT.value*m.delta.value)
+            
+            # Setting labels for x-axis and y-axis
+            gnt.set_xlabel('Time [h]')
+            gnt.set_ylabel('Units')
+            
+            # Setting ticks on y-axis
+            gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+            # Labelling tickes of y-axis
+            gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+            
+            
+            # Setting graph attribute
+            gnt.grid(False)
+            
+            # Declaring bars in schedule
+            height=9
+            already_used=[]
+            for j in m.J:
+
+                if j=='U1':
+                    lower_y_position=40    
+                elif j=='U2':
+                    lower_y_position=30    
+                elif j=='U3':
+                    lower_y_position=20
+                elif j=='U4':
+                    lower_y_position=10
+                for i in m.I:
+                    if i=='T1':
+                        bar_color='tab:red'
+                    elif i=='T2':
+                        bar_color='tab:green'    
+                    elif i=='T3':
+                        bar_color='tab:blue'    
+                    elif i=='T4':
+                        bar_color='tab:orange' 
+                    elif i=='T5':
+                        bar_color='tab:olive'
+                    for t in m.T:
+                        try:
+                            if i in m.I_dynamics and j in m.J_dynamics:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                            else:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                        except:
+                            pass 
+            gnt.tick_params(axis='both', which='major', labelsize=15)
+            gnt.tick_params(axis='both', which='minor', labelsize=15) 
+            gnt.yaxis.label.set_size(15)
+            gnt.xaxis.label.set_size(15)
+            plt.legend()
+            # plt.show()
+            plt.savefig("figures/gantt_minlp.svg")   
+            plt.clf()
+            plt.cla()
+            plt.close()
 
     else:
 
-        # plot of states
-        for k in m.K:
-            t_pro=[]
-            state=[]
-            for t in m.T:
-                t_pro.append(m.t_p[t])
-                state.append(pe.value(m.S[k,t]))
+        if sequential_naive:
+            model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
+            m=model_fun(**kwargs)
+            m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
 
-            plt.plot(t_pro, state,color='red')
-            plt.xlabel('Time [h]')
-            plt.ylabel('State level $[m^{3}]$')
-            title='state '+k
-            plt.title(title)
+            # plot of states
+            for k in m.K:
+                t_pro=[]
+                state=[]
+                for t in m.T:
+                    t_pro.append(m.t_p[t])
+                    state.append(pe.value(m.S[k,t]))
+
+                plt.plot(t_pro, state,color='red')
+                plt.xlabel('Time [h]')
+                plt.ylabel('State level $[m^{3}]$')
+                title='state '+k
+                plt.title(title)
+                # plt.show()
+                plt.savefig("figures/"+title+".svg") 
+                plt.clf()
+                plt.cla()
+                plt.close()
+
+            #--------------------------------- Gantt plot--------------------------------------------
+            fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+            # Setting Y-axis limits
+            gnt.set_ylim(8, 52) #TODO: change depending case study
+            
+            # Setting X-axis limits
+            gnt.set_xlim(0, m.lastT.value*m.delta.value)
+            
+            # Setting labels for x-axis and y-axis
+            gnt.set_xlabel('Time [h]')
+            gnt.set_ylabel('Units')
+            
+            # Setting ticks on y-axis
+            gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+            # Labelling tickes of y-axis
+            gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+            
+            
+            # Setting graph attribute
+            gnt.grid(False)
+            
+            # Declaring bars in schedule
+            height=9
+            already_used=[]
+            for j in m.J:
+
+                if j=='U1':
+                    lower_y_position=40    
+                elif j=='U2':
+                    lower_y_position=30    
+                elif j=='U3':
+                    lower_y_position=20
+                elif j=='U4':
+                    lower_y_position=10
+                for i in m.I:
+                    if i=='T1':
+                        bar_color='tab:red'
+                    elif i=='T2':
+                        bar_color='tab:green'    
+                    elif i=='T3':
+                        bar_color='tab:blue'    
+                    elif i=='T4':
+                        bar_color='tab:orange' 
+                    elif i=='T5':
+                        bar_color='tab:olive'
+                    for t in m.T:
+                        try:
+                            if i in m.I_dynamics and j in m.J_dynamics:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                            elif i in m.I_distil and j in m.J_distil:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                                                          
+                            else:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                        except:
+                            pass 
+            gnt.tick_params(axis='both', which='major', labelsize=15)
+            gnt.tick_params(axis='both', which='minor', labelsize=15) 
+            gnt.yaxis.label.set_size(15)
+            gnt.xaxis.label.set_size(15)
+            plt.legend()
             # plt.show()
-            plt.savefig("figures/"+title+".svg") 
+            plt.savefig("figures/gantt_minlp.svg")   
             plt.clf()
             plt.cla()
             plt.close()
 
-        #--------------------------------- Gantt plot--------------------------------------------
-        fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
-        # Setting Y-axis limits
-        gnt.set_ylim(8, 52) #TODO: change depending case study
-        
-        # Setting X-axis limits
-        gnt.set_xlim(0, m.lastT.value*m.delta.value)
-        
-        # Setting labels for x-axis and y-axis
-        gnt.set_xlabel('Time [h]')
-        gnt.set_ylabel('Units')
-        
-        # Setting ticks on y-axis
-        gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
-        # Labelling tickes of y-axis
-        gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
-        
-        
-        # Setting graph attribute
-        gnt.grid(False)
-        
-        # Declaring bars in schedule
-        height=9
-        already_used=[]
-        for j in m.J:
 
-            if j=='U1':
-                lower_y_position=40    
-            elif j=='U2':
-                lower_y_position=30    
-            elif j=='U3':
-                lower_y_position=20
-            elif j=='U4':
-                lower_y_position=10
-            for i in m.I:
-                if i=='T1':
-                    bar_color='tab:red'
-                elif i=='T2':
-                    bar_color='tab:green'    
-                elif i=='T3':
-                    bar_color='tab:blue'    
-                elif i=='T4':
-                    bar_color='tab:orange' 
-                elif i=='T5':
-                    bar_color='tab:olive'
+        else:
+
+            # plot of states
+            for k in m.K:
+                t_pro=[]
+                state=[]
                 for t in m.T:
-                    try:
-                        if i in m.I_dynamics and j in m.J_dynamics:
-                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                                already_used.append(i)
-                            elif round(pe.value(m.X[i,j,t]))==1:
-                                gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
-                        else:
-                            if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
-                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
-                                already_used.append(i)
-                            elif round(pe.value(m.X[i,j,t]))==1:
-                                gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                                gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+                    t_pro.append(m.t_p[t])
+                    state.append(pe.value(m.S[k,t]))
 
-                    except:
-                        pass 
-        gnt.tick_params(axis='both', which='major', labelsize=15)
-        gnt.tick_params(axis='both', which='minor', labelsize=15) 
-        gnt.yaxis.label.set_size(15)
-        gnt.xaxis.label.set_size(15)
-        plt.legend()
-        # plt.show()
-        plt.savefig("figures/gantt_minlp.svg")   
-        plt.clf()
-        plt.cla()
-        plt.close()
+                plt.plot(t_pro, state,color='red')
+                plt.xlabel('Time [h]')
+                plt.ylabel('State level $[m^{3}]$')
+                title='state '+k
+                plt.title(title)
+                # plt.show()
+                plt.savefig("figures/"+title+".svg") 
+                plt.clf()
+                plt.cla()
+                plt.close()
 
+            #--------------------------------- Gantt plot--------------------------------------------
+            fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+            # Setting Y-axis limits
+            gnt.set_ylim(8, 52) #TODO: change depending case study
+            
+            # Setting X-axis limits
+            gnt.set_xlim(0, m.lastT.value*m.delta.value)
+            
+            # Setting labels for x-axis and y-axis
+            gnt.set_xlabel('Time [h]')
+            gnt.set_ylabel('Units')
+            
+            # Setting ticks on y-axis
+            gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+            # Labelling tickes of y-axis
+            gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+            
+            
+            # Setting graph attribute
+            gnt.grid(False)
+            
+            # Declaring bars in schedule
+            height=9
+            already_used=[]
+            for j in m.J:
 
+                if j=='U1':
+                    lower_y_position=40    
+                elif j=='U2':
+                    lower_y_position=30    
+                elif j=='U3':
+                    lower_y_position=20
+                elif j=='U4':
+                    lower_y_position=10
+                for i in m.I:
+                    if i=='T1':
+                        bar_color='tab:red'
+                    elif i=='T2':
+                        bar_color='tab:green'    
+                    elif i=='T3':
+                        bar_color='tab:blue'    
+                    elif i=='T4':
+                        bar_color='tab:orange' 
+                    elif i=='T5':
+                        bar_color='tab:olive'
+                    for t in m.T:
+                        try:
+                            if i in m.I_dynamics and j in m.J_dynamics:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                            elif i in m.I_distil and j in m.J_distil:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                                                          
+                            else:
+                                if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                    already_used.append(i)
+                                elif round(pe.value(m.X[i,j,t]))==1:
+                                    gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                    gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
 
+                        except:
+                            pass 
+            gnt.tick_params(axis='both', which='major', labelsize=15)
+            gnt.tick_params(axis='both', which='minor', labelsize=15) 
+            gnt.yaxis.label.set_size(15)
+            gnt.xaxis.label.set_size(15)
+            plt.legend()
+            # plt.show()
+            plt.savefig("figures/gantt_minlp.svg")   
+            plt.clf()
+            plt.cla()
+            plt.close()
 
 
 ###############################################################################
