@@ -1133,7 +1133,7 @@ def solve_subproblem_aprox(
     rel_tol: float = 0,
     best_sol: float= 1e+8,
     new_case: bool=False, # If algorithm will be used for new case study involving kondili STN
-    with_distillation: bool=False,  #If modified model with distillation dynamics will be considered  
+    with_distillation: bool=False  #If modified model with distillation dynamics will be considered  
 ) -> pe.ConcreteModel():
     """
     Function that checks feasibility and optimizes subproblem model.
@@ -1186,16 +1186,43 @@ def solve_subproblem_aprox(
     # Solve
     solvername = 'gams'
 
-    approximate_solution=False# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
+    approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
                                 # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
     scheduling_only=False #True: only perform scheduling subproblems
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
     #DEACTIVATE DYNAMIC CONSTRAINTS
 
-
+    #CHECK
+    # for consts in m.component_data_objects(pe.Constraint,descend_into=True):
+    #     if consts.body.polynomial_degree()>=2: #Polynomial degree greater or equal to 2 means nonlinear constraint
+    #         consts.deactivate() 
 
     if new_case:
-
+        for I in m.I_dynamics:
+            for J in m.J_dynamics:
+                for T in m.T:
+                    m.c_defCT0[I,J,T].deactivate()
+                    m.c_dCAdtheta[I,J,T].deactivate() 
+                    m.c_dCBdtheta[I,J,T].deactivate() 
+                    m.c_dCCdtheta[I,J,T].deactivate() 
+                    m.c_dVdtheta[I,J,T].deactivate() 
+                    m.c_dTRdtheta[I,J,T].deactivate() 
+                    m.c_dTJdtheta[I,J,T].deactivate() 
+                    m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                    m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                    m.Constant_control1[I,J,T].deactivate() 
+                    m.Constant_control2[I,J,T].deactivate() 
+                    m.Constant_control3[I,J,T].deactivate() 
+        m.C_TCP3.deactivate()              
+        m.obj.deactivate()
+        m.obj_dummy.deactivate()
+        m.obj_scheduling.activate()  
+        if with_distillation:
+                for I in m.I_distil:
+                    for J in m.J_distil:
+                        for T in m.T:   
+                            for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                cons.deactivate()
     else:
         for I in m.I_reactions:
             for J in m.J_reactors:
@@ -1254,19 +1281,49 @@ def solve_subproblem_aprox(
                 m.obj.value=pe.value(m.obj_scheduling)
             else:  
                 # ACTIVATE DYNAMIC CONSTRAINTS
-                for I in m.I_reactions:
-                    for J in m.J_reactors:
-                        m.c_dCdtheta[I,J].activate()
-                        m.c_dTRdtheta[I,J].activate()                        
-                        m.c_dTJdtheta[I,J].activate()
-                        m.c_dIntegral_hotdtheta[I,J].activate()
-                        m.c_dIntegral_colddtheta[I,J].activate()
-                        m.Constant_control1[I,J].activate()                        
-                        m.Constant_control2[I,J].activate()
-                m.C_TCP3.activate()
-                m.obj.activate()
-                m.obj_scheduling.deactivate() 
-                m.obj_dummy.deactivate()
+                if new_case:
+                    for I in m.I_dynamics:
+                        for J in m.J_dynamics:
+                            for T in m.T:
+                                m.c_defCT0[I,J,T].activate()
+                                m.c_dCAdtheta[I,J,T].activate() 
+                                m.c_dCBdtheta[I,J,T].activate() 
+                                m.c_dCCdtheta[I,J,T].activate() 
+                                m.c_dVdtheta[I,J,T].activate() 
+                                m.c_dTRdtheta[I,J,T].activate() 
+                                m.c_dTJdtheta[I,J,T].activate() 
+                                m.c_dIntegral_hotdtheta[I,J,T].activate() 
+                                m.c_dIntegral_colddtheta[I,J,T].activate() 
+                                m.Constant_control1[I,J,T].activate() 
+                                m.Constant_control2[I,J,T].activate() 
+                                m.Constant_control3[I,J,T].activate() 
+                    m.C_TCP3.activate()              
+                    m.obj.activate()
+                    m.obj_dummy.deactivate()
+                    m.obj_scheduling.deactivate()  
+
+                    if with_distillation:
+                        for I in m.I_distil:
+                            for J in m.J_distil:
+                                for T in m.T:   
+                                    for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                        cons.activate()                     
+                else:
+                    for I in m.I_reactions:
+                        for J in m.J_reactors:
+                            m.c_dCdtheta[I,J].activate()
+                            m.c_dTRdtheta[I,J].activate()                        
+                            m.c_dTJdtheta[I,J].activate()
+                            m.c_dIntegral_hotdtheta[I,J].activate()
+                            m.c_dIntegral_colddtheta[I,J].activate()
+                            m.Constant_control1[I,J].activate()                        
+                            m.Constant_control2[I,J].activate()
+                    m.C_TCP3.activate()
+                    m.obj.activate()
+                    m.obj_scheduling.deactivate() 
+                    m.obj_dummy.deactivate()
+
+
 
                 if approximate_solution:
                     # FIX SCHEDULING VARIABLES
