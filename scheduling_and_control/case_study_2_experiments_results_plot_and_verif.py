@@ -210,164 +210,382 @@ if __name__ == "__main__":
     # print('OBJ:',str(OBJVAL))
 
 #######-------plots------------------------
+    if not with_distillation:
+        if sequential_naive:
+            for I in m.I_dynamics:
+                for J in m.J_dynamics:
+                    for T in m.T:
+                        if pe.value(m.X[I,J,T])==1: 
+                            case=(I,J,T)
+                            t=[]
+                            CA=[]
+                            CB=[]
+                            CC=[]
+                            Tr=[]
+                            Tj=[]
+                            Fhot=[]
+                            Fcold=[]
+                            u_input=[]
+                            for N in m.N[case]:
+                                t.append(N*m.varTime[case].value)
+                                Tr.append(m.TRvar[case][N].value)
+                                Tj.append(m.TJvar[case][N].value)
+                                Fhot.append(m.Fhot[case][N].value)
+                                Fcold.append(m.Fcold[case][N].value)
+                                CA.append( m.CA[case][N].value)
+                                CB.append( m.CB[case][N].value)
+                                CC.append( m.CC[case][N].value)
+                                u_input.append(m.u_input[case][N].value)
+                                
+                                
+                            plt.plot(t, CA,label='CA',color='red')
+                            plt.plot(t, CB,label='CB',color='green')
+                            plt.plot(t, CC,label='CC',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            title=case[0]+' in '+case[1]+' Concentration'
+                            plt.title(case[0]+' in '+case[1])
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
-    if sequential_naive:
-        for I in m.I_dynamics:
-            for J in m.J_dynamics:
-                for T in m.T:
-                    if pe.value(m.X[I,J,T])==1: 
-                        case=(I,J,T)
-                        t=[]
-                        CA=[]
-                        CB=[]
-                        CC=[]
-                        Tr=[]
-                        Tj=[]
-                        Fhot=[]
-                        Fcold=[]
-                        u_input=[]
-                        for N in m.N[case]:
-                            t.append(N*m.varTime[case].value)
-                            Tr.append(m.TRvar[case][N].value)
-                            Tj.append(m.TJvar[case][N].value)
-                            Fhot.append(m.Fhot[case][N].value)
-                            Fcold.append(m.Fcold[case][N].value)
-                            CA.append( m.CA[case][N].value)
-                            CB.append( m.CB[case][N].value)
-                            CC.append( m.CC[case][N].value)
-                            u_input.append(m.u_input[case][N].value)
+                            plt.plot(t,Tr,label='T_reactor',color='red')
+                            plt.plot(t,Tj,label='T_jacket',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Temperature [K]')
+                            title=case[0]+' in '+case[1]+' Temperature'
+                            plt.title(case[0]+' in '+case[1])
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
                             
+                            plt.plot(t, Fhot,label='F_hot',color='red')
+                            plt.plot(t,Fcold,label='F_cold',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate'
+                            plt.title(case[0]+' in '+case[1])
+                            plt.legend()
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            plt.plot(t, u_input,color='red')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate of B'
+                            plt.title(case[0]+' in '+case[1])
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+        else: 
+            for I in m.I_dynamics:
+                for J in m.J_dynamics:
+                    for T in m.T:
+                        if pe.value(m.X[I,J,T])==1: 
+                            case=(I,J,T)
+                            t=[]
+                            CA=[]
+                            CB=[]
+                            CC=[]
+                            Tr=[]
+                            Tj=[]
+                            Fhot=[]
+                            Fcold=[]
+                            u_input=[]
+                            for N in m.N[case]:
+                                t.append(N*m.varTime[case].value)
+                                Tr.append(m.TRvar[case][N].value)
+                                Tj.append(m.TJvar[case][N].value)
+                                Fhot.append(m.Fhot[case][N].value)
+                                Fcold.append(m.Fcold[case][N].value)
+                                CA.append( m.CA[case][N].value)
+                                CB.append( m.CB[case][N].value)
+                                CC.append( m.CC[case][N].value)
+                                u_input.append(m.u_input[case][N].value)
+                                
+                                
+                            plt.plot(t, CA,label='CA',color='red')
+                            plt.plot(t, CB,label='CB',color='green')
+                            plt.plot(t, CC,label='CC',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            title=case[0]+' in '+case[1]+' Concentration'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            plt.plot(t,Tr,label='T_reactor',color='red')
+                            plt.plot(t,Tj,label='T_jacket',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Temperature [K]')
+                            title=case[0]+' in '+case[1]+' Temperature'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
                             
-                        plt.plot(t, CA,label='CA',color='red')
-                        plt.plot(t, CB,label='CB',color='green')
-                        plt.plot(t, CC,label='CC',color='blue')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('$Concentration [kmol/m^{3}]$')
-                        title=case[0]+' in '+case[1]+' Concentration'
-                        plt.title(case[0]+' in '+case[1])
-                        plt.legend()
-                        # plt.show()
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
+                            plt.plot(t, Fhot,label='F_hot',color='red')
+                            plt.plot(t,Fcold,label='F_cold',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
-                        plt.plot(t,Tr,label='T_reactor',color='red')
-                        plt.plot(t,Tj,label='T_jacket',color='blue')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('Temperature [K]')
-                        title=case[0]+' in '+case[1]+' Temperature'
-                        plt.title(case[0]+' in '+case[1])
-                        plt.legend()
-                        # plt.show()
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
-                        
-                        plt.plot(t, Fhot,label='F_hot',color='red')
-                        plt.plot(t,Fcold,label='F_cold',color='blue')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('Flow rate $[m^{3}/h]$')
-                        title=case[0]+' in '+case[1]+' Flow rate'
-                        plt.title(case[0]+' in '+case[1])
-                        plt.legend()
-                        # plt.show()    
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
+                            plt.plot(t, u_input,color='red')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate of B'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
-                        plt.plot(t, u_input,color='red')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('Flow rate of B $[m^{3}/h]$')
-                        title=case[0]+' in '+case[1]+' Flow rate of B'
-                        plt.title(case[0]+' in '+case[1])
-                        # plt.show()    
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
-    else: 
-        for I in m.I_dynamics:
-            for J in m.J_dynamics:
-                for T in m.T:
-                    if pe.value(m.X[I,J,T])==1: 
-                        case=(I,J,T)
-                        t=[]
-                        CA=[]
-                        CB=[]
-                        CC=[]
-                        Tr=[]
-                        Tj=[]
-                        Fhot=[]
-                        Fcold=[]
-                        u_input=[]
-                        for N in m.N[case]:
-                            t.append(N*m.varTime[case].value)
-                            Tr.append(m.TRvar[case][N].value)
-                            Tj.append(m.TJvar[case][N].value)
-                            Fhot.append(m.Fhot[case][N].value)
-                            Fcold.append(m.Fcold[case][N].value)
-                            CA.append( m.CA[case][N].value)
-                            CB.append( m.CB[case][N].value)
-                            CC.append( m.CC[case][N].value)
-                            u_input.append(m.u_input[case][N].value)
+    else:
+        if sequential_naive:
+            for I in m.I_dynamics:
+                for J in m.J_dynamics:
+                    for T in m.T:
+                        if pe.value(m.X[I,J,T])==1: 
+                            case=(I,J,T)
+                            t=[]
+                            CA=[]
+                            CB=[]
+                            CC=[]
+                            Tr=[]
+                            Tj=[]
+                            Fhot=[]
+                            Fcold=[]
+                            u_input=[]
+                            for N in m.N[case]:
+                                t.append(N*m.varTime[case].value)
+                                Tr.append(m.TRvar[case][N].value)
+                                Tj.append(m.TJvar[case][N].value)
+                                Fhot.append(m.Fhot[case][N].value)
+                                Fcold.append(m.Fcold[case][N].value)
+                                CA.append( m.CA[case][N].value)
+                                CB.append( m.CB[case][N].value)
+                                CC.append( m.CC[case][N].value)
+                                u_input.append(m.u_input[case][N].value)
+                                
+                                
+                            plt.plot(t, CA,label='CA',color='red')
+                            plt.plot(t, CB,label='CB',color='green')
+                            plt.plot(t, CC,label='CC',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            title=case[0]+' in '+case[1]+' Concentration'
+                            plt.title(case[0]+' in '+case[1])
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            plt.plot(t,Tr,label='T_reactor',color='red')
+                            plt.plot(t,Tj,label='T_jacket',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Temperature [K]')
+                            title=case[0]+' in '+case[1]+' Temperature'
+                            plt.title(case[0]+' in '+case[1])
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
                             
+                            plt.plot(t, Fhot,label='F_hot',color='red')
+                            plt.plot(t,Fcold,label='F_cold',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate'
+                            plt.title(case[0]+' in '+case[1])
+                            plt.legend()
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            plt.plot(t, u_input,color='red')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate of B'
+                            plt.title(case[0]+' in '+case[1])
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+        else: 
+            for I in m.I_dynamics:
+                for J in m.J_dynamics:
+                    for T in m.T:
+                        if pe.value(m.X[I,J,T])==1: 
+                            case=(I,J,T)
+                            t=[]
+                            CA=[]
+                            CB=[]
+                            CC=[]
+                            Tr=[]
+                            Tj=[]
+                            Fhot=[]
+                            Fcold=[]
+                            u_input=[]
+                            for N in m.N[case]:
+                                t.append(N*m.varTime[case].value)
+                                Tr.append(m.TRvar[case][N].value)
+                                Tj.append(m.TJvar[case][N].value)
+                                Fhot.append(m.Fhot[case][N].value)
+                                Fcold.append(m.Fcold[case][N].value)
+                                CA.append( m.CA[case][N].value)
+                                CB.append( m.CB[case][N].value)
+                                CC.append( m.CC[case][N].value)
+                                u_input.append(m.u_input[case][N].value)
+                                
+                                
+                            plt.plot(t, CA,label='CA',color='red')
+                            plt.plot(t, CB,label='CB',color='green')
+                            plt.plot(t, CC,label='CC',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            title=case[0]+' in '+case[1]+' Concentration'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            plt.plot(t,Tr,label='T_reactor',color='red')
+                            plt.plot(t,Tj,label='T_jacket',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Temperature [K]')
+                            title=case[0]+' in '+case[1]+' Temperature'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
                             
-                        plt.plot(t, CA,label='CA',color='red')
-                        plt.plot(t, CB,label='CB',color='green')
-                        plt.plot(t, CC,label='CC',color='blue')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('$Concentration [kmol/m^{3}]$')
-                        title=case[0]+' in '+case[1]+' Concentration'+' at '+str(m.t_p[T])+' h'
-                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                        plt.legend()
-                        # plt.show()
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
+                            plt.plot(t, Fhot,label='F_hot',color='red')
+                            plt.plot(t,Fcold,label='F_cold',color='blue')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
-                        plt.plot(t,Tr,label='T_reactor',color='red')
-                        plt.plot(t,Tj,label='T_jacket',color='blue')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('Temperature [K]')
-                        title=case[0]+' in '+case[1]+' Temperature'+' at '+str(m.t_p[T])+' h'
-                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                        plt.legend()
-                        # plt.show()
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
-                        
-                        plt.plot(t, Fhot,label='F_hot',color='red')
-                        plt.plot(t,Fcold,label='F_cold',color='blue')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('Flow rate $[m^{3}/h]$')
-                        title=case[0]+' in '+case[1]+' Flow rate'+' at '+str(m.t_p[T])+' h'
-                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                        plt.legend()
-                        # plt.show()    
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
+                            plt.plot(t, u_input,color='red')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            title=case[0]+' in '+case[1]+' Flow rate of B'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()       
+            for I in m.I_distil:
+                for J in m.J_distil:
+                    for T in m.T:
+                        if pe.value(m.X[I,J,T])==1: 
+                            case=(I,J,T)
+                            tdist=[]
+                            Dist=[]
+                            Boil_up=[]
+                            Reflux_rate=[]
+                            x_instantaneous=[]
+                            x_accumulated=[]
+                            Reboiler_hold_up=[]
+                            Product_accumulated=[]
 
-                        plt.plot(t, u_input,color='red')
-                        plt.xlabel('Time [h]')
-                        plt.ylabel('Flow rate of B $[m^{3}/h]$')
-                        title=case[0]+' in '+case[1]+' Flow rate of B'+' at '+str(m.t_p[T])+' h'
-                        plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
-                        # plt.show()    
-                        plt.savefig("figures/"+title+".svg") 
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
+                            for N in m.dist_models[case].T:
+                                tdist.append(N*m.varTime[case].value)
+                                Dist.append(m.dist_models[case].D[N].value)
+                                Boil_up.append(m.dist_models[case].V[N].value)
+                                Reflux_rate.append(m.dist_models[case].R[N].value)
+                                x_instantaneous.append(m.dist_models[case].x[m.dist_models[case].N.last(), N].value)
+                                x_accumulated.append(m.dist_models[case].xd_average[N].value)
+                                Reboiler_hold_up.append(m.dist_models[case].HB[N].value)
+                                Product_accumulated.append(m.dist_models[case].I2[N].value)
 
+                            plt.plot(tdist, x_instantaneous,label='Mole fraction of desired product (distillate)',color='red')
+                            plt.plot(tdist,  x_accumulated,label='Mole fraction of desired product (reciever)',color='green')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Mole fraction [kmol/kmol]$')
+                            title=case[0]+' in '+case[1]+' Mole fraction'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
+                            ax1 = plt.subplot()
+                            l1=ax1.plot(tdist,Boil_up,label='Boil-up rate',color='red')
+                            ax2=ax1.twinx()
+                            l2=ax2.plot(tdist,Reflux_rate,label='Reflux rate',color='blue')
+                            plt.xlabel('Time [h]')
+                            ax1.set_ylabel('$Boil-up rate [m^{3}/h]$',color='red')
+                            ax2.set_ylabel('$Reflux rate [m^{3}/h]$',color='blue')                            
+                            title=case[0]+' in '+case[1]+' Boil-up and reflux'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            # plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
+                            plt.plot(tdist, Reboiler_hold_up,label='Reboiler level',color='red')
+                            plt.plot(tdist,  Product_accumulated,label='Reciever level',color='green')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Volume [m^{3}]$')
+                            title=case[0]+' in '+case[1]+' distillation levels'+' at '+str(m.t_p[T])+' h'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
     if not with_distillation:
         if sequential_naive:
