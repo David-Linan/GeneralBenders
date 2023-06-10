@@ -1131,7 +1131,9 @@ def solve_subproblem_aprox(
     gams_output: bool = False,
     tee: bool = False,
     rel_tol: float = 0,
-    best_sol: float= 1e+8
+    best_sol: float= 1e+8,
+    new_case: bool=False, # If algorithm will be used for new case study involving kondili STN
+    with_distillation: bool=False,  #If modified model with distillation dynamics will be considered  
 ) -> pe.ConcreteModel():
     """
     Function that checks feasibility and optimizes subproblem model.
@@ -1189,19 +1191,25 @@ def solve_subproblem_aprox(
     scheduling_only=False #True: only perform scheduling subproblems
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
     #DEACTIVATE DYNAMIC CONSTRAINTS
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            m.c_dCdtheta[I,J].deactivate()
-            m.c_dTRdtheta[I,J].deactivate()                        
-            m.c_dTJdtheta[I,J].deactivate()
-            m.c_dIntegral_hotdtheta[I,J].deactivate()
-            m.c_dIntegral_colddtheta[I,J].deactivate()
-            m.Constant_control1[I,J].deactivate()                        
-            m.Constant_control2[I,J].deactivate()
-    m.C_TCP3.deactivate()
-    m.obj.deactivate()
-    m.obj_scheduling.activate()
-    m.obj_dummy.deactivate()
+
+
+
+    if new_case:
+
+    else:
+        for I in m.I_reactions:
+            for J in m.J_reactors:
+                m.c_dCdtheta[I,J].deactivate()
+                m.c_dTRdtheta[I,J].deactivate()                        
+                m.c_dTJdtheta[I,J].deactivate()
+                m.c_dIntegral_hotdtheta[I,J].deactivate()
+                m.c_dIntegral_colddtheta[I,J].deactivate()
+                m.Constant_control1[I,J].deactivate()                        
+                m.Constant_control2[I,J].deactivate()
+        m.C_TCP3.deactivate()
+        m.obj.deactivate()
+        m.obj_scheduling.activate()
+        m.obj_dummy.deactivate()
 
 
     #SOLVE SCHEDULING ONLY PROBLEM
@@ -4462,7 +4470,8 @@ def sequential_non_iterative_2_case2(
     subproblem_solver_options: dict = {},
     tee: bool = False,
     global_tee: bool = True,
-    rel_tol: float = 0):
+    rel_tol: float = 0,
+    with_distillation: bool = False):
 
     """
     rate_beta_ub: Real, rate to decrease upper bound of beta
@@ -4517,9 +4526,11 @@ def sequential_non_iterative_2_case2(
             for T in m.T:           
                 if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
                     m.X[I,J,T].fix(1)
+                elif with_distillation:
+                    if T==m.T.first() and I in m.I_distil and J in m.J_distil:
+                        m.X[I,J,T].fix(1)
                 else:
                     m.X[I,J,T].fix(0)
-
 
     m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
     save=generate_initialization(m=m,model_name='partial_borrar')
@@ -4531,6 +4542,12 @@ def sequential_non_iterative_2_case2(
             for T in m.T:
                 if T==m.T.first():
                     max_Capa[I, J, T]=pe.value(m.B[I, J, T])   
+    if with_distillation:
+        for I in m.I_distil:
+            for J in m.J_distil:
+                for T in m.T:
+                    if T==m.T.first():
+                        max_Capa[I, J, T]=pe.value(m.B[I, J, T])
 
     kwargs['max_capacity']=False
     m = model_function(**kwargs)
@@ -4561,6 +4578,9 @@ def sequential_non_iterative_2_case2(
             for T in m.T:           
                 if T==m.T.first() and I in m.I_dynamics and J in m.J_dynamics:
                     m.X[I,J,T].fix(1)
+                elif with_distillation:
+                    if T==m.T.first() and I in m.I_distil and J in m.J_distil:
+                        m.X[I,J,T].fix(1)
                 else:
                     m.X[I,J,T].fix(0)
     #fix operation at maximum capacity
@@ -4569,14 +4589,27 @@ def sequential_non_iterative_2_case2(
             for T in m.T:
                 if T==m.T.first():
                     m.B[I, J, T].fix(max_Capa[I, J, T]) 
+    if with_distillation:
+        for I in m.I_distil:
+            for J in m.J_distil:
+                for T in m.T:
+                    if T==m.T.first():
+                        m.B[I, J, T].fix(max_Capa[I, J, T]) 
 
     m=initialize_model(m,from_feasible=True,feasible_model='partial_borrar')  
     m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee)    
-    save=generate_initialization(m=m,model_name='case_2_min_proc_time_solution')
+    if with_distillation:
+        save=generate_initialization(m=m,model_name='case_2_min_proc_time_solution_with_distillation')
+    else:
+        save=generate_initialization(m=m,model_name='case_2_min_proc_time_solution')
     min_proc_time={}
     for I in m.I_dynamics:
         for J in m.J_dynamics:
             min_proc_time[I,J]=pe.value(m.varTime[I,J,0])
+    if with_distillation:
+        for I in m.I_distil:
+            for J in m.J_distil:
+                min_proc_time[I,J]=pe.value(m.varTime[I,J,0])
 
     # Solve scheduling
     m = model_function(**kwargs)
@@ -4595,30 +4628,65 @@ def sequential_non_iterative_2_case2(
                 m.Constant_control1[I,J,T].deactivate() 
                 m.Constant_control2[I,J,T].deactivate() 
                 m.Constant_control3[I,J,T].deactivate() 
+
+    if with_distillation:
+        for I in m.I_distil:
+            for J in m.J_distil:
+                for T in m.T:
+                    for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                        cons.deactivate()                
+
     m.C_TCP3.deactivate()
 
     m.obj_scheduling.activate()
     m.obj.deactivate()
     m.obj_dummy.deactivate()
+    if with_distillation:
+        def _linking1_11(m,I,J,T):
+            if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
+            return pe.Constraint.Skip
+        m.linking111=pe.Constraint(m.I,m.J,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
 
-    def _linking1_11(m,I,J,T):
-        return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
-    m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
+        def _linking1_22(m,I,J,T):
+            if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T]) 
+            return pe.Constraint.Skip 
+        m.linking122=pe.Constraint(m.I,m.J,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
 
-    def _linking1_22(m,I,J,T):
-        return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
-    m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+        def _linking2_11(m,I,J,T):
+            if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T]) 
+            return pe.Constraint.Skip 
+        m.linking211=pe.Constraint(m.I,m.J,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-    def _linking2_11(m,I,J,T):
-        return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
-    m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+        def _linking2_22(m,I,J,T):
+            if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+            return pe.Constraint.Skip
+        m.linking222=pe.Constraint(m.I,m.J,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+    else:
+        def _linking1_11(m,I,J,T):
+            return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
+        m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
 
-    def _linking2_22(m,I,J,T):
-        return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-    m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+        def _linking1_22(m,I,J,T):
+            return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
+        m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+        def _linking2_11(m,I,J,T):
+            return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+        m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+
+        def _linking2_22(m,I,J,T):
+            return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+        m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity')         
 
     m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
-    save=generate_initialization(m=m,model_name='case_2_scheduling_solution')
+    if with_distillation:
+        save=generate_initialization(m=m,model_name='case_2_scheduling_solution_with_distillation')
+    else:
+        save=generate_initialization(m=m,model_name='case_2_scheduling_solution')
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
 
