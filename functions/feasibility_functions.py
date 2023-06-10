@@ -427,8 +427,6 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
     return sum_infeasibility,infeasible_const,init_path,source
 
 
-
-
 def feasibility_2_modified(m,solver,infty_val, use_multistart: bool=False, tee: bool=False):
     """
     Same as feasibility 2, but no initialization is generated

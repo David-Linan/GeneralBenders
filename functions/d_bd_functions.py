@@ -393,7 +393,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path,m_solved
 
-def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,rel_tol: float=0):
+def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,rel_tol: float=0,new_case: bool=False, with_distillation: bool=False):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -470,7 +470,7 @@ def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,r
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path
 
-def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8, rel_tol: float=0):
+def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8, rel_tol: float=0, new_case: bool=False, with_distillation: bool=False):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -501,7 +501,7 @@ def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,re
         #2: Initialize model
         m_initialized=initialize_model(m=model,json_path=init_path)
         m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol,best_sol=best_sol)
+        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol,best_sol=best_sol,new_case=new_case, with_distillation=with_distillation)
         if m_solved.best_sol<=best_sol:
             best_sol=m_solved.best_sol
         #print(m_solved.dsda_status)
@@ -547,7 +547,7 @@ def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,re
                 model = model_fun(**kwargs)
                 m_initialized2=initialize_model(m=model,json_path=init_path)
                 m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol,best_sol=best_sol)
+                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,rel_tol=rel_tol,best_sol=best_sol,new_case=new_case, with_distillation=with_distillation)
                 if m_solved2.best_sol<=best_sol:
                     best_sol=m_solved2.best_sol
                     m_solved.best_sol=best_sol
@@ -574,7 +574,7 @@ def solve_subproblem_and_neighborhood_aprox(x,neigh,Internaldata,infinity_val,re
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path,m_solved
 
-def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8, rel_tol: float=0):
+def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,best_sol: float=1e+8, rel_tol: float=0, new_case: bool=False, with_distillation: bool=False):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -605,7 +605,7 @@ def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity
         #2: Initialize model
         m_initialized=initialize_model(m=model,json_path=init_path)
         m_fixed = external_ref(m=m_initialized,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,best_sol=best_sol)
+        m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,best_sol=best_sol,new_case=new_case, with_distillation=with_distillation)
         if m_solved.best_sol<=best_sol:
             best_sol=m_solved.best_sol
         #print(m_solved.dsda_status)
@@ -651,7 +651,7 @@ def solve_subproblem_and_neighborhood_aprox_except(x,neigh,Internaldata,infinity
                 model = model_fun(**kwargs)
                 m_initialized2=initialize_model(m=model,json_path=init_path)
                 m_fixed2 = external_ref(m=m_initialized2,x=current_value,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,best_sol=best_sol)
+                m_solved2=solve_subproblem_aprox(m=m_fixed2, subproblem_solver=sub_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,best_sol=best_sol,new_case=new_case, with_distillation=with_distillation)
                 if m_solved2.best_sol<=best_sol:
                     best_sol=m_solved2.best_sol
                 #print(m_solved2.dsda_status)
@@ -1102,7 +1102,24 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             print('Best objective= '+str(D[tuple(x_actual)])+'   |   CPU time [s]= '+str(end-start)+'   |   ext. vars='+str(x_actual))
     return important_info,important_info_preprocessing,D,x_actual,m_solved
 
-def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_feasibility_scheduling,kwargs,use_random: bool=False,use_multi_start: bool=False,n_points_multstart: int=10,sub_solver_opt: dict={}, tee: bool=False, known_solutions: dict={},rel_tol: float = 0):
+def run_function_dbd_aprox(initialization,
+                           infinity_val,
+                           nlp_solver,
+                           neigh,maxiter,
+                           ext_ref,logic_fun,
+                           model_fun,model_fun_feasibility_scheduling,
+                           kwargs,
+                           use_random: bool=False,
+                           use_multi_start: bool=False,
+                           n_points_multstart: int=10,
+                           sub_solver_opt: dict={}, 
+                           tee: bool=False, 
+                           known_solutions: dict={},
+                           rel_tol: float = 0,
+                           new_case: bool=False, # If algorithm will be used for new case study involving kondili STN
+                           with_distillation: bool=False,  #If modified model with distillation dynamics will be considered  
+                           provide_starting_initialization: bool = True,
+                           feasible_model: str = ''):
 # IMPORTANT!!!!: IF INCLUDING known_solutions, MAKE SURE THAT THE INITIALIZATION IS FEASIBLE 
     #------------------------------------------PARAMETER INITIALIZATION---------------------------------------------------------------
     important_info={}
@@ -1121,10 +1138,14 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
     
     if use_multi_start==False:
         #test initialization 
-        model=initialize_model(m=model,json_path=init_path)
+
+        if provide_starting_initialization:
+            model = initialize_model(model, from_feasible=True, feasible_model=feasible_model, json_path=None)
+        else:
+            model=initialize_model(m=model,json_path=init_path)
         m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
         #original line
-        m_init_solved=solve_subproblem_aprox(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol)
+        m_init_solved=solve_subproblem_aprox(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,new_case=new_case,with_distillation=with_distillation)
         best_sol=m_init_solved.best_sol
         #m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= {'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver conopt4\n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}, timelimit=10000, tee=False)
         #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: uncomment last line for nonlinear scheduling problem      
@@ -1568,7 +1589,7 @@ def run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,
                 model = model_fun(**kwargs)
                 m_initialized=initialize_model(m=model,json_path=init_path)
                 m_fixed = external_ref(m=m_initialized,x=x_actual,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-                m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol,rel_tol=rel_tol)
+                m_solved=solve_subproblem_aprox(m=m_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False,best_sol=best_sol,rel_tol=rel_tol,new_case=new_case,with_distillation=with_distillation)
                         
             if min(list(new_values.values()))<=best_sol:
                 best_sol=min(list(new_values.values()))

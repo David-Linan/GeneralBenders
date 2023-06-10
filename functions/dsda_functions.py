@@ -1131,7 +1131,9 @@ def solve_subproblem_aprox(
     gams_output: bool = False,
     tee: bool = False,
     rel_tol: float = 0,
-    best_sol: float= 1e+8
+    best_sol: float= 1e+8,
+    new_case: bool=False, # If algorithm will be used for new case study involving kondili STN
+    with_distillation: bool=False,  #If modified model with distillation dynamics will be considered  
 ) -> pe.ConcreteModel():
     """
     Function that checks feasibility and optimizes subproblem model.
@@ -1189,19 +1191,25 @@ def solve_subproblem_aprox(
     scheduling_only=False #True: only perform scheduling subproblems
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
     #DEACTIVATE DYNAMIC CONSTRAINTS
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            m.c_dCdtheta[I,J].deactivate()
-            m.c_dTRdtheta[I,J].deactivate()                        
-            m.c_dTJdtheta[I,J].deactivate()
-            m.c_dIntegral_hotdtheta[I,J].deactivate()
-            m.c_dIntegral_colddtheta[I,J].deactivate()
-            m.Constant_control1[I,J].deactivate()                        
-            m.Constant_control2[I,J].deactivate()
-    m.C_TCP3.deactivate()
-    m.obj.deactivate()
-    m.obj_scheduling.activate()
-    m.obj_dummy.deactivate()
+
+
+
+    if new_case:
+
+    else:
+        for I in m.I_reactions:
+            for J in m.J_reactors:
+                m.c_dCdtheta[I,J].deactivate()
+                m.c_dTRdtheta[I,J].deactivate()                        
+                m.c_dTJdtheta[I,J].deactivate()
+                m.c_dIntegral_hotdtheta[I,J].deactivate()
+                m.c_dIntegral_colddtheta[I,J].deactivate()
+                m.Constant_control1[I,J].deactivate()                        
+                m.Constant_control2[I,J].deactivate()
+        m.C_TCP3.deactivate()
+        m.obj.deactivate()
+        m.obj_scheduling.activate()
+        m.obj_dummy.deactivate()
 
 
     #SOLVE SCHEDULING ONLY PROBLEM
