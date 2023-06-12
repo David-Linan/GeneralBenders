@@ -18,7 +18,7 @@ from case_study_2_model import case_2_scheduling_control_gdp_var_proc_time,case_
 import os
 import matplotlib.pyplot as plt
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential_naive,problem_logic_scheduling as problem_logic_scheduling_case1
-
+import numpy as np
 if __name__ == "__main__":
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
@@ -843,6 +843,10 @@ if __name__ == "__main__":
     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
+    for j in (jj for jj in neigh if np.all(np.array(Sol_found)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(Sol_found)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
+        print(np.array(Sol_found)+np.array(neigh[j]))
+    print(np.array([lower_bounds[k] for k in lower_bounds.keys()])>=np.array([lower_bounds[k] for k in upper_bounds.keys()]))
+    
     start=time.time()
                                                                                                                                                                     ## TODO: this second model function is a version of the model with only scheduling constraints. Work on this!!!!!
     [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=0,new_case=True,with_distillation=model_witn_distillation_dynamics,provide_starting_initialization=True,feasible_model=feas_model)
