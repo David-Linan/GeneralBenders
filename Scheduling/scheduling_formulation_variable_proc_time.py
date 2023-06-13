@@ -208,7 +208,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     _tau_p['T4','U3']=5
 
     _tau_p['T5','U4']=1.5
-    #TODO: the input info I am declaring here is in HOURS. Check that it makes sense with respect to the time discretization in reactors balances!!!!!!!
+    #NOTE: in this context these are just values I use to calculate sigma 
     m.tau_p=pe.Param(m.I,m.J,initialize=_tau_p,mutable=True,default=0,doc="Physical processing time for tasks [units of time]")
     
     def _tau(m,I,J):
@@ -382,7 +382,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         for J in m.J:
             if m.I_i_j_prod[I,J]==1:
                 positcui=positcui+1
-                m.ordered_set[I,J]=pe.RangeSet(m.minTau[I,J],m.maxTau[I,J],doc='Ordered set for each reaction-reactor pair') 
+                m.ordered_set[I,J]=pe.RangeSet(m.minTau[I,J],m.maxTau[I,J],doc='Ordered set for each I J pair') 
                 setattr(m,'ordered_set_%s_%s' %(I,J),m.ordered_set[I,J])
 
                 def _YRinit(m,ordered_set):

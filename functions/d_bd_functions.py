@@ -1149,7 +1149,7 @@ def run_function_dbd_aprox(initialization,
             model=initialize_model(m=model,json_path=init_path)
         m_init_fixed = external_ref(m=model,x=initialization,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
         #original line
-        m_init_solved=solve_subproblem_aprox(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=True, rel_tol=rel_tol,new_case=new_case,with_distillation=with_distillation)
+        m_init_solved=solve_subproblem_aprox(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= sub_solver_opt, timelimit=10000, tee=False, rel_tol=rel_tol,new_case=new_case,with_distillation=with_distillation)
         best_sol=m_init_solved.best_sol
         #m_init_solved=solve_subproblem(m=m_init_fixed, subproblem_solver=nlp_solver,subproblem_solver_options= {'add_options':['GAMS_MODEL.optfile = 1;','\n','$onecho > dicopt.opt \n','nlpsolver conopt4\n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','$offecho \n']}, timelimit=10000, tee=False)
         #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: uncomment last line for nonlinear scheduling problem      

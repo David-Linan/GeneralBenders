@@ -88,7 +88,8 @@ if __name__ == "__main__":
 
 
     #with distillation model
-    feasible_mod_name='case_2_sequential_With_distillation'
+    # feasible_mod_name='case_2_sequential_With_distillation' #SEQUENTIAL ITERATIVE
+    feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
     m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
     Sol_found=[]
