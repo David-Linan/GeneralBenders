@@ -187,7 +187,7 @@ def feasibility_1_aprox(m):
     return sum_infeasibility,infeasible_const
 
 
-def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: bool=False):
+def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: bool=False,new_case: bool=False,with_distillation: bool=False):
     """
     This function calculates the minimum sum of infeasibility with respect to those constraints
     that make the subproblem infeasible. 
@@ -213,19 +213,48 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
 
 
         #DEACTIVATE DYNAMIC CONSTRAINTS
-        for I in m.I_reactions:
-            for J in m.J_reactors:
-                m.c_dCdtheta[I,J].deactivate()
-                m.c_dTRdtheta[I,J].deactivate()                        
-                m.c_dTJdtheta[I,J].deactivate()
-                m.c_dIntegral_hotdtheta[I,J].deactivate()
-                m.c_dIntegral_colddtheta[I,J].deactivate()
-                m.Constant_control1[I,J].deactivate()                        
-                m.Constant_control2[I,J].deactivate()
-        m.C_TCP3.deactivate()
-        m.obj.deactivate()
-        m.obj_dummy.deactivate()
-        m.obj_scheduling.activate()
+        if not new_case:
+            for I in m.I_reactions:
+                for J in m.J_reactors:
+                    m.c_dCdtheta[I,J].deactivate()
+                    m.c_dTRdtheta[I,J].deactivate()                        
+                    m.c_dTJdtheta[I,J].deactivate()
+                    m.c_dIntegral_hotdtheta[I,J].deactivate()
+                    m.c_dIntegral_colddtheta[I,J].deactivate()
+                    m.Constant_control1[I,J].deactivate()                        
+                    m.Constant_control2[I,J].deactivate()
+            m.C_TCP3.deactivate()
+            m.obj.deactivate()
+            m.obj_dummy.deactivate()
+            m.obj_scheduling.activate()
+        else:
+            for I in m.I_dynamics:
+                for J in m.J_dynamics:
+                    for T in m.T:
+                        m.c_defCT0[I,J,T].deactivate()
+                        m.c_dCAdtheta[I,J,T].deactivate() 
+                        m.c_dCBdtheta[I,J,T].deactivate() 
+                        m.c_dCCdtheta[I,J,T].deactivate() 
+                        m.c_dVdtheta[I,J,T].deactivate() 
+                        m.c_dTRdtheta[I,J,T].deactivate() 
+                        m.c_dTJdtheta[I,J,T].deactivate() 
+                        m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                        m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                        m.Constant_control1[I,J,T].deactivate() 
+                        m.Constant_control2[I,J,T].deactivate() 
+                        m.Constant_control3[I,J,T].deactivate() 
+            m.C_TCP3.deactivate()              
+            m.obj.deactivate()
+            m.obj_dummy.deactivate()
+            m.obj_scheduling.activate()  
+
+
+            if with_distillation:
+                    for I in m.I_distil:
+                        for J in m.J_distil:
+                            for T in m.T:   
+                                for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                    cons.deactivate()           
 
 
         #SOLVE SCHEDULING ONLY PROBLEM
@@ -242,19 +271,47 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
         else:
 
             # ACTIVATE DYNAMIC CONSTRAINTS
-            for I in m.I_reactions:
-                for J in m.J_reactors:
-                    m.c_dCdtheta[I,J].activate()
-                    m.c_dTRdtheta[I,J].activate()                        
-                    m.c_dTJdtheta[I,J].activate()
-                    m.c_dIntegral_hotdtheta[I,J].activate()
-                    m.c_dIntegral_colddtheta[I,J].activate()
-                    m.Constant_control1[I,J].activate()                        
-                    m.Constant_control2[I,J].activate()
-            m.C_TCP3.activate()
-            m.obj.activate()
-            m.obj_scheduling.deactivate() 
-            m.obj_dummy.deactivate()
+            if not new_case:           
+                for I in m.I_reactions:
+                    for J in m.J_reactors:
+                        m.c_dCdtheta[I,J].activate()
+                        m.c_dTRdtheta[I,J].activate()                        
+                        m.c_dTJdtheta[I,J].activate()
+                        m.c_dIntegral_hotdtheta[I,J].activate()
+                        m.c_dIntegral_colddtheta[I,J].activate()
+                        m.Constant_control1[I,J].activate()                        
+                        m.Constant_control2[I,J].activate()
+                m.C_TCP3.activate()
+                m.obj.activate()
+                m.obj_scheduling.deactivate() 
+                m.obj_dummy.deactivate()
+            else:
+                for I in m.I_dynamics:
+                    for J in m.J_dynamics:
+                        for T in m.T:
+                            m.c_defCT0[I,J,T].activate()
+                            m.c_dCAdtheta[I,J,T].activate() 
+                            m.c_dCBdtheta[I,J,T].activate() 
+                            m.c_dCCdtheta[I,J,T].activate() 
+                            m.c_dVdtheta[I,J,T].activate() 
+                            m.c_dTRdtheta[I,J,T].activate() 
+                            m.c_dTJdtheta[I,J,T].activate() 
+                            m.c_dIntegral_hotdtheta[I,J,T].activate() 
+                            m.c_dIntegral_colddtheta[I,J,T].activate() 
+                            m.Constant_control1[I,J,T].activate() 
+                            m.Constant_control2[I,J,T].activate() 
+                            m.Constant_control3[I,J,T].activate() 
+                m.C_TCP3.activate()              
+                m.obj.activate()
+                m.obj_dummy.deactivate()
+                m.obj_scheduling.deactivate()  
+
+                if with_distillation:
+                    for I in m.I_distil:
+                        for J in m.J_distil:
+                            for T in m.T:   
+                                for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                    cons.activate()                 
 
             if approximate_solution:
                 # FIX SCHEDULING VARIABLES
@@ -365,37 +422,116 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
         m.E2_CAPACITY_LOW.deactivate()
         m.E2_CAPACITY_UP.deactivate()
         m.E3_BALANCE_INIT.deactivate()
-        m.E_DEMAND_SATISFACTION.deactivate()
+        if not new_case:
+            m.E_DEMAND_SATISFACTION.deactivate()
         m.E1_UNIT.deactivate()
         m.E3_BALANCE.deactivate()
-        for II in m.I_reactions:
-            for JJ in m.J_reactors:     
-                if round(pe.value(m.Nref[II,JJ]))>=1:
-                    for I in m.I_reactions:
-                        for J in m.J_reactors:
-                            m.c_dCdtheta[I,J].deactivate()
-                            m.c_dTRdtheta[I,J].deactivate()                        
-                            m.c_dTJdtheta[I,J].deactivate()
-                            m.c_dIntegral_hotdtheta[I,J].deactivate()
-                            m.c_dIntegral_colddtheta[I,J].deactivate()
-                            m.Constant_control1[I,J].deactivate()                        
-                            m.Constant_control2[I,J].deactivate()
-                            m.finalCon[I,J].deactivate()
-                            m.finalTemp[I,J].deactivate()
-                    m.C_TCP3.deactivate()
-                    m.obj_scheduling.deactivate() 
 
-                    m.c_dCdtheta[II,JJ].activate()
-                    m.c_dTRdtheta[II,JJ].activate()                        
-                    m.c_dTJdtheta[II,JJ].activate()
-                    m.c_dIntegral_hotdtheta[II,JJ].activate()
-                    m.c_dIntegral_colddtheta[II,JJ].activate()
-                    m.Constant_control1[II,JJ].activate()                        
-                    m.Constant_control2[II,JJ].activate()
-                    m.finalCon[II,JJ].activate()
-                    m.finalTemp[II,JJ].activate() 
-                    m.obj.deactivate()
-                    m.obj_dummy.activate()
+
+        if not new_case:
+            for II in m.I_reactions:
+                for JJ in m.J_reactors:     
+                    if round(pe.value(m.Nref[II,JJ]))>=1:
+                        for I in m.I_reactions:
+                            for J in m.J_reactors:
+                                m.c_dCdtheta[I,J].deactivate()
+                                m.c_dTRdtheta[I,J].deactivate()                        
+                                m.c_dTJdtheta[I,J].deactivate()
+                                m.c_dIntegral_hotdtheta[I,J].deactivate()
+                                m.c_dIntegral_colddtheta[I,J].deactivate()
+                                m.Constant_control1[I,J].deactivate()                        
+                                m.Constant_control2[I,J].deactivate()
+                                m.finalCon[I,J].deactivate()
+                                m.finalTemp[I,J].deactivate()
+                        m.C_TCP3.deactivate()
+                        m.obj_scheduling.deactivate() 
+
+                        m.c_dCdtheta[II,JJ].activate()
+                        m.c_dTRdtheta[II,JJ].activate()                        
+                        m.c_dTJdtheta[II,JJ].activate()
+                        m.c_dIntegral_hotdtheta[II,JJ].activate()
+                        m.c_dIntegral_colddtheta[II,JJ].activate()
+                        m.Constant_control1[II,JJ].activate()                        
+                        m.Constant_control2[II,JJ].activate()
+                        m.finalCon[II,JJ].activate()
+                        m.finalTemp[II,JJ].activate() 
+                        m.obj.deactivate()
+                        m.obj_dummy.activate()
+
+                        if approximate_solution:
+                            # FIX SCHEDULING VARIABLES
+                            for v in m.component_objects(pe.Var, descend_into=True):
+                                if v.name=='X' or v.name=='Nref':
+                                    for index in v:
+                                        if index==None:
+                                            v.fix(round(pe.value(v)))
+                                        else:
+                                            v[index].fix(round(pe.value(v[index])))
+                                # elif v.name=='B' or v.name=='S':
+                                #     for index in v:
+                                #         if index==None:
+                                #             v.fix(pe.value(v))
+                                #         else:
+                                #             v[index].fix(pe.value(v[index]))                           
+
+                        opt = SolverFactory('gams', solver=nlp_solver)
+                        # start=time.time()
+                        m.results = opt.solve(m, tee=tee,skip_trivial_constraints=True)
+                        #print(m.results.solver.termination_condition)
+                        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+                            source[II,JJ]="Infeasible"
+                        else:
+                            source[II,JJ]="Feasible"
+                    else:
+                        source[II,JJ]="Not_scheduled"
+        else:
+            m.C_TCP3.deactivate()
+            m.obj.deactivate()
+            m.obj_scheduling.deactivate() 
+            m.obj_dummy.activate()
+
+            # Identify if source is in reactors
+
+            if with_distillation:
+                for I in m.I_distil:
+                    for J in m.J_distil:
+                        for T in m.T:   
+                            for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                cons.deactivate()  
+
+            for II in m.I_dynamics:
+                for JJ in m.J_dynamics:     
+                    # if round(pe.value(m.Nref[II,JJ]))>=1:
+                    for I in m.I_dynamics:
+                        for J in m.J_dynamics:
+                            for T in m.T:
+                                m.c_defCT0[I,J,T].deactivate()
+                                m.c_dCAdtheta[I,J,T].deactivate() 
+                                m.c_dCBdtheta[I,J,T].deactivate() 
+                                m.c_dCCdtheta[I,J,T].deactivate() 
+                                m.c_dVdtheta[I,J,T].deactivate() 
+                                m.c_dTRdtheta[I,J,T].deactivate() 
+                                m.c_dTJdtheta[I,J,T].deactivate() 
+                                m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                                m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                                m.Constant_control1[I,J,T].deactivate() 
+                                m.Constant_control2[I,J,T].deactivate() 
+                                m.Constant_control3[I,J,T].deactivate() 
+
+                    for TT in m.T:
+                        m.c_defCT0[II,JJ,TT].activate()
+                        m.c_dCAdtheta[II,JJ,TT].activate() 
+                        m.c_dCBdtheta[II,JJ,TT].activate() 
+                        m.c_dCCdtheta[II,JJ,TT].activate() 
+                        m.c_dVdtheta[II,JJ,TT].activate() 
+                        m.c_dTRdtheta[II,JJ,TT].activate() 
+                        m.c_dTJdtheta[II,JJ,TT].activate() 
+                        m.c_dIntegral_hotdtheta[II,JJ,TT].activate() 
+                        m.c_dIntegral_colddtheta[II,JJ,TT].activate() 
+                        m.Constant_control1[II,JJ,TT].activate() 
+                        m.Constant_control2[II,JJ,TT].activate() 
+                        m.Constant_control3[II,JJ,TT].activate()
+
 
                     if approximate_solution:
                         # FIX SCHEDULING VARIABLES
@@ -406,7 +542,7 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                                         v.fix(round(pe.value(v)))
                                     else:
                                         v[index].fix(round(pe.value(v[index])))
-                            # elif v.name=='B' or v.name=='S':
+                            # elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':
                             #     for index in v:
                             #         if index==None:
                             #             v.fix(pe.value(v))
@@ -416,13 +552,70 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                     opt = SolverFactory('gams', solver=nlp_solver)
                     # start=time.time()
                     m.results = opt.solve(m, tee=tee,skip_trivial_constraints=True)
-                    #print(m.results.solver.termination_condition)
+                    
                     if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
                         source[II,JJ]="Infeasible"
                     else:
                         source[II,JJ]="Feasible"
-                else:
-                    source[II,JJ]="Not_scheduled"
+
+
+            # Identify if source is in distillation
+
+            if with_distillation:
+                for I in m.I_dynamics:
+                    for J in m.J_dynamics:
+                        for T in m.T:
+                            m.c_defCT0[I,J,T].deactivate()
+                            m.c_dCAdtheta[I,J,T].deactivate() 
+                            m.c_dCBdtheta[I,J,T].deactivate() 
+                            m.c_dCCdtheta[I,J,T].deactivate() 
+                            m.c_dVdtheta[I,J,T].deactivate() 
+                            m.c_dTRdtheta[I,J,T].deactivate() 
+                            m.c_dTJdtheta[I,J,T].deactivate() 
+                            m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                            m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                            m.Constant_control1[I,J,T].deactivate() 
+                            m.Constant_control2[I,J,T].deactivate() 
+                            m.Constant_control3[I,J,T].deactivate()  
+
+                for II in m.I_distil:
+                    for JJ in m.J_distil:     
+                        # if round(pe.value(m.Nref[II,JJ]))>=1:
+                        for I in m.I_distil:
+                            for J in m.J_distil:
+                                for T in m.T:
+                                    for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                        cons.deactivate()  
+
+                        for TT in m.T:
+                            for cons in m.dist_models[II,JJ,TT].component_data_objects(pe.Constraint,descend_into=True):
+                                cons.activate() 
+
+
+                        if approximate_solution:
+                            # FIX SCHEDULING VARIABLES
+                            for v in m.component_objects(pe.Var, descend_into=True):
+                                if v.name=='X' or v.name=='Nref':
+                                    for index in v:
+                                        if index==None:
+                                            v.fix(round(pe.value(v)))
+                                        else:
+                                            v[index].fix(round(pe.value(v[index])))
+                                # elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':
+                                #     for index in v:
+                                #         if index==None:
+                                #             v.fix(pe.value(v))
+                                #         else:
+                                #             v[index].fix(pe.value(v[index]))                           
+
+                        opt = SolverFactory('gams', solver=nlp_solver)
+                        # start=time.time()
+                        m.results = opt.solve(m, tee=tee,skip_trivial_constraints=True)
+                        
+                        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+                            source[II,JJ]="Infeasible"
+                        else:
+                            source[II,JJ]="Feasible"
     #Return total sum of infeasibility
     return sum_infeasibility,infeasible_const,init_path,source
 

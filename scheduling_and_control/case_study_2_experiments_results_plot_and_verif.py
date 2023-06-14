@@ -43,8 +43,8 @@ if __name__ == "__main__":
     last_disc=15
     last_time_h=5
     logic_fun=problem_logic_scheduling
-    with_distillation=True
-    sequential_naive=False #true if i am ploting results from sequential naive
+    with_distillation=False
+    sequential_naive=True #true if i am ploting results from sequential naive
 
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
 
@@ -80,16 +80,24 @@ if __name__ == "__main__":
 
 
     
-    # feasible_mod_name2='case_2_scheduling_solution'  #sequential naive: scheduling solution
-    # feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
+    feasible_mod_name2='case_2_scheduling_solution'  #sequential naive: scheduling solution
+    feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
+
     # feasible_mod_name='case_2_sequential' #sequential iterative
+
     # feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars_from_naive'    #DSDA from sequential naive
+
     # feasible_mod_name= 'case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars'  #DSDA from sequential iterative
 
 
     #with distillation model
     # feasible_mod_name='case_2_sequential_With_distillation' #SEQUENTIAL ITERATIVE
-    feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
+
+    # feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
+
+
+    # feasible_mod_name2='case_2_scheduling_solution_with_distillation'  #sequential naive: scheduling solution
+    # feasible_mod_name='case_2_min_proc_time_solution_with_distillation'     #sequential naive: minimum processing time solution
     m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
     Sol_found=[]
@@ -155,15 +163,15 @@ if __name__ == "__main__":
     for I_J in m.I_J:
         Sol_found.append(1+round(pe.value(m.Nref[I_J])))
 
-        textbuffer = io.StringIO()
-        for v in m.component_objects(pe.Var, descend_into=True):
-            v.pprint(textbuffer)
-            textbuffer.write('\n')
-        textbuffer.write('\n Objective: \n') 
-        textbuffer.write(str(pe.value(m.obj)))  
-        file_name=feasible_mod_name+'.txt'  
-        with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
-            outputfile.write(textbuffer.getvalue())
+    textbuffer = io.StringIO()
+    for v in m.component_objects(pe.Var, descend_into=True):
+        v.pprint(textbuffer)
+        textbuffer.write('\n')
+    textbuffer.write('\n Objective: \n') 
+    textbuffer.write(str(pe.value(m.obj)))  
+    file_name=feasible_mod_name+'.txt'  
+    with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
+        outputfile.write(textbuffer.getvalue())
 
     print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_found,'cputime DICOPT=',str(end-start))
 
@@ -441,6 +449,71 @@ if __name__ == "__main__":
                             title=case[0]+' in '+case[1]+' Flow rate of B'
                             plt.title(case[0]+' in '+case[1])
                             # plt.show()    
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+            for I in m.I_distil:
+                for J in m.J_distil:
+                    for T in m.T:
+                        if pe.value(m.X[I,J,T])==1: 
+                            case=(I,J,T)
+                            tdist=[]
+                            Dist=[]
+                            Boil_up=[]
+                            Reflux_rate=[]
+                            x_instantaneous=[]
+                            x_accumulated=[]
+                            Reboiler_hold_up=[]
+                            Product_accumulated=[]
+
+                            for N in m.dist_models[case].T:
+                                tdist.append(N*m.varTime[case].value)
+                                Dist.append(m.dist_models[case].D[N].value)
+                                Boil_up.append(m.dist_models[case].V[N].value)
+                                Reflux_rate.append(m.dist_models[case].R[N].value)
+                                x_instantaneous.append(m.dist_models[case].x[m.dist_models[case].N.last(), N].value)
+                                x_accumulated.append(m.dist_models[case].xd_average[N].value)
+                                Reboiler_hold_up.append(m.dist_models[case].HB[N].value)
+                                Product_accumulated.append(m.dist_models[case].I2[N].value)
+
+                            plt.plot(tdist, x_instantaneous,label='Mole fraction of desired product (distillate)',color='red')
+                            plt.plot(tdist,  x_accumulated,label='Mole fraction of desired product (reciever)',color='green')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Mole fraction [kmol/kmol]$')
+                            title=case[0]+' in '+case[1]+' Mole fraction'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            ax1 = plt.subplot()
+                            l1=ax1.plot(tdist,Boil_up,label='Boil-up rate',color='red')
+                            ax2=ax1.twinx()
+                            l2=ax2.plot(tdist,Reflux_rate,label='Reflux rate',color='blue')
+                            plt.xlabel('Time [h]')
+                            ax1.set_ylabel('$Boil-up rate [m^{3}/h]$',color='red')
+                            ax2.set_ylabel('$Reflux rate [m^{3}/h]$',color='blue')                            
+                            title=case[0]+' in '+case[1]+' Boil-up and reflux'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            # plt.legend()
+                            # plt.show()
+                            plt.savefig("figures/"+title+".svg") 
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
+
+                            plt.plot(tdist, Reboiler_hold_up,label='Reboiler level',color='red')
+                            plt.plot(tdist,  Product_accumulated,label='Reciever level',color='green')
+                            plt.xlabel('Time [h]')
+                            plt.ylabel('$Volume [m^{3}]$')
+                            title=case[0]+' in '+case[1]+' distillation levels'
+                            plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
+                            plt.legend()
+                            # plt.show()
                             plt.savefig("figures/"+title+".svg") 
                             plt.clf()
                             plt.cla()
@@ -795,7 +868,15 @@ if __name__ == "__main__":
             model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
             m=model_fun(**kwargs)
             m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
-
+            textbuffer = io.StringIO()
+            for v in m.component_objects(pe.Var, descend_into=True):
+                v.pprint(textbuffer)
+                textbuffer.write('\n')
+            textbuffer.write('\n Objective: \n') 
+            textbuffer.write(str(pe.value(m.obj)))  
+            file_name=feasible_mod_name2+'.txt'  
+            with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
+                outputfile.write(textbuffer.getvalue())
             # plot of states
             for k in m.K:
                 t_pro=[]

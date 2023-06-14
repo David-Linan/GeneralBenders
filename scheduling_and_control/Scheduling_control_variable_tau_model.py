@@ -7702,7 +7702,7 @@ def scheduling_and_control_gdp_N_approx_sequential_naive(x_initial: list=[4,4,5,
         m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
     if sequential:
         def _obj_scheduling(m):
-            return ( m.TCP1+m.TCP2+m.TMC-m.SALES   +        sum(sum(sum(m.YR_disjunct[I,J][index].indicator_var for index in m.ordered_set[I,J]) for J in m.J_reactors)for I in m.I_reactions ) )
+            return ( m.TCP1+m.TCP2+m.TMC-m.SALES   +        sum(sum(sum(m.YR_disjunct[I,J][index].indicator_var*index for index in m.ordered_set[I,J]) for J in m.J_reactors)for I in m.I_reactions ) )
 
         m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
         

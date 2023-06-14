@@ -231,7 +231,7 @@ def solve_subproblem_and_neighborhood_FEAS1_aprox(x,neigh,Internaldata,infinity_
                         break        
     return generated_dict
 
-def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,first_path,model_fun,kwargs,tee:bool=True):
+def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,first_path,model_fun,kwargs,tee:bool=True,new_case: bool=False, with_distillation: bool=False,lower_bounds: dict={},upper_bounds: dict={}):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -262,7 +262,7 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
         model = model_fun(**kwargs)
         model=initialize_model(m=model,json_path=first_path)
         m_fixed = external_ref(m=model,x=x,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
-        m_solved,_,_,source=feasibility_2_aprox(m_fixed,sub_solver,infinity_val)
+        m_solved,_,_,source=feasibility_2_aprox(m_fixed,sub_solver,infinity_val,new_case=new_case,with_distillation=with_distillation)
         #print(m_solved.dsda_status)
         #if m_solved.dsda_status=='Optimal':
         if tee:
@@ -283,7 +283,7 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
         #solve neighborhood (only if central point was infeasible)
         if status[0]==1:
             count=0 #count to add elements to status
-            for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+            for j in (jj for jj in neigh if np.all(np.array(x)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(x)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
                 count=count+1
                 current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
                 #print(current_value)
@@ -1320,8 +1320,10 @@ def run_function_dbd_aprox(initialization,
             D={}
             D=D_random.copy()
         #use x_actual and D from previous stages otherwise
-
-        current_tau=x_actual[:6] #TODO: GENERALIZE
+        if new_case:
+            current_tau=x_actual[:8] #TODO: GENERALIZE
+        else:
+            current_tau=x_actual[:6] #TODO: GENERALIZE
         x_dict={}  #value of x at each iteration
         fobj_actual=infinity_val
         start = time.time()
@@ -1335,7 +1337,7 @@ def run_function_dbd_aprox(initialization,
             #update current value of x in the dictionary
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,init_path,source=solve_subproblem_and_neighborhood_FEAS2_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,tee=tee)
+            new_values,init_path,source=solve_subproblem_and_neighborhood_FEAS2_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,tee=tee,new_case=new_case,with_distillation=with_distillation,lower_bounds=lower_bounds,upper_bounds=upper_bounds)
             #print(new_values)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
@@ -1349,18 +1351,32 @@ def run_function_dbd_aprox(initialization,
             #print(D)
  
              #CASE SPECIFIC CUTS: TODO: GENERALIZE
-            previous_tau=current_tau.copy()
-            if len(source)!=0:
-                cuentass=-1
-                for element in source:
-                    cuentass=cuentass+1
-                    if source[element]=='Infeasible':
-                        current_tau[cuentass]=x_actual[cuentass]+1
+            if new_case:
+                previous_tau=current_tau.copy()
+                if len(source)!=0:
+                    for element in source:
+                        if source[element]=='Infeasible' and element==('T2', 'U2'):
+                            current_tau[1]=x_actual[1]+1
+                        elif source[element]=='Infeasible' and element==('T2', 'U3'):
+                            current_tau[2]=x_actual[2]+1
+                        elif source[element]=='Infeasible' and element==('T5', 'U4'):
+                            current_tau[7]=x_actual[7]+1
+            else:
+                previous_tau=current_tau.copy()
+                if len(source)!=0:
+                    cuentass=-1
+                    for element in source:
+                        cuentass=cuentass+1
+                        if source[element]=='Infeasible':
+                            current_tau[cuentass]=x_actual[cuentass]+1
             #if cut for times is different, update D, and find new optimal point
             if previous_tau!=current_tau:
                 for j in D.keys():
                     list_j=list(j)
-                    list_j_tau=list_j[:6]
+                    if new_case:
+                        list_j_tau=list_j[:8] #TODO: GENERALIZE
+                    else:
+                        list_j_tau=list_j[:6]
                     if any([list_j_tau[posit]<current_tau[posit] for posit in range(len(current_tau))]):
                         D.update({j:infinity_val})
                 
@@ -1370,7 +1386,7 @@ def run_function_dbd_aprox(initialization,
                 m_scheduling_only=model_fun_feasibility_scheduling(**kwargs2)
                 # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','varsel -1 \n','intsollim 1 \n','$offecho \n']}
                 sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
-                m_scheduling_only = solve_with_minlp(m_scheduling_only,transformation='hull',minlp='cplex',minlp_options=sub_options_cplex_Feas,timelimit=360000000,gams_output=False,tee=False,rel_tol=rel_tol)
+                m_scheduling_only = solve_with_minlp(m_scheduling_only,transformation='bigm',minlp='cplex',minlp_options=sub_options_cplex_Feas,timelimit=360000000,gams_output=False,tee=False,rel_tol=rel_tol)
 
                 for I_J in m_scheduling_only.I_J:
                     output_ext_vars.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
