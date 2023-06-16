@@ -182,7 +182,7 @@ if __name__ == "__main__":
     if with_distillation:
         cost_distillation=5/100
         DISTIl_COST=sum(sum(sum(pe.value(m.X[I, J, T])*( cost_distillation*pe.value(m.dist_models[I,J,T].I_V[m.dist_models[I,J,T].T.last()])  ) for T in m.T) for I in m.I_distil)for J in m.J_distil)
-        print(DISTIl_COST)
+        print(,'TPC: Variable cost for unit-tasks that do consider dynamics, distillation only: str(DISTIl_COST))
 
 # SOLUTION USING DSDA
     # print('\n-------DSDA-------------------------------------')
