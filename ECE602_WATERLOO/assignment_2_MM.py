@@ -34,13 +34,13 @@ max_iterations=1000
 iterations=range(0,max_iterations)
 
 for i in iterations:
-    # UPDATE THE VALUE OF X
+    # EVALUATE IF INITIALIZATION SATISFIES STOPPING CRITERION
     if i==0:
+        #INITIALIZE
         x_k=x_0
-        x_next=x_k
     else:
+        #UPDATE FROM PREVIOUS ITERATION
         x_k=x_next
-        x_next=x_k-(1/mu)*_grad_val(x_k)
 
     # STORE RELEVAND INFORMATION
     f=_f_val(x_k)
@@ -54,6 +54,8 @@ for i in iterations:
     # EVALUATE THE STOPPING CONDITION
     if _grad_norm_val(x_k)<=1e-3:
         break
+    #UPDATE
+    x_next=x_k-(1/mu)*_grad_val(x_k)
 
 
 #Number of iterations
@@ -65,7 +67,6 @@ print('The number of iterations is: ',num_iter)
 k_vect=[i for i in f_values.keys()]
 f_vect=[f_values[i].tolist()[0][0] for i in f_values.keys()]
 f_grad_norm_vect=[gradient_norm_values[i].tolist() for i in f_values.keys()]
-
 
 plt.plot(k_vect,f_vect)
 plt.xlabel('Iteration k')
