@@ -43,8 +43,8 @@ if __name__ == "__main__":
     last_disc=15
     last_time_h=5
     logic_fun=problem_logic_scheduling
-    with_distillation=False
-    sequential_naive=True #true if i am ploting results from sequential naive
+    with_distillation=True
+    sequential_naive=False #true if i am ploting results from sequential naive
 
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
 
@@ -80,8 +80,8 @@ if __name__ == "__main__":
 
 
     
-    feasible_mod_name2='case_2_scheduling_solution'  #sequential naive: scheduling solution
-    feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
+    # feasible_mod_name2='case_2_scheduling_solution'  #sequential naive: scheduling solution
+    # feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
 
     # feasible_mod_name='case_2_sequential' #sequential iterative
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     #with distillation model
     # feasible_mod_name='case_2_sequential_With_distillation' #SEQUENTIAL ITERATIVE
 
-    # feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
+    feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
 
 
     # feasible_mod_name2='case_2_scheduling_solution_with_distillation'  #sequential naive: scheduling solution
@@ -172,26 +172,26 @@ if __name__ == "__main__":
     file_name=feasible_mod_name+'.txt'  
     with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
+    if not sequential_naive:
+        print('Objective =',pe.value(m.obj),'best =',Sol_found,'cputime =',str(end-start))
 
-    print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_found,'cputime DICOPT=',str(end-start))
 
-
-    TPC1=pe.value(m.TCP1)
-    TPC2=pe.value(m.TCP2)
-    TPC3=pe.value(m.TCP3)
-    TMC=pe.value(m.TMC)
-    SALES=pe.value(m.SALES)
-    OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJ:',str(OBJVAL))
-    if with_distillation:
-        cost_distillation=5/100
-        DISTIl_COST=sum(sum(sum(pe.value(m.X[I, J, T])*( cost_distillation*pe.value(m.dist_models[I,J,T].I_V[m.dist_models[I,J,T].T.last()])  ) for T in m.T) for I in m.I_distil)for J in m.J_distil)
-        print(DISTIl_COST)
+        TPC1=pe.value(m.TCP1)
+        TPC2=pe.value(m.TCP2)
+        TPC3=pe.value(m.TCP3)
+        TMC=pe.value(m.TMC)
+        SALES=pe.value(m.SALES)
+        OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
+        print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+        print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+        print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+        print('TMC: Total material cost: ',str(TMC))
+        print('SALES: Revenue form selling products: ',str(SALES))
+        print('OBJ:',str(OBJVAL))
+        if with_distillation:
+            cost_distillation=5/100
+            DISTIl_COST=sum(sum(sum(pe.value(m.X[I, J, T])*( cost_distillation*pe.value(m.dist_models[I,J,T].I_V[m.dist_models[I,J,T].T.last()])  ) for T in m.T) for I in m.I_distil)for J in m.J_distil)
+            print('TPC: Variable cost for unit-tasks that do consider dynamics, distillation only:', str(DISTIl_COST))
 
 # SOLUTION USING DSDA
     # print('\n-------DSDA-------------------------------------')
