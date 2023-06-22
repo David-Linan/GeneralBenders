@@ -7677,7 +7677,7 @@ def scheduling_and_control_gdp_N_approx_sequential_naive(x_initial: list=[4,4,5,
     def _C_TCP2(m):
         return m.TCP2==sum(sum(sum(m.variable_cost[I, J]*m.B[I, J, T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)
     m.C_TCP2=pe.Constraint(rule=_C_TCP2)
-    m.TCP3=pe.Var(within=pe.Reals,initialize=0,doc='TPC: Variable cost for unit-tasks that do consider dynamics')
+    m.TCP3=pe.Var(within=pe.NonNegativeReals,initialize=0,doc='TPC: Variable cost for unit-tasks that do consider dynamics')
     def _C_TCP3(m):
         return m.TCP3== sum(sum(sum(m.X[I, J, T]*(m.hot_cost*m.Integral_hot[I, J][m.N[I, J].last()] + m.cold_cost*m.Integral_cold[I, J][m.N[I, J].last()]) for T in m.T) for I in m.I_reactions)for J in m.J_reactors)
     m.C_TCP3=pe.Constraint(rule=_C_TCP3)  
@@ -7702,7 +7702,7 @@ def scheduling_and_control_gdp_N_approx_sequential_naive(x_initial: list=[4,4,5,
         m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
     if sequential:
         def _obj_scheduling(m):
-            return ( m.TCP1+m.TCP2+m.TMC-m.SALES   +        sum(sum(sum(m.YR_disjunct[I,J][index].indicator_var*index for index in m.ordered_set[I,J]) for J in m.J_reactors)for I in m.I_reactions ) )
+            return ( m.TCP1+m.TCP2+m.TCP3+m.TMC-m.SALES   +        sum(sum(sum(m.YR_disjunct[I,J][index].indicator_var*index for index in m.ordered_set[I,J]) for J in m.J_reactors)for I in m.I_reactions ) )
 
         m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
         

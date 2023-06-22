@@ -2770,48 +2770,48 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential(x_init
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
 
-        # Create disjunction
-        def Disjunction2(m):   
-            return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     # Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
 
 
-    # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    # # Associate disjuncts with boolean variables
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
 
     # # -----------------------------------------------------------------------
@@ -3254,7 +3254,7 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1
             return (0,upper_t_h[(I,J)])
         else:
             return (0,0)
-    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
+    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,initialize=0,doc='Variable processing time for units that consider dynamics [h]')
 
 
     m.ordered_set={}
@@ -3832,7 +3832,7 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time(x_initial: list=[1
             m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
         if sequential:
             def _obj_scheduling(m):
-                return ( m.TCP1+m.TCP2+m.TMC-m.SALES   +   sum(sum(m.YR_disjunct[I,J][index].indicator_var for index in m.ordered_set[I,J]) for (I,J) in m.I_J if m.I_i_j_prod[I,J]==1)  ) 
+                return ( m.TCP1+m.TCP2+ m.TCP3 +m.TMC-m.SALES   +   sum(sum(m.YR_disjunct[I,J][index].indicator_var for index in m.ordered_set[I,J]) for (I,J) in m.I_J if m.I_i_j_prod[I,J]==1)  ) 
             m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
             
             def _obj_dummy(m):
@@ -4267,7 +4267,7 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
                     # #----------- Variable processing times----------------------------------------------------------------
                     # TODO: CHANGE TO INEQUALITY AND ADD NEW CONSTRAINT RELATING varTime AND B outside disjunction
                     def _DEF_VAR_TIME(m,T):
-                        return m.model().varTime[I,J,T]<=pe.value(m.model().tau_p[I,J])
+                        return m.model().varTime[I,J,T]<=min([pe.value(m.model().tau_p[I,J]),upper_t_h[(I,J)]])
                     m.DEF_VAR_TIME=pe.Constraint(m.model().T,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
                     # m.DEF_VAR_TIME.display()
 
@@ -4795,48 +4795,48 @@ def case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_d
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
 
-        # Create disjunction
-        def Disjunction2(m):   
-            return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     # Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
 
 
-    # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    # # Associate disjuncts with boolean variables
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
 
     # # -----------------------------------------------------------------------
@@ -5279,7 +5279,7 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time_with_distillation(
             return (0,upper_t_h[(I,J)])
         else:
             return (0,0)
-    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
+    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,initialize=0,doc='Variable processing time for units that consider dynamics [h]')
 
 
     m.ordered_set={}
@@ -5936,7 +5936,7 @@ def case_2_scheduling_control_gdp_var_proc_time_min_proc_time_with_distillation(
             m.obj = pe.Objective(rule=_obj, sense=pe.minimize)  
         if sequential:
             def _obj_scheduling(m):
-                return ( m.TCP1+m.TCP2+m.TMC-m.SALES   +   sum(sum(m.YR_disjunct[I,J][index].indicator_var for index in m.ordered_set[I,J]) for (I,J) in m.I_J if m.I_i_j_prod[I,J]==1)  ) 
+                return ( m.TCP1+m.TCP2+ m.TCP3+m.TMC-m.SALES   +   sum(sum(m.YR_disjunct[I,J][index].indicator_var for index in m.ordered_set[I,J]) for (I,J) in m.I_J if m.I_i_j_prod[I,J]==1)  ) 
             m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
             
             def _obj_dummy(m):

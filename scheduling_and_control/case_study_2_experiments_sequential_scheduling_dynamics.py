@@ -19,6 +19,7 @@ import os
 import matplotlib.pyplot as plt
 from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_approx_sequential_naive,problem_logic_scheduling as problem_logic_scheduling_case1
 import numpy as np
+from math import fabs
 if __name__ == "__main__":
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
@@ -74,8 +75,8 @@ if __name__ == "__main__":
 #     m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
 #     ## RUN THIS TO RETRIEVE SOLUTION    
 
-#     m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution')
-#     m.varTime.pprint()
+#     m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution')
+#     # m.varTime.pprint()
 
 #     Sol_found=[]
 #     for I in m.I_reactions:
@@ -92,13 +93,14 @@ if __name__ == "__main__":
 #     TPC3=pe.value(m.TCP3)
 #     TMC=pe.value(m.TMC)
 #     SALES=pe.value(m.SALES)
+#     OBJ_FOUND=pe.value(m.obj_scheduling)
 
 #     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
 #     print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
 #     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
 #     print('TMC: Total material cost: ',str(TMC))
 #     print('SALES: Revenue form selling products: ',str(SALES))
-
+#     print('OBJECTIVE:',str(OBJ_FOUND))
 
 
 #     # plot of states
@@ -203,16 +205,10 @@ if __name__ == "__main__":
 #     plt.close()
 
 
-#     m2=model_fun(**kwargs2)
-#     m2=initialize_model(m2,from_feasible=True,feasible_model='case_1_min_proc_time_solution')
-#     ActualTPC3=sum(sum(pe.value(m.Nref[I,J])*(m2.hot_cost*pe.value(m2.Integral_hot[I, J][m2.N[I, J].last()]) + m2.cold_cost*pe.value(m2.Integral_cold[I, J][m2.N[I, J].last()])) for I in m2.I_reactions)for J in m2.J_reactors)
-#     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(ActualTPC3))
-#     OBJVAL=(TPC1+TPC2+ActualTPC3+TMC-SALES)
-#     print('OBJ:',str(OBJVAL))
 
 # ######-------plots------------------------
-#     for I in m2.I_reactions:
-#         for J in m2.J_reactors:
+#     for I in m.I_reactions:
+#         for J in m.J_reactors:
 #             case=(I,J)
 #             t=[]
 #             c1=[]
@@ -222,20 +218,20 @@ if __name__ == "__main__":
 #             Tj=[]
 #             Fhot=[]
 #             Fcold=[]
-#             for N in m2.N[case]:
-#                 t.append(N*m2.varTime[I,J].value)
-#                 Tr.append(m2.TRvar[case][N].value)
-#                 Tj.append(m2.TJvar[case][N].value)
-#                 Fhot.append(m2.Fhot[case][N].value)
-#                 Fcold.append(m2.Fcold[case][N].value)
-#                 c1.append( m2.Cvar[case][N,list(m2.Q_balance[I])[0]].value)
-#                 c2.append( m2.Cvar[case][N,list(m2.Q_balance[I])[1]].value)
-#                 c3.append( m2.Cvar[case][N,list(m2.Q_balance[I])[2]].value)
+#             for N in m.N[case]:
+#                 t.append(N*m.varTime[I,J].value)
+#                 Tr.append(m.TRvar[case][N].value)
+#                 Tj.append(m.TJvar[case][N].value)
+#                 Fhot.append(m.Fhot[case][N].value)
+#                 Fcold.append(m.Fcold[case][N].value)
+#                 c1.append( m.Cvar[case][N,list(m.Q_balance[I])[0]].value)
+#                 c2.append( m.Cvar[case][N,list(m.Q_balance[I])[1]].value)
+#                 c3.append( m.Cvar[case][N,list(m.Q_balance[I])[2]].value)
                 
                 
-#             plt.plot(t, c1,label=list(m2.Q_balance[I])[0],color='red')
-#             plt.plot(t, c2,label=list(m2.Q_balance[I])[1],color='green')
-#             plt.plot(t, c3,label=list(m2.Q_balance[I])[2],color='blue')
+#             plt.plot(t, c1,label=list(m.Q_balance[I])[0],color='red')
+#             plt.plot(t, c2,label=list(m.Q_balance[I])[1],color='green')
+#             plt.plot(t, c3,label=list(m.Q_balance[I])[2],color='blue')
 #             plt.xlabel('Time [h]')
 #             plt.ylabel('$Concentration [kmol/m^{3}]$')
 #             title=case[0]+' in '+case[1]+' Concentration'
@@ -327,10 +323,12 @@ if __name__ == "__main__":
 
 
     # ## RUN THIS TO SOLVE
-    # m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
+    # # m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
     # ## RUN THIS TO RETRIEVE SOLUTION    
 
-    # m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_solution')
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_and_dynamics_solution')
+    # print('Minimum product composition that becomes infeasible',str(pe.value(m.CC['T2','U3',5][m.N['T2','U3',5].last()])))
+
 
     # Sol_found=[]
     # for I in m.I:
@@ -347,23 +345,14 @@ if __name__ == "__main__":
     # TPC3=pe.value(m.TCP3)
     # TMC=pe.value(m.TMC)
     # SALES=pe.value(m.SALES)
+    # OBJ_VAL=pe.value(m.obj_scheduling)
 
     # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
     # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
     # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
     # print('TMC: Total material cost: ',str(TMC))
     # print('SALES: Revenue form selling products: ',str(SALES))
-
-
-
-
-    # m2=model_fun(**kwargs2)
-    # m2=initialize_model(m2,from_feasible=True,feasible_model='case_2_min_proc_time_solution')
-    # m2.varTime.pprint()
-    # ActualTPC3=sum(sum(pe.value(m.Nref[I,J])*(m2.hot_cost*pe.value(m2.Integral_hot[I, J,0][m2.N[I, J,0].last()]) + m2.cold_cost*pe.value(m2.Integral_cold[I, J,0][m2.N[I, J,0].last()])) for I in m2.I_dynamics)for J in m2.J_dynamics)
-    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(ActualTPC3))
-    # OBJVAL=(TPC1+TPC2+ActualTPC3+TMC-SALES)
-    # print('OBJ:',str(OBJVAL))
+    # print('OBJECTIVE: ',str(OBJ_VAL))
 # ###############################################################################
 # #########--------------sequential ------------------###########################
 # ###############################################################################
@@ -765,7 +754,7 @@ if __name__ == "__main__":
     # m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0, with_distillation=model_witn_distillation_dynamics)
     # ## RUN THIS TO RETRIEVE SOLUTION    
 
-    # m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_solution_with_distillation')
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_and_dynamics_solution_with_distillation')
 
     # Sol_found=[]
     # for I in m.I:
@@ -782,98 +771,90 @@ if __name__ == "__main__":
     # TPC3=pe.value(m.TCP3)
     # TMC=pe.value(m.TMC)
     # SALES=pe.value(m.SALES)
+    # OBJECTIVE=TPC1+TPC2+TPC3+TMC-SALES
 
     # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
     # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
     # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
     # print('TMC: Total material cost: ',str(TMC))
     # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJECTIVE: ',OBJECTIVE)
 
-
-
-
-    # m2=model_fun(**kwargs2)
-    # m2=initialize_model(m2,from_feasible=True,feasible_model='case_2_min_proc_time_solution_with_distillation')
-    # # m2.varTime.pprint()
-    # cost_distillation=5/100
-    # ActualTPC3=sum(sum(pe.value(m.Nref[I,J])*(m2.hot_cost*pe.value(m2.Integral_hot[I, J,0][m2.N[I, J,0].last()]) + m2.cold_cost*pe.value(m2.Integral_cold[I, J,0][m2.N[I, J,0].last()])) for I in m2.I_dynamics)for J in m2.J_dynamics)  +  sum(sum(pe.value(m.Nref[I,J])*( cost_distillation*m2.dist_models[I,J,0].I_V[m2.dist_models[I,J,0].T.last()]  )  for I in m2.I_distil)for J in m2.J_distil)
-    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(ActualTPC3))
-    # OBJVAL=(TPC1+TPC2+ActualTPC3+TMC-SALES)
-    # print('OBJ:',str(OBJVAL))
 # ###############################################################################
 # #########--------------sequential ------------------###########################
 # ###############################################################################
 # ###############################################################################
-    # print('\n-------SEQUENTIAL-------------------------------------')
-    # kwargs['sequential']=True
+    print('\n-------SEQUENTIAL-------------------------------------')
+    kwargs['sequential']=True
 
-    # logic_fun=problem_logic_scheduling
-    # model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    # m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0,dynamic_dist_model=True)
-    # save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation')
-    # Sol_found=[]
-    # for I in m.I:
-    #     for J in m.J:
-    #         if m.I_i_j_prod[I,J]==1:
-    #             for K in m.ordered_set[I,J]:
-    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-    #                     Sol_found.append(K-m.minTau[I,J]+1)
-    # # for I_J in m.I_J:
-    # #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    logic_fun=problem_logic_scheduling
+    model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,gams_output=False,tee = True, global_tee= True,rel_tol = 0,dynamic_dist_model=True)
+    save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation')
+    # save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation_discrete_processing_time')
+    Sol_found=[]
+    for I in m.I:
+        for J in m.J:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m.minTau[I,J]+1)
+    # for I_J in m.I_J:
+    #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
 
 # ###############################################################################
 # #########--------------dicopt ----------------#################################
 # ###############################################################################
 # ###############################################################################
-    print('\n-------DICOPT-------------------------------------')
-    kwargs['sequential']=False
-    kwargs['x_initial']=[1, 2, 3, 1, 1, 1, 1, 7, 2, 2, 4, 4, 1, 2, 1, 2] # from sequential iterative
-    logic_fun=problem_logic_scheduling_complete
-    model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
-    m=model_fun(**kwargs)
-    m=initialize_model(m,from_feasible=True,feasible_model='case_2_sequential_with_distillation') 
-    start=time.time()
-    m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
-    end=time.time()    
-    solname='case_2_with_distillation_opt_'+minlp_solver
-    save=generate_initialization(m=m,model_name=solname)
+    # print('\n-------DICOPT-------------------------------------')
+    # kwargs['sequential']=False
+    # kwargs['x_initial']=[1, 2, 3, 1, 1, 1, 1, 7, 2, 2, 4, 4, 1, 2, 1, 2] # from sequential iterative
+    # logic_fun=problem_logic_scheduling_complete
+    # model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
+    # m=model_fun(**kwargs)
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_2_sequential_with_distillation') 
+    # start=time.time()
+    # m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    # end=time.time()    
+    # solname='case_2_with_distillation_opt_'+minlp_solver
+    # save=generate_initialization(m=m,model_name=solname)
 
-    if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
-        m.dicopt_status='Infeasible'
-    else:
-        m.dicopt_status='Optimal'
+    # if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+    #     m.dicopt_status='Infeasible'
+    # else:
+    #     m.dicopt_status='Optimal'
 
-    if m.dicopt_status=='Optimal':
-        Sol_founddicopt=[]
-        for I in m.I:
-            for J in m.J:
-                if m.I_i_j_prod[I,J]==1:
-                    for K in m.ordered_set[I,J]:
-                        if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                            Sol_founddicopt.append(K-m.minTau[I,J]+1)
-        for I_J in m.I_J:
-            Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
+    # if m.dicopt_status=='Optimal':
+    #     Sol_founddicopt=[]
+    #     for I in m.I:
+    #         for J in m.J:
+    #             if m.I_i_j_prod[I,J]==1:
+    #                 for K in m.ordered_set[I,J]:
+    #                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                         Sol_founddicopt.append(K-m.minTau[I,J]+1)
+    #     for I_J in m.I_J:
+    #         Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
 
 
-        print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
-    else:
-        print('DICOPT infeasible')
+    #     print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
+    # else:
+    #     print('DICOPT infeasible')
 
-        TPC1=pe.value(m.TCP1)
-        TPC2=pe.value(m.TCP2)
-        TPC3=pe.value(m.TCP3)
-        TMC=pe.value(m.TMC)
-        SALES=pe.value(m.SALES)
-        OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-        print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-        print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-        print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-        print('TMC: Total material cost: ',str(TMC))
-        print('SALES: Revenue form selling products: ',str(SALES))
-        print('OBJ:',str(OBJVAL))
+    #     TPC1=pe.value(m.TCP1)
+    #     TPC2=pe.value(m.TCP2)
+    #     TPC3=pe.value(m.TCP3)
+    #     TMC=pe.value(m.TMC)
+    #     SALES=pe.value(m.SALES)
+    #     OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
+    #     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    #     print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    #     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    #     print('TMC: Total material cost: ',str(TMC))
+    #     print('SALES: Revenue form selling products: ',str(SALES))
+    #     print('OBJ:',str(OBJVAL))
 ###############################################################################
 #########--------------dbd-approx_sol_subproblems ------------------###########
 ###############################################################################

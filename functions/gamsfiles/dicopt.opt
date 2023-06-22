@@ -1,8 +1,6 @@
 
+maxcycles 20000 
+
 nlpsolver conopt4
 
-stop 2 
 
-maxcycles 1 
-
-infeasder 0

@@ -406,7 +406,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     # #----------- Variable processing times----------------------------------------------------------------
                     # TODO: CHANGE TO INEQUALITY AND ADD NEW CONSTRAINT RELATING varTime AND B outside disjunction
                     def _DEF_VAR_TIME(m,T):
-                        return m.model().varTime[I,J,T]<=pe.value(m.model().tau_p[I,J])
+                        return m.model().varTime[I,J,T]<=pe.value(m.model().tau_p[I,J]) #NOTE #when using les or equal this formulation is correct. But when using equal I should use the min operatior
                     m.DEF_VAR_TIME=pe.Constraint(m.model().T,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
                     # m.DEF_VAR_TIME.display()
 

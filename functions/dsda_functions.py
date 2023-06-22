@@ -1997,7 +1997,7 @@ def solve_subproblem_aprox_sequential_case_2(
                                 v.fix(round(pe.value(v)))
                             else:
                                 v[index].fix(round(pe.value(v[index])))
-                    elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift': #NOTE that in this case I do not include VarTime, becase un this case I am considering it using the inequality constraint
+                    elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':# or v.name=='VarTime': #NOTE that in this case I do not include VarTime, becase un this case I am considering it using the inequality constraint
                         for index in v:
                             if index==None:
                                 v.fix(pe.value(v))
@@ -2089,7 +2089,7 @@ def solve_subproblem_aprox_sequential_case_2(
                                             v.fix(round(pe.value(v)))
                                         else:
                                             v[index].fix(round(pe.value(v[index])))
-                                elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':
+                                elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift': #or v.name=='VarTime':
                                     for index in v:
                                         if index==None:
                                             v.fix(pe.value(v))
@@ -2153,7 +2153,7 @@ def solve_subproblem_aprox_sequential_case_2(
                                                 v.fix(round(pe.value(v)))
                                             else:
                                                 v[index].fix(round(pe.value(v[index])))
-                                    elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':
+                                    elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':# or v.name=='VarTime':
                                         for index in v:
                                             if index==None:
                                                 v.fix(pe.value(v))
@@ -4503,6 +4503,171 @@ def sequential_iterative_2_case2(
         if global_tee:
             print("-------Status: ",m.sched_Status," ",m.cont_Status,"  |  Current CPU time [s]:",time.perf_counter()-t_start)
             print("-------Dynamic models: ",m.source)
+            if not dynamic_dist_model:
+
+                #--------------------------------- Gantt plot--------------------------------------------
+                fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+                # Setting Y-axis limits
+                gnt.set_ylim(8, 52) #TODO: change depending case study
+                
+                # Setting X-axis limits
+                gnt.set_xlim(0, m.lastT.value*m.delta.value)
+                
+                # Setting labels for x-axis and y-axis
+                gnt.set_xlabel('Time [h]')
+                gnt.set_ylabel('Units')
+                
+                # Setting ticks on y-axis
+                gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+                # Labelling tickes of y-axis
+                gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+                
+                
+                # Setting graph attribute
+                gnt.grid(False)
+                
+                # Declaring bars in schedule
+                height=9
+                already_used=[]
+                for j in m.J:
+
+                    if j=='U1':
+                        lower_y_position=40    
+                    elif j=='U2':
+                        lower_y_position=30    
+                    elif j=='U3':
+                        lower_y_position=20
+                    elif j=='U4':
+                        lower_y_position=10
+                    for i in m.I:
+                        if i=='T1':
+                            bar_color='tab:red'
+                        elif i=='T2':
+                            bar_color='tab:green'    
+                        elif i=='T3':
+                            bar_color='tab:blue'    
+                        elif i=='T4':
+                            bar_color='tab:orange' 
+                        elif i=='T5':
+                            bar_color='tab:olive'
+                        for t in m.T:
+                            try:
+                                if i in m.I_dynamics and j in m.J_dynamics:
+                                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                        gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                        already_used.append(i)
+                                    elif round(pe.value(m.X[i,j,t]))==1:
+                                        gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                                else:
+                                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                        gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                        already_used.append(i)
+                                    elif round(pe.value(m.X[i,j,t]))==1:
+                                        gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                            except:
+                                pass 
+                gnt.tick_params(axis='both', which='major', labelsize=15)
+                gnt.tick_params(axis='both', which='minor', labelsize=15) 
+                gnt.yaxis.label.set_size(15)
+                gnt.xaxis.label.set_size(15)
+                plt.legend()
+                plt.show()
+                plt.clf()
+                plt.cla()
+                plt.close()
+
+            else:
+
+                #--------------------------------- Gantt plot--------------------------------------------
+                fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+                # Setting Y-axis limits
+                gnt.set_ylim(8, 52) #TODO: change depending case study
+                
+                # Setting X-axis limits
+                gnt.set_xlim(0, m.lastT.value*m.delta.value)
+                
+                # Setting labels for x-axis and y-axis
+                gnt.set_xlabel('Time [h]')
+                gnt.set_ylabel('Units')
+                
+                # Setting ticks on y-axis
+                gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+                # Labelling tickes of y-axis
+                gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+                
+                
+                # Setting graph attribute
+                gnt.grid(False)
+                
+                # Declaring bars in schedule
+                height=9
+                already_used=[]
+                for j in m.J:
+
+                    if j=='U1':
+                        lower_y_position=40    
+                    elif j=='U2':
+                        lower_y_position=30    
+                    elif j=='U3':
+                        lower_y_position=20
+                    elif j=='U4':
+                        lower_y_position=10
+                    for i in m.I:
+                        if i=='T1':
+                            bar_color='tab:red'
+                        elif i=='T2':
+                            bar_color='tab:green'    
+                        elif i=='T3':
+                            bar_color='tab:blue'    
+                        elif i=='T4':
+                            bar_color='tab:orange' 
+                        elif i=='T5':
+                            bar_color='tab:olive'
+                        for t in m.T:
+                            try:
+                                if i in m.I_dynamics and j in m.J_dynamics:
+                                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                        gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                        already_used.append(i)
+                                    elif round(pe.value(m.X[i,j,t]))==1:
+                                        gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                                elif i in m.I_distil and j in m.J_distil:
+                                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                        gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                        already_used.append(i)
+                                    elif round(pe.value(m.X[i,j,t]))==1:
+                                        gnt.broken_barh([(m.t_p[t], m.varTime[i,j,t].value)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+m.varTime[i,j,t].value)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                                                          
+                                else:
+                                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                                        gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                                        already_used.append(i)
+                                    elif round(pe.value(m.X[i,j,t]))==1:
+                                        gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+
+                            except:
+                                pass 
+                gnt.tick_params(axis='both', which='major', labelsize=15)
+                gnt.tick_params(axis='both', which='minor', labelsize=15) 
+                gnt.yaxis.label.set_size(15)
+                gnt.xaxis.label.set_size(15)
+                plt.legend()
+                plt.show()
+                plt.clf()
+                plt.cla()
+                plt.close()
+
+
         if m.dsda_status == 'Optimal':
             print('--------------------------------------------------------------------------')
             print('--------------------------------------------------------------------------')
@@ -4743,6 +4908,116 @@ def sequential_non_iterative_2_case2(
         save=generate_initialization(m=m,model_name='case_2_scheduling_solution_with_distillation')
     else:
         save=generate_initialization(m=m,model_name='case_2_scheduling_solution')
+
+    # retrieve ext vars
+    Sol_found=[]
+    for I in m.I:
+        for J in m.J:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m.minTau[I,J]+1)
+    for I_J in m.I_J:
+        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+
+    m = model_function(**kwargs)
+    m = external_ref_sequential_case_2(m=m,x=Sol_found,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)
+    m.obj_scheduling.activate()
+    m.obj.deactivate()
+    m.obj_dummy.deactivate()
+    if with_distillation:
+        m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_solution_with_distillation')  
+    else:
+        m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_solution') 
+    for v in m.component_objects(pe.Var, descend_into=True):
+        if v.name=='X' or v.name=='Nref':
+            for index in v:
+                if index==None:
+                    v.fix(round(pe.value(v)))
+                else:
+                    v[index].fix(round(pe.value(v[index])))
+        elif v.name=='sumX' or v.name=='B' or v.name=='S' or v.name=='B_shift':
+            for index in v:
+                if index==None:
+                    v.fix(pe.value(v))
+                else:
+                    v[index].fix(pe.value(v[index]))
+
+    if with_distillation:
+        def _linking1_11(m,I,J,T):
+            if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
+            return pe.Constraint.Skip
+        m.linking111=pe.Constraint(m.I,m.J,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+        def _linking1_22(m,I,J,T):
+            if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T]) 
+            return pe.Constraint.Skip 
+        m.linking122=pe.Constraint(m.I,m.J,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+        # def _linking2_11(m,I,J,T):
+        #     if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+        #         return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T]) 
+        #     return pe.Constraint.Skip 
+        # m.linking211=pe.Constraint(m.I,m.J,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+
+        # def _linking2_22(m,I,J,T):
+        #     if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+        #         return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+        #     return pe.Constraint.Skip
+        # m.linking222=pe.Constraint(m.I,m.J,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+    else:
+        def _linking1_11(m,I,J,T):
+            return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
+        m.linking111=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_11,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+        def _linking1_22(m,I,J,T):
+            return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
+        m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+
+
+
+        # NOTE : This is atest to show that operation becomes infeasible due to the processing time wrongly selected by sequential approach
+        m.linking3_1['T2','U3',5].deactivate()
+        m.linking3_2['T2','U3',5].deactivate()
+        m.obj_scheduling.deactivate()
+
+        def _min_square(m):
+            return (m.CC['T2','U3',5][m.N['T2','U3',5].last()]-m.CCDESIRED)**2
+        m.min_squareobj=pe.Objective(rule=_min_square,sense=pe.minimize)
+        # def _linking2_11(m,I,J,T):
+        #     return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+        # m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
+
+        # def _linking2_22(m,I,J,T):
+        #     return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+        # m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity')         
+
+    # DEACTIVATE SCHEDULING CONSTRAINTS
+    m.E2_CAPACITY_LOW.deactivate()
+    m.E2_CAPACITY_UP.deactivate()
+    m.E3_BALANCE_INIT.deactivate()
+    m.E1_UNIT.deactivate()
+    m.E3_BALANCE.deactivate()
+    m.X_Z_relation.deactivate()
+
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
+
+    # ACTIVATE SCHEDULING CONSTRAINTS
+    m.E2_CAPACITY_LOW.activate()
+    m.E2_CAPACITY_UP.activate()
+    m.E3_BALANCE_INIT.activate()
+    m.E1_UNIT.activate()
+    m.E3_BALANCE.activate()
+    m.X_Z_relation.activate()
+
+
+    if with_distillation:
+        save=generate_initialization(m=m,model_name='case_2_scheduling_and_dynamics_solution_with_distillation')
+    else:
+        save=generate_initialization(m=m,model_name='case_2_scheduling_and_dynamics_solution')
+
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
 
@@ -4918,6 +5193,70 @@ def sequential_non_iterative_2(
 
     m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
     save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
+
+
+    # retrieve capacity
+    Capa={}
+    for I in m.I:
+        for J in m.J:
+            for T in m.T:
+                if round(pe.value(m.X[I,J,T]))==1:   
+                    Capa[I, J, T]=min([pe.value(m.B[I, J, T]),m.beta_max[I,J]])  
+                else:
+                    Capa[I, J, T]=0 
+    # retrieve ext vars
+    Sol_found=[]
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m.minTau[I,J]+1)
+    for I_J in m.I_J:
+        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+
+    m = model_function(**kwargs)
+    m = external_ref_sequential_case_2(m=m,x=Sol_found,extra_logic_function=ext_logic,dict_extvar=dict_extvar,mip_ref=mip_transformation,tee=False)
+
+    m.obj_scheduling.deactivate()
+    m.obj.deactivate()
+    m.obj_dummy.deactivate()
+
+    # TO AVOID THE ISSUE THAT CONOPT4 SOLVER ERRONEOUSLY DETECTS CPLEX SOLUTION AS INFEASIBLE, we fix capacities and processing times using an optimization problems
+    def _min_square(m):
+        return sum(sum(sum( ((m.B[I,J,T]-Capa[I, J, T])**2) for T in m.T) for J in m.J) for I in m.I)+sum(sum( (m.varTime[I,J]-min_proc_time[I,J])**2 for I in m.I_reactions)for J in m.J_reactors)
+        # return sum(sum(sum( ((m.B[I,J,T]-Capa[I, J, T])**2) for T in m.T) for J in m.J) for I in m.I)-sum(sum( (m.varTime[I,J]) for I in m.I_reactions)for J in m.J_reactors)
+    m.min_squareobj=pe.Objective(rule=_min_square,sense=pe.minimize)
+    m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution')  
+    # FIX DISCRETE SCHEDULING VARIABLES
+    for v in m.component_objects(pe.Var, descend_into=True):
+        if v.name=='X' or v.name=='Nref':
+            for index in v:
+                if index==None:
+                    v.fix(round(pe.value(v)))
+                else:
+                    v[index].fix(round(pe.value(v[index])))
+
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
+
+    # APPLY ECONOMIC OBJECTIVE FUNCTION CONSIDERING DYNAMIC TERM
+    m.min_squareobj.deactivate()
+    m.obj_scheduling.activate()
+
+    #NOW WE CAN FIX THE REMAINING SCHEDULING VARIABLES
+    for v in m.component_objects(pe.Var, descend_into=True):
+        if v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
+            for index in v:
+                if index==None:
+                    v.fix(pe.value(v))
+                else:
+                    v[index].fix(pe.value(v[index]))
+
+    #SOLVE AGAIN
+    m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
+    #SAVE SOLUTION
+    save=generate_initialization(m=m,model_name='case_1_scheduling_and_dynamics_solution')
+
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
 
