@@ -35,20 +35,20 @@ if __name__ == "__main__":
 # ###############################################################################
 # ###############################################################################
 
-    # initialization=[1, 1, 1, 1, 1, 1]
+    initialization=[1, 1, 1, 1, 1, 1]
   
-    # mip_solver='CPLEX'
-    # minlp_solver='DICOPT'
-    # nlp_solver='conopt4'
-    # transform='bigm'
+    mip_solver='CPLEX'
+    minlp_solver='DICOPT'
+    nlp_solver='conopt4'
+    transform='bigm'
 
 
-    # if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
-    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-    # elif minlp_solver=='OCTERACT':
-    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
+    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    elif minlp_solver=='OCTERACT':
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
     
-    # kwargs={}
+    kwargs={}
 
 
 # ###############################################################################
@@ -56,51 +56,51 @@ if __name__ == "__main__":
 # ###############################################################################
 # ###############################################################################
 
-#     print('\n-------SEQUENTIAL NAIVE-------------------------------------')
-#     kwargs2=kwargs.copy()
-#     kwargs2['sequential']=True
+    print('\n-------SEQUENTIAL NAIVE-------------------------------------')
+    kwargs2=kwargs.copy()
+    kwargs2['sequential']=True
 
-#     logic_fun=problem_logic_scheduling_case1
-#     model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
-#     m=model_fun(**kwargs2)
-#     ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors if m.I_i_j_prod[I,J]==1}
-#     ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-#     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    logic_fun=problem_logic_scheduling_case1
+    model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
+    m=model_fun(**kwargs2)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors if m.I_i_j_prod[I,J]==1}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
-#     initialization_test=[]
-#     for k in upper_bounds.keys():
-#         initialization_test.append(upper_bounds[k]) 
-#     print('upper bound ext var related to proc time',initialization_test)
-#     ## RUN THIS TO SOLVE
-#     m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
-#     ## RUN THIS TO RETRIEVE SOLUTION    
+    initialization_test=[]
+    for k in upper_bounds.keys():
+        initialization_test.append(upper_bounds[k]) 
+    print('upper bound ext var related to proc time',initialization_test)
+    ## RUN THIS TO SOLVE
+    m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = 0)
+    ## RUN THIS TO RETRIEVE SOLUTION    
 
-#     m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution')
-#     # m.varTime.pprint()
+    m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution')
+    # m.varTime.pprint()
 
-#     Sol_found=[]
-#     for I in m.I_reactions:
-#         for J in m.J_reactors:
-#             if m.I_i_j_prod[I,J]==1:
-#                 for K in m.ordered_set[I,J]:
-#                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-#                         Sol_found.append(K-m.minTau[I,J]+1)
-#     for I_J in m.I_J:
-#         Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-#     print('EXT_VARS_FOUND',Sol_found)
-#     TPC1=pe.value(m.TCP1)
-#     TPC2=pe.value(m.TCP2)
-#     TPC3=pe.value(m.TCP3)
-#     TMC=pe.value(m.TMC)
-#     SALES=pe.value(m.SALES)
-#     OBJ_FOUND=pe.value(m.obj_scheduling)
+    Sol_found=[]
+    for I in m.I_reactions:
+        for J in m.J_reactors:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m.minTau[I,J]+1)
+    for I_J in m.I_J:
+        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    print('EXT_VARS_FOUND',Sol_found)
+    TPC1=pe.value(m.TCP1)
+    TPC2=pe.value(m.TCP2)
+    TPC3=pe.value(m.TCP3)
+    TMC=pe.value(m.TMC)
+    SALES=pe.value(m.SALES)
+    OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
 
-#     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-#     print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-#     print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-#     print('TMC: Total material cost: ',str(TMC))
-#     print('SALES: Revenue form selling products: ',str(SALES))
-#     print('OBJECTIVE:',str(OBJ_FOUND))
+    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    print('TMC: Total material cost: ',str(TMC))
+    print('SALES: Revenue form selling products: ',str(SALES))
+    print('OBJECTIVE:',str(OBJ_FOUND))
 
 
 #     # plot of states
@@ -707,31 +707,31 @@ if __name__ == "__main__":
 # ###############################################################################
 # ###############################################################################
 
-    obj_Selected='profit_max'
+    # obj_Selected='profit_max'
 
 
 
-    initialization=[1, 1, 1, 1, 1, 1, 1, 1]
+    # initialization=[1, 1, 1, 1, 1, 1, 1, 1]
   
-    mip_solver='CPLEX'
-    minlp_solver='DICOPT'
-    nlp_solver='conopt4'
-    transform='bigm'
-    #tried 5 and no improvement. With 15 DICOT is unable, and now DSDA can solve the problem.
-    last_disc=15
-    last_time_h=5
+    # mip_solver='CPLEX'
+    # minlp_solver='DICOPT'
+    # nlp_solver='conopt4'
+    # transform='bigm'
+    # #tried 5 and no improvement. With 15 DICOT is unable, and now DSDA can solve the problem.
+    # last_disc=15
+    # last_time_h=5
 
-    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-    elif minlp_solver=='OCTERACT':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
+    # if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    # elif minlp_solver=='OCTERACT':
+    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
     
-    LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):0.1}
-    UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):3}
-    kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
+    # LO_PROC_TIME={('T1','U1'):0.5,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):0.1}
+    # UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):3}
+    # kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
 
 
-    model_witn_distillation_dynamics=True
+    # model_witn_distillation_dynamics=True
 
 # ###############################################################################
 # #########--------------sequential naive-------------###########################
@@ -784,26 +784,26 @@ if __name__ == "__main__":
 # #########--------------sequential ------------------###########################
 # ###############################################################################
 # ###############################################################################
-    print('\n-------SEQUENTIAL-------------------------------------')
-    kwargs['sequential']=True
+    # print('\n-------SEQUENTIAL-------------------------------------')
+    # kwargs['sequential']=True
 
-    logic_fun=problem_logic_scheduling
-    model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,gams_output=False,tee = True, global_tee= True,rel_tol = 0,dynamic_dist_model=True)
-    save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation')
-    # save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation_discrete_processing_time')
-    Sol_found=[]
-    for I in m.I:
-        for J in m.J:
-            if m.I_i_j_prod[I,J]==1:
-                for K in m.ordered_set[I,J]:
-                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-m.minTau[I,J]+1)
-    # for I_J in m.I_J:
-    #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    # logic_fun=problem_logic_scheduling
+    # model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,_=sequential_iterative_2_case2(logic_fun,initialization,model_fun,kwargs,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,gams_output=False,tee = True, global_tee= True,rel_tol = 0,dynamic_dist_model=True)
+    # save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation')
+    # # save=generate_initialization(m=m,model_name='case_2_sequential_with_distillation_discrete_processing_time')
+    # Sol_found=[]
+    # for I in m.I:
+    #     for J in m.J:
+    #         if m.I_i_j_prod[I,J]==1:
+    #             for K in m.ordered_set[I,J]:
+    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                     Sol_found.append(K-m.minTau[I,J]+1)
+    # # for I_J in m.I_J:
+    # #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
 
 # ###############################################################################
 # #########--------------dicopt ----------------#################################
