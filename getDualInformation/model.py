@@ -257,6 +257,7 @@ def generate_model(data):
     # Discretize model
     disc = TransformationFactory('dae.collocation')
     disc.apply_to(m, nfe=20, ncp=4)
+    m.cuts=ConstraintList()
     
     return m
 
@@ -274,7 +275,21 @@ def main():
     solver.solve(model,tee=False)
     print('k1 = ', model.k1())
     print('E1 = ', model.E1())
-    model.dual.pprint()
+
+
+    # model.dual.pprint()
+
+    expr=0
+    for c in model.component_objects(Constraint, active=True):
+        # print("   Constraint", c)
+        for index in c:
+            # print("      ", index, model.dual[c[index]])
+            # print(c[index].body)
+            expr=expr+model.dual[c[index]]*(c[index].body)
+    
+    
+    model.cuts.add(expr<=1)
+    model.cuts.pprint()
 
 
 if __name__ == '__main__':
