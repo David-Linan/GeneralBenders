@@ -2201,6 +2201,7 @@ def solve_with_minlp(
     gams_output: bool = False,
     tee: bool = False,
     rel_tol: float = 0.001,
+    transform_required: bool = True
 ) -> pe.ConcreteModel():
     """
     Function that transforms a GDP model and solves it as a mixed-integer nonlinear
@@ -2219,9 +2220,10 @@ def solve_with_minlp(
     """
 
     # Transformation step
-    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
-    transformation_string = 'gdp.' + transformation
-    pe.TransformationFactory(transformation_string).apply_to(m)
+    if transform_required:
+        pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+        transformation_string = 'gdp.' + transformation
+        pe.TransformationFactory(transformation_string).apply_to(m)
 
     # Output report
     output_options = {}

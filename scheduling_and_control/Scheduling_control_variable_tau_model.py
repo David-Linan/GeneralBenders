@@ -8190,7 +8190,7 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
                 m.model().tau_p[I,J]=pe.value(m.model().tau[I,J])*m.model().delta #Both times are assumed to be discrete
                 # #----------- Variable processing times----------------------------------------------------------------
                 def _DEF_VAR_TIME(m):
-                    return m.model().varTime[I,J]==min([pe.value(m.model().tau_p[I,J]),m.maxTau[I,J]*m.delta])
+                    return m.model().varTime[I,J]==min([pe.value(m.model().tau_p[I,J]),m.model().maxTau[I,J]*m.model().delta])
                 m.DEF_VAR_TIME=pe.Constraint(rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
                 # m.DEF_VAR_TIME.display()
 
@@ -8346,24 +8346,24 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
             
             #Constraints when finishing reaction tasks
             
-            # # Final concentration constraint
-            # def _finalCon(m,N,Q):
-            #     if N==m.N[I,J].last():
-            #         return m.Cvar[I,J][N,Q] == m.C_final[I,Q]
-            #     else:
-            #         return pe.Constraint.Skip
-            # m.finalCon[I,J]=pe.Constraint(m.N[I,J],m.Q_balance[I],rule=_finalCon)
-            # setattr(m,'finalCon_(%s,%s)' %(I,J),m.finalCon[I,J])
+            # Final concentration constraint
+            def _finalCon(m,N,Q):
+                if N==m.N[I,J].last():
+                    return m.Cvar[I,J][N,Q] == m.C_final[I,Q]
+                else:
+                    return pe.Constraint.Skip
+            m.finalCon[I,J]=pe.Constraint(m.N[I,J],m.Q_balance[I],rule=_finalCon)
+            setattr(m,'finalCon_(%s,%s)' %(I,J),m.finalCon[I,J])
             
-            # #Final temperature constraints
+            #Final temperature constraints
             
-            # def _finalTemp(m,N):
-            #     if N==m.N[I,J].last():
-            #         return m.TRvar[I,J][N]<= m.T_R_final[I]
-            #     else:
-            #         return pe.Constraint.Skip
-            # m.finalTemp[I,J]=pe.Constraint(m.N[I,J],rule=_finalTemp)
-            # setattr(m,'finalTemp_(%s,%s)' %(I,J),m.finalTemp[I,J])
+            def _finalTemp(m,N):
+                if N==m.N[I,J].last():
+                    return m.TRvar[I,J][N]<= m.T_R_final[I]
+                else:
+                    return pe.Constraint.Skip
+            m.finalTemp[I,J]=pe.Constraint(m.N[I,J],rule=_finalTemp)
+            setattr(m,'finalTemp_(%s,%s)' %(I,J),m.finalTemp[I,J])
            
             
            # Integrals for cost calculation
@@ -8458,74 +8458,74 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
 
     def _Nref_bounds(m,I,J):
         return (0,m.lastN[I,J])
-    m.Nref=pe.Var(m.I_J,within=pe.Integers,bounds=_Nref_bounds,doc='reformulation variables from 0 to lastN')
+    m.Nref=pe.Var(m.I_J,within=pe.Integers,bounds=_Nref_bounds,initialize=0,doc='reformulation variables from 0 to lastN')
 
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
     m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
 
 #-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    m.ordered_set2={}
-    m.YR2={}
-    m.oneYR2={}
-    m.YR2_Disjunct={}
-    m.Disjunction2={}
-    for I_J in m.I_J:
-        positcui=positcui+1
-        I=I_J[0]
-        J=I_J[1]
-        m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-        setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
+    # m.ordered_set2={}
+    # m.YR2={}
+    # m.oneYR2={}
+    # m.YR2_Disjunct={}
+    # m.Disjunction2={}
+    # for I_J in m.I_J:
+    #     positcui=positcui+1
+    #     I=I_J[0]
+    #     J=I_J[1]
+    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
+    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
           
-        def _YR2init(m,ordered_set2):
-            if ordered_set2== x_initial[positcui]-1:
-                return True
-            else:
-                return False       
-        m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-        setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
+    #     def _YR2init(m,ordered_set2):
+    #         if ordered_set2== x_initial[positcui]-1:
+    #             return True
+    #         else:
+    #             return False       
+    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
+    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
 
-        def _select_one2(m):
-            return pe.exactly(1,m.YR2[I,J])
-        m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-        setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
+    #     def _select_one2(m):
+    #         return pe.exactly(1,m.YR2[I,J])
+    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
+    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
 
-        def _build_YR2_Disjunct(m,indexN):
-            def _DEF_Nref(m):
-                return m.model().Nref[I,J]==indexN
-            m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-
-
-            if I in m.model().I_reactions and J in m.model().J_reactors:
-                # Final concentration constraint
-                def _finalCon(m,N,Q):
-                    if N==m.model().N[I,J].last() and indexN!=0:
-                        return m.model().Cvar[I,J][N,Q] == m.model().C_final[I,Q]
-                    else:
-                        return pe.Constraint.Skip
-                m.finalCon=pe.Constraint(m.model().N[I,J],m.model().Q_balance[I],rule=_finalCon)
-
-                #Final temperature constraints                
-                def _finalTemp(m,N):
-                    if N==m.model().N[I,J].last() and indexN!=0:
-                        return m.model().TRvar[I,J][N]<= m.model().T_R_final[I]
-                    else:
-                        return pe.Constraint.Skip
-                m.finalTemp=pe.Constraint(m.model().N[I,J],rule=_finalTemp)
-
-        m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-        setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
-
-        #Create disjunction
-        def Disjunction2(m):   
-            return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-        m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-        setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+    #     def _build_YR2_Disjunct(m,indexN):
+    #         def _DEF_Nref(m):
+    #             return m.model().Nref[I,J]==indexN
+    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
 
 
-    # Associate disjuncts with boolean variables
-        for index in m.ordered_set2[I,J]:
-            m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    #         if I in m.model().I_reactions and J in m.model().J_reactors:
+    #             # Final concentration constraint
+    #             def _finalCon(m,N,Q):
+    #                 if N==m.model().N[I,J].last() and indexN!=0:
+    #                     return m.model().Cvar[I,J][N,Q] == m.model().C_final[I,Q]
+    #                 else:
+    #                     return pe.Constraint.Skip
+    #             m.finalCon=pe.Constraint(m.model().N[I,J],m.model().Q_balance[I],rule=_finalCon)
+
+    #             #Final temperature constraints                
+    #             def _finalTemp(m,N):
+    #                 if N==m.model().N[I,J].last() and indexN!=0:
+    #                     return m.model().TRvar[I,J][N]<= m.model().T_R_final[I]
+    #                 else:
+    #                     return pe.Constraint.Skip
+    #             m.finalTemp=pe.Constraint(m.model().N[I,J],rule=_finalTemp)
+
+    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
+    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
+
+    #     #Create disjunction
+    #     def Disjunction2(m):   
+    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
+    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
+    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
+
+
+    # # Associate disjuncts with boolean variables
+    #     for index in m.ordered_set2[I,J]:
+    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
 
     # # -----------------------------------------------------------------------
     # # -----------------------------------------------------------------------
@@ -8561,12 +8561,13 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
     m.C_SALES=pe.Constraint(rule=_C_SALES)
 
 
+
     def _obj_scheduling(m):
         return m.TCP1+m.TCP2+m.TCP3+m.TMC-m.SALES 
     m.obj = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
 
-    m.cuts=pe.ConstraintList()
-    
+    # m.cuts=pe.ConstraintList()
+    # m.dual = pe.Suffix(direction=pe.Suffix.IMPORT)
     return m
 
 def problem_logic_scheduling(m):
