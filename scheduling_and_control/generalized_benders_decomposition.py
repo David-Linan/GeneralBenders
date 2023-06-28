@@ -88,6 +88,10 @@ if __name__ == "__main__":
     transformation_string = 'gdp.' + transform
     pe.TransformationFactory(transformation_string).apply_to(mas)
 
+
+    # print(sum(v for v in mas.component_data_objects(ctype=pe.Var,descend_into=True) if(v.is_binary())))
+
+
     ###### SUBPROBLEM ##################
     sub=model_fun(**kwargs2) #subproblem
     sub.E2_CAPACITY_LOW.deactivate()
@@ -151,7 +155,7 @@ if __name__ == "__main__":
     # Dual variables
     sub.dual = pe.Suffix(direction=pe.Suffix.IMPORT) #define dual variables
 
-
+    generate_initialization(m=sub,model_name='GBD_user_defined')
     ###### FEASIBILITY SUBPROBLEM ##################
     feas=sub.clone()
     sum_infeasibility=0  #sum of infeasibility
@@ -292,7 +296,14 @@ if __name__ == "__main__":
         for I in sub.I:
             for J in sub.J:
                 for T in sub.T:
-                    sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
+
+                    if pe.value(mas.B[I,J,T])>=mas.B[I,J,T].ub: 
+                        sub.link_B[I,J,T].fix(mas.B[I,J,T].ub)
+                    elif pe.value(mas.B[I,J,T])<=mas.B[I,J,T].lb:
+                        sub.link_B[I,J,T].fix(mas.B[I,J,T].lb)
+                    else:
+                        sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
+
                     sub.X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
 
         for I_J in sub.I_J:
@@ -302,14 +313,25 @@ if __name__ == "__main__":
 
         for K in sub.K:
             for T in sub.T:
-                sub.S[K,T].fix(pe.value(mas.S[K,T]))
+                if pe.value(mas.S[K,T])>=mas.S[K,T].ub:
+                    sub.S[K,T].fix(mas.S[K,T].ub)
+                elif pe.value(mas.S[K,T])<=mas.S[K,T].lb:
+                    sub.S[K,T].fix(mas.S[K,T].lb)
+                else:
+                    sub.S[K,T].fix(pe.value(mas.S[K,T]))
 
         for I in sub.I_reactions:
             for J in sub.J_reactors:
-                sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))    
+                if pe.value(mas.varTime[I,J])>=mas.varTime[I,J].ub:
+                    sub.link_varTime[I,J].fix(mas.varTime[I,J].ub)  
+                elif pe.value(mas.varTime[I,J])<=mas.varTime[I,J].lb:
+                    sub.link_varTime[I,J].fix(mas.varTime[I,J].lb)  
+                else:
+                    sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))   
 
         # solve primal (subprolem)
         sub=solve_subproblem(sub,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
+        generate_initialization(m=sub,model_name='GBD_subproblem')
         print('Subproblem status:',sub.dsda_status)
         if sub.dsda_status=='Optimal':
             
@@ -321,8 +343,10 @@ if __name__ == "__main__":
             TMC=pe.value(sub.TMC)
             SALES=pe.value(sub.SALES)
 
-            sub.UBD=min([sub.UBD,TPC1+TPC2+TPC3+TMC-SALES])
-
+            sub.UBD_new=min([sub.UBD,TPC1+TPC2+TPC3+TMC-SALES])
+            if sub.UBD_new<sub.UBD:
+                generate_initialization(m=sub,model_name='current_best_GBD_subproblem')
+            sub.UBD=sub.UBD_new
             # if sub.UBD- mas.LBD <=epsilon:
             #     break
 
@@ -332,67 +356,18 @@ if __name__ == "__main__":
             
         else:
 
-            # sum_infeasibility=0  #sum of infeasibility
-            # # infeasible_const=[]  #infeasible constraints
-
-            # for constr in sub.component_data_objects(ctype=pe.Constraint, active=True, descend_into=True):
-            #     constr_body_value = pe.value(constr.body, exception=False)
-            #     constr_lb_value = pe.value(constr.lower, exception=False)
-            #     constr_ub_value = pe.value(constr.upper, exception=False)
-
-            #     constr_undefined = False
-            #     equality_violated = False
-            #     lb_violated = False
-            #     ub_violated = False
-
-            #     if constr_body_value is None:
-            #         # Undefined constraint body value due to missing variable value
-            #         constr_undefined = True
-            #         pass
-            #     else:
-            #         # Check for infeasibilities
-            #         if constr.equality:
-            #             if fabs(constr_lb_value - constr_body_value) >= tol:
-            #                 equality_violated = True
-            #                 sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
-            #         else:
-            #             if constr.has_lb() and constr_lb_value - constr_body_value >= tol:
-            #                 lb_violated = True
-            #                 sum_infeasibility=sum_infeasibility+fabs(constr_lb_value - constr_body_value)
-            #             if constr.has_ub() and constr_body_value - constr_ub_value >= tol:
-            #                 ub_violated = True
-            #                 sum_infeasibility=sum_infeasibility+fabs(constr_body_value - constr_ub_value)
-            #     if not any((constr_undefined, equality_violated, lb_violated, ub_violated)):
-            #         # constraint is fine. skip to next constraint
-            #         continue
-
-            #     # output_dict = dict(name=constr.name)
-            #     # infeasible_const.append(output_dict)
-            
-            # sum_infeasibility=0
-            # for c in sub.component_objects(pe.Constraint, active=True):
-            #     # print(c.local_name)
-            #     if c.local_name != 'const_link_B' and c.local_name != 'const_link_VarTime':
-            #         for index in c:
-            #             if index==None:
-            #                 # print(c.body)
-            #                 # print(c.name,index,str(sub.dual[c]))
-            #                 sum_infeasibility=sum_infeasibility+sub.dual[c]*pe.value(c.body)
-            #             else:
-            #                 # print(c[index].body)
-            #                 # print(c.name,index,str(sub.dual[c[index]]))   
-            #                 sum_infeasibility=sum_infeasibility+sub.dual[c[index]]*pe.value(c[index].body)
-
-
-
-
-
-
             # fix variables in subproblem 
             for I in feas.I:
                 for J in feas.J:
                     for T in feas.T:
-                        feas.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
+
+                        if pe.value(mas.B[I,J,T])>=mas.B[I,J,T].ub: 
+                            feas.link_B[I,J,T].fix(mas.B[I,J,T].ub)
+                        elif pe.value(mas.B[I,J,T])<=mas.B[I,J,T].lb:
+                            feas.link_B[I,J,T].fix(mas.B[I,J,T].lb)
+                        else:
+                            feas.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
+
                         feas.X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
 
             for I_J in feas.I_J:
@@ -402,14 +377,23 @@ if __name__ == "__main__":
 
             for K in feas.K:
                 for T in feas.T:
-                    feas.S[K,T].fix(pe.value(mas.S[K,T]))
+                    if pe.value(mas.S[K,T])>=mas.S[K,T].ub:
+                        feas.S[K,T].fix(mas.S[K,T].ub)
+                    elif pe.value(mas.S[K,T])<=mas.S[K,T].lb:
+                        feas.S[K,T].fix(mas.S[K,T].lb)
+                    else:
+                        feas.S[K,T].fix(pe.value(mas.S[K,T]))
 
             for I in feas.I_reactions:
                 for J in feas.J_reactors:
-                    feas.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
+                    if pe.value(mas.varTime[I,J])>=mas.varTime[I,J].ub:
+                        feas.link_varTime[I,J].fix(mas.varTime[I,J].ub)  
+                    elif pe.value(mas.varTime[I,J])<=mas.varTime[I,J].lb:
+                        feas.link_varTime[I,J].fix(mas.varTime[I,J].lb)  
+                    else:
+                        feas.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
 
-
-            feas=initialize_model(feas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution')# TODO: added this because I found an error!!!
+            # feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_user_defined')
             feas=solve_subproblem(feas,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
             print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
             if feas.dsda_status=='Optimal':
@@ -418,8 +402,18 @@ if __name__ == "__main__":
                 print('Feasibility cut:')
                 mas.cuts.pprint()
             else:
-                print('Problem with feasibility stage')
-                break
+                print('Problem with feasibility stage. Trying a different initialization')
+                feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_subproblem')
+                feas=solve_subproblem(feas,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
+                print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
+                if feas.dsda_status=='Optimal':
+                    sum_infeasibility=pe.value(feas.obj_feas)
+                    mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  feas.dual[feas.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(feas.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
+                    print('Feasibility cut:')
+                    mas.cuts.pprint()
+                else:
+                    print('second initialization did not work')
+                    break
 
 
 
