@@ -420,7 +420,10 @@ if __name__ == "__main__":
                     else:
                         feas.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
 
-            # feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_user_defined')
+
+
+            # fix variables to avoid solving feasibility stage again. Note that this will not fix elastic variables
+            # feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_subproblem')
             feas=solve_subproblem(feas,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
             print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
             if feas.dsda_status=='Optimal':
