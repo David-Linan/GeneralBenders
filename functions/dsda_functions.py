@@ -5041,7 +5041,9 @@ def sequential_non_iterative_2(
     subproblem_solver_options: dict = {},
     tee: bool = False,
     global_tee: bool = True,
-    rel_tol: float = 0):
+    rel_tol: float = 0,
+    fixedB: bool=True, # DECIDES IF THE PROBLEM WILL BE SOLVED WITH A FIXED MAXIMUM CAPACITY HERUSTICA AT EVERY STAGE
+    last_stage_dynamic_cost: bool=False): # DECIDES IF THE THIRD BLOCK WILL MINIMIZE COSTS. IF False, then the last stage simply uses dynamics found in processing time minimization stage
 
     """
     rate_beta_ub: Real, rate to decrease upper bound of beta
@@ -5184,14 +5186,14 @@ def sequential_non_iterative_2(
     def _linking1_22(m,I,J):
         return -(m.varTime[I,J]-min_proc_time[I,J]) <=0
     m.linking122=pe.Constraint(m.I_reactions,m.J_reactors,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+    if fixedB:
+        def _linking2_11(m,I,J,T):
+            return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+        m.linking211=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-    # def _linking2_11(m,I,J,T):
-    #     return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
-    # m.linking211=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
-
-    # def _linking2_22(m,I,J,T):
-    #     return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-    # m.linking222=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+        def _linking2_22(m,I,J,T):
+            return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+        m.linking222=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
 
     m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
     save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
@@ -5243,7 +5245,12 @@ def sequential_non_iterative_2(
 
     # APPLY ECONOMIC OBJECTIVE FUNCTION CONSIDERING DYNAMIC TERM
     m.min_squareobj.deactivate()
-    m.obj_scheduling.activate()
+    if last_stage_dynamic_cost:
+        m.obj_scheduling.activate()
+    else:
+        def _min_t(m):
+            return sum(sum( m.varTime[I,J] for I in m.I_reactions)for J in m.J_reactors)
+        m.min_t=pe.Objective(rule=_min_t,sense=pe.minimize)       
 
     #NOW WE CAN FIX THE REMAINING SCHEDULING VARIABLES
     for v in m.component_objects(pe.Var, descend_into=True):
