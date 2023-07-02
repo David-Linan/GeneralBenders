@@ -4695,7 +4695,9 @@ def sequential_non_iterative_2_case2(
     tee: bool = False,
     global_tee: bool = True,
     rel_tol: float = 0,
-    with_distillation: bool = False):
+    with_distillation: bool = False,
+    fixedB: bool=True, # DECIDES IF THE PROBLEM WILL BE SOLVED WITH A FIXED MAXIMUM CAPACITY HERUSTICA AT EVERY STAGE
+    last_stage_dynamic_cost: bool=False): # DECIDES IF THE THIRD BLOCK WILL MINIMIZE COSTS. IF False, then the last stage simply uses dynamics found in processing time minimization stage):
 
     """
     rate_beta_ub: Real, rate to decrease upper bound of beta
@@ -4876,18 +4878,18 @@ def sequential_non_iterative_2_case2(
                 return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T]) 
             return pe.Constraint.Skip 
         m.linking122=pe.Constraint(m.I,m.J,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+        if fixedB:
+            def _linking2_11(m,I,J,T):
+                if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                    return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T]) 
+                return pe.Constraint.Skip 
+            m.linking211=pe.Constraint(m.I,m.J,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-        # def _linking2_11(m,I,J,T):
-        #     if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
-        #         return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T]) 
-        #     return pe.Constraint.Skip 
-        # m.linking211=pe.Constraint(m.I,m.J,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
-
-        # def _linking2_22(m,I,J,T):
-        #     if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
-        #         return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-        #     return pe.Constraint.Skip
-        # m.linking222=pe.Constraint(m.I,m.J,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+            def _linking2_22(m,I,J,T):
+                if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+                    return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+                return pe.Constraint.Skip
+            m.linking222=pe.Constraint(m.I,m.J,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
     else:
         def _linking1_11(m,I,J,T):
             return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
@@ -4896,14 +4898,14 @@ def sequential_non_iterative_2_case2(
         def _linking1_22(m,I,J,T):
             return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
         m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+        if fixedB:
+            def _linking2_11(m,I,J,T):
+                return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+            m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-        # def _linking2_11(m,I,J,T):
-        #     return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
-        # m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
-
-        # def _linking2_22(m,I,J,T):
-        #     return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-        # m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity')         
+            def _linking2_22(m,I,J,T):
+                return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+            m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity')         
 
     m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
     if with_distillation:
@@ -4957,18 +4959,19 @@ def sequential_non_iterative_2_case2(
                 return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T]) 
             return pe.Constraint.Skip 
         m.linking122=pe.Constraint(m.I,m.J,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+        # NOTE: In this case I already fixed B. I do not have to do it again
+        # if fixedB:
+        #     def _linking2_11(m,I,J,T):
+        #         if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+        #             return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T]) 
+        #         return pe.Constraint.Skip 
+        #     m.linking211=pe.Constraint(m.I,m.J,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
-        # def _linking2_11(m,I,J,T):
-        #     if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
-        #         return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T]) 
-        #     return pe.Constraint.Skip 
-        # m.linking211=pe.Constraint(m.I,m.J,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
-
-        # def _linking2_22(m,I,J,T):
-        #     if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
-        #         return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-        #     return pe.Constraint.Skip
-        # m.linking222=pe.Constraint(m.I,m.J,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
+        #     def _linking2_22(m,I,J,T):
+        #         if (I in m.I_dynamics and J in m.J_dynamics) or (I in m.I_distil and J in m.J_distil): 
+        #             return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+        #         return pe.Constraint.Skip
+        #     m.linking222=pe.Constraint(m.I,m.J,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
     else:
         def _linking1_11(m,I,J,T):
             return m.varTime[I,J,T]-min_proc_time[I,J] <= (kwargs['upper_t_h'][I,J]-min_proc_time[I,J])*(1-m.X[I,J,T])  
@@ -4977,24 +4980,16 @@ def sequential_non_iterative_2_case2(
         def _linking1_22(m,I,J,T):
             return -(m.varTime[I,J,T]-min_proc_time[I,J]) <= min_proc_time[I,J]*(1-m.X[I,J,T])  
         m.linking122=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking1_22,doc='Linking constraint to guarantee operation at minimum processing time') 
+        # NOTE: In this case I already fixed B. I do not have to do it again
+        # if fixedB:
+        #     def _linking2_11(m,I,J,T):
+        #         return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
+        #     m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
 
+        #     def _linking2_22(m,I,J,T):
+        #         return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
+        #     m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity')         
 
-
-        # NOTE : This is atest to show that operation becomes infeasible due to the processing time wrongly selected by sequential approach
-        m.linking3_1['T2','U3',5].deactivate()
-        m.linking3_2['T2','U3',5].deactivate()
-        m.obj_scheduling.deactivate()
-
-        def _min_square(m):
-            return (m.CC['T2','U3',5][m.N['T2','U3',5].last()]-m.CCDESIRED)**2
-        m.min_squareobj=pe.Objective(rule=_min_square,sense=pe.minimize)
-        # def _linking2_11(m,I,J,T):
-        #     return m.B[I,J,T]-max_Capa[I, J, 0] <= (m.beta_max[I,J]-max_Capa[I, J, 0])*(1-m.X[I,J,T])  
-        # m.linking211=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_11,doc='Linking constraint to guarantee operation at maximum capacity') 
-
-        # def _linking2_22(m,I,J,T):
-        #     return -(m.B[I,J,T]-max_Capa[I, J, 0] )<= max_Capa[I, J, 0]*(1-m.X[I,J,T])  
-        # m.linking222=pe.Constraint(m.I_dynamics,m.J_dynamics,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity')         
 
     # DEACTIVATE SCHEDULING CONSTRAINTS
     m.E2_CAPACITY_LOW.deactivate()
@@ -5003,6 +4998,30 @@ def sequential_non_iterative_2_case2(
     m.E1_UNIT.deactivate()
     m.E3_BALANCE.deactivate()
     m.X_Z_relation.deactivate()
+
+
+    if with_distillation:
+        if not last_stage_dynamic_cost:
+            m.obj_scheduling.deactivate()
+            def _min_t(m):
+                return sum(sum(sum( m.X[I, J, T]*m.varTime[I,J,T] for J in m.J_dynamics)  for I in m.I_dynamics) for T in m.T)+sum(sum(sum( m.X[I, J, T]*m.varTime[I,J,T] for J in m.J_distil)  for I in m.I_distil)for T in m.T)
+            m.min_t=pe.Objective(rule=_min_t,sense=pe.minimize) 
+    else:
+        if fixedB:
+            if not last_stage_dynamic_cost:
+                m.obj_scheduling.deactivate()
+                def _min_t(m):
+                    return sum(sum(sum( m.X[I, J, T]*m.varTime[I,J,T] for J in m.J_dynamics)  for I in m.I_dynamics) for T in m.T)
+                m.min_t=pe.Objective(rule=_min_t,sense=pe.minimize) 
+        else:
+            # NOTE : This is atest to show that operation becomes infeasible due to the processing time wrongly selected by sequential approach
+            m.linking3_1['T2','U3',5].deactivate()
+            m.linking3_2['T2','U3',5].deactivate()
+            m.obj_scheduling.deactivate()
+
+            def _min_square(m):
+                return (m.CC['T2','U3',5][m.N['T2','U3',5].last()]-m.CCDESIRED)**2
+            m.min_squareobj=pe.Objective(rule=_min_square,sense=pe.minimize)
 
     m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
 
@@ -5157,7 +5176,7 @@ def sequential_non_iterative_2(
     min_proc_time={}
     for I in m.I_reactions:
         for J in m.J_reactors:
-            min_proc_time[I,J]=pe.value(m.varTime[I,J])
+            min_proc_time[I,J]=math.ceil(pe.value(m.varTime[I,J])/m.delta)*m.delta
 
     # Solve scheduling
     m = model_function(**kwargs)
@@ -5254,7 +5273,7 @@ def sequential_non_iterative_2(
 
     #NOW WE CAN FIX THE REMAINING SCHEDULING VARIABLES
     for v in m.component_objects(pe.Var, descend_into=True):
-        if v.name=='Vreactor' or v.name=='B' or v.name=='S':#or v.name=='varTime': #NOTE: if varTime remains unfixed, processing times goes to upper bound, which is equivalent to fixing at upper bound
+        if v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
             for index in v:
                 if index==None:
                     v.fix(pe.value(v))
