@@ -270,6 +270,16 @@ if __name__ == "__main__":
 #             plt.close()
 
 
+# ###############################################################################
+# #########--------------sequential iterative-------------#######################
+# ###############################################################################
+# ###############################################################################
+
+
+
+
+
+
 ####CASE STUDY 2###############################
 
     print('******CASE STUDY 2************')
@@ -323,11 +333,12 @@ if __name__ == "__main__":
 
 
     # ## RUN THIS TO SOLVE
-    # # m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
+    # m=sequential_non_iterative_2_case2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = True, global_tee= True,rel_tol = 0)
     # ## RUN THIS TO RETRIEVE SOLUTION    
 
     # m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_and_dynamics_solution')
-    # print('Minimum product composition that becomes infeasible',str(pe.value(m.CC['T2','U3',5][m.N['T2','U3',5].last()])))
+    # # NOTE: This print is only for the case where B is variable in scheduling
+    # # print('Minimum product composition that becomes infeasible',str(pe.value(m.CC['T2','U3',5][m.N['T2','U3',5].last()])))
 
 
     # Sol_found=[]
@@ -345,7 +356,7 @@ if __name__ == "__main__":
     # TPC3=pe.value(m.TCP3)
     # TMC=pe.value(m.TMC)
     # SALES=pe.value(m.SALES)
-    # OBJ_VAL=pe.value(m.obj_scheduling)
+    # OBJ_VAL=TPC1+TPC2+TPC3+TMC-SALES
 
     # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
     # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
