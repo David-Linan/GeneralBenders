@@ -3420,7 +3420,7 @@ def scheduling_and_control_gdp_N_solvegdp(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3
 
 
 # Use this code to solve with GDP methods. Here I have decreased the combinatorial complexity of the problem
-def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
+def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1,prunning: bool=False):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!
@@ -4277,6 +4277,13 @@ def scheduling_and_control_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3,3
         return ( m.TCP1+m.TCP2+m.TCP3+m.TMC-m.SALES  )/100
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
     m.cuts=pe.ConstraintList() 
+    if prunning:
+        def _obj_scheduling(m):
+            return ( m.TCP1+m.TCP2+m.TMC-m.SALES  )/100
+        m.obj_scheduling = pe.Objective(rule=_obj_scheduling, sense=pe.minimize)  
+        def _obj_dummy(m):
+            return 1
+        m.obj_dummy = pe.Objective(rule=_obj_dummy, sense=pe.minimize)         
     return m
 # Use this code to solve GDP scheduling problem. It is still disjunctive to consider variable processing times, so apply the required transformations first.  
 def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
@@ -5133,7 +5140,7 @@ def scheduling_only_gdp_N_solvegdp_simpler(x_initial: list=[4,4,5,5,3,3],last_ti
     m.obj = pe.Objective(rule=_obj, sense=pe.minimize)   
     return m
 # Use this code to solve GDP scheduling problem. It is still disjunctive to consider variable processing times, so apply the required transformations first. In this case x_initial is also the lower bound on processing times in the domain of ext vars
-def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1):
+def scheduling_only_gdp_N_solvegdp_simpler_lower_bound_tau(x_initial: list=[4,4,5,5,3,3],last_time_hours: float=14, demand_p1_kmol: float=1,demand_p2_kmol: float=1,prunning: bool=False):
 
     # Data
     Infty=10 # TODO: BE CAREFULL, NUMERICAL ISSUES IF THIS HAS A VERY HIGH VALUE!!!!!!

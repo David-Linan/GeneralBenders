@@ -441,8 +441,8 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                                 m.c_dIntegral_colddtheta[I,J].deactivate()
                                 m.Constant_control1[I,J].deactivate()                        
                                 m.Constant_control2[I,J].deactivate()
-                                m.finalCon[I,J].deactivate()
-                                m.finalTemp[I,J].deactivate()
+                                # m.finalCon[I,J].deactivate()
+                                # m.finalTemp[I,J].deactivate()
                         m.C_TCP3.deactivate()
                         m.obj_scheduling.deactivate() 
 
@@ -453,8 +453,8 @@ def feasibility_2_aprox(m,solver,infty_val, use_multistart: bool=False, tee: boo
                         m.c_dIntegral_colddtheta[II,JJ].activate()
                         m.Constant_control1[II,JJ].activate()                        
                         m.Constant_control2[II,JJ].activate()
-                        m.finalCon[II,JJ].activate()
-                        m.finalTemp[II,JJ].activate() 
+                        # m.finalCon[II,JJ].activate()
+                        # m.finalTemp[II,JJ].activate() 
                         m.obj.deactivate()
                         m.obj_dummy.activate()
 

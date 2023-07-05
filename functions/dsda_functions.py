@@ -5172,7 +5172,14 @@ def sequential_non_iterative_2(
 
     m=initialize_model(m,from_feasible=True,feasible_model='partial_borrar')  
     m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee)    
-    save=generate_initialization(m=m,model_name='case_1_min_proc_time_solution')
+    try:
+        if kwargs['last_time_hours']==28:
+            save=generate_initialization(m=m,model_name='case_1_28h_min_proc_time_solution')
+        else:
+            save=generate_initialization(m=m,model_name='case_1_min_proc_time_solution')
+    except:
+        save=generate_initialization(m=m,model_name='case_1_min_proc_time_solution')
+    
     min_proc_time={}
     for I in m.I_reactions:
         for J in m.J_reactors:
@@ -5215,7 +5222,13 @@ def sequential_non_iterative_2(
         m.linking222=pe.Constraint(m.I_reactions,m.J_reactors,m.T,rule=_linking2_22,doc='Linking constraint to guarantee operation at maximum capacity') 
 
     m=solve_with_minlp(m,transformation='bigm',minlp='cplex',timelimit=86400,gams_output=False,tee=tee,rel_tol=0)
-    save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
+    try:
+        if kwargs['last_time_hours']==28:
+            save=generate_initialization(m=m,model_name='case_1_28h_scheduling_solution')
+        else:
+            save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
+    except:
+        save=generate_initialization(m=m,model_name='case_1_scheduling_solution')
 
 
     # retrieve capacity
@@ -5250,7 +5263,14 @@ def sequential_non_iterative_2(
         return sum(sum(sum( ((m.B[I,J,T]-Capa[I, J, T])**2) for T in m.T) for J in m.J) for I in m.I)+sum(sum( (m.varTime[I,J]-min_proc_time[I,J])**2 for I in m.I_reactions)for J in m.J_reactors)
         # return sum(sum(sum( ((m.B[I,J,T]-Capa[I, J, T])**2) for T in m.T) for J in m.J) for I in m.I)-sum(sum( (m.varTime[I,J]) for I in m.I_reactions)for J in m.J_reactors)
     m.min_squareobj=pe.Objective(rule=_min_square,sense=pe.minimize)
-    m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution')  
+
+    try:
+        if kwargs['last_time_hours']==28:
+            m=initialize_model(m,from_feasible=True,feasible_model='case_1_28h_scheduling_solution') 
+        else:   
+            m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution')  
+    except:
+        m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_solution') 
     # FIX DISCRETE SCHEDULING VARIABLES
     for v in m.component_objects(pe.Var, descend_into=True):
         if v.name=='X' or v.name=='Nref':
@@ -5282,8 +5302,7 @@ def sequential_non_iterative_2(
 
     #SOLVE AGAIN
     m = solve_subproblem(m=m,subproblem_solver=subproblem_solver,subproblem_solver_options=subproblem_solver_options,timelimit=1000000000,gams_output=False,tee=tee) 
-    #SAVE SOLUTION
-    save=generate_initialization(m=m,model_name='case_1_scheduling_and_dynamics_solution')
+
 
     if global_tee:
         print(" CPU time [s]:",time.perf_counter()-t_start)
