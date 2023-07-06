@@ -11,7 +11,7 @@ import random
 from itertools import product
 import warnings
 
-def solve_subproblem_and_neighborhood_FEAS1(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs):
+def solve_subproblem_and_neighborhood_FEAS1(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs,lower_bounds: dict={},upper_bounds: dict={}):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -52,7 +52,7 @@ def solve_subproblem_and_neighborhood_FEAS1(x,neigh,Internaldata,infinity_val,re
         #solve neighborhood (only if central point was INfeasible)
         if status[0]==1:
             count=0 #count to add elements to status
-            for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+            for j in (jj for jj in neigh if np.all(np.array(x)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(x)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
                 count=count+1
                 current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
                 #print(current_value)
@@ -82,8 +82,7 @@ def solve_subproblem_and_neighborhood_FEAS1(x,neigh,Internaldata,infinity_val,re
                         break        
     return generated_dict
 
-
-def solve_subproblem_and_neighborhood_FEAS2(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,first_path,model_fun,kwargs):
+def solve_subproblem_and_neighborhood_FEAS2(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,first_path,model_fun,kwargs,lower_bounds: dict={},upper_bounds: dict={}):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -125,7 +124,7 @@ def solve_subproblem_and_neighborhood_FEAS2(x,neigh,Internaldata,infinity_val,re
         #solve neighborhood (only if central point was infeasible)
         if status[0]==1:
             count=0 #count to add elements to status
-            for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+            for j in (jj for jj in neigh if np.all(np.array(x)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(x)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
                 count=count+1
                 current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
                 #print(current_value)
@@ -156,7 +155,7 @@ def solve_subproblem_and_neighborhood_FEAS2(x,neigh,Internaldata,infinity_val,re
 
     return generated_dict,init_path
 
-def solve_subproblem_and_neighborhood_FEAS1_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs,tee: bool=True):
+def solve_subproblem_and_neighborhood_FEAS1_aprox(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs,tee: bool=True,lower_bounds: dict={},upper_bounds: dict={}):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -199,7 +198,7 @@ def solve_subproblem_and_neighborhood_FEAS1_aprox(x,neigh,Internaldata,infinity_
         #solve neighborhood (only if central point was INfeasible)
         if status[0]==1:
             count=0 #count to add elements to status
-            for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT
+            for j in (jj for jj in neigh if np.all(np.array(x)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(x)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
                 count=count+1
                 current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
                 #print(current_value)
@@ -316,7 +315,7 @@ def solve_subproblem_and_neighborhood_FEAS2_aprox(x,neigh,Internaldata,infinity_
 
     return generated_dict,init_path,source
 
-def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False, rel_tol: float=0):
+def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False, rel_tol: float=0,lower_bounds: dict={},upper_bounds: dict={}):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -364,7 +363,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
             print()
             print('Neighbor search around:', x)
         count=0 #count to add elements to status
-        for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT, BUT THIS IS PROBLEMATIC BECAUSE I MUST DELETE DISJUNCTIONS FROM THE CODE (JUST LEAVE DISJUNCTS)
+        for j in (jj for jj in neigh if np.all(np.array(x)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(x)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
             count=count+1
             current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
             #print(current_value)
@@ -393,7 +392,7 @@ def solve_subproblem_and_neighborhood(x,neigh,Internaldata,infinity_val,reformul
                 #print(pe.value(m_solved2.obj))
     return generated_dict,init_path,m_solved
 
-def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,rel_tol: float=0,new_case: bool=False, with_distillation: bool=False):
+def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,reformulation_dict,logic_fun,sub_solver,init_path,model_fun,kwargs,sub_solver_opt: dict={},tee:bool=False,rel_tol: float=0,new_case: bool=False, with_distillation: bool=False,lower_bounds: dict={},upper_bounds: dict={}):
     """
     Function that solves the NLP subproblem for a point and its neighborhood. 
     Args:
@@ -441,7 +440,7 @@ def solve_subproblem_and_neighborhood_except(x,neigh,Internaldata,infinity_val,r
             print()
             print('Neighbor search around:', x)
         count=0 #count to add elements to status
-        for j in neigh:    #TODO TRY TO IMPROVE THIS FOR USING UPPER AND LOWER BOUNDS FOR EXTERNAL VARIABLES!!!!!!!!!!!!!!!!!!!! SO FAR THIS IS BEING EVALUATED WITH FBBT, BUT THIS IS PROBLEMATIC BECAUSE I MUST DELETE DISJUNCTIONS FROM THE CODE (JUST LEAVE DISJUNCTS)
+        for j in (jj for jj in neigh if np.all(np.array(x)+np.array(neigh[jj])>=np.array([lower_bounds[k] for k in lower_bounds.keys()]))  and np.all(np.array(x)+np.array(neigh[jj])<=np.array([upper_bounds[k] for k in lower_bounds.keys()]))): 
             count=count+1
             current_value=np.array(x)+np.array(neigh[j])    #value of external variables for current neighbor
             #print(current_value)
@@ -857,7 +856,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #update current value of x in the dictionary
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs)
+            new_values=solve_subproblem_and_neighborhood_FEAS1(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs,lower_bounds=lower_bounds,upper_bounds=upper_bounds)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
                 print('S1--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
@@ -942,7 +941,7 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #update current value of x in the dictionary
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values,init_path=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs)
+            new_values,init_path=solve_subproblem_and_neighborhood_FEAS2(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,lower_bounds=lower_bounds,upper_bounds=upper_bounds)
             #print(new_values)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
@@ -1032,10 +1031,10 @@ def run_function_dbd(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_re
             #print(x_actual)
             #calculate objective function for current point and its neighborhood (subproblem)
             if tuple(x_actual) not in D:
-                new_values,init_path,m_solved=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee)
+                new_values,init_path,m_solved=solve_subproblem_and_neighborhood(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee,lower_bounds=lower_bounds,upper_bounds=upper_bounds)
 
             else:
-                new_values,init_path=solve_subproblem_and_neighborhood_except(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee)
+                new_values,init_path=solve_subproblem_and_neighborhood_except(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,nlp_solver,init_path,model_fun,kwargs,sub_solver_opt=sub_solver_opt,tee=tee,lower_bounds=lower_bounds,upper_bounds=upper_bounds)
                 model = model_fun(**kwargs)
                 m_initialized=initialize_model(m=model,json_path=init_path)
                 m_fixed = external_ref(m=m_initialized,x=x_actual,extra_logic_function=logic_fun,dict_extvar=reformulation_dict,tee=False)
@@ -1242,7 +1241,7 @@ def run_function_dbd_aprox(initialization,
             #update current value of x in the dictionary
             x_dict[k]=x_actual
             #calculate objective function for current point and its neighborhood (subproblem)
-            new_values=solve_subproblem_and_neighborhood_FEAS1_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs)
+            new_values=solve_subproblem_and_neighborhood_FEAS1_aprox(x_actual,neigh,D,infinity_val,reformulation_dict,logic_fun,model_fun,kwargs,lower_bounds=lower_bounds,upper_bounds=upper_bounds)
             fobj_actual=list(new_values.values())[0]
             if tee==True:
                 print('S1--'+'--iter '+str(k)+'---  |  '+'ext. vars= '+str(x_actual)+'   |   sub. obj= '+str(fobj_actual))
@@ -1695,13 +1694,6 @@ def run_function_dbd_aprox(initialization,
     return important_info,important_info_preprocessing,D,x_actual,m_solved
 
 
-
-
-
-
-
-
-#
 
 
 
