@@ -7001,8 +7001,658 @@ def case_2_scheduling_only_lower_bound_tau(x_initial: list=[1,1,1,1,1,1,1,1,1,1,
 
 
 
+# case 2 reactors models test
+def reactor_models_test(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], obj_type: str='profit_max',last_disc_point: float=12,last_time_hours: float=12,lower_t_h: dict={('T1','U1'):1,('T2','U2'):1,('T2','U3'):1,('T3','U2'):1,('T3','U3'):1,('T4','U2'):1,('T4','U3'):4,('T5','U4'):1},upper_t_h: dict={('T1','U1'):2,('T2','U2'):2,('T2','U3'):3,('T3','U2'):2,('T3','U3'):6,('T4','U2'):2,('T4','U3'):6,('T5','U4'):3},sequential: bool=False,max_capacity: bool=False):
+
+    # ------------pyomo model------------------------------------------------
+    #------------------------------------------------------------------------
+
+    m = pe.ConcreteModel(name='scheduling_gdp_var_proc_time')
+
+    # ------------scalars    ------------------------------------------------   
+    m.delta=pe.Param(initialize=last_time_hours/last_disc_point,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
+    m.lastT=pe.Param(initialize=last_disc_point,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    
+    # -----------sets--------------------------------------------------------
+    #Main sets
+    m.T=pe.RangeSet(0,0,1,doc='Discrete time set')
+    m.J=pe.Set(initialize=['U1','U2','U3','U4'],doc='Set of Units')
+    m.I=pe.Set(initialize=['T1','T2','T3','T4','T5'], doc='Set of tasks')
+    m.K=pe.Set(initialize=['S1','S2','S3','S4','S5','S6','S7','S8','S9'],doc='Set of states')
+    #Subsets
+    m.J_dynamics=pe.Set(initialize=['U2','U3'],within=m.J)
+    m.I_dynamics=pe.Set(initialize=['T2'],within=m.I)   
+    m.J_noDynamics=pe.Set(initialize=['U1','U2','U3','U4'],within=m.J)
+    m.I_noDynamics=m.I-m.I_dynamics
+    m.K_inputs=pe.Set(initialize=['S1','S2','S3'],within=m.K)
+    m.K_products=pe.Set(initialize=['S8','S9'],within=m.K)
+    #----------Scalars that depend on sets
+    m.eta=pe.Param(initialize=last_time_hours, doc='scheduling horizon [units of nntime]')
+    m.t_p=pe.Param(m.T,initialize=[m.delta*j for j in m.T],doc='physical time [units of time]')
+    # -----------parameters--------------------------------------------------
+    # REACTOR MODEL
+    m.CC0=pe.Param(initialize=0,doc='Required initial composition inside reactor for this reaction and component [kmol/m^3]')
+    m.CAIN=pe.Param(initialize=10.62,doc='Concentration of B in inlet flow [kmol/m^3]')
+    m.CBIN=pe.Param(initialize=20,doc='Concentration of B in inlet flow [kmol/m^3]')
+    m.CCDESIRED=pe.Param(initialize=4,doc='Desired concentration of C [kmol/m^3]')
+    m.TBIN=pe.Param(initialize=293.15, doc='Inlet temperature of feed B [K]')
+    m.V0=pe.Param(initialize=1,doc='Fixed initial volume for dynamic tast [m^3]')
+    m.Vmax2=pe.Param(initialize=5,doc='Maximum capacity [m^3]')
+    m.Vmax3=pe.Param(initialize=8,doc='Maximum capacity [m^3]')
+    # m.qrmax=pe.Param(initialize=(1.5e+5)*(1/1000)*(m.V0/0.001),doc='upper bound on the heat rate produced by the reaction [kJ/h]') #TODO: check if assumed linear relationship holds
+
+    m.k10=pe.Param(initialize=4,doc='[m^3/kmol h]')
+    m.k20=pe.Param(initialize=800*(0.001),doc='  [m^3/h]')
+    m.E1=pe.Param(initialize=6e+3,doc='  [kJ/kmol]')
+    m.E2=pe.Param(initialize=20e+3,doc='  [kJ/kmol]')
+    m.R=pe.Param(initialize=8.31,doc='  [kJ/kmol K]')
+    m.DH1=pe.Param(initialize=-3e+4,doc='  [kJ/kmol]')
+    m.DH2=pe.Param(initialize=-1e+4,doc='  [kJ/kmol]')
+    m.CP=pe.Param(initialize=75, doc='kJ/ kmol K')
 
 
+    m.v_J=pe.Param(m.J_dynamics,initialize={'U3':0.5,'U2':0.3},doc='Volume of the Jacket [m^3]')
+    m.rho_J=pe.Param(m.J_dynamics,initialize={'U3':1e+3,'U2':1e+3},doc='Density of the jacket [kg/m^3]')
+    m.c_J=pe.Param(m.J_dynamics,initialize={'U3':4.2,'U2':4.2},doc='Heat capacity of jacket [kJ/kg K]')
+    m.ua=pe.Param(m.J_dynamics,initialize={'U3':3e+4,'U2':2e+4},doc='Heat transfer coefficient [kJ/h K]')
+    m.T_H= pe.Param(m.J_dynamics,initialize={'U3':323.15,'U2':323.15},doc='Temperature of heating water [K]')
+    m.T_C=pe.Param(m.J_dynamics,initialize={'U3':293.15,'U2':293.15},doc='Temperature of cooling water [K]')
+    m.T_R_max=pe.Param(m.J_dynamics,initialize={'U3':323.15,'U2':323.15},doc='Maximum temperature of reactor [K]')
+    m.T_J_max=pe.Param(m.J_dynamics,initialize={'U3':323.15,'U2':323.15},doc='Maximum temperature of jacket [K]')
+    m.F_max=pe.Param(m.J_dynamics,initialize={'U3':10,'U2':8},doc='Maximum flow rate of heating and cooling water [m^3/h]')
+
+
+        # Initial temperature of reactors and heating medium for each task
+    m.T_R_initial=pe.Param(m.I_dynamics,initialize={'T2':293.15},doc='Initial condition for reaction temperatures inside reactor [K]')
+    m.T_J_initial=pe.Param(m.I_dynamics,initialize={'T2':293.15},doc='Initial condition for jacket temperatures [K]')
+
+    # SCHEDULING
+    _I_i_k_minus={}
+    _I_i_k_minus['T1','S1']=1
+
+    _I_i_k_minus['T2','S3']=1
+    _I_i_k_minus['T2','S2']=1
+
+    _I_i_k_minus['T3','S4']=1
+    _I_i_k_minus['T3','S5']=1
+
+    _I_i_k_minus['T4','S6']=1
+    _I_i_k_minus['T4','S3']=1
+
+    _I_i_k_minus['T5','S7']=1
+    m.I_i_k_minus=pe.Param(m.I,m.K,initialize=_I_i_k_minus,default=0,doc='State-task mapping: outputs from states')
+
+    _I_i_k_plus={}
+    _I_i_k_plus['T1','S4']=1
+
+    _I_i_k_plus['T2','S5']=1
+
+    _I_i_k_plus['T3','S6']=1
+    _I_i_k_plus['T3','S8']=1
+
+    _I_i_k_plus['T4','S7']=1
+
+    _I_i_k_plus['T5','S6']=1
+    _I_i_k_plus['T5','S9']=1
+    m.I_i_k_plus=pe.Param(m.I,m.K,initialize=_I_i_k_plus,default=0,doc="Task-state mapping: inputs to states")
+
+    _rho_minus={}
+    _rho_minus['T1','S1']=1
+
+    _rho_minus['T2','S3']=0.5
+    _rho_minus['T2','S2']=0.5
+
+    _rho_minus['T3','S4']=0.4
+    _rho_minus['T3','S5']=0.6
+
+    _rho_minus['T4','S6']=0.8
+    _rho_minus['T4','S3']=0.2
+
+    _rho_minus['T5','S7']=1 
+    m.rho_minus=pe.Param(m.I,m.K,initialize=_rho_minus,default=0,doc="Fraction of material in state k consumed by task i ")
+  
+
+    _rho_plus={}
+    _rho_plus['T1','S4']=1
+
+    _rho_plus['T2','S5']=1
+
+    _rho_plus['T3','S6']=0.6
+    _rho_plus['T3','S8']=0.4
+
+    _rho_plus['T4','S7']=1
+
+    _rho_plus['T5','S6']=0.1
+    _rho_plus['T5','S9']=0.9
+    m.rho_plus=pe.Param(m.I,m.K,initialize=_rho_plus,default=0,doc="Fraction of material in state k produced by task i ")
+
+    _I_i_j_prod={}
+    _I_i_j_prod['T1','U1']=1
+
+    _I_i_j_prod['T2','U2']=1
+    _I_i_j_prod['T2','U3']=1
+
+    _I_i_j_prod['T3','U2']=1
+    _I_i_j_prod['T3','U3']=1
+
+    _I_i_j_prod['T4','U2']=1
+    _I_i_j_prod['T4','U3']=1
+
+    _I_i_j_prod['T5','U4']=1
+    m.I_i_j_prod=pe.Param(m.I,m.J,initialize=_I_i_j_prod,default=0,doc="Unit-task mapping (Definition of units that are allowed to perform a given task")
+
+    _beta_min={}
+    _beta_min['T1','U1']=1
+
+    _beta_min['T2','U2']=m.V0
+    _beta_min['T2','U3']=m.V0
+
+    _beta_min['T3','U2']=m.V0
+    _beta_min['T3','U3']=m.V0
+
+    _beta_min['T4','U2']=m.V0
+    _beta_min['T4','U3']=m.V0
+
+    _beta_min['T5','U4']=1
+    m.beta_min=pe.Param(m.I,m.J,initialize=_beta_min,default=0,doc="minimum capacity of unit j for task i [m^3]")# Note that I am using volumes, altough mass would be more general.
+
+    _beta_max={}
+    _beta_max['T1','U1']=10
+
+    _beta_max['T2','U2']=m.Vmax2
+    _beta_max['T2','U3']=m.Vmax3
+
+    _beta_max['T3','U2']=m.Vmax2
+    _beta_max['T3','U3']=m.Vmax3
+
+    _beta_max['T4','U2']=m.Vmax2
+    _beta_max['T4','U3']=m.Vmax3
+
+    _beta_max['T5','U4']=20
+    m.beta_max=pe.Param(m.I,m.J,initialize=_beta_max,default=0,doc="maximum capacity of unit j for task i [m^3]")# Note that I am using volumes, altough mass would be more general.
+    
+    m.gamma=pe.Param(m.K,initialize={'S1':400,'S2':400,'S3':400,'S4':100,'S5':15,'S6':50,'S7':100,'S8':400,'S9':400},default=0,doc="maximum amount of material k that can be stored [m^3]")
+    
+    def _demand(m,K,T):
+        if K=='S8' and T==m.lastT:
+            return 1400
+        elif K=='S9' and T==m.lastT:
+            return 1500
+        else:
+            return 0 
+    m.demand=pe.Param(m.K,m.T,initialize=_demand,default=0,doc="Minimum demand of material k at time t [m^3]")
+    m.S0=pe.Param(m.K,initialize={'S1':400,'S2':400,'S3':400},default=0,doc="Initial amount of state k [m^3]") #You is not reporting this, so I am assuming it is infinity. This makes sense with the objective function his defines if it is assumed that raw material is available whenever we want to buy it, and that it can instantanelusly go to our production facility
+
+    _fixed_cost={}
+    _fixed_cost['T1','U1']=10
+
+    _fixed_cost['T2','U2']=15
+    _fixed_cost['T2','U3']=30
+
+    _fixed_cost['T3','U2']=5
+    _fixed_cost['T3','U3']=25
+
+    _fixed_cost['T4','U2']=5
+    _fixed_cost['T4','U3']=20
+
+    _fixed_cost['T5','U4']=20
+    m.fixed_cost=pe.Param(m.I,m.J,default=0,initialize=_fixed_cost,doc="Fixed cost to run task i in unit j [m.u./batch]")
+
+    _variable_cost_param={}
+    _variable_cost_param['T1','U1']=10
+
+    _variable_cost_param['T3','U2']=20
+    _variable_cost_param['T3','U3']=30
+
+    _variable_cost_param['T4','U2']=20
+    _variable_cost_param['T4','U3']=35
+
+    _variable_cost_param['T5','U4']=10
+    m.variable_cost=pe.Param(m.I,m.J,default=0,initialize=_variable_cost_param,doc="Variabe batch cost [m.u/m^3]") 
+
+    def _raw_cost(m,K):
+        if K=='S1':
+            return 50
+        elif K=='S2': #A
+            return 150
+        elif K=='S3 ': #B
+            return 200
+        else:
+            return 0
+    m.raw_cost=pe.Param(m.K,default=0,initialize=_raw_cost,doc='Unit cost of raw materials [m.u./m^3]')
+
+
+    def _revenue(m,K):
+        if K=='S8':
+            return 300 
+        elif K=='S9':
+            return 400
+        else:
+            return 0
+    m.revenue=pe.Param(m.K,default=0,initialize=_revenue,doc='revenue from selling one unit of material k [m.u/m^3]')
+
+    m.hot_cost=pe.Param(initialize=10,doc='Unit cost of heating fluid [m.u./m^3]')
+    m.cold_cost=pe.Param(initialize=1,doc='Unit cost of cooling fluid [m.u./m^3]')
+
+    _tau_p={}
+
+    _tau_p['T1','U1']=0.5
+
+    _tau_p['T2','U2']=0.5
+    _tau_p['T2','U3']=1.5
+
+    _tau_p['T3','U2']=1
+    _tau_p['T3','U3']=2.5
+
+    _tau_p['T4','U2']=1
+    _tau_p['T4','U3']=5
+
+    _tau_p['T5','U4']=1.5
+    #TODO: the input info I am declaring here is in HOURS. Check that it makes sense with respect to the time discretization in reactors balances!!!!!!!
+    m.tau_p=pe.Param(m.I,m.J,initialize=_tau_p,mutable=True,default=0,doc="Physical processing time for tasks [units of time]")
+    
+    def _tau(m,I,J):
+        return math.ceil(pe.value(m.tau_p[I,J])/m.delta) 
+    m.tau=pe.Param(m.I,m.J,initialize=_tau,mutable=True,default=0,doc="Processing time with respect to the time grid: how many grid spaces do I need for the task ?")
+
+    # # -----------scheduling variables -----------------------------------------
+
+
+    def _minTau_rule(m,I,J):
+        if m.I_i_j_prod[I,J]==1:
+            return math.ceil(lower_t_h[(I,J)]/m.delta)
+        else:
+            return 0
+    m.minTau=pe.Param(m.I,m.J,initialize=_minTau_rule,doc='Minimum number of discrete elements required to complete task [dimensionless]')
+
+
+    def _maxTau_rule(m,I,J):
+        if m.I_i_j_prod[I,J]==1:
+            return math.ceil(upper_t_h[(I,J)]/m.delta)
+        else:
+            return 0
+    m.maxTau=pe.Param(m.I,m.J,initialize=_maxTau_rule,doc='Maximum number of discrete elements required to complete task [dimensionless]')
+    
+    ### NEW ###################
+    def _varTime_bounds(m,I,J,T):
+        if m.I_i_j_prod[I,J]==1:
+            return (0,upper_t_h[(I,J)])
+        else:
+            return (0,0)
+    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,initialize=0,doc='Variable processing time for units that consider dynamics [h]')
+
+    #-----------Reactors dynamic models--------------------------------
+
+
+    m.N={} #Continuous time set
+    m.CA={}
+    m.CB={}
+    m.CC={}
+    m.TRvar={}
+    m.u_input={}
+    m.Vol={}
+    m.dCAdtheta={}
+    m.dCBdtheta={}
+    m.dCCdtheta={}
+    m.dVdtheta={}
+    # m.aux1={}
+    # m.aux2={}
+    # m.aux3={}
+    # m.aux4={}
+
+    m.c_dCAdtheta={}
+    m.c_dCBdtheta={}
+    m.c_dCCdtheta={}
+    m.c_dVdtheta={}
+    m.Integral={}
+    m.dIntegraldtheta={}
+    m.c_dIntegraldtheta={}
+
+
+    m.TJvar={} #Jacket temperature profile
+    m.Fhot={} #Hot fluid volumetric flow rate profile (manipulated variable)
+    m.Fcold={} #Cold fluid volumetric flow rate profile (manipulated variable)
+
+    m.dTRdtheta={} #Reactor temperature derivatives
+    m.dTJdtheta={} #Jacket temperature derivatives
+
+    m.c_dTRdtheta={}
+    m.c_dTJdtheta={}
+
+    #Integrals for cost calcualtion
+    m.Integral_hot={}
+    m.Integral_cold={}
+    
+    m.dIntegral_hotdtheta={}
+    m.dIntegral_colddtheta={}
+    m.c_dIntegral_hotdtheta={}
+    m.c_dIntegral_colddtheta={} 
+
+    m.CA0={} 
+    m.CB0={}
+    m.CT0={}
+    m.c_defCT0={}
+
+    for I in m.I_dynamics:
+        for J in m.J_dynamics:
+            for T in m.T:
+                m.N[I,J,T]=dae.ContinuousSet(bounds=(0,1),doc='Continuous time set for reaction I in reactor J [-]') #No units!!
+                setattr(m,'N_%s_%s_%s' %(I,J,T),m.N[I,J,T]) # TODO: I think the name of the pyomo object do not affect, because I can access these sets through dictionary m.N. Check if this is correct
+
+
+
+
+                m.CA0[I,J,T]=pe.Var(within=pe.NonNegativeReals,bounds=(0,m.CAIN),doc='Initial composition of A [kmol/m^3]')
+                setattr(m,'CA0_%s_%s_%s' %(I,J,T),m.CA0[I,J,T])
+
+                m.CB0[I,J,T]=pe.Var(within=pe.NonNegativeReals,bounds=(0,m.CBIN),doc='Initial composition of B [kmol/m^3]')
+                setattr(m,'CB0_%s_%s_%s' %(I,J,T),m.CB0[I,J,T])
+
+                m.CT0[I,J,T]=pe.Var(within=pe.NonNegativeReals,bounds=(1e-3,m.CAIN+m.CBIN),doc='Initial total composition  [kmol/m^3]')
+                setattr(m,'CT0_%s_%s_%s' %(I,J,T),m.CT0[I,J,T])
+
+                def _defCT0(m):
+                    return m.CT0[I,J,T]== m.CA0[I,J,T]+m.CB0[I,J,T]
+                m.c_defCT0[I,J,T] = pe.Constraint(rule=_defCT0)
+                setattr(m,'c_defCT0_%s_%s_%s' %(I,J,T),m.c_defCT0[I,J,T])       
+
+                def _CA_bounds(m,N):
+                    return (0,100)
+                m.CA[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_CA_bounds, doc='Component composition profile [kmol/m^3]') 
+                setattr(m,'CA_%s_%s_%s' %(I,J,T),m.CA[I,J,T])
+
+                def _CB_bounds(m,N):
+                    return (0,100)
+                m.CB[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_CB_bounds, doc='Component composition profile [kmol/m^3]') 
+                setattr(m,'CB_%s_%s_%s' %(I,J,T),m.CB[I,J,T])
+
+                def _CC_bounds(m,N):
+                    return (0,100)
+                m.CC[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_CC_bounds, doc='Component composition profile [kmol/m^3]') 
+                setattr(m,'CC_%s_%s_%s' %(I,J,T),m.CC[I,J,T])
+
+                def _TRvar_bounds(m,N):
+                    return (293.15,323.15)  
+                m.TRvar[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_TRvar_bounds,doc='Reactor temperatrue profile [K]')
+                setattr(m,'TRvar_%s_%s_%s' %(I,J,T),m.TRvar[I,J,T])
+                
+                def _u_input_bounds(m,N):
+                    return (0,5)
+                m.u_input[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_u_input_bounds,doc='Feed rate of B with inlet concentration CBIN [m^3/h]')
+                setattr(m,'u_input_%s_%s_%s' %(I,J,T),m.u_input[I,J,T])
+
+                def _Vol_bounds(m,N):
+                    return (0,m.model().beta_max[I,J])
+                m.Vol[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_Vol_bounds,doc='Variable reactor volume [m^3]')
+                setattr(m,'Vol_%s_%s_%s' %(I,J,T),m.Vol[I,J,T])
+
+                def _TJvar_bounds(m,N):
+                    return (293.15,m.T_J_max[J]) 
+                m.TJvar[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=_TJvar_bounds,doc='Jacket temperature profile [K]')
+                setattr(m,'TJvar_%s_%s_%s' %(I,J,T),m.TJvar[I,J,T])
+
+                m.Fhot[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=(0,m.F_max[J]),doc='Flow of heating fluid [m^3/h]') #TODO: Check bounds 
+                setattr(m,'Fhot_%s_%s_%s' %(I,J,T),m.Fhot[I,J,T])
+
+                m.Fcold[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,bounds=(0,m.F_max[J]),doc='Flow of cooling fluid [m^3/h]') #TODO: Check bounds 
+                setattr(m,'Fcold_%s_%s_%s' %(I,J,T),m.Fcold[I,J,T])
+
+                # m.aux1[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 1 (CA)')
+                # setattr(m,'aux1_%s_%s_%s' %(I,J,T),m.aux1[I,J,T])
+
+                # m.aux2[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 2 (CB)')
+                # setattr(m,'aux2_%s_%s_%s' %(I,J,T),m.aux2[I,J,T])
+
+                # m.aux3[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 3 (CC)')
+                # setattr(m,'aux3_%s_%s_%s' %(I,J,T),m.aux3[I,J,T])
+
+                # m.aux4[I,J,T]=pe.Var(m.N[I,J,T],within=pe.Reals,bounds=(-100,100),doc='Auxiliary variable for differential equation 4 (V)')
+                # setattr(m,'aux4_%s_%s_%s' %(I,J,T),m.aux4[I,J,T])
+
+                m.dCAdtheta[I,J,T] = dae.DerivativeVar(m.CA[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition A')
+                setattr(m,'dCAdtheta_%s_%s_%s' %(I,J,T),m.dCAdtheta[I,J,T])               
+
+                m.dCBdtheta[I,J,T] = dae.DerivativeVar(m.CB[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition B')
+                setattr(m,'dCBdtheta_%s_%s_%s' %(I,J,T),m.dCBdtheta[I,J,T])
+
+                m.dCCdtheta[I,J,T] = dae.DerivativeVar(m.CC[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition C')
+                setattr(m,'dCCdtheta_%s_%s_%s' %(I,J,T),m.dCCdtheta[I,J,T])
+
+                m.dVdtheta[I,J,T] = dae.DerivativeVar(m.Vol[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of composition C')
+                setattr(m,'dVdtheta_%s_%s_%s' %(I,J,T),m.dVdtheta[I,J,T])
+
+                m.dTRdtheta[I,J,T]=dae.DerivativeVar(m.TRvar[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of reactor temperature')
+                setattr(m,'dTRdtheta_%s_%s_%s' %(I,J,T),m.dTRdtheta[I,J,T])
+
+                m.dTJdtheta[I,J,T]=dae.DerivativeVar(m.TJvar[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of jacket temperature')
+                setattr(m,'dTJdtheta_%s_%s_%s' %(I,J,T),m.dTJdtheta[I,J,T])
+
+                def _dCAdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.CA[I,J,T][N] == m.CA0[I,J,T] # Initial condition
+                    else:                                    
+                        return m.dCAdtheta[I,J,T][N] == m.varTime[I,J,T]*(   -((m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))       -(((m.u_input[I,J,T][N])/(m.Vol[I,J,T][N]))*(m.CA[I,J,T][N]))       ) 
+                m.c_dCAdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dCAdtheta)
+                setattr(m,'c_dCAdtheta_%s_%s_%s' %(I,J,T),m.c_dCAdtheta[I,J,T])
+
+                def _dCBdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.CB[I,J,T][N] == m.CB0[I,J,T] # Initial condition
+                    else:                                    
+                        return m.dCBdtheta[I,J,T][N] == m.varTime[I,J,T]*( -((m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))      +    (((m.u_input[I,J,T][N])/(m.Vol[I,J,T][N]))*(m.CBIN-m.CB[I,J,T][N]))  ) 
+                m.c_dCBdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dCBdtheta)
+                setattr(m,'c_dCBdtheta_%s_%s_%s' %(I,J,T),m.c_dCBdtheta[I,J,T])
+
+                def _dCCdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.CC[I,J,T][N] == m.CC0 # Initial condition
+                    else:                                    
+                        return m.dCCdtheta[I,J,T][N] == m.varTime[I,J,T]*(  ((m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))    -((m.k20*pe.exp(-((m.E2)/(m.R*m.TRvar[I,J,T][N]))))*m.CC[I,J,T][N])       -(((m.u_input[I,J,T][N])/(m.Vol[I,J,T][N]))*m.CC[I,J,T][N]) ) 
+                m.c_dCCdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dCCdtheta)
+                setattr(m,'c_dCCdtheta_%s_%s_%s' %(I,J,T),m.c_dCCdtheta[I,J,T])
+
+                def _dVdtheta(m,N):
+                    if N == m.N[I,J,T].first(): 
+                        return m.Vol[I,J,T][N] == m.V0 # Initial condition
+                    else:                                    
+                        return m.dVdtheta[I,J,T][N] == m.varTime[I,J,T]*(  m.u_input[I,J,T][N] ) 
+                m.c_dVdtheta[I,J,T] = pe.Constraint(m.N[I,J,T], rule=_dVdtheta)
+                setattr(m,'c_dVdtheta_%s_%s_%s' %(I,J,T),m.c_dVdtheta[I,J,T])
+
+
+                def _dTRdtheta(m,N):
+                    if N == m.N[I,J,T].first():
+                        return m.TRvar[I,J,T][N] == m.T_R_initial[I] #Initial condition
+                    else:
+                        return m.dTRdtheta[I,J,T][N] == m.varTime[I,J,T]*(((m.ua[J]*(m.TJvar[I,J,T][N]-m.TRvar[I,J,T][N]))/(m.V0*m.CP*m.CT0[I,J,T]))-(m.CBIN*m.u_input[I,J,T][N]*(m.TRvar[I,J,T][N]-m.TBIN)*(1/(m.V0*m.CT0[I,J,T])))-(((m.Vol[I,J,T][N])/(m.V0*m.CP*m.CT0[I,J,T]))*((m.DH1*(m.k10*pe.exp(-((m.E1)/(m.R*m.TRvar[I,J,T][N]))))*(m.CA[I,J,T][N])*(m.CB[I,J,T][N]))  +  (m.DH2*(m.k20*pe.exp(-((m.E2)/(m.R*m.TRvar[I,J,T][N]))))*m.CC[I,J,T][N])))) 
+                m.c_dTRdtheta[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_dTRdtheta)
+                setattr(m,'c_dTRdtheta_%s_%s_%s' %(I,J,T),m.c_dTRdtheta[I,J,T])
+                # m.c_dTRdt[I,J].pprint()
+
+                def _dTJdtheta(m,N):
+                    if N == m.N[I,J,T].first():
+                        return m.TJvar[I,J,T][N] == m.T_J_initial[I] #Initial condition
+                    else:
+                        return m.dTJdtheta[I,J,T][N] == m.varTime[I,J,T]*((((m.Fhot[I,J,T][N]*(m.T_H[J]-m.TJvar[I,J,T][N]))+(m.Fcold[I,J,T][N]*(m.T_C[J]-m.TJvar[I,J,T][N])))/(m.v_J[J]))+((m.ua[J]*(m.TRvar[I,J,T][N]-m.TJvar[I,J,T][N]))/(m.v_J[J]*m.rho_J[J]*m.c_J[J])) ) 
+                m.c_dTJdtheta[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_dTJdtheta)
+                setattr(m,'c_dTJdtheta_%s_%s_%s' %(I,J,T),m.c_dTJdtheta[I,J,T])
+
+
+                # Integrals for cost calculation
+                def _Integral_hot_bounds(m,N):
+                    return (0,m.F_max[J]*m.maxTau[I,J]*m.delta)
+                m.Integral_hot[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,initialize=0,bounds=_Integral_hot_bounds,doc='Integral of F_hot evaluated at every point [m^3]')
+                setattr(m,'Integral_hot_%s_%s_%s' %(I,J,T),m.Integral_hot[I,J,T])
+                def _Integral_cold_bounds(m,N):
+                    return (0,m.F_max[J]*m.maxTau[I,J]*m.delta)
+                m.Integral_cold[I,J,T]=pe.Var(m.N[I,J,T],within=pe.NonNegativeReals,initialize=0,bounds=_Integral_cold_bounds,doc='Integral of F_cold evaluated at every point [m^3]')
+                setattr(m,'Integral_cold_%s_%s_%s' %(I,J,T),m.Integral_cold[I,J,T])
+                
+                m.dIntegral_hotdtheta[I,J,T]=dae.DerivativeVar(m.Integral_hot[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of hot integral')
+                setattr(m,'dIntegral_hotdtheta_%s_%s_%s' %(I,J,T),m.dIntegral_hotdtheta[I,J,T])            
+                m.dIntegral_colddtheta[I,J,T]=dae.DerivativeVar(m.Integral_cold[I,J,T], withrespectto=m.N[I,J,T], doc='Derivative of cold integral')
+                setattr(m,'dIntegral_colddtheta_%s_%s_%s' %(I,J,T),m.dIntegral_colddtheta[I,J,T])
+
+
+                def _c_dIntegral_hotdtheta(m,N):
+                    if N == m.N[I,J,T].first():
+                        return m.Integral_hot[I,J,T][N]==0
+                    else:
+                        return m.dIntegral_hotdtheta[I,J,T][N]==m.varTime[I,J,T]*m.Fhot[I,J,T][N]
+                m.c_dIntegral_hotdtheta[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_c_dIntegral_hotdtheta)
+                setattr(m,'c_dIntegral_hotdtheta_%s_%s_%s' %(I,J,T),m.c_dIntegral_hotdtheta[I,J,T])   
+                
+                def _c_dIntegral_colddtheta(m,N):
+                    if N == m.N[I,J,T].first():
+                        return m.Integral_cold[I,J,T][N]==0
+                    else:
+                        return m.dIntegral_colddtheta[I,J,T][N]==m.varTime[I,J,T]*m.Fcold[I,J,T][N]
+                m.c_dIntegral_colddtheta[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_c_dIntegral_colddtheta)
+                setattr(m,'c_dIntegral_colddtheta_%s_%s_%s' %(I,J,T),m.c_dIntegral_colddtheta[I,J,T])  
+ 
+
+
+
+    # # -------Discretization---------------------------------------------------
+    # discretizer = pe.TransformationFactory('dae.finite_difference')
+    # discretizer.apply_to(m, nfe=60, wrt=m.t, scheme='BACKWARD')
+    # # discretizer = TransformationFactory('dae.collocation')
+    # # discretizer.apply_to(m,nfe=60,ncp=3,wrt=m.t,scheme='LAGRANGE-RADAU')
+    #Constant control actions
+    m.Constant_control1={}
+    m.Constant_control2={}
+    m.Constant_control3={}
+    keep_constant_u=9*(2) #Keep Fhot constant every three discretization points %TODO: what I should keep constant is the actual sampling time, not the number of discrete points
+    keep_constant_fcold=9*(2) #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+    keep_constant_fhot=9*(2) #Keep Fcold constant every three discretization points  %TODO: what I should keep constant is the actual sampling time, not the number of discrete points 
+
+
+    discretizer = pe.TransformationFactory('dae.collocation') #dae.finite_difference is also possible
+
+    for I in m.I_dynamics:
+        for J in m.J_dynamics: 
+            for T in m.T:
+                discretizer.apply_to(m, nfe=30*(2), ncp=3, wrt=m.N[I,J,T], scheme='LAGRANGE-RADAU') #if using finite differences, I can use FORWARD, BACKWARD, ETC
+            # print(dir(m.N[I,J]))
+            # print(m.N[I,J].value_list)
+            # m=discretizer.reduce_collocation_points(m,var=m.Fcold[I,J],ncp=1,contset=m.N[I,J]) %TODO: NOT WORKING, HELP !!
+                        
+            #------Constant control
+    for I in m.I_dynamics:
+        for J in m.J_dynamics: 
+            for T in m.T: 
+                def _Constant_control1(m,N):
+                    if (N!=m.N[I,J,T].first() and (m.N[I,J,T].ord(N)-1)%keep_constant_u!=0) or (N==m.N[I,J,T].last()):
+                        return m.u_input[I,J,T][N] == m.u_input[I,J,T][m.N[I,J,T].prev(N)]
+                    else:
+                        return pe.Constraint.Skip
+                m.Constant_control1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_Constant_control1,doc='Constant control action every keep_constant_u discrete points and the last one')
+                setattr(m,'Constant_control1_%s_%s_%s' %(I,J,T),m.Constant_control1[I,J,T])
+
+                def _Constant_control2(m,N):
+                    if (N!=m.N[I,J,T].first() and (m.N[I,J,T].ord(N)-1)%keep_constant_fhot!=0) or (N==m.N[I,J,T].last()):
+                        return m.Fhot[I,J,T][N] == m.Fhot[I,J,T][m.N[I,J,T].prev(N)]
+                    else:
+                        return pe.Constraint.Skip
+                m.Constant_control2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_Constant_control2,doc='Constant control action every keep_constant_temp discrete points and the last one')
+                setattr(m,'Constant_control2_%s_%s_%s' %(I,J,T),m.Constant_control2[I,J,T])  
+
+                def _Constant_control3(m,N):
+                    if (N!=m.N[I,J,T].first() and (m.N[I,J,T].ord(N)-1)%keep_constant_fcold!=0) or (N==m.N[I,J,T].last()):
+                        return m.Fcold[I,J,T][N] == m.Fcold[I,J,T][m.N[I,J,T].prev(N)]
+                    else:
+                        return pe.Constraint.Skip
+                m.Constant_control3[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_Constant_control3,doc='Constant control action every keep_constant_temp discrete points and the last one')
+                setattr(m,'Constant_control3_%s_%s_%s' %(I,J,T),m.Constant_control3[I,J,T])   
+
+    # # ----------Linking constraints-------------------------------------------
+# TODO: discretize models before linking constraints
+# In this case I will create disjunctions that will activate and deactivate constraints depending on the value of Xijt
+
+    m.linking1_1={} #B and Vol relationship 
+    m.linking1_2={} #B and Vol relationship 
+
+    m.linking2_1={} #rho and Vol relationship 
+    m.linking2_2={} #rho and Vol relationship 
+
+    m.linking2_3={} #rho and Vol relationship 
+    m.linking2_4={} #rho and Vol relationship 
+
+    m.linking3_1={} #end point constraint relationship 
+    m.linking3_2={} #end point constraint relationship 
+
+    for I in m.I_dynamics:
+        for J in m.J_dynamics: 
+            for T in m.T: 
+                # def _linking1_1(m,N):
+                #     if N==m.N[I,J,T].last():
+                #         return m.B[I,J,T]-m.Vol[I,J,T][N] <= (m.beta_max[I,J]-m.beta_min[I,J])*(1-m.X[I,J,T])  
+                #     else:
+                #         return pe.Constraint.Skip
+                # m.linking1_1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking1_1,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+                # setattr(m,'linking1_1_%s_%s_%s' %(I,J,T),m.linking1_1[I,J,T])
+
+                # def _linking1_2(m,N):
+                #     if N==m.N[I,J,T].last():
+                #         return -(m.B[I,J,T]-m.Vol[I,J,T][N]) <= m.beta_max[I,J]*(1-m.X[I,J,T]) 
+                #     else:
+                #         return pe.Constraint.Skip 
+                # m.linking1_2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking1_2,doc='Linking constraint to fuarantee that batch sizes agree with reactor volumes') 
+                # setattr(m,'linking1_2_%s_%s_%s' %(I,J,T),m.linking1_2[I,J,T])
+
+                def _linking2_1(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.rho_minus[I,'S2']*m.Vol[I,J,T][N]-m.V0*((m.CA0[I,J,T]/m.CAIN))<=0
+                    else:  
+                        return pe.Constraint.Skip
+                m.linking2_1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking2_1,doc='') 
+                setattr(m,'linking2_1_%s_%s_%s' %(I,J,T),m.linking2_1[I,J,T])
+
+                def _linking2_2(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.V0*((m.CA0[I,J,T]/m.CAIN))-m.rho_minus[I,'S2']*m.Vol[I,J,T][N]<=0
+                    else:
+                        return pe.Constraint.Skip 
+                m.linking2_2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking2_2,doc='') 
+                setattr(m,'linking2_2_%s_%s_%s' %(I,J,T),m.linking2_2[I,J,T])
+
+
+
+                def _linking2_3(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.rho_minus[I,'S3']*m.Vol[I,J,T][N]-m.V0*((m.CB0[I,J,T]/m.CBIN))-m.Vol[I,J,T][N]+m.V0<=0
+                    else:  
+                        return pe.Constraint.Skip
+                m.linking2_3[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking2_3,doc='') 
+                setattr(m,'linking2_3_%s_%s_%s' %(I,J,T),m.linking2_3[I,J,T])
+
+                def _linking2_4(m,N):
+                    if N==m.N[I,J,T].last():
+                        return -(m.rho_minus[I,'S3']*m.Vol[I,J,T][N]-m.V0*((m.CB0[I,J,T]/m.CBIN))-m.Vol[I,J,T][N]+m.V0)<=0
+                    else:
+                        return pe.Constraint.Skip 
+                m.linking2_4[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking2_4,doc='') 
+                setattr(m,'linking2_4_%s_%s_%s' %(I,J,T),m.linking2_4[I,J,T])
+
+
+
+
+                def _linking3_1(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.CC[I,J,T][N]-m.CCDESIRED<=0
+                    else:
+                        return pe.Constraint.Skip
+                m.linking3_1[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking3_1,doc='')
+                setattr(m,'linking3_1_%s_%s_%s' %(I,J,T),m.linking3_1[I,J,T]) 
+
+                def _linking3_2(m,N):
+                    if N==m.N[I,J,T].last():
+                        return m.CCDESIRED-m.CC[I,J,T][N]<=0
+                    else:
+                        return pe.Constraint.Skip 
+                m.linking3_2[I,J,T]=pe.Constraint(m.N[I,J,T],rule=_linking3_2,doc='') 
+                setattr(m,'linking3_2_%s_%s_%s' %(I,J,T),m.linking3_2[I,J,T])
+    return m
 
 ## DO NOT USE!!!!!
 # same as previuous, except that considers the relationship between tau and B for processes without dynamic models i.e. it has more variable processing times

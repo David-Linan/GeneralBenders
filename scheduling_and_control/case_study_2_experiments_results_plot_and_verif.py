@@ -43,7 +43,7 @@ if __name__ == "__main__":
     last_disc=15
     last_time_h=5
     logic_fun=problem_logic_scheduling
-    with_distillation=True
+    with_distillation=False
     sequential_naive=False #true if i am ploting results from sequential naive
 
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):3}        
     kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
 
-    print('\n-------DICOPT-------------------------------------')
+    print('\n-------CREATING PLOTS-------------------------------------')
     if not with_distillation:
         model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
     else:
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
 
     
-    # feasible_mod_name2='case_2_scheduling_solution'  #sequential naive: scheduling solution
+    feasible_mod_name='case_2_scheduling_and_dynamics_solution'  #sequential naive: scheduling solution
     # feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
 
     # feasible_mod_name='case_2_sequential' #sequential iterative
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     #with distillation model
     # feasible_mod_name='case_2_sequential_With_distillation' #SEQUENTIAL ITERATIVE
 
-    feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
+    # feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
 
 
     # feasible_mod_name2='case_2_scheduling_solution_with_distillation'  #sequential naive: scheduling solution
