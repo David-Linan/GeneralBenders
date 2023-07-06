@@ -259,46 +259,46 @@ if __name__ == "__main__":
 ###########------------FROM FEASIBLE      -----------##########################
 ##############################################################################
 
-    print('\n-------MULTICUT LDBD NAIVE-------------------------------------')
-    # #NOTE: IN CASE I DO NOT WANT TO RUN PREVIOUS CODE: Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
-    Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
-    initialization=Sol_found_seq_naive 
-    infinity_val=1e+4
-    maxiter=1000
-    neigh=neighborhood_k_eq_2(len(initialization))
-    model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
-    logic_fun=problem_logic_scheduling_case1
-    m=model_fun(**kwargs)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
-    print('Objective value: ',str(pe.value(m.obj)))
-    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
-    save=generate_initialization(m=m,model_name='case_1_scheduling_and_dynamics_solution_DBD_multicut_naive')
-    Sol_found=[]
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            if m.I_i_j_prod[I,J]==1:
-                for K in m.ordered_set[I,J]:
-                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-m.minTau[I,J]+1)
-    for I_J in m.I_J:
-        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-    print('EXT_VARS_FOUND',Sol_found)
-    TPC1=pe.value(m.TCP1)
-    TPC2=pe.value(m.TCP2)
-    TPC3=pe.value(m.TCP3)
-    TMC=pe.value(m.TMC)
-    SALES=pe.value(m.SALES)
-    OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
+    # print('\n-------MULTICUT LDBD NAIVE-------------------------------------')
+    # # #NOTE: IN CASE I DO NOT WANT TO RUN PREVIOUS CODE: Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    # Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
+    # initialization=Sol_found_seq_naive 
+    # infinity_val=1e+4
+    # maxiter=1000
+    # neigh=neighborhood_k_eq_2(len(initialization))
+    # model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
+    # logic_fun=problem_logic_scheduling_case1
+    # m=model_fun(**kwargs)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd(initialization,infinity_val,minlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True)
+    # print('Objective value: ',str(pe.value(m.obj)))
+    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    # save=generate_initialization(m=m,model_name='case_1_scheduling_and_dynamics_solution_DBD_multicut_naive')
+    # Sol_found=[]
+    # for I in m.I_reactions:
+    #     for J in m.J_reactors:
+    #         if m.I_i_j_prod[I,J]==1:
+    #             for K in m.ordered_set[I,J]:
+    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                     Sol_found.append(K-m.minTau[I,J]+1)
+    # for I_J in m.I_J:
+    #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    # print('EXT_VARS_FOUND',Sol_found)
+    # TPC1=pe.value(m.TCP1)
+    # TPC2=pe.value(m.TCP2)
+    # TPC3=pe.value(m.TCP3)
+    # TMC=pe.value(m.TMC)
+    # SALES=pe.value(m.SALES)
+    # OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
 
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJECTIVE:',str(OBJ_FOUND))
+    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    # print('TMC: Total material cost: ',str(TMC))
+    # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJECTIVE:',str(OBJ_FOUND))
 
     # print('\n-------MULTICUT LDBD PRUNING RIGUROUS SUBPROBLEMS-------------------------------------')
     # # #NOTE: IN CASE I DO NOT WANT TO RUN PREVIOUS CODE: Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
@@ -485,53 +485,53 @@ if __name__ == "__main__":
     # print('OBJECTIVE:',str(OBJ_FOUND))
     # kwargs['prunning']=False
 
-    print('\n-------DICOPT FROM INFEASIBLE-------------------------------------')
-    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    m=model_fun(**kwargs)
-    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
-        # NOTE: we cannot use relaxed 0 here to guaranteee feasibility of first NLP, which in this case is RMINLP
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-    m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_only_solution') 
+    # print('\n-------DICOPT FROM INFEASIBLE-------------------------------------')
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+    #     # NOTE: we cannot use relaxed 0 here to guaranteee feasibility of first NLP, which in this case is RMINLP
+    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_only_solution') 
 
-    start=time.time()
-    m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
-    end=time.time()    
-    solname='case_1_minlp_from_infeasible_'+minlp_solver
-    save=generate_initialization(m=m,model_name=solname)
+    # start=time.time()
+    # m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    # end=time.time()    
+    # solname='case_1_minlp_from_infeasible_'+minlp_solver
+    # save=generate_initialization(m=m,model_name=solname)
 
-    if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
-        m.dicopt_status='Infeasible'
-    else:
-        m.dicopt_status='Optimal'
+    # if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+    #     m.dicopt_status='Infeasible'
+    # else:
+    #     m.dicopt_status='Optimal'
 
-    if m.dicopt_status=='Optimal':
-        Sol_founddicopt=[]
-        for I in m.I_reactions:
-            for J in m.J_reactors:
-                if m.I_i_j_prod[I,J]==1:
-                    for K in m.ordered_set[I,J]:
-                        if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                            Sol_founddicopt.append(K-m.minTau[I,J]+1)
-        for I_J in m.I_J:
-            Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
+    # if m.dicopt_status=='Optimal':
+    #     Sol_founddicopt=[]
+    #     for I in m.I_reactions:
+    #         for J in m.J_reactors:
+    #             if m.I_i_j_prod[I,J]==1:
+    #                 for K in m.ordered_set[I,J]:
+    #                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                         Sol_founddicopt.append(K-m.minTau[I,J]+1)
+    #     for I_J in m.I_J:
+    #         Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
 
 
-        print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
-    else:
-        print('DICOPT infeasible','cputime DICOPT=',str(end-start))
+    #     print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
+    # else:
+    #     print('DICOPT infeasible','cputime DICOPT=',str(end-start))
 
-    TPC1=pe.value(m.TCP1)
-    TPC2=pe.value(m.TCP2)
-    TPC3=pe.value(m.TCP3)
-    TMC=pe.value(m.TMC)
-    SALES=pe.value(m.SALES)
-    OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJ:',str(OBJVAL))
+    # TPC1=pe.value(m.TCP1)
+    # TPC2=pe.value(m.TCP2)
+    # TPC3=pe.value(m.TCP3)
+    # TMC=pe.value(m.TMC)
+    # SALES=pe.value(m.SALES)
+    # OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
+    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    # print('TMC: Total material cost: ',str(TMC))
+    # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJ:',str(OBJVAL))
 
 
 ####CASE STUDY 1.1###############################
@@ -558,6 +558,7 @@ if __name__ == "__main__":
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
     
     kwargs={'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    rel_tol=0.05
 
 
 # ###############################################################################
@@ -565,103 +566,103 @@ if __name__ == "__main__":
 # ###############################################################################
 # ###############################################################################
 
-    print('\n-------SEQUENTIAL NAIVE-------------------------------------')
-    kwargs2=kwargs.copy()
-    kwargs2['sequential']=True
+    # print('\n-------SEQUENTIAL NAIVE-------------------------------------')
+    # kwargs2=kwargs.copy()
+    # kwargs2['sequential']=True
 
-    logic_fun=problem_logic_scheduling_case1
-    model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
-    m=model_fun(**kwargs2)
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors if m.I_i_j_prod[I,J]==1}
-    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # logic_fun=problem_logic_scheduling_case1
+    # model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
+    # m=model_fun(**kwargs2)
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors if m.I_i_j_prod[I,J]==1}
+    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
-    initialization_test=[]
-    for k in upper_bounds.keys():
-        initialization_test.append(upper_bounds[k]) 
-    print('upper bound ext var related to proc time',initialization_test)
-    ## RUN THIS TO SOLVE
-    m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = 0)
-    #SAVE SOLUTION
-    save=generate_initialization(m=m,model_name='case_1_28h_scheduling_and_dynamics_solution')
-    ## RUN THIS TO RETRIEVE SOLUTION    
+    # initialization_test=[]
+    # for k in upper_bounds.keys():
+    #     initialization_test.append(upper_bounds[k]) 
+    # print('upper bound ext var related to proc time',initialization_test)
+    # ## RUN THIS TO SOLVE
+    # m=sequential_non_iterative_2(logic_fun,initialization_test,model_fun,kwargs2,ext_ref,provide_starting_initialization= False, subproblem_solver=nlp_solver,subproblem_solver_options=sub_options,tee = False, global_tee= True,rel_tol = rel_tol)
+    # #SAVE SOLUTION
+    # save=generate_initialization(m=m,model_name='case_1_28h_scheduling_and_dynamics_solution')
+    # ## RUN THIS TO RETRIEVE SOLUTION    
 
-    m=initialize_model(m,from_feasible=True,feasible_model='case_1_28h_scheduling_and_dynamics_solution')
-    # m.varTime.pprint()
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_1_28h_scheduling_and_dynamics_solution')
+    # # m.varTime.pprint()
 
-    Sol_found=[]
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            if m.I_i_j_prod[I,J]==1:
-                for K in m.ordered_set[I,J]:
-                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-m.minTau[I,J]+1)
-    for I_J in m.I_J:
-        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-    print('EXT_VARS_FOUND',Sol_found)
-    TPC1=pe.value(m.TCP1)
-    TPC2=pe.value(m.TCP2)
-    TPC3=pe.value(m.TCP3)
-    TMC=pe.value(m.TMC)
-    SALES=pe.value(m.SALES)
-    OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
+    # Sol_found=[]
+    # for I in m.I_reactions:
+    #     for J in m.J_reactors:
+    #         if m.I_i_j_prod[I,J]==1:
+    #             for K in m.ordered_set[I,J]:
+    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                     Sol_found.append(K-m.minTau[I,J]+1)
+    # for I_J in m.I_J:
+    #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    # print('EXT_VARS_FOUND',Sol_found)
+    # TPC1=pe.value(m.TCP1)
+    # TPC2=pe.value(m.TCP2)
+    # TPC3=pe.value(m.TCP3)
+    # TMC=pe.value(m.TMC)
+    # SALES=pe.value(m.SALES)
+    # OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
 
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJECTIVE:',str(OBJ_FOUND))
+    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    # print('TMC: Total material cost: ',str(TMC))
+    # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJECTIVE:',str(OBJ_FOUND))
 
 ###############################################################################
 #########--------------sequential iterative-------------#######################
 ###########--------+ DSDA ---------------------------##########################
 ###############################################################################
     print('\n-------SEQUENTIAL ITERATIVE-------------------------------------')
-    # STEP 1: SCHEDULING ONLY WITH VARIABLE PROCESSSING TIMES
-    kwargs3=kwargs.copy()
-    kwargs3['x_initial']=[1,1,1,1,1,1]
-    model_fun=scheduling_only_gdp_N_solvegdp_simpler
-    m=model_fun(**kwargs)
-    m = solve_with_minlp(m,transformation=transform,minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=0)
-    save=generate_initialization(m=m,model_name='case_1_28h_scheduling_only_solution')
-    # SCHEDULING INITIALIZATION
-    Sol_found=[]
-    for I in m.I_reactions:
-        for J in m.J_reactors:
-            if m.I_i_j_prod[I,J]==1:
-                for K in m.ordered_set[I,J]:
-                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-m.minTau[I,J]+1)
+    # # STEP 1: SCHEDULING ONLY WITH VARIABLE PROCESSSING TIMES
+    # kwargs3=kwargs.copy()
+    # kwargs3['x_initial']=[1,1,1,1,1,1]
+    # model_fun=scheduling_only_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # m = solve_with_minlp(m,transformation=transform,minlp=mip_solver,minlp_options=sub_options,timelimit=3600000,gams_output=False,tee=True,rel_tol=rel_tol)
+    # save=generate_initialization(m=m,model_name='case_1_28h_scheduling_only_solution')
+    # # SCHEDULING INITIALIZATION
+    # Sol_found=[]
+    # for I in m.I_reactions:
+    #     for J in m.J_reactors:
+    #         if m.I_i_j_prod[I,J]==1:
+    #             for K in m.ordered_set[I,J]:
+    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                     Sol_found.append(K-m.minTau[I,J]+1)
 
-    # STEP 2: SEQUENTIAL STRATEGY TO IDENTIFY FEASIBILITY
-    model_fun =scheduling_and_control_gdp_N_approx_sequential
-    logic_fun=problem_logic_scheduling_dummy
-    m=model_fun()
-    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
-    m,Sol_found=sequential_iterative_2(logic_fun,Sol_found,model_fun,kwargs,ext_ref,rate_tau=1,provide_starting_initialization = False,subproblem_solver=nlp_solver,iter_timelimit = 1000000,subproblem_solver_options=sub_options,gams_output = False,tee = False,global_tee = True,rel_tol = 0)
-    save=generate_initialization(m=m,model_name='case_1_28h_scheduling_and_dynamics_solution_seq_iterative')
+    # # STEP 2: SEQUENTIAL STRATEGY TO IDENTIFY FEASIBILITY
+    # model_fun =scheduling_and_control_gdp_N_approx_sequential
+    # logic_fun=problem_logic_scheduling_dummy
+    # m=model_fun()
+    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors}
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    # m,Sol_found=sequential_iterative_2(logic_fun,Sol_found,model_fun,kwargs,ext_ref,rate_tau=1,provide_starting_initialization = False,subproblem_solver=nlp_solver,iter_timelimit = 1000000,subproblem_solver_options=sub_options,gams_output = False,tee = False,global_tee = True,rel_tol = rel_tol)
+    # save=generate_initialization(m=m,model_name='case_1_28h_scheduling_and_dynamics_solution_seq_iterative')
 
-    for I_J in m.I_J:
-        Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-    print('EXT_VARS_FOUND',Sol_found)
-    TPC1=pe.value(m.TCP1)
-    TPC2=pe.value(m.TCP2)
-    TPC3=pe.value(m.TCP3)
-    TMC=pe.value(m.TMC)
-    SALES=pe.value(m.SALES)
-    OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
+    # for I_J in m.I_J:
+    #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    # print('EXT_VARS_FOUND',Sol_found)
+    # TPC1=pe.value(m.TCP1)
+    # TPC2=pe.value(m.TCP2)
+    # TPC3=pe.value(m.TCP3)
+    # TMC=pe.value(m.TMC)
+    # SALES=pe.value(m.SALES)
+    # OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
 
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJECTIVE:',str(OBJ_FOUND))
+    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    # print('TMC: Total material cost: ',str(TMC))
+    # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJECTIVE:',str(OBJ_FOUND))
 
 
-    Sol_found_seq_naive=Sol_found
+    # Sol_found_seq_naive=Sol_found
     print('\n-------DSDA-------------------------------------')
 
     # ## NOTE: IN CASE I DO NOT WANT TO RUN PREVIOUS CODE: Sol_found_seq_naive=
@@ -856,7 +857,7 @@ if __name__ == "__main__":
 
     print('\n-------MULTICUT LDBD PRUNING APROX SUBPROBLEMS-------------------------------------')
     # #NOTE: IN CASE I DO NOT WANT TO RUN PREVIOUS CODE: Sol_found_seq_naive=
-    # Sol_found_seq_naive=
+    Sol_found_seq_naive=[4, 4, 5, 5, 3, 3, 4, 3, 3, 5, 5, 5, 4, 6, 5, 7] #NOTE: this is sequential naive!!!!!--still have to run seq iterative!!!!
     Sol_found=Sol_found_seq_naive # from sequential iterative
     feas_model='case_1_28h_scheduling_and_dynamics_solution' # from sequential iterative
     kwargs['prunning']=True
@@ -875,7 +876,7 @@ if __name__ == "__main__":
     [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
     start=time.time()                                                                                                                                                              ## TODO: this second model function is a version of the model with only scheduling constraints. Work on this!!!!!
-    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=0,new_case=False,with_distillation=False,provide_starting_initialization=True,feasible_model=feas_model)
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=rel_tol,new_case=False,with_distillation=False,provide_starting_initialization=True,feasible_model=feas_model)
     
     print('Objective value: ',str(pe.value(m.obj)))
     print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
@@ -951,7 +952,7 @@ if __name__ == "__main__":
     # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
 
     # start=time.time()                                                                                                                                                              ## TODO: this second model function is a version of the model with only scheduling constraints. Work on this!!!!!
-    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=0,new_case=False,with_distillation=False,provide_starting_initialization=False,feasible_model=feas_model)
+    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=rel_tol,new_case=False,with_distillation=False,provide_starting_initialization=False,feasible_model=feas_model)
     
     # print('Objective value: ',str(pe.value(m.obj)))
     # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
