@@ -57,7 +57,7 @@ if __name__ == "__main__":
         UP_PROC_TIME={('T1','U1'):0.5,('T2','U2'):2,('T2','U3'):2,('T3','U2'):1,('T3','U3'):2.5,('T4','U2'):1,('T4','U3'):5,('T5','U4'):3}        
     kwargs={'obj_type':obj_Selected,'last_disc_point':last_disc,'last_time_hours':last_time_h,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME,'sequential':False}
 
-    print('\n-------DICOPT-------------------------------------')
+    print('\n-------CREATING PLOTS-------------------------------------')
     if not with_distillation:
         model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
     else:
