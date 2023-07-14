@@ -209,12 +209,14 @@ if __name__ == "__main__":
     # if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
     #     # NOTE: we have to modify options slighlty to guarantee that DICOPT starts from user provided initialization!!!!!!! If we remove this, DICOPT WILL NEVER FIND A FEASIBLE SOLUTION!!!
     #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','relaxed 0 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-    # m=initialize_model(m,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution') 
+    # init_name='case_1_scheduling_and_dynamics_solution'
+
+    # m=initialize_model(m,from_feasible=True,feasible_model=init_name) 
 
     # start=time.time()
     # m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
     # end=time.time()    
-    # solname='case_1_minlp_'+minlp_solver
+    # solname='case_1_minlp_'+minlp_solver+'_from_'+init_name
     # save=generate_initialization(m=m,model_name=solname)
 
     # if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
@@ -1152,14 +1154,16 @@ if __name__ == "__main__":
 # ###############################################################################
     print('\n-------DICOPT-------------------------------------')
     kwargs['sequential']=False
-    kwargs['x_initial']=Sol_found
+    # kwargs['x_initial']=Sol_found
     logic_fun=problem_logic_scheduling
     model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
     if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
         # NOTE: we have to modify options slighlty to guarantee that DICOPT starts from user provided initialization!!!!!!! If we remove this, DICOPT WILL NEVER FIND A FEASIBLE SOLUTION!!!
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','relaxed 0 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
     m=model_fun(**kwargs)
-    m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_and_dynamics_solution') 
+    feas_mol_name='case_2_sequential'
+    # m=initialize_model(m,from_feasible=True,feasible_model='case_2_scheduling_and_dynamics_solution')
+    m=initialize_model(m,from_feasible=True,feasible_model=feas_mol_name) 
     start=time.time()
     m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
     end=time.time()    
