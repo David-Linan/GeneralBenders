@@ -1,15 +1,9 @@
 from __future__ import division
 import pyomo.environ as pe
-import pyomo.dae as dae
-import math
-import os
-import io
 import matplotlib.pyplot as plt
 from pyomo.opt import SolverFactory
-from pyomo.gdp import Disjunct, Disjunction
-import itertools
 import random
-random.seed(10)
+# random.seed(10)
 
 
 def personal_model():
@@ -21,7 +15,7 @@ def personal_model():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [days]')
-    m.lastT=pe.Param(initialize=7,doc='last discrete time value in the scheduling time grid')
+    m.lastT=pe.Param(initialize=7*4,doc='last discrete time value in the scheduling time grid')
     
     # -----------sets--------------------------------------------------------
     #Main sets
@@ -63,7 +57,7 @@ def personal_model():
     m.night=pe.Constraint(m.I,m.T,rule=_night,doc='a person cannot be duplicated')
     # ---------Objective------------------------------------------------------------
     def _obj(m):
-        return sum(sum(sum(m.X[I,J,T] for T in m.T) for I in m.I) for J in m.J)+m.rate_relief
+        return sum(sum(sum(m.X[I,J,T] for T in m.T) for I in m.I) for J in m.J)
     m.obj = pe.Objective(rule=_obj, sense=pe.maximize)           
 
     return m
@@ -194,17 +188,111 @@ if __name__ == "__main__":
         return m.X[I_refief,J,T] <= pe.value(m.avail[I_refief,J,T])
     m.avail_const=pe.Constraint(m.I_relief,m.J,m.T,rule=_avail_const)
 
+    # mip_solver='CPLEX'
+    # solver = pe.SolverFactory('gams', solver=mip_solver)
+    solver = SolverFactory('glpk')
+    solver.options['mipgap']=0
+    res = solver.solve(m, tee=True)
+
+    #--------------------------------- Gantt plot--------------------------------------------
+    num_units=6
+    fig, gnt = plt.subplots(figsize=(11, num_units), sharex=True, sharey=False)
+    # Setting Y-axis limits
+    gnt.set_ylim(8, 72)
+    
+    # Setting X-axis limits
+    gnt.set_xlim(0, m.lastT.value*m.delta.value)
+    
+    # Setting labels for x-axis and y-axis
+    gnt.set_xlabel('Day')
+    gnt.set_ylabel('Shift')
+    
+    # Setting ticks on y-axis
+    gnt.set_yticks([15, 25, 35, 45, 55, 65])
+    # Labelling tickes of y-axis
+    gnt.set_yticklabels(['Night 2', 'Night 1', 'Day 2', 'Day 1','Morning 2','Morning 1'])
+
+    # Setting graph attribute
+    gnt.grid(False)
+    
+    # Declaring bars in schedule
+    height=9
+    already_used=[]
+    for j in m.J:
+        if j=='M1':
+            lower_y_position=60
+        elif j=='M2':
+            lower_y_position=50    
+        elif j=='D1':
+            lower_y_position=40    
+        elif j=='D2':
+            lower_y_position=30
+        elif j=='N1':
+            lower_y_position=20
+        elif j=='N2':
+            lower_y_position=10    
+        for i in m.I:
+            if i=='Diana':
+                bar_color='tab:red'
+            elif i=='David':
+                bar_color='tab:green'    
+            elif i=='Carlos':
+                bar_color='tab:blue'    
+            elif i=='Maria':
+                bar_color='tab:orange' 
+            elif i=='Lukas':
+                bar_color='tab:olive'
+            elif i=='Felipe':
+                bar_color='tab:purple'                
+            elif i=='Santiago':
+                bar_color='teal'
+            for t in m.T:
+                try:
+                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                        gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                        gnt.annotate(i,xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                        already_used.append(i)
+                    elif round(pe.value(m.X[i,j,t]))==1:
+                        gnt.broken_barh([(m.t_p[t], pe.value(m.tau_p[i,j]))], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                        gnt.annotate(i,xy=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]+pe.value(m.tau_p[i,j]))/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                        
+                except:
+                    pass 
+    gnt.tick_params(axis='both', which='major', labelsize=15)
+    gnt.tick_params(axis='both', which='minor', labelsize=15) 
+    gnt.yaxis.label.set_size(15)
+    gnt.xaxis.label.set_size(15)
+    plt.legend()
+    plt.show()
+
+
+
+
+    # LAST STEP: FAIR DISTRIBUTION OF SHIFTS
     def _rate_const(m,I_refief):
         return sum(sum(m.X[I_refief,J,T] for J in m.J) for T in m.T)>= m.rate_relief*(      sum(sum(pe.value(m.avail[I_refief,J,T]) for J in m.J_no_duplicates_1) for T in m.T)      )
     m.rate_const=pe.Constraint(m.I_relief,rule=_rate_const)
 
+
+    def _fill_blanks(m):
+        return sum(sum(sum(m.X[I,J,T] for I in m.I) for J in m.J) for T in m.T)==sum(sum(sum(round(pe.value(m.X[I,J,T])) for I in m.I) for J in m.J) for T in m.T) 
+    m.fill_blanks=pe.Constraint(rule=_fill_blanks)
+
+    m.obj.deactivate()
+
+    def _obj2(m):
+        return  m.rate_relief 
+    m.obj2 = pe.Objective(rule=_obj2, sense=pe.maximize)  
+
     # mip_solver='CPLEX'
     # solver = pe.SolverFactory('gams', solver=mip_solver)
-    solver = pe.SolverFactory('glpk')
-    solver.options['mipgap']=0
+    gap=0.05
+    solver = SolverFactory('glpk')
+    solver.options['mipgap']=gap
     res = solver.solve(m, tee=True)
-
-    print('All relief staff members are getting at least ',pe.value(m.rate_relief)*100,'% of the shifts they declared as available. Higher percentages are infeasible')
+    if gap==0:
+        print('All relief staff members are getting at least ',pe.value(m.rate_relief)*100,'% of the shifts they declared as available. Higher percentages are infeasible.')
+    else:
+        print('All relief staff members are getting at least ',pe.value(m.rate_relief)*100,'% of the shifts they declared as available.')
     #--------------------------------- Gantt plot--------------------------------------------
     num_units=6
     fig, gnt = plt.subplots(figsize=(11, num_units), sharex=True, sharey=False)
