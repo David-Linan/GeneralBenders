@@ -20,6 +20,7 @@ from pyomo.opt import SolutionStatus, SolverResults
 from pyomo.opt import TerminationCondition as tc
 from pyomo.opt.base.solvers import SolverFactory
 import pyomo.dae as dae
+from copy import deepcopy
 
 #TODO: this depends on each specific problem
 def complementary_model(m,x):
@@ -1189,6 +1190,8 @@ def solve_subproblem_aprox(
     approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
                                 # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
     scheduling_only=False #True: only perform scheduling subproblems
+    
+    add_cutoff=True # If true, cplex cutoff option is activated when solving subproblems approximately. This means that solutions with objective function worst than current incumbent solution are considered as infeasible
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
     #DEACTIVATE DYNAMIC CONSTRAINTS
 
@@ -1239,17 +1242,23 @@ def solve_subproblem_aprox(
         m.obj_dummy.deactivate()
 
 
+    subproblem_solver_options_2=deepcopy(subproblem_solver_options)
+
+    if approximate_solution and add_cutoff and best_sol!=1e+8:
+        subproblem_solver_options_2['add_options'].append('$onecho > cplex.opt \ncutup %s \n$offecho \n' % best_sol )
     #SOLVE SCHEDULING ONLY PROBLEM
     opt = SolverFactory(solvername, solver='cplex')
 
     # start=time.time()
     m.results = opt.solve(m, tee=tee,
                           **output_options,
-                          **subproblem_solver_options,
+                          **subproblem_solver_options_2,
                           skip_trivial_constraints=True,
                           )
     # end=time.time()
     # print('actual sol time part 1:',str(end-start))
+
+
 
     m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
 
