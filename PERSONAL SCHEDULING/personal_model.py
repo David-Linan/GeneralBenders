@@ -198,9 +198,11 @@ if __name__ == "__main__":
         return sum(sum(m.X[I_refief,J,T] for J in m.J) for T in m.T)>= m.rate_relief*(      sum(sum(pe.value(m.avail[I_refief,J,T]) for J in m.J_no_duplicates_1) for T in m.T)      )
     m.rate_const=pe.Constraint(m.I_relief,rule=_rate_const)
 
-    mip_solver='CPLEX'
-    solver = pe.SolverFactory('gams', solver=mip_solver)
-    res = solver.solve(m, tee=False)
+    # mip_solver='CPLEX'
+    # solver = pe.SolverFactory('gams', solver=mip_solver)
+    solver = pe.SolverFactory('glpk')
+    solver.options['mipgap']=0
+    res = solver.solve(m, tee=True)
 
     print('All relief staff members are getting at least ',pe.value(m.rate_relief)*100,'% of the shifts they declared as available. Higher percentages are infeasible')
     #--------------------------------- Gantt plot--------------------------------------------
