@@ -6416,7 +6416,7 @@ def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_la
     def _varTime_bounds(m,I,J):
         # return (m.minTau[I,J]*m.delta,m.maxTau[I,J]*m.delta)
         return (0,m.maxTau[I,J]*m.delta)
-    m.varTime=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
+    m.varTime=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,initialize=0,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
 
     m.ordered_set={}
     m.YR={}
@@ -6736,7 +6736,7 @@ def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_la
 
     def _Nref_bounds(m,I,J):
         return (0,m.lastN[I,J])
-    m.Nref=pe.Var(m.I_J,within=pe.Integers,bounds=_Nref_bounds,doc='reformulation variables from 0 to lastN')
+    m.Nref=pe.Var(m.I_J,within=pe.Integers,initialize=0,bounds=_Nref_bounds,doc='reformulation variables from 0 to lastN')
 
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
