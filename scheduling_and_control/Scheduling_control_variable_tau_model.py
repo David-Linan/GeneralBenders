@@ -8067,7 +8067,7 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
     m.tau=pe.Param(m.I,m.J,initialize=_tau,mutable=True,default=0,doc="Processing time with respect to the time grid: how many grid spaces do I need for the task ?")
 
     # # -----------scheduling variables -----------------------------------------
-    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,initialize=0,doc='1 if unit j processes task i starting at time t')   
+    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,initialize=0,bounds=(0,1),doc='1 if unit j processes task i starting at time t')   
     # help(pe.Var)
     def _B_bounds(m,I,J,T):
         return (0,m.beta_max[I,J])
