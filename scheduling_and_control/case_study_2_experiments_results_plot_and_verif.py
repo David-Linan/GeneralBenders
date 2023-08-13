@@ -80,14 +80,14 @@ if __name__ == "__main__":
 
 
     
-    feasible_mod_name='case_2_scheduling_and_dynamics_solution'  #sequential naive: scheduling solution
+    # feasible_mod_name='case_2_scheduling_and_dynamics_solution'  #sequential naive
     # feasible_mod_name='case_2_min_proc_time_solution'     #sequential naive: minimum processing time solution
 
-    # feasible_mod_name='case_2_sequential' #sequential iterative
+    # feasible_mod_name='case_2_sequential' #sequential iterative case 2
 
     # feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars_from_naive'    #DSDA from sequential naive
 
-    # feasible_mod_name= 'case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars'  #DSDA from sequential iterative
+    feasible_mod_name= 'case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars'  #DSDA from sequential iterative
 
 
     #with distillation model
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     file_name=feasible_mod_name+'.txt'  
     with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
         outputfile.write(textbuffer.getvalue())
-    if not sequential_naive:
+    if not sequential_naive or sequential_naive:
         print('Objective =',pe.value(m.obj),'best =',Sol_found,'cputime =',str(end-start))
 
 
@@ -665,7 +665,7 @@ if __name__ == "__main__":
         if sequential_naive:
             model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential
             m=model_fun(**kwargs)
-            m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
+            m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
             # plot of states
             for k in m.K:
@@ -867,14 +867,14 @@ if __name__ == "__main__":
         if sequential_naive:
             model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
             m=model_fun(**kwargs)
-            m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name2) 
+            m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
             textbuffer = io.StringIO()
             for v in m.component_objects(pe.Var, descend_into=True):
                 v.pprint(textbuffer)
                 textbuffer.write('\n')
             textbuffer.write('\n Objective: \n') 
             textbuffer.write(str(pe.value(m.obj)))  
-            file_name=feasible_mod_name2+'.txt'  
+            file_name=feasible_mod_name+'.txt'  
             with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/scheduling_and_control',file_name), 'w') as outputfile:
                 outputfile.write(textbuffer.getvalue())
             # plot of states

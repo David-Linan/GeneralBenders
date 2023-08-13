@@ -63,12 +63,18 @@ if __name__ == "__main__":
 # ###############################################################################
 
     # print('\n-------SEQUENTIAL NAIVE-------------------------------------')
-    # kwargs2=kwargs.copy()
-    # kwargs2['sequential']=True
+    kwargs2=kwargs.copy()
+    kwargs2['sequential']=True
 
-    # logic_fun=problem_logic_scheduling_case1
-    # model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
-    # m=model_fun(**kwargs2)
+    logic_fun=problem_logic_scheduling_case1
+    model_fun=scheduling_and_control_gdp_N_approx_sequential_naive
+    m=model_fun(**kwargs2)
+
+    for c in m.component_objects(ctype=pe.Param, descend_into=True):
+        c.pprint()
+    for c in m.component_objects(ctype=pe.RangeSet, descend_into=True):
+        c.pprint()
+
     # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I_reactions for J in m.J_reactors if m.I_i_j_prod[I,J]==1}
     # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
     # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
@@ -224,56 +230,56 @@ if __name__ == "__main__":
 # ###############################################################################
 # ###############################################################################
 
-    print('\n-------DICOPT-------------------------------------')
-    init_name='case_1_scheduling_and_dynamics_solution_seq_iterative'
+    # print('\n-------DICOPT-------------------------------------')
+    # init_name='case_1_scheduling_and_dynamics_solution_seq_iterative'
 
-    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    m=model_fun(**kwargs)
-    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
-        # NOTE: we have to modify options slighlty to guarantee that DICOPT starts from user provided initialization!!!!!!! If we remove this, DICOPT WILL NEVER FIND A FEASIBLE SOLUTION!!!
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','relaxed 0 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-
-
-    m=initialize_model(m=m,from_feasible=True,feasible_model=init_name) 
-    start=time.time()
-    m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
-    end=time.time()    
-    solname='case_1_minlp_'+minlp_solver+'_from_'+init_name
-    save=generate_initialization(m=m,model_name=solname)
-
-    if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
-        m.dicopt_status='Infeasible'
-    else:
-        m.dicopt_status='Optimal'
-
-    if m.dicopt_status=='Optimal':
-        Sol_founddicopt=[]
-        for I in m.I_reactions:
-            for J in m.J_reactors:
-                if m.I_i_j_prod[I,J]==1:
-                    for K in m.ordered_set[I,J]:
-                        if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-                            Sol_founddicopt.append(K-m.minTau[I,J]+1)
-        for I_J in m.I_J:
-            Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+    #     # NOTE: we have to modify options slighlty to guarantee that DICOPT starts from user provided initialization!!!!!!! If we remove this, DICOPT WILL NEVER FIND A FEASIBLE SOLUTION!!!
+    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','relaxed 0 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
 
 
-        print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
-    else:
-        print('DICOPT infeasible','cputime DICOPT=',str(end-start))
+    # m=initialize_model(m=m,from_feasible=True,feasible_model=init_name) 
+    # start=time.time()
+    # m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+    # end=time.time()    
+    # solname='case_1_minlp_'+minlp_solver+'_from_'+init_name
+    # save=generate_initialization(m=m,model_name=solname)
 
-    TPC1=pe.value(m.TCP1)
-    TPC2=pe.value(m.TCP2)
-    TPC3=pe.value(m.TCP3)
-    TMC=pe.value(m.TMC)
-    SALES=pe.value(m.SALES)
-    OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJ:',str(OBJVAL))
+    # if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
+    #     m.dicopt_status='Infeasible'
+    # else:
+    #     m.dicopt_status='Optimal'
+
+    # if m.dicopt_status=='Optimal':
+    #     Sol_founddicopt=[]
+    #     for I in m.I_reactions:
+    #         for J in m.J_reactors:
+    #             if m.I_i_j_prod[I,J]==1:
+    #                 for K in m.ordered_set[I,J]:
+    #                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+    #                         Sol_founddicopt.append(K-m.minTau[I,J]+1)
+    #     for I_J in m.I_J:
+    #         Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
+
+
+    #     print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
+    # else:
+    #     print('DICOPT infeasible','cputime DICOPT=',str(end-start))
+
+    # TPC1=pe.value(m.TCP1)
+    # TPC2=pe.value(m.TCP2)
+    # TPC3=pe.value(m.TCP3)
+    # TMC=pe.value(m.TMC)
+    # SALES=pe.value(m.SALES)
+    # OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
+    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    # print('TMC: Total material cost: ',str(TMC))
+    # print('SALES: Revenue form selling products: ',str(SALES))
+    # print('OBJ:',str(OBJVAL))
 
 # NOTE: RESULTS ABOVE ARE FOR FIRST ARTICLE. RESULTS BELOW WOULD BE FOR SECOND ARTICLE
 # NOTE: results related to benders decomposition are obtained by running benders decomposition file V2.
