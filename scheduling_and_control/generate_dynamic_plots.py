@@ -367,7 +367,10 @@ if __name__ == "__main__":
 
     model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
     m=model_fun(**kwargs)
-    init_name='case_1_scheduling_and_dynamics_solution'
+    # init_name='case_1_scheduling_and_dynamics_solution' # sequential naive
+    # init_name='case_1_scheduling_and_dynamics_solution_seq_iterative' #sequential iterative
+    init_name='case_1_scheduling_and_dynamics_solution_DSDA_naive' #DSDA
+
 
     m=initialize_model(m,from_feasible=True,feasible_model=init_name) 
 # # ####--------Objective function summary---------------------------------
