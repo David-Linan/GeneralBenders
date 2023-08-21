@@ -8578,6 +8578,7 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
     # m.dual = pe.Suffix(direction=pe.Suffix.IMPORT)
     return m
 
+
 def problem_logic_scheduling(m):
     logic_expr = []
     for I in m.I_reactions:

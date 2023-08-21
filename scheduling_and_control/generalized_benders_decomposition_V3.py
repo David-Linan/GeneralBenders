@@ -6,7 +6,7 @@ import pyomo.environ as pe
 import time
 from functions.dsda_functions import solve_subproblem,generate_initialization,initialize_model
 import logging
-from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_GBD,problem_logic_scheduling as problem_logic_scheduling_case1
+from Scheduling_control_variable_tau_model import scheduling_and_control_gdp_N_GBD
 
 if __name__ == "__main__":
     #Do not show warnings
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     mip_solver='CPLEX'
     nlp_solver='conopt4'
     transform='bigm'
-    sub_options={} #Subproblem solver options
+    sub_options={'add_options':['GAMS_MODEL.threads=0;']} #Subproblem solver options: use all available threads
     Infinity_aprox=100000
     kwargs={}
     kwargs2=kwargs.copy()
@@ -32,7 +32,7 @@ if __name__ == "__main__":
    # 3: Execution of GBD with heuristic cuts: minimum processing time s.t. fixed capacity at its maximum
    # 4: Execution of GBD with heuristic cuts: no-good cuts in master problem
    # 5: Execution of GBD with heuristic cuts: no-good cuts in master problem, only for binary variables related to variable processing times
-    experiment=1
+    experiment=3
  
     if experiment ==1:
         best_sol_name='current_best_GBD_V3_subproblem_naive'
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     ######---------------------------- GENERALIZED BENDERS DECOMPOSIION ALGORITHM --------------------------------##################
 
     start=time.time()
-    max_iter=1000
+    max_iter=100000
     epsilon=0
     time_limit=86400 #seconds
     for k in range(max_iter):
@@ -419,27 +419,29 @@ if __name__ == "__main__":
                     print('GBD solver failure: subproblem detected as infeasible, and fatal error with feasibility stage')
                     break
 
+
+
     ######---------------------------- DISPLAY SOLUTION SUMMARY --------------------------------##################
     model_fun=scheduling_and_control_gdp_N_GBD
     kwargs3=kwargs.copy()  
-    sub=model_fun(**kwargs3)
-    sub=initialize_model(sub,from_feasible=True,feasible_model=best_sol_name)
+    subsol=model_fun(**kwargs3)
+    subsol=initialize_model(subsol,from_feasible=True,feasible_model=best_sol_name)
 
     Sol_found=[]
-    for I in sub.I_reactions:
-        for J in sub.J_reactors:
-            if sub.I_i_j_prod[I,J]==1:
-                for K in sub.ordered_set[I,J]:
-                    if round(pe.value(sub.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-sub.minTau[I,J]+1)
-    for I_J in sub.I_J:
-        Sol_found.append(1+round(pe.value(sub.Nref[I_J])))
+    for I in subsol.I_reactions:
+        for J in subsol.J_reactors:
+            if subsol.I_i_j_prod[I,J]==1:
+                for K in subsol.ordered_set[I,J]:
+                    if round(pe.value(subsol.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-subsol.minTau[I,J]+1)
+    for I_J in subsol.I_J:
+        Sol_found.append(1+round(pe.value(subsol.Nref[I_J])))
     print('EXT_VARS_FOUND',Sol_found)
-    TPC1=pe.value(sub.TCP1)
-    TPC2=pe.value(sub.TCP2)
-    TPC3=pe.value(sub.TCP3)
-    TMC=pe.value(sub.TMC)
-    SALES=pe.value(sub.SALES)
+    TPC1=pe.value(subsol.TCP1)
+    TPC2=pe.value(subsol.TCP2)
+    TPC3=pe.value(subsol.TCP3)
+    TMC=pe.value(subsol.TMC)
+    SALES=pe.value(subsol.SALES)
     OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
 
     print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
@@ -450,4 +452,52 @@ if __name__ == "__main__":
     print('OBJECTIVE:',str(OBJ_FOUND))
 
 
+    ######---------------------------- INFEASIBILITY VERIFICATION EXPERIMENT 3 --------------------------------##################
+    #PROOF that the infeasibility detected by one of the subproblems (the first one) in experiment 3 is due to a numerical issue, rahter than the 
+    # problem is actually infeasible. To prove this, we solve again this infeasible subproblem, but with a different solver and find feasibility
+    model_fun=scheduling_and_control_gdp_N_GBD
+    kwargs3=kwargs.copy()  
+    subsol=model_fun(**kwargs3)
+    subsol=initialize_model(subsol,from_feasible=True,feasible_model='feasibility_subproblem')
 
+    # Infeasibility test
+    feas2=sub.clone()
+    # fix variables in subproblem 
+    for I in feas2.I:
+        for J in feas2.J:
+            for T in feas2.T:
+
+                if pe.value(subsol.B[I,J,T])>=subsol.B[I,J,T].ub: 
+                    feas2.link_B[I,J,T].fix(subsol.B[I,J,T].ub)
+                elif pe.value(subsol.B[I,J,T])<=subsol.B[I,J,T].lb:
+                    feas2.link_B[I,J,T].fix(subsol.B[I,J,T].lb)
+                else:
+                    feas2.link_B[I,J,T].fix(pe.value(subsol.B[I,J,T]))
+
+                feas2.link_X[I,J,T].fix(round(pe.value(subsol.X[I,J,T])))
+
+    for I_J in feas2.I_J:
+            I=I_J[0]
+            J=I_J[1]
+            feas2.Nref[I,J].fix(round(pe.value(subsol.Nref[I,J])))
+
+    for K in feas2.K:
+        for T in feas2.T:
+            if pe.value(subsol.S[K,T])>=subsol.S[K,T].ub:
+                feas2.S[K,T].fix(subsol.S[K,T].ub)
+            elif pe.value(subsol.S[K,T])<=subsol.S[K,T].lb:
+                feas2.S[K,T].fix(subsol.S[K,T].lb)
+            else:
+                feas2.S[K,T].fix(pe.value(subsol.S[K,T]))
+
+    for I in feas2.I_reactions:
+        for J in feas2.J_reactors:
+            if pe.value(subsol.varTime[I,J])>=subsol.varTime[I,J].ub:
+                feas2.link_varTime[I,J].fix(subsol.varTime[I,J].ub)  
+            elif pe.value(subsol.varTime[I,J])<=subsol.varTime[I,J].lb:
+                feas2.link_varTime[I,J].fix(subsol.varTime[I,J].lb)  
+            else:
+                feas2.link_varTime[I,J].fix(pe.value(subsol.varTime[I,J]))  
+
+    feas2=solve_subproblem(feas2,subproblem_solver='knitro',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = True,rel_tol = 0) 
+ 
