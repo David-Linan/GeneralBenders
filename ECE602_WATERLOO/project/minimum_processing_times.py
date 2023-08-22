@@ -10,6 +10,7 @@ import logging
 from model_serializer import StoreSpec, from_json, to_json 
 import math
 import os
+from matplotlib import pyplot as plt
 
 # PYTHON VERSION: cpython 3.10.11, windows 10
 # PYOMO VERSION: 6.4.4
@@ -1039,27 +1040,6 @@ if __name__ == "__main__":
     kwargs2=kwargs.copy()
     model_fun=scheduling_and_control_gdp_N_GBD
 
-    #####------------------COMPUTATIONAL EXPERIMENTS-------------------------######################
-
-
-   # 1: Naive execution of GBD
-   # 2: Execution of GBD with heuristic cuts: minimum processing time s.t. variable capacity
-   # 3: Execution of GBD with heuristic cuts: minimum processing time s.t. fixed capacity at its maximum
-   # 4: Execution of GBD with heuristic cuts: no-good cuts in master problem
-   # 5: Execution of GBD with heuristic cuts: no-good cuts in master problem, only for binary variables related to variable processing times
-    experiment=2
- 
-    if experiment ==1:
-        best_sol_name='current_best_GBD_V3_subproblem_naive'
-    elif experiment ==2:
-        best_sol_name='current_best_GBD_V3_subproblem_min_t_vary_B'
-    elif experiment ==3:
-        best_sol_name='current_best_GBD_V3_subproblem_min_t_fix_B'
-    elif experiment ==4:
-        best_sol_name='current_best_GBD_V3_subproblem_no_good_all'
-    elif experiment ==5:
-        best_sol_name='current_best_GBD_V3_subproblem_no_good_t_only'
- 
     ######-------------------------- MATER PROBLEM ------------------------------##################
     mas=model_fun(**kwargs2) #master problem
     mas.cuts=pe.ConstraintList() #Initialize benders cuts
@@ -1141,451 +1121,137 @@ if __name__ == "__main__":
     # Dual variables (Lagrange multipliers)
     sub.dual = pe.Suffix(direction=pe.Suffix.IMPORT) #define dual variables
 
-    #####------------------Heuristic cuts for experiments 2 and 3-------------------------######################
-    if experiment ==2 or experiment ==3:
-    # TEST MINIMUM PROCESSING TIME (add minimum processing time constraint to master)
-        mint=sub.clone()
-        mint.obj_dyn.deactivate()
-        def _obj_t(m):
-            return sum(sum( mint.varTime[I,J] for I in mint.I_reactions) for J in mint.J_reactors)
-        mint.obj_t = pe.Objective(rule=_obj_t, sense=pe.minimize)   
+    #####------------------MINIMUM PROCESSING TIMES LOOP-------------------------######################
 
 
+    mint=sub.clone()
+    mint.obj_dyn.deactivate()
+    def _obj_t(m):
+        return sum(sum( mint.varTime[I,J] for I in mint.I_reactions) for J in mint.J_reactors)
+    mint.obj_t = pe.Objective(rule=_obj_t, sense=pe.minimize)   
+
+    step=0.05
+    mintimeR1RLARGE=[]
+    mintimeR1RSMALL=[]
+    mintimeR2RLARGE=[]
+    mintimeR2RSMALL=[]
+    mintimeR3RLARGE=[]
+    mintimeR3RSMALL=[]
+
+    BR1RLARGE=[]
+    BR1RSMALL=[]
+    BR2RLARGE=[]
+    BR2RSMALL=[]
+    BR3RLARGE=[]
+    BR3RSMALL=[]
+
+    duals_dict_R1RLARGE=[]
+    dual_approx_dict_R1RLARGE={}
+
+    
+    mint.Ranges=pe.RangeSet(0,1,step)
+    mint.Ranges.pprint()
+    for l in mint.Ranges:
         for I in mint.I:
             for J in mint.J:
                 for T in mint.T:
-                    if experiment ==3:
-                        mint.B[I,J,T].fix(mas.B[I,J,T].ub) # NOTE: that the maximum capacity for this case study agrees with upper bound
+                    fixedB=mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)
+                    mint.link_B[I,J,T].fix(fixedB) # NOTE: that the maximum capacity for this case study agrees with upper bound
                     mint.X[I,J,T].fix(1)
-
         for I_J in mint.I_J:
                 I=I_J[0]
                 J=I_J[1]
                 mint.Nref[I,J].fix(1)  
-        mint=solve_subproblem(mint,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)   
+        mint=solve_subproblem(mint,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = True,rel_tol = 0)   
+        for I in mint.I_reactions:
+            for J in mint.J_reactors:
+                if (I,J)==('R1', 'R_large'):
+                    mintimeR1RLARGE.append(pe.value(mint.varTime[I,J]))
+                    BR1RLARGE.append(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)) 
+                    duals_dict_R1RLARGE.append(mint.dual[mint.const_link_B[I,J,0]])
+                    dual_approx_dict_R1RLARGE[l]=[pe.value(mint.varTime[I,J])+mint.dual[mint.const_link_B[I,J,0]]*((mint.beta_min[I,J]*(1-ll)+mint.beta_max[I,J]*(ll))-(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l))) for ll in mint.Ranges]
 
-        def _const_min_VarTime(mas,I,J):
-            return mas.varTime[I,J]>=pe.value(mint.varTime[I,J])
-        mas.const_min_VarTime=pe.Constraint(mas.I_reactions,mas.J_reactors,rule=_const_min_VarTime)
-        print('\n minimum variable processing times')
-        mas.const_min_VarTime.pprint()
-
-    ######---------------------------- FEASIBILITY SUBPROBLEM --------------------------------##################
-    feas=sub.clone()
-    feas.elastic_vars={}
-
-    count_elastic=0
-    for constr in feas.component_data_objects(ctype=pe.Constraint, active=True, descend_into=True):
-        if constr.parent_component().name != 'const_link_B' and constr.parent_component().name != 'const_link_VarTime' and constr.parent_component().name != 'const_link_X': 
-            if constr.equality:
-                count_elastic=count_elastic+1
-                feas.elastic_vars[count_elastic]=pe.Var(within=pe.NonNegativeReals,initialize=0)
-                setattr(feas,'elastic_vars_%s' %str(count_elastic),feas.elastic_vars[count_elastic])
-                constr._body+=feas.elastic_vars[count_elastic]
-
-                count_elastic=count_elastic+1
-                feas.elastic_vars[count_elastic]=pe.Var(within=pe.NonNegativeReals,initialize=0)
-                setattr(feas,'elastic_vars_%s' %str(count_elastic),feas.elastic_vars[count_elastic])
-                constr._body+=-feas.elastic_vars[count_elastic]
-            else:
-                count_elastic=count_elastic+1
-                if constr.has_lb():
-                    feas.elastic_vars[count_elastic]=pe.Var(within=pe.NonNegativeReals,initialize=0)
-                    setattr(feas,'elastic_vars_%s' %str(count_elastic),feas.elastic_vars[count_elastic])
-                    constr._body+=feas.elastic_vars[count_elastic]
-                if constr.has_ub():
-                    feas.elastic_vars[count_elastic]=pe.Var(within=pe.NonNegativeReals,initialize=0)
-                    setattr(feas,'elastic_vars_%s' %str(count_elastic),feas.elastic_vars[count_elastic])
-                    constr._body+=-feas.elastic_vars[count_elastic]
-
-    feas.obj_dyn.deactivate()
-    def _obj_feas(m):
-        return sum( feas.elastic_vars[i]  for i in feas.elastic_vars.keys())
-    feas.obj_feas = pe.Objective(rule=_obj_feas, sense=pe.minimize)     
-
-    ######---------------------------- SOLUTION OF FIRST SUBPROBLEM --------------------------------##################
-    mas=initialize_model(mas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution_GDB_init') #Initialization from solution that is known to be feasible
-    for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
-        if v.name=='varTime' or v.name=='B':
-            for index in v:
-                if index==None:
-                    v.fix(pe.value(v))
-                else:
-                    v[index].fix(pe.value(v[index]))
-        elif v.name=='X':
-            for index in v:
-                if index==None:
-                    v.fix(round(pe.value(v)))
-                else:
-                    v[index].fix(round(pe.value(v[index])))
-
-    mas=solve_with_minlp(mas,transformation='',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0,transform_required=False)
-    print(pe.value(mas.obj))
-
-    # fix master variables in subproblem 
-    for I in sub.I:
-        for J in sub.J:
-            for T in sub.T:
-                sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
-                sub.link_X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
-
-    for I_J in sub.I_J:
-            I=I_J[0]
-            J=I_J[1]
-            sub.Nref[I,J].fix(round(pe.value(mas.Nref[I,J])))
-
-    for K in sub.K:
-        for T in sub.T:
-            sub.S[K,T].fix(pe.value(mas.S[K,T]))
-
-    for I in sub.I_reactions:
-        for J in sub.J_reactors:
-            sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
+                elif (I,J)==('R1', 'R_small'):
+                    mintimeR1RSMALL.append(pe.value(mint.varTime[I,J]))
+                    BR1RSMALL.append(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)) 
+                elif (I,J)==('R2', 'R_large'):
+                    mintimeR2RLARGE.append(pe.value(mint.varTime[I,J]))
+                    BR2RLARGE.append(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)) 
+                elif (I,J)==('R2', 'R_small'):
+                    mintimeR2RSMALL.append(pe.value(mint.varTime[I,J]))
+                    BR2RSMALL.append(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)) 
+                elif (I,J)==('R3', 'R_large'):
+                    mintimeR3RLARGE.append(pe.value(mint.varTime[I,J]))
+                    BR3RLARGE.append(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)) 
+                elif (I,J)==('R3', 'R_small'):
+                    mintimeR3RSMALL.append(pe.value(mint.varTime[I,J]))
+                    BR3RSMALL.append(mint.beta_min[I,J]*(1-l)+mint.beta_max[I,J]*(l)) 
 
 
-    sub=solve_subproblem(sub,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)
-  
-    
-    if sub.dsda_status=='Optimal':
-        mas.cuts.add(sum(sum( sub.dual[sub.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(sub.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  sub.dual[sub.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(sub.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  sub.dual[sub.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(sub.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+pe.value(sub.TCP3)<=mas.TCP3)
-        print('Optimality cut to initialize: ')
-        mas.cuts.pprint()
-        
-        TPC1=pe.value(sub.TCP1)
-        TPC2=pe.value(sub.TCP2)
-        TPC3=pe.value(sub.TCP3)
-        TMC=pe.value(sub.TMC)
-        SALES=pe.value(sub.SALES)
-        sub.UBD=TPC1+TPC2+TPC3+TMC-SALES
-        print(sub.UBD)
-    else:
-        sub.UBD=Infinity_aprox
-        print('Initialization is ot feasible')
-        exit()
+    for I in mint.I_reactions:
+        for J in mint.J_reactors:
 
-    # make sure that variables in master are left unfixed
-    for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
-        if v.name=='varTime' or v.name=='B' or v.name=='X':
-            for index in v:
-                if index==None:
-                    v.unfix()
-                else:
-                    v[index].unfix()
-
-    ######---------------------------- GENERALIZED BENDERS DECOMPOSIION ALGORITHM --------------------------------##################
-
-    start=time.time()
-    max_iter=100000
-    epsilon=0
-    time_limit=86400 #seconds
-    for k in range(max_iter):
-        print('------------------------Iteration ',str(k),'------------------------------------')
-    #1: solve the master problem
-        mas=solve_with_minlp(mas,transformation='',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0,transform_required=False)
-        mas.LBD=pe.value(mas.obj)
-
-        if experiment == 4:
-        #1.1.: add no-good cuts (cuts that avoid repeating combination of binary variables)
-            expr=0
-            for v in mas.component_data_objects(ctype=pe.Var,descend_into=True,active=True):
-                if v.is_binary() and int(round(pe.value(v)))==int(1):
-                    expr+=v-1
-                elif v.is_binary() and int(round(pe.value(v)))==int(0):
-                    expr+=-v          
-            
-            mas.cuts.add( expr<= -1)
-        elif experiment ==5:
-            #1.1.: add no-good cuts (cuts that avoid repeating combination of binary variables related to variable processing times)
-            expr=0
-            for v in mas.component_data_objects(ctype=pe.Var,descend_into=True,active=True):
-                if v.is_binary() and int(round(pe.value(v)))==int(1) and v.parent_component().name !='X':
-                    expr+=v-1
-                elif v.is_binary() and int(round(pe.value(v)))==int(0) and v.parent_component().name !='X':
-                    expr+=-v          
-            
-            mas.cuts.add( expr<= -1)
-
-    #2: verify stopping criterion
-        current=time.time()
-        print('Primal obj: ',str(sub.UBD),'Master obj:', str(mas.LBD),'Current time: ',str(current-start))
-        if sub.UBD- mas.LBD <=epsilon:
-            break
-        if current-start>=time_limit:
-            break
-
-    #3: Solve primal problem
-        # fix variables in subproblem 
-        for I in sub.I:
-            for J in sub.J:
-                for T in sub.T:
-
-                    if pe.value(mas.B[I,J,T])>=mas.B[I,J,T].ub: 
-                        sub.link_B[I,J,T].fix(mas.B[I,J,T].ub)
-                    elif pe.value(mas.B[I,J,T])<=mas.B[I,J,T].lb:
-                        sub.link_B[I,J,T].fix(mas.B[I,J,T].lb)
-                    else:
-                        sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
-
-                    sub.link_X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
-
-        for I_J in sub.I_J:
-                I=I_J[0]
-                J=I_J[1]
-                sub.Nref[I,J].fix(round(pe.value(mas.Nref[I,J])))
-
-        for K in sub.K:
-            for T in sub.T:
-                if pe.value(mas.S[K,T])>=mas.S[K,T].ub:
-                    sub.S[K,T].fix(mas.S[K,T].ub)
-                elif pe.value(mas.S[K,T])<=mas.S[K,T].lb:
-                    sub.S[K,T].fix(mas.S[K,T].lb)
-                else:
-                    sub.S[K,T].fix(pe.value(mas.S[K,T]))
-
-        for I in sub.I_reactions:
-            for J in sub.J_reactors:
-                if pe.value(mas.varTime[I,J])>=mas.varTime[I,J].ub:
-                    sub.link_varTime[I,J].fix(mas.varTime[I,J].ub)  
-                elif pe.value(mas.varTime[I,J])<=mas.varTime[I,J].lb:
-                    sub.link_varTime[I,J].fix(mas.varTime[I,J].lb)  
-                else:
-                    sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))   
-
-        # solve primal (subprolem)
-        sub=solve_subproblem(sub,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-        generate_initialization(m=sub,model_name='GBD_subproblem') #save solution, in case I need an alternative initialization for the feasibility subproblem
-        print('Subproblem status:',sub.dsda_status)
-
-        if sub.dsda_status=='Optimal':
-              
-            TPC1=pe.value(sub.TCP1)
-            TPC2=pe.value(sub.TCP2)
-            TPC3=pe.value(sub.TCP3)
-            TMC=pe.value(sub.TMC)
-            SALES=pe.value(sub.SALES)
-
-            sub.UBD_new=min([sub.UBD,TPC1+TPC2+TPC3+TMC-SALES])
-            # Update the best known solution if it improved
-            if sub.UBD_new<sub.UBD:
-                generate_initialization(m=sub,model_name=best_sol_name)
-            # Update subproblem solution with the best subproblem solution identified so far  
-            sub.UBD=sub.UBD_new
-
-
-            mas.cuts.add(sum(sum( sub.dual[sub.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(sub.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  sub.dual[sub.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(sub.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  sub.dual[sub.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(sub.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+pe.value(sub.TCP3)<=mas.TCP3)
-            print('Optimaliti cut added')
-            
-        else:
-
-            # fix variables in subproblem 
-            for I in feas.I:
-                for J in feas.J:
-                    for T in feas.T:
-
-                        if pe.value(mas.B[I,J,T])>=mas.B[I,J,T].ub: 
-                            feas.link_B[I,J,T].fix(mas.B[I,J,T].ub)
-                        elif pe.value(mas.B[I,J,T])<=mas.B[I,J,T].lb:
-                            feas.link_B[I,J,T].fix(mas.B[I,J,T].lb)
-                        else:
-                            feas.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
-
-                        feas.link_X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
-
-            for I_J in feas.I_J:
-                    I=I_J[0]
-                    J=I_J[1]
-                    feas.Nref[I,J].fix(round(pe.value(mas.Nref[I,J])))
-
-            for K in feas.K:
-                for T in feas.T:
-                    if pe.value(mas.S[K,T])>=mas.S[K,T].ub:
-                        feas.S[K,T].fix(mas.S[K,T].ub)
-                    elif pe.value(mas.S[K,T])<=mas.S[K,T].lb:
-                        feas.S[K,T].fix(mas.S[K,T].lb)
-                    else:
-                        feas.S[K,T].fix(pe.value(mas.S[K,T]))
-
-            for I in feas.I_reactions:
-                for J in feas.J_reactors:
-                    if pe.value(mas.varTime[I,J])>=mas.varTime[I,J].ub:
-                        feas.link_varTime[I,J].fix(mas.varTime[I,J].ub)  
-                    elif pe.value(mas.varTime[I,J])<=mas.varTime[I,J].lb:
-                        feas.link_varTime[I,J].fix(mas.varTime[I,J].lb)  
-                    else:
-                        feas.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
-
-
-            feas=solve_subproblem(feas,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-            print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
-            if feas.dsda_status=='Optimal':
-                sum_infeasibility=pe.value(feas.obj_feas)
-                mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  feas.dual[feas.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(feas.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  feas.dual[feas.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(feas.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
-                print('Feasibility cut added')
-            else:
-                print('Problem with feasibility stage. Trying a different initialization')
-                feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_subproblem')
-                feas=solve_subproblem(feas,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-                print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
-                if feas.dsda_status=='Optimal':
-                    sum_infeasibility=pe.value(feas.obj_feas)
-                    mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  feas.dual[feas.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(feas.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  feas.dual[feas.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(feas.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
-                    print('Feasibility cut added')
-                else:
-                    print('GBD solver failure: subproblem detected as infeasible, and fatal error with feasibility stage')
-                    break
-
-
-
-    ######---------------------------- DISPLAY SOLUTION SUMMARY --------------------------------##################
-    model_fun=scheduling_and_control_gdp_N_GBD
-    kwargs3=kwargs.copy()  
-    subsol=model_fun(**kwargs3)
-    subsol=initialize_model(subsol,from_feasible=True,feasible_model=best_sol_name)
-
-    Sol_found=[]
-    for I in subsol.I_reactions:
-        for J in subsol.J_reactors:
-            if subsol.I_i_j_prod[I,J]==1:
-                for K in subsol.ordered_set[I,J]:
-                    if round(pe.value(subsol.YR_disjunct[I,J][K].indicator_var))==1:
-                        Sol_found.append(K-subsol.minTau[I,J]+1)
-    for I_J in subsol.I_J:
-        Sol_found.append(1+round(pe.value(subsol.Nref[I_J])))
-    print('EXT_VARS_FOUND',Sol_found)
-    TPC1=pe.value(subsol.TCP1)
-    TPC2=pe.value(subsol.TCP2)
-    TPC3=pe.value(subsol.TCP3)
-    TMC=pe.value(subsol.TMC)
-    SALES=pe.value(subsol.SALES)
-    OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
-
-    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    print('TMC: Total material cost: ',str(TMC))
-    print('SALES: Revenue form selling products: ',str(SALES))
-    print('OBJECTIVE:',str(OBJ_FOUND))
-
-
-    ######---------------------------- INFEASIBILITY VERIFICATION FOR EXPERIMENT 3 --------------------------------##################
-    # #PROOF that the infeasibility detected by one of the subproblems (the first one) in experiment 3 is due to a numerical issue, rahter than the 
-    # # problem is actually infeasible. To prove this, we solve again this infeasible subproblem, but with a different solver and find feasibility
-    # model_fun=scheduling_and_control_gdp_N_GBD
-    # kwargs3=kwargs.copy()  
-    # subsol=model_fun(**kwargs3)
-    # subsol=initialize_model(subsol,from_feasible=True,feasible_model='feasibility_subproblem')
-
-    # # Infeasibility test
-    # feas2=sub.clone()
-    # # fix variables in subproblem 
-    # for I in feas2.I:
-    #     for J in feas2.J:
-    #         for T in feas2.T:
-
-    #             if pe.value(subsol.B[I,J,T])>=subsol.B[I,J,T].ub: 
-    #                 feas2.link_B[I,J,T].fix(subsol.B[I,J,T].ub)
-    #             elif pe.value(subsol.B[I,J,T])<=subsol.B[I,J,T].lb:
-    #                 feas2.link_B[I,J,T].fix(subsol.B[I,J,T].lb)
-    #             else:
-    #                 feas2.link_B[I,J,T].fix(pe.value(subsol.B[I,J,T]))
-
-    #             feas2.link_X[I,J,T].fix(round(pe.value(subsol.X[I,J,T])))
-
-    # for I_J in feas2.I_J:
-    #         I=I_J[0]
-    #         J=I_J[1]
-    #         feas2.Nref[I,J].fix(round(pe.value(subsol.Nref[I,J])))
-
-    # for K in feas2.K:
-    #     for T in feas2.T:
-    #         if pe.value(subsol.S[K,T])>=subsol.S[K,T].ub:
-    #             feas2.S[K,T].fix(subsol.S[K,T].ub)
-    #         elif pe.value(subsol.S[K,T])<=subsol.S[K,T].lb:
-    #             feas2.S[K,T].fix(subsol.S[K,T].lb)
-    #         else:
-    #             feas2.S[K,T].fix(pe.value(subsol.S[K,T]))
-
-    # for I in feas2.I_reactions:
-    #     for J in feas2.J_reactors:
-    #         if pe.value(subsol.varTime[I,J])>=subsol.varTime[I,J].ub:
-    #             feas2.link_varTime[I,J].fix(subsol.varTime[I,J].ub)  
-    #         elif pe.value(subsol.varTime[I,J])<=subsol.varTime[I,J].lb:
-    #             feas2.link_varTime[I,J].fix(subsol.varTime[I,J].lb)  
-    #         else:
-    #             feas2.link_varTime[I,J].fix(pe.value(subsol.varTime[I,J]))  
-
-    # feas2=solve_subproblem(feas2,subproblem_solver='knitro',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = True,rel_tol = 0) 
-    
-    
-    print('\n-------DICOPT TEST-------------------------------------')
-
-    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 2 \n','relaxed 0 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-    # init_name='case_1_scheduling_and_dynamics_solution_GDB_init'
-    # minlp_solver='dicopt'
-    # kwargs4=kwargs.copy() 
-    # m=model_fun(**kwargs4)
-    # m=initialize_model(m=m,from_feasible=True,feasible_model=init_name) 
-
-    # experiment=3
- 
-    # if experiment ==1:
-    #     best_sol_name='naive'
-    # elif experiment ==2:
-    #     best_sol_name='min_t_vary_B'
-    #     m.initcuts=pe.ConstraintList()
-    #     m.initcuts.add(m.varTime[('R1', 'R_large')]>=1.625802848031681)
-    #     m.initcuts.add(m.varTime[('R1', 'R_small')]>=1.649138048728084)
-    #     m.initcuts.add(m.varTime[('R2', 'R_large')]>=2.54458538005377)
-    #     m.initcuts.add(m.varTime[('R2', 'R_small')]>=2.557392266150617)
-    #     m.initcuts.add(m.varTime[('R3', 'R_large')]>=1.084716847688982)
-    #     m.initcuts.add(m.varTime[('R3', 'R_small')]>=1.109942023857737)
-    
-    # elif experiment ==3:
-    #     best_sol_name='min_t_fix_B'
-    #     m.initcuts=pe.ConstraintList()
-    #     m.initcuts.add(m.varTime[('R1', 'R_large')]>=2.136622088669454)
-    #     m.initcuts.add(m.varTime[('R1', 'R_small')]>=2.229415319435365)
-    #     m.initcuts.add(m.varTime[('R2', 'R_large')]>=2.855769349001259)
-    #     m.initcuts.add(m.varTime[('R2', 'R_small')]>=2.918142248015295)
-    #     m.initcuts.add(m.varTime[('R3', 'R_large')]>=1.591711258452907)
-    #     m.initcuts.add(m.varTime[('R3', 'R_small')]>=1.675857698391268)
-
-    # start=time.time()
-    # m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
-    # end=time.time()    
-    # solname='GBD_V3_case_1_minlp_'+minlp_solver+'_from_'+best_sol_name
-    # # save=generate_initialization(m=m,model_name=solname)
-
-    # if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
-    #     m.dicopt_status='Infeasible'
-    # else:
-    #     m.dicopt_status='Optimal'
-
-    # if m.dicopt_status=='Optimal':
-    #     Sol_founddicopt=[]
-    #     for I in m.I_reactions:
-    #         for J in m.J_reactors:
-    #             if m.I_i_j_prod[I,J]==1:
-    #                 for K in m.ordered_set[I,J]:
-    #                     if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-    #                         Sol_founddicopt.append(K-m.minTau[I,J]+1)
-    #     for I_J in m.I_J:
-    #         Sol_founddicopt.append(1+round(pe.value(m.Nref[I_J])))
-
-
-    #     print('Objective DICOPT=',pe.value(m.obj),'best DICOPT=',Sol_founddicopt,'cputime DICOPT=',str(end-start))
-    # else:
-    #     print('DICOPT infeasible','cputime DICOPT=',str(end-start))
-
-    # TPC1=pe.value(m.TCP1)
-    # TPC2=pe.value(m.TCP2)
-    # TPC3=pe.value(m.TCP3)
-    # TMC=pe.value(m.TMC)
-    # SALES=pe.value(m.SALES)
-    # OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    # print('TMC: Total material cost: ',str(TMC))
-    # print('SALES: Revenue form selling products: ',str(SALES))
-    # print('OBJ:',str(OBJVAL))
+                if (I,J)==('R1', 'R_large'):
+                    plt.plot(BR1RLARGE,mintimeR1RLARGE)
+                    plt.show()
+                    for l in mint.Ranges:
+                        plt.plot(BR1RLARGE,dual_approx_dict_R1RLARGE[l])
+                    plt.plot(BR1RLARGE,mintimeR1RLARGE,marker="o")
+                    plt.xlabel(r'Batch size $[m^{3}]$')
+                    plt.ylabel('Minimum processing time [h]')
+                    plt.title(I+J)
+                    plt.legend()
+                    plt.show()
+                    plt.clf()
+                    plt.cla()
+                    plt.close()
+                elif (I,J)==('R1', 'R_small'):
+                    plt.plot(BR1RSMALL,mintimeR1RSMALL)
+                    plt.xlabel(r'Batch size $[m^{3}]$')
+                    plt.ylabel('Minimum processing time [h]')
+                    plt.title(I+J)
+                    plt.legend()
+                    plt.show()
+                    plt.clf()
+                    plt.cla()
+                    plt.close()
+                elif (I,J)==('R2', 'R_large'):
+                    plt.plot(BR2RLARGE,mintimeR2RLARGE)
+                    plt.xlabel(r'Batch size $[m^{3}]$')
+                    plt.ylabel('Minimum processing time [h]')
+                    plt.title(I+J)
+                    plt.legend()
+                    plt.show()
+                    plt.clf()
+                    plt.cla()
+                    plt.close()
+                elif (I,J)==('R2', 'R_small'):
+                    plt.plot(BR2RSMALL,mintimeR2RSMALL)
+                    plt.xlabel(r'Batch size $[m^{3}]$')
+                    plt.ylabel('Minimum processing time [h]')
+                    plt.title(I+J)
+                    plt.legend()
+                    plt.show()
+                    plt.clf()
+                    plt.cla()
+                    plt.close()
+                elif (I,J)==('R3', 'R_large'):
+                    plt.plot(BR3RLARGE,mintimeR3RLARGE)
+                    plt.xlabel(r'Batch size $[m^{3}]$')
+                    plt.ylabel('Minimum processing time [h]')
+                    plt.title(I+J)
+                    plt.legend()
+                    plt.show()
+                    plt.clf()
+                    plt.cla()
+                    plt.close()
+                elif (I,J)==('R3', 'R_small'):
+                    plt.plot(BR3RSMALL,mintimeR3RSMALL)
+                    plt.xlabel(r'Batch size $[m^{3}]$')
+                    plt.ylabel('Minimum processing time [h]')
+                    plt.title(I+J)
+                    plt.legend()
+                    plt.show()
+                    plt.clf()
+                    plt.cla()
+                    plt.close()
