@@ -1,0 +1,57 @@
+GBD__auxiliary__mint___initial_cuts_2__Initialized_RMINLP
+
+-------GENERALIZED BENDERS DECOMPOSITION TEST-------------------------------------
+
+ minimum variable processing times
+const_min_VarTime : Size=6, Index=const_min_VarTime_index, Active=True
+    Key               : Lower             : Body                : Upper : Active
+    ('R1', 'R_large') : 1.625803430110038 : varTime[R1,R_large] :  +Inf :   True
+    ('R1', 'R_small') : 1.649138048728084 : varTime[R1,R_small] :  +Inf :   True
+    ('R2', 'R_large') : 2.544585380053769 : varTime[R2,R_large] :  +Inf :   True
+    ('R2', 'R_small') : 2.557392266150634 : varTime[R2,R_small] :  +Inf :   True
+    ('R3', 'R_large') : 1.084716847689001 : varTime[R3,R_large] :  +Inf :   True
+    ('R3', 'R_small') : 1.109942023857737 : varTime[R3,R_small] :  +Inf :   True
+------------------------Iteration  0 ------------------------------------
+Primal obj:  100000 Master obj: -100000 Current time:  11.44453763961792
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  1 ------------------------------------
+Primal obj:  100000 Master obj: -1509.9902271144238 Current time:  19.408575773239136
+Subproblem status: Evaluated_Infeasible
+Improved feasibility cuts added: mint
+------------------------Iteration  2 ------------------------------------
+Primal obj:  100000 Master obj: -1243.4970073716195 Current time:  32.26737070083618
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  3 ------------------------------------
+Primal obj:  -1099.0354927815356 Master obj: -1229.954607410552 Current time:  40.05477428436279
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  4 ------------------------------------
+Primal obj:  -1099.0354927815356 Master obj: -1187.2657336688844 Current time:  46.85836911201477
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  5 ------------------------------------
+Primal obj:  -1099.0354927815356 Master obj: -1126.2672850455438 Current time:  57.34209418296814
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  6 ------------------------------------
+Primal obj:  -1099.0354927815356 Master obj: -1115.8088999482688 Current time:  68.68938899040222
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  7 ------------------------------------
+Primal obj:  -1099.0354927815356 Master obj: -1109.0126860889382 Current time:  80.39449548721313
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  8 ------------------------------------
+Primal obj:  -1099.0354927815356 Master obj: -1109.0126860889382 Current time:  91.37966656684875
+Subproblem status: Optimal
+Optimality cut added
+------------------------Iteration  9 ------------------------------------
+Primal obj:  -1151.7716775752988 Master obj: -1109.0126860889382 Current time:  103.57220888137817
+TPC: Fixed costs for all unit-tasks:  470.0
+TPC: Variable cost for unit-tasks that do not consider dynamics:  381.9444444444445
+TPC: Variable cost for unit-tasks that do consider dynamics:  208.78387798025796
+TMC: Total material cost:  1631.9444444444434
+SALES: Revenue form selling products:  3844.444444444445
+OBJECTIVE: -1151.7716775752988

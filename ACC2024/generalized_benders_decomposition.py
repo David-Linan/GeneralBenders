@@ -1274,7 +1274,7 @@ def solve_scheduling_and_control(
         initialize_with_master: bool=True,
         init_name: str='sequential_iterative_init_for_V5',
         max_iter: float= 100000,
-        epsilon: float=1000000000,
+        epsilon: float=1e-5,
         time_limit: float=86400,
         no_good_cuts: bool=False,
         mip_solver: str='CPLEX',
@@ -1321,7 +1321,7 @@ def solve_scheduling_and_control(
 
 
 
-    print('\n-------GENERALIZED BENDERS DECOMPOSITION TEST-------------------------------------')
+    print('\n-------GENERALIZED BENDERS DECOMPOSITION TEST-------------------------------------',flush=True)
     ######-------------------SOLVER AND MODEL DECLARATION -------------------------##################
     LB_list=[]
     UB_list=[]
@@ -1435,7 +1435,7 @@ def solve_scheduling_and_control(
             def _const_min_VarTime(mas,I,J):
                 return mas.varTime[I,J]>=pe.value(mint.varTime[I,J])
             mas.const_min_VarTime=pe.Constraint(mas.I_reactions,mas.J_reactors,rule=_const_min_VarTime)
-            print('\n minimum variable processing times')
+            print('\n minimum variable processing times',flush=True)
             mas.const_min_VarTime.pprint()
 
         ######---------------------------- FEASIBILITY SUBPROBLEM --------------------------------##################
@@ -1490,7 +1490,7 @@ def solve_scheduling_and_control(
         sub.UBD=Infinity_aprox
         mas.LBD=-Infinity_aprox
         for k in range(max_iter):
-            print('------------------------Iteration ',str(k),'------------------------------------')
+            print('------------------------Iteration ',str(k),'------------------------------------',flush=True)
             if k>=1 or initialize_with_master:
                 #1: solve the master problem
                 mas=solve_with_minlp(mas,transformation='',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0,transform_required=False)
@@ -1509,7 +1509,7 @@ def solve_scheduling_and_control(
 
         #2: verify stopping criterion
             current=time.time()
-            print('Primal obj: ',str(sub.UBD),'Master obj:', str(mas.LBD),'Current time: ',str(current-start))
+            print('Primal obj: ',str(sub.UBD),'Master obj:', str(mas.LBD),'Current time: ',str(current-start),flush=True)
             LB_list.append(mas.LBD)
             UB_list.append(sub.UBD)
             Time_list.append(current-start)
@@ -1566,7 +1566,7 @@ def solve_scheduling_and_control(
             # solve primal (subprolem)
             sub=solve_subproblem(sub,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
             generate_initialization(m=sub,model_name='GBD_subproblem') #save solution, in case I need an alternative initialization for the feasibility subproblem
-            print('Subproblem status:',sub.dsda_status)
+            print('Subproblem status:',sub.dsda_status,flush=True)
 
             if sub.dsda_status=='Optimal':
                 
@@ -1585,7 +1585,7 @@ def solve_scheduling_and_control(
 
 
                 mas.cuts.add(sum(sum( sub.dual[sub.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(sub.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(  sub.dual[sub.const_link_Vreactor[I,J]]*( mas.Vreactor[I,J]-pe.value(sub.link_Vreactor[I,J])   )      for I in mas.I_reactions) for J in mas.J_reactors) +sum(sum(sum(  sub.dual[sub.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(sub.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+pe.value(sub.TCP3)<=mas.TCP3)
-                print('Optimality cut added')
+                print('Optimality cut added',flush=True)
                 # mas.cuts.pprint()
             else:
                 if auxiliary_cuts:
@@ -1620,17 +1620,17 @@ def solve_scheduling_and_control(
                             for J in mint.J_reactors:
                                     mas.cuts.add(pe.value(mint.varTime[I,J])+mint.dual[mint.const_link_Vreactor[I,J]]*(mas.Vreactor[I,J]-pe.value(mint.link_Vreactor[I,J]))<=mas.varTime[I,J])
                                     mas.cuts.add(pe.value(maxb.Vreactor[I,J])-maxb.dual[maxb.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(maxb.link_varTime[I,J]))>=mas.Vreactor[I,J])
-                        print('Improved feasibility cuts added: mint and maxb')
+                        print('Improved feasibility cuts added: mint and maxb',flush=True)
                     elif auxiliary_ctus_type=='mint' and mint.dsda_status=='Optimal':
                         for I in mint.I_reactions:
                             for J in mint.J_reactors:
                                     mas.cuts.add(pe.value(mint.varTime[I,J])+mint.dual[mint.const_link_Vreactor[I,J]]*(mas.Vreactor[I,J]-pe.value(mint.link_Vreactor[I,J]))<=mas.varTime[I,J])
-                        print('Improved feasibility cuts added: mint')
+                        print('Improved feasibility cuts added: mint',flush=True)
                     elif auxiliary_ctus_type=='maxb' and mint.dsda_status=='Optimal':
                         for I in mint.I_reactions:
                             for J in mint.J_reactors:
                                     mas.cuts.add(pe.value(maxb.Vreactor[I,J])-maxb.dual[maxb.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(maxb.link_varTime[I,J]))>=mas.Vreactor[I,J])
-                        print('Improved feasibility cuts added: maxb')                
+                        print('Improved feasibility cuts added: maxb',flush=True)                
                     else:
                         # Naive feasibility cuts
                         # fix variables in subproblem 
@@ -1677,24 +1677,24 @@ def solve_scheduling_and_control(
                                     feas.link_Vreactor[I,J].fix(pe.value(mas.Vreactor[I,J]))  
 
                         feas=solve_subproblem(feas,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-                        print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
+                        print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition,flush=True)
                         if feas.dsda_status=='Optimal':
                             sum_infeasibility=pe.value(feas.obj_feas)
                             mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(  feas.dual[feas.const_link_Vreactor[I,J]]*( mas.Vreactor[I,J]-pe.value(feas.link_Vreactor[I,J])   )      for I in mas.I_reactions) for J in mas.J_reactors) +sum(sum(sum(  feas.dual[feas.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(feas.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
-                            print('Feasibility cut added')
+                            print('Feasibility cut added',flush=True)
                             # mas.cuts[k+2].pprint()
                         else:
-                            print('Problem with feasibility stage. Trying a different initialization')
+                            print('Problem with feasibility stage. Trying a different initialization',flush=True)
                             feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_subproblem')
                             feas=solve_subproblem(feas,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-                            print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
+                            print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition,flush=True)
                             if feas.dsda_status=='Optimal':
                                 sum_infeasibility=pe.value(feas.obj_feas)
                                 mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(  feas.dual[feas.const_link_Vreactor[I,J]]*( mas.Vreactor[I,J]-pe.value(feas.link_Vreactor[I,J])   )      for I in mas.I_reactions) for J in mas.J_reactors) +sum(sum(sum(  feas.dual[feas.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(feas.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
-                                print('Feasibility cut added')
+                                print('Feasibility cut added',flush=True)
                                 # mas.cuts[k+2].pprint()
                             else:
-                                print('GBD solver failure: subproblem detected as infeasible, and fatal error with feasibility stage')
+                                print('GBD solver failure: subproblem detected as infeasible, and fatal error with feasibility stage',flush=True)
                                 break
                 else:
                     # Naive feasibility cuts
@@ -1742,24 +1742,24 @@ def solve_scheduling_and_control(
                                 feas.link_Vreactor[I,J].fix(pe.value(mas.Vreactor[I,J]))  
 
                     feas=solve_subproblem(feas,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-                    print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
+                    print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition,flush=True)
                     if feas.dsda_status=='Optimal':
                         sum_infeasibility=pe.value(feas.obj_feas)
                         mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(  feas.dual[feas.const_link_Vreactor[I,J]]*( mas.Vreactor[I,J]-pe.value(feas.link_Vreactor[I,J])   )      for I in mas.I_reactions) for J in mas.J_reactors) +sum(sum(sum(  feas.dual[feas.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(feas.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
-                        print('Feasibility cut added')
+                        print('Feasibility cut added',flush=True)
                         # mas.cuts[k+2].pprint()
                     else:
-                        print('Problem with feasibility stage. Trying a different initialization')
+                        print('Problem with feasibility stage. Trying a different initialization',flush=True)
                         feas=initialize_model(feas,from_feasible=True,feasible_model='GBD_subproblem')
                         feas=solve_subproblem(feas,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)     
-                        print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition)
+                        print('feasproblem status:',feas.dsda_status, feas.results.solver.termination_condition,flush=True)
                         if feas.dsda_status=='Optimal':
                             sum_infeasibility=pe.value(feas.obj_feas)
                             mas.cuts.add(sum(sum( feas.dual[feas.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(feas.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(  feas.dual[feas.const_link_Vreactor[I,J]]*( mas.Vreactor[I,J]-pe.value(feas.link_Vreactor[I,J])   )      for I in mas.I_reactions) for J in mas.J_reactors) +sum(sum(sum(  feas.dual[feas.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(feas.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum_infeasibility<=0)
-                            print('Feasibility cut added')
+                            print('Feasibility cut added',flush=True)
                             # mas.cuts[k+2].pprint()
                         else:
-                            print('GBD solver failure: subproblem detected as infeasible, and fatal error with feasibility stage')
+                            print('GBD solver failure: subproblem detected as infeasible, and fatal error with feasibility stage',flush=True)
                             break                
 
         ######---------------------------- DISPLAY SOLUTION SUMMARY --------------------------------##################
@@ -1776,17 +1776,17 @@ def solve_scheduling_and_control(
             SALES=pe.value(subsol.SALES)
             OBJ_FOUND=TPC1+TPC2+TPC3+TMC-SALES
 
-            print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-            print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-            print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-            print('TMC: Total material cost: ',str(TMC))
-            print('SALES: Revenue form selling products: ',str(SALES))
-            print('OBJECTIVE:',str(OBJ_FOUND))
+            print('TPC: Fixed costs for all unit-tasks: ',str(TPC1),flush=True)   
+            print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2),flush=True)
+            print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3),flush=True)
+            print('TMC: Total material cost: ',str(TMC),flush=True)
+            print('SALES: Revenue form selling products: ',str(SALES),flush=True)
+            print('OBJECTIVE:',str(OBJ_FOUND),flush=True)
         except:
-            print('No feasible solution found')
+            print('No feasible solution found',flush=True)
 
     else:
-        print('\n-------DICOPT TEST-------------------------------------')
+        print('\n-------DICOPT TEST-------------------------------------',flush=True)
         if not relaxed:
             sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','relaxed 0 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
         else:
@@ -1815,7 +1815,7 @@ def solve_scheduling_and_control(
             m.initcuts.add(m.varTime[('R3', 'R_small')]>=1.675857698391268)
 
         start=time.time()
-        m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
+        m=solve_with_minlp(m,transformation=transform,minlp=minlp_solver,minlp_options=sub_options,timelimit=time_limit,gams_output=False,tee=True,rel_tol=0)
         end=time.time()    
         solname=best_sol_name
         save=generate_initialization(m=m,model_name=solname)
@@ -1827,9 +1827,9 @@ def solve_scheduling_and_control(
 
         if m.dicopt_status=='Optimal':
             # m.Nref.pprint()
-            print('Objective DICOPT=',pe.value(m.obj),'cputime DICOPT=',str(end-start))
+            print('Objective DICOPT=',pe.value(m.obj),'cputime DICOPT=',str(end-start),flush=True)
         else:
-            print('DICOPT infeasible','cputime DICOPT=',str(end-start))
+            print('DICOPT infeasible','cputime DICOPT=',str(end-start),flush=True)
 
         TPC1=pe.value(m.TCP1)
         TPC2=pe.value(m.TCP2)
@@ -1837,12 +1837,12 @@ def solve_scheduling_and_control(
         TMC=pe.value(m.TMC)
         SALES=pe.value(m.SALES)
         OBJVAL=(TPC1+TPC2+TPC3+TMC-SALES)
-        print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-        print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-        print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-        print('TMC: Total material cost: ',str(TMC))
-        print('SALES: Revenue form selling products: ',str(SALES))
-        print('OBJ:',str(OBJVAL))
+        print('TPC: Fixed costs for all unit-tasks: ',str(TPC1),flush=True)   
+        print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2),flush=True)
+        print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3),flush=True)
+        print('TMC: Total material cost: ',str(TMC),flush=True)
+        print('SALES: Revenue form selling products: ',str(SALES),flush=True)
+        print('OBJ:',str(OBJVAL),flush=True)
 
     return LB_list, UB_list, Time_list,Iter_list
 
@@ -1851,8 +1851,10 @@ if __name__ == "__main__":
     logging.getLogger('pyomo').setLevel(logging.ERROR)
     stdoutOrigin=sys.stdout 
 
+
+    time_limit=1000 #time limit in seconds
     # EXPERIEMTS
-    num_experiments=5
+    num_experiments=8
     model_fun=scheduling_and_control
     for expr in range(0,num_experiments):
         # Proposed GBD approach, mint cuts, initial cuts
@@ -1861,6 +1863,7 @@ if __name__ == "__main__":
             auxiliary_cuts=True
             auxiliary_ctus_type='mint'
             initial_cuts=2
+            initialize_with_master=True
 
         # Proposed GBD approach, maxb cuts, initial cuts
         elif expr==1:
@@ -1868,40 +1871,71 @@ if __name__ == "__main__":
             auxiliary_cuts=True
             auxiliary_ctus_type='maxb'
             initial_cuts=2   
-
-        # Traditional GBD
-        elif expr==2:
+            initialize_with_master=True
+        # Proposed GBD approach, mint cuts, initial cuts, RMINLP initialization
+        if expr==2:
             solver='GBD'
-            auxiliary_cuts=False
-            auxiliary_ctus_type=''
-            initial_cuts=1
+            auxiliary_cuts=True
+            auxiliary_ctus_type='mint'
+            initial_cuts=2
+            initialize_with_master=False
+
+        # Proposed GBD approach, maxb cuts, initial cuts, RMINLP initialization
+        elif expr==3:
+            solver='GBD'
+            auxiliary_cuts=True
+            auxiliary_ctus_type='maxb'
+            initial_cuts=2
+            initialize_with_master=False
 
         # MINLP approach, initial cuts         
-        elif expr==3:
-            solver='MINLP'
-            auxiliary_cuts=False
-            auxiliary_ctus_type=''
-            initial_cuts=2
-
-        # Traditional MINLP
         elif expr==4:
             solver='MINLP'
             auxiliary_cuts=False
             auxiliary_ctus_type=''
-            initial_cuts=1               
+            initial_cuts=2
+            initialize_with_master=False # In this case it just affects file name
+            
+
+        # Traditional MINLP
+        elif expr==5:
+            solver='MINLP'
+            auxiliary_cuts=False
+            auxiliary_ctus_type=''
+            initial_cuts=1              
+            initialize_with_master=False # In this case it just affects file name
+
+        # Traditional GBD
+        elif expr==6:
+            solver='GBD'
+            auxiliary_cuts=False
+            auxiliary_ctus_type=''
+            initial_cuts=1
+            initialize_with_master=True
+
+        # Traditional GBD,RMINLP initialization
+        elif expr==7:
+            solver='GBD'
+            auxiliary_cuts=False
+            auxiliary_ctus_type=''
+            initial_cuts=1
+            initialize_with_master=False
 
         if auxiliary_cuts and solver=='GBD':
             best_sol_name=solver+'__auxiliary__'+auxiliary_ctus_type+'___initial_cuts_'+str(initial_cuts)
         elif solver=='GBD':
-            best_sol_name=solver+'traditionalFeasibility__initial_cuts_'+str(initial_cuts)
+            best_sol_name=solver+'__traditionalFeasibility__initial_cuts_'+str(initial_cuts)
         else:
             best_sol_name=solver+'__initial_cuts_'+str(initial_cuts)
+        
+        if not initialize_with_master:
+            best_sol_name=best_sol_name+'__Initialized_RMINLP'
 
         dir_path = os.path.dirname(os.path.abspath(__file__))
         file_name=dir_path+'/'+best_sol_name
         sys.stdout = open(file_name+".txt", "w")
-        print(best_sol_name)
-        solution=solve_scheduling_and_control(model_fun,solver,auxiliary_cuts,auxiliary_ctus_type,initial_cuts,best_sol_name)
+        print(best_sol_name,flush=True)
+        solution=solve_scheduling_and_control(model_fun,solver,auxiliary_cuts,auxiliary_ctus_type,initial_cuts,best_sol_name,time_limit=time_limit,initialize_with_master=initialize_with_master)
         sys.stdout.close()
         sys.stdout=stdoutOrigin
 
