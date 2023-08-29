@@ -369,7 +369,8 @@ if __name__ == "__main__":
     m=model_fun(**kwargs)
     # init_name='case_1_scheduling_and_dynamics_solution' # sequential naive
     # init_name='case_1_scheduling_and_dynamics_solution_seq_iterative' #sequential iterative
-    init_name='case_1_scheduling_and_dynamics_solution_DSDA_naive' #DSDA
+    # init_name='case_1_scheduling_and_dynamics_solution_DSDA_naive' #DSDA
+    init_name='bestknown' # best known solution
 
 
     m=initialize_model(m,from_feasible=True,feasible_model=init_name) 
