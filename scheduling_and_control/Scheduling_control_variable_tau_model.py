@@ -6416,7 +6416,7 @@ def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_la
     def _varTime_bounds(m,I,J):
         # return (m.minTau[I,J]*m.delta,m.maxTau[I,J]*m.delta)
         return (0,m.maxTau[I,J]*m.delta)
-    m.varTime=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
+    m.varTime=pe.Var(m.I_reactions,m.J_reactors,within=pe.NonNegativeReals,initialize=0,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
 
     m.ordered_set={}
     m.YR={}
@@ -6736,7 +6736,7 @@ def scheduling_and_control_gdp_N_approx_sequential(Input_dict: dict={('R1','R_la
 
     def _Nref_bounds(m,I,J):
         return (0,m.lastN[I,J])
-    m.Nref=pe.Var(m.I_J,within=pe.Integers,bounds=_Nref_bounds,doc='reformulation variables from 0 to lastN')
+    m.Nref=pe.Var(m.I_J,within=pe.Integers,initialize=0,bounds=_Nref_bounds,doc='reformulation variables from 0 to lastN')
 
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
@@ -8067,7 +8067,7 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
     m.tau=pe.Param(m.I,m.J,initialize=_tau,mutable=True,default=0,doc="Processing time with respect to the time grid: how many grid spaces do I need for the task ?")
 
     # # -----------scheduling variables -----------------------------------------
-    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,initialize=0,doc='1 if unit j processes task i starting at time t')   
+    m.X=pe.Var(m.I,m.J,m.T,within=pe.Binary,initialize=0,bounds=(0,1),doc='1 if unit j processes task i starting at time t')   
     # help(pe.Var)
     def _B_bounds(m,I,J,T):
         return (0,m.beta_max[I,J])
@@ -8577,6 +8577,7 @@ def scheduling_and_control_gdp_N_GBD(x_initial: list=[4,4,5,5,3,3,3,2,2,3,3,2,2,
     # m.cuts=pe.ConstraintList()
     # m.dual = pe.Suffix(direction=pe.Suffix.IMPORT)
     return m
+
 
 def problem_logic_scheduling(m):
     logic_expr = []

@@ -20,6 +20,7 @@ from pyomo.opt import SolutionStatus, SolverResults
 from pyomo.opt import TerminationCondition as tc
 from pyomo.opt.base.solvers import SolverFactory
 import pyomo.dae as dae
+from copy import deepcopy
 
 #TODO: this depends on each specific problem
 def complementary_model(m,x):
@@ -1189,6 +1190,8 @@ def solve_subproblem_aprox(
     approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
                                 # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
     scheduling_only=False #True: only perform scheduling subproblems
+    
+    add_cutoff=True # If true, cplex cutoff option is activated when solving subproblems approximately. This means that solutions with objective function worst than current incumbent solution are considered as infeasible
     #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
     #DEACTIVATE DYNAMIC CONSTRAINTS
 
@@ -1239,17 +1242,23 @@ def solve_subproblem_aprox(
         m.obj_dummy.deactivate()
 
 
+    subproblem_solver_options_2=deepcopy(subproblem_solver_options)
+
+    if approximate_solution and add_cutoff and best_sol!=1e+8:
+        subproblem_solver_options_2['add_options'].append('$onecho > cplex.opt \ncutup %s \n$offecho \n' % best_sol )
     #SOLVE SCHEDULING ONLY PROBLEM
     opt = SolverFactory(solvername, solver='cplex')
 
     # start=time.time()
     m.results = opt.solve(m, tee=tee,
                           **output_options,
-                          **subproblem_solver_options,
+                          **subproblem_solver_options_2,
                           skip_trivial_constraints=True,
                           )
     # end=time.time()
     # print('actual sol time part 1:',str(end-start))
+
+
 
     m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
 
@@ -1368,6 +1377,261 @@ def solve_subproblem_aprox(
                     m.pruned_Status = 'Optimal_NotPruned'
                     m.best_sol=pe.value(m.obj)
     return m
+
+def solve_subproblem_aprox_fix_all_scheduling(
+    m: pe.ConcreteModel(),
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    timelimit: float = 1000,
+    gams_output: bool = False,
+    tee: bool = False,
+    rel_tol: float = 0,
+    best_sol: float= 1e+8,
+    new_case: bool=False, # If algorithm will be used for new case study involving kondili STN
+    with_distillation: bool=False  #If modified model with distillation dynamics will be considered  
+) -> pe.ConcreteModel():
+    """
+    Function that checks feasibility and optimizes subproblem model.
+    Note integer variables have to be previously fixed in the external reformulation.
+    This function is for problems that can be decoupled into a steady-state (or scheduling) and a dynamic part
+    
+    Args:
+
+    Returns:
+
+    """
+    # Initialize D-SDA status
+    m.dsda_status = 'Initialized'
+    m.dsda_usertime = 0
+    start_prep=time.time()
+    try:
+        # Feasibility and preprocessing checks
+        # start=time.time()
+        preprocess_problem(m, simple=True)
+        # end=time.time()
+        # print('preprocess_time: ',str(end-start))
+    except InfeasibleConstraintException:
+        m.dsda_status = 'FBBT_Infeasible'
+        m.pruned_Status = 'FBBT_Infeasible'
+        m.best_sol=1e+8
+        return m
+    end_prep=time.time()
+    m.dsda_usertime =m.dsda_usertime + (end_prep-start_prep)
+    output_options = {}
+
+    # Output report
+    if gams_output:
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        gams_path = os.path.join(dir_path, "gamsfiles/")
+        if not(os.path.exists(gams_path)):
+            print('Directory for automatically generated files ' +
+                  gams_path + ' does not exist. We will create it')
+            os.makedirs(gams_path)
+        output_options = {'keepfiles': True,
+                          'tmpdir': gams_path,
+                          'symbolic_solver_labels': True}
+
+    subproblem_solver_options['add_options'] = subproblem_solver_options.get(
+        'add_options', [])
+    subproblem_solver_options['add_options'].append(
+        'option reslim=%s;' % timelimit)
+    subproblem_solver_options['add_options'].append(
+        'option optcr=%s;' % rel_tol)
+
+    # Solve
+    solvername = 'gams'
+
+    approximate_solution=True# If true, after solving lower bounding scheduling problem, then scheduling variables are fixed and NLP control problem is solved
+                                # If false, then lower bounding scheduling is solved first, and then original minlp subproblem is solved, i.e., this is actually what we have called the enhanced dsda
+    scheduling_only=False #True: only perform scheduling subproblems
+    
+    add_cutoff=True # If true, cplex cutoff option is activated when solving subproblems approximately. This means that solutions with objective function worst than current incumbent solution are considered as infeasible
+    #### MODIFICATIONS FROM HERE WITH RESPECT TO ORIGINAL FUNCTION ################################    
+    #DEACTIVATE DYNAMIC CONSTRAINTS
+
+    #CHECK
+    # for consts in m.component_data_objects(pe.Constraint,descend_into=True):
+    #     if consts.body.polynomial_degree()>=2: #Polynomial degree greater or equal to 2 means nonlinear constraint
+    #         consts.deactivate() 
+
+    if new_case:
+        for I in m.I_dynamics:
+            for J in m.J_dynamics:
+                for T in m.T:
+                    m.c_defCT0[I,J,T].deactivate()
+                    m.c_dCAdtheta[I,J,T].deactivate() 
+                    m.c_dCBdtheta[I,J,T].deactivate() 
+                    m.c_dCCdtheta[I,J,T].deactivate() 
+                    m.c_dVdtheta[I,J,T].deactivate() 
+                    m.c_dTRdtheta[I,J,T].deactivate() 
+                    m.c_dTJdtheta[I,J,T].deactivate() 
+                    m.c_dIntegral_hotdtheta[I,J,T].deactivate() 
+                    m.c_dIntegral_colddtheta[I,J,T].deactivate() 
+                    m.Constant_control1[I,J,T].deactivate() 
+                    m.Constant_control2[I,J,T].deactivate() 
+                    m.Constant_control3[I,J,T].deactivate() 
+        m.C_TCP3.deactivate()              
+        m.obj.deactivate()
+        m.obj_dummy.deactivate()
+        m.obj_scheduling.activate()  
+        if with_distillation:
+                for I in m.I_distil:
+                    for J in m.J_distil:
+                        for T in m.T:   
+                            for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                cons.deactivate()
+    else:
+        for I in m.I_reactions:
+            for J in m.J_reactors:
+                m.c_dCdtheta[I,J].deactivate()
+                m.c_dTRdtheta[I,J].deactivate()                        
+                m.c_dTJdtheta[I,J].deactivate()
+                m.c_dIntegral_hotdtheta[I,J].deactivate()
+                m.c_dIntegral_colddtheta[I,J].deactivate()
+                m.Constant_control1[I,J].deactivate()                        
+                m.Constant_control2[I,J].deactivate()
+        m.C_TCP3.deactivate()
+        m.obj.deactivate()
+        m.obj_scheduling.activate()
+        m.obj_dummy.deactivate()
+
+
+    subproblem_solver_options_2=deepcopy(subproblem_solver_options)
+
+    if approximate_solution and add_cutoff and best_sol!=1e+8:
+        subproblem_solver_options_2['add_options'].append('$onecho > cplex.opt \ncutup %s \n$offecho \n' % best_sol )
+    #SOLVE SCHEDULING ONLY PROBLEM
+    opt = SolverFactory(solvername, solver='cplex')
+
+    # start=time.time()
+    m.results = opt.solve(m, tee=tee,
+                          **output_options,
+                          **subproblem_solver_options_2,
+                          skip_trivial_constraints=True,
+                          )
+    # end=time.time()
+    # print('actual sol time part 1:',str(end-start))
+
+
+
+    m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
+
+
+    if scheduling_only:
+        m.obj.activate()
+        m.obj.value=pe.value(m.obj_scheduling)
+        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+            m.dsda_status = 'Evaluated_Infeasible'
+            m.pruned_Status = 'Evaluated_Infeasible_NotPruned'
+            m.best_sol=1e+8
+        else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+            m.dsda_status = 'Optimal'
+            m.pruned_Status = 'Optimal_NotPruned'
+            m.best_sol=pe.value(m.obj)        
+    else: 
+        if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+            m.dsda_status = 'Evaluated_Infeasible'
+            m.pruned_Status = 'Pruned_SchedulingInfeasible'
+            m.best_sol=1e+8
+            m.obj.activate()
+            m.obj.value=1e+8
+        else:
+            if pe.value(m.obj_scheduling)>=best_sol:
+                m.dsda_status = 'Evaluated_Infeasible'
+                m.pruned_Status = 'Pruned_NoImprovementExpected'
+                m.best_sol=1e+8
+                m.obj.activate()
+                m.obj.value=pe.value(m.obj_scheduling)
+            else:  
+                # ACTIVATE DYNAMIC CONSTRAINTS
+                if new_case:
+                    for I in m.I_dynamics:
+                        for J in m.J_dynamics:
+                            for T in m.T:
+                                m.c_defCT0[I,J,T].activate()
+                                m.c_dCAdtheta[I,J,T].activate() 
+                                m.c_dCBdtheta[I,J,T].activate() 
+                                m.c_dCCdtheta[I,J,T].activate() 
+                                m.c_dVdtheta[I,J,T].activate() 
+                                m.c_dTRdtheta[I,J,T].activate() 
+                                m.c_dTJdtheta[I,J,T].activate() 
+                                m.c_dIntegral_hotdtheta[I,J,T].activate() 
+                                m.c_dIntegral_colddtheta[I,J,T].activate() 
+                                m.Constant_control1[I,J,T].activate() 
+                                m.Constant_control2[I,J,T].activate() 
+                                m.Constant_control3[I,J,T].activate() 
+                    m.C_TCP3.activate()              
+                    m.obj.activate()
+                    m.obj_dummy.deactivate()
+                    m.obj_scheduling.deactivate()  
+
+                    if with_distillation:
+                        for I in m.I_distil:
+                            for J in m.J_distil:
+                                for T in m.T:   
+                                    for cons in m.dist_models[I,J,T].component_data_objects(pe.Constraint,descend_into=True):
+                                        cons.activate()                     
+                else:
+                    for I in m.I_reactions:
+                        for J in m.J_reactors:
+                            m.c_dCdtheta[I,J].activate()
+                            m.c_dTRdtheta[I,J].activate()                        
+                            m.c_dTJdtheta[I,J].activate()
+                            m.c_dIntegral_hotdtheta[I,J].activate()
+                            m.c_dIntegral_colddtheta[I,J].activate()
+                            m.Constant_control1[I,J].activate()                        
+                            m.Constant_control2[I,J].activate()
+                    m.C_TCP3.activate()
+                    m.obj.activate()
+                    m.obj_scheduling.deactivate() 
+                    m.obj_dummy.deactivate()
+
+
+
+                if approximate_solution:
+                    # FIX SCHEDULING VARIABLES
+                    for v in m.component_objects(pe.Var, descend_into=True):
+                        if v.name=='X' or v.name=='Nref':
+                            for index in v:
+                                if index==None:
+                                    v.fix(round(pe.value(v)))
+                                else:
+                                    v[index].fix(round(pe.value(v[index])))
+
+                        elif v.name=='Vreactor' or v.name=='B' or v.name=='S' or v.name=='varTime':
+                            for index in v:
+                                if index==None:
+                                    v.fix(pe.value(v))
+                                else:
+                                    v[index].fix(pe.value(v[index]))
+
+
+                opt = SolverFactory(solvername, solver=subproblem_solver)
+                # start=time.time()
+                m.results = opt.solve(m, tee=tee,
+                                    **output_options,
+                                    **subproblem_solver_options,
+                                    skip_trivial_constraints=True,
+                                    )
+                # end=time.time()
+                # print('actual sol time part 2=',str(end-start))
+
+                m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
+
+                #### END OF MODIFICATIONS #######################################################################
+
+
+                # Assign D-SDA status
+                if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+                    m.dsda_status = 'Evaluated_Infeasible'
+                    m.pruned_Status = 'Evaluated_Infeasible_NotPruned'
+                    m.best_sol=1e+8
+                else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                    m.dsda_status = 'Optimal'
+                    m.pruned_Status = 'Optimal_NotPruned'
+                    m.best_sol=pe.value(m.obj)
+    return m
+
 
 def solve_subproblem_aprox_tau_only(
     m: pe.ConcreteModel(),

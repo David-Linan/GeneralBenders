@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 
     if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > cplex.opt \n','$offecho \n','$onecho > dicopt.opt \n','maxcycles 20000 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
     elif minlp_solver=='OCTERACT':
         sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
     
@@ -160,29 +160,29 @@ if __name__ == "__main__":
 
 
     # TEST MINIMUM PROCESSING TIME (add minimum processing time constraint to master)
-    mint=sub.clone()
-    mint.obj_dyn.deactivate()
-    def _obj_t(m):
-        return sum(sum( mint.varTime[I,J] for I in mint.I_reactions) for J in mint.J_reactors)
-    mint.obj_t = pe.Objective(rule=_obj_t, sense=pe.minimize)   
+    # mint=sub.clone()
+    # mint.obj_dyn.deactivate()
+    # def _obj_t(m):
+    #     return sum(sum( mint.varTime[I,J] for I in mint.I_reactions) for J in mint.J_reactors)
+    # mint.obj_t = pe.Objective(rule=_obj_t, sense=pe.minimize)   
 
 
-    for I in mint.I:
-        for J in mint.J:
-            for T in mint.T:
-                # mint.B[I,J,T].fix(mas.B[I,J,T].ub) # NOTE: that the maximum capacity for this case study agrees with upper bound
-                mint.X[I,J,T].fix(1)
+    # for I in mint.I:
+    #     for J in mint.J:
+    #         for T in mint.T:
+    #             # mint.B[I,J,T].fix(mas.B[I,J,T].ub) # NOTE: that the maximum capacity for this case study agrees with upper bound
+    #             mint.X[I,J,T].fix(1)
 
-    for I_J in mint.I_J:
-            I=I_J[0]
-            J=I_J[1]
-            mint.Nref[I,J].fix(1)  
-    mint=solve_subproblem(mint,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)   
+    # for I_J in mint.I_J:
+    #         I=I_J[0]
+    #         J=I_J[1]
+    #         mint.Nref[I,J].fix(1)  
+    # mint=solve_subproblem(mint,subproblem_solver='conopt4',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)   
 
-    def _const_min_VarTime(mas,I,J):
-        return mas.varTime[I,J]>=pe.value(mint.varTime[I,J])
-    mas.const_min_VarTime=pe.Constraint(mas.I_reactions,mas.J_reactors,rule=_const_min_VarTime)
-    mas.const_min_VarTime.pprint()
+    # def _const_min_VarTime(mas,I,J):
+    #     return mas.varTime[I,J]>=pe.value(mint.varTime[I,J])
+    # mas.const_min_VarTime=pe.Constraint(mas.I_reactions,mas.J_reactors,rule=_const_min_VarTime)
+    # mas.const_min_VarTime.pprint()
     ###### FEASIBILITY SUBPROBLEM ##################
     feas=sub.clone()
     sum_infeasibility=0  #sum of infeasibility
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     # sub.obj_feas.pprint()
 
     #TESTS-----------------------------------------------------------------------------------------------------------------------------------------------------
-    mas=initialize_model(mas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution') #THIS IS THE SEQUENTIAL NAIVE APPROACH, WHIH RETURNS THE SAME SOLUTION AS THE SEQUENTIAL ITERATIVE APPROACH IN THIS CASE
+    mas=initialize_model(mas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution_GDB_init') #THIS IS THE SEQUENTIAL NAIVE APPROACH, WHIH RETURNS THE SAME SOLUTION AS THE SEQUENTIAL ITERATIVE APPROACH IN THIS CASE
     for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
         if v.name=='varTime' or v.name=='B':
             for index in v:
@@ -277,6 +277,7 @@ if __name__ == "__main__":
         TMC=pe.value(sub.TMC)
         SALES=pe.value(sub.SALES)
         sub.UBD=TPC1+TPC2+TPC3+TMC-SALES
+        print(sub.UBD)
     else:
 
         #TODO: rewrite!!
@@ -306,7 +307,7 @@ if __name__ == "__main__":
     max_iter=1000
     epsilon=0
     tol=1e-6 #feasibility tolearance
-    no_good_cuts=False
+    no_good_cuts=True
     time_limit=86400
     for k in range(max_iter):
         print('------------------------Iteration ',str(k),'------------------------------------')
@@ -316,12 +317,21 @@ if __name__ == "__main__":
 
 
 
+        # if no_good_cuts:
+        #     expr=0
+        #     for v in mas.component_data_objects(ctype=pe.Var,descend_into=True,active=True):
+        #         if v.is_binary() and int(round(pe.value(v)))==int(1) and v.parent_component().name !='X':
+        #             expr+=v-1
+        #         elif v.is_binary() and int(round(pe.value(v)))==int(0) and v.parent_component().name !='X':
+        #             expr+=-v          
+            
+        #     mas.cuts.add( expr<= -1)
         if no_good_cuts:
             expr=0
             for v in mas.component_data_objects(ctype=pe.Var,descend_into=True,active=True):
-                if v.is_binary() and int(round(pe.value(v)))==int(1) and v.parent_component().name !='X':
+                if v.is_binary() and int(round(pe.value(v)))==int(1):
                     expr+=v-1
-                elif v.is_binary() and int(round(pe.value(v)))==int(0) and v.parent_component().name !='X':
+                elif v.is_binary() and int(round(pe.value(v)))==int(0):
                     expr+=-v          
             
             mas.cuts.add( expr<= -1)
@@ -388,7 +398,7 @@ if __name__ == "__main__":
 
             sub.UBD_new=min([sub.UBD,TPC1+TPC2+TPC3+TMC-SALES])
             if sub.UBD_new<sub.UBD:
-                generate_initialization(m=sub,model_name='current_best_GBD_subproblem_min_t_varying_B_Only')
+                generate_initialization(m=sub,model_name='current_best_GBD_subproblem_cuts_time_cuts_X_Only')
             sub.UBD=sub.UBD_new
             # if sub.UBD- mas.LBD <=epsilon:
             #     break
@@ -486,7 +496,7 @@ if __name__ == "__main__":
     model_fun=scheduling_and_control_gdp_N_GBD
     kwargs3=kwargs.copy()  
     sub=model_fun(**kwargs3)
-    sub=initialize_model(sub,from_feasible=True,feasible_model='current_best_GBD_subproblem_min_t_varying_B_Only')
+    sub=initialize_model(sub,from_feasible=True,feasible_model='current_best_GBD_subproblem_cuts_time_cuts_X_Only')
 
 
 
