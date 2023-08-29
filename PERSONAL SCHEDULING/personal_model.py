@@ -81,7 +81,7 @@ if __name__ == "__main__":
                     or sum(round(pe.value(m.X[I,JP,T])) for JP in m.J_morning)>=1\
                     or sum(round(pe.value(m.X[I,JP,T])) for JP in m.J_day)>=1\
                     or sum(round(pe.value(m.X[I,JP,T])) for JP in m.J_night)>=1\
-                    or sum(sum(sum(round(pe.value(m.X[IP,JP,TP])) for IP in m.I) for JP in m.J) for TP in m.T)>=0.5*m.T.__len__()*m.J.__len__()):
+                    or sum(sum(sum(round(pe.value(m.X[IP,JP,TP])) for IP in m.I) for JP in m.J) for TP in m.T)>=0.1*m.T.__len__()*m.J.__len__()):
 
                     m.X[I,J,T].fix(0)
                 else:
