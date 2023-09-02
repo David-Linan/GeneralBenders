@@ -1,0 +1,121 @@
+GBD__traditionalFeasibility__initial_cuts_1
+
+-------GENERALIZED BENDERS DECOMPOSITION TEST-------------------------------------
+------------------------Iteration  0 ------------------------------------
+Primal obj:  100000 Master obj: -2977.500000000001 Current time:  8.369681358337402
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  1 ------------------------------------
+Primal obj:  100000 Master obj: -2977.499999999999 Current time:  21.894243240356445
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  2 ------------------------------------
+Primal obj:  100000 Master obj: -2879.999999999999 Current time:  42.25674748420715
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  3 ------------------------------------
+Primal obj:  100000 Master obj: -2875.0 Current time:  71.13653993606567
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  4 ------------------------------------
+Primal obj:  100000 Master obj: -2875.0 Current time:  115.57345294952393
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  5 ------------------------------------
+Primal obj:  100000 Master obj: -2845.0 Current time:  185.03049278259277
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  6 ------------------------------------
+Primal obj:  100000 Master obj: -2805.833333333333 Current time:  291.03246545791626
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  7 ------------------------------------
+Primal obj:  100000 Master obj: -2766.666666666666 Current time:  412.6945376396179
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  8 ------------------------------------
+Primal obj:  100000 Master obj: -2756.666666666666 Current time:  500.64115715026855
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  9 ------------------------------------
+Primal obj:  100000 Master obj: -2678.333333333333 Current time:  644.3149015903473
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  10 ------------------------------------
+Primal obj:  100000 Master obj: -2668.333333333333 Current time:  692.1579668521881
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  11 ------------------------------------
+Primal obj:  100000 Master obj: -2586.333333333334 Current time:  2199.427699804306
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  12 ------------------------------------
+Primal obj:  100000 Master obj: -2586.333333266668 Current time:  2387.2593445777893
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  13 ------------------------------------
+Primal obj:  100000 Master obj: -2586.201679439274 Current time:  2482.8017127513885
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  14 ------------------------------------
+Primal obj:  100000 Master obj: -2573.333333333333 Current time:  2543.3047864437103
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  15 ------------------------------------
+Primal obj:  100000 Master obj: -2548.0 Current time:  2619.3482298851013
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  16 ------------------------------------
+Primal obj:  100000 Master obj: -2496.666666666666 Current time:  2886.509909629822
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  17 ------------------------------------
+Primal obj:  100000 Master obj: -2496.666666666666 Current time:  3057.3052051067352
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  18 ------------------------------------
+Primal obj:  100000 Master obj: -2441.666666666666 Current time:  3195.7749395370483
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  19 ------------------------------------
+Primal obj:  100000 Master obj: -2415.866666666667 Current time:  3360.7623970508575
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  20 ------------------------------------
+Primal obj:  100000 Master obj: -2407.9325276016752 Current time:  3461.971030473709
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  21 ------------------------------------
+Primal obj:  100000 Master obj: -2358.0 Current time:  3528.6427063941956
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  22 ------------------------------------
+Primal obj:  100000 Master obj: -2217.9441640027126 Current time:  4149.456258773804
+Subproblem status: Evaluated_Infeasible
+feasproblem status: Optimal locallyOptimal
+Feasibility cut added
+------------------------Iteration  23 ------------------------------------
+Primal obj:  100000 Master obj: -2089.1666666666665 Current time:  90582.93090724945
+No feasible solution found
