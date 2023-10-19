@@ -293,7 +293,7 @@ if __name__ == "__main__":
     # #NOTE: IN CASE I DO NOT WANT TO RUN PREVIOUS CODE: Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
     Sol_found_seq_naive=[4,4,5,5,3,3,3,2,2,3,3,2,2,2,3,2]
     initialization=Sol_found_seq_naive 
-    infinity_val=1e+3
+    infinity_val=1e+4
     maxiter=1000
     neigh=neighborhood_k_eq_2(len(initialization))
     model_fun =scheduling_and_control_gdp_N_solvegdp_simpler
