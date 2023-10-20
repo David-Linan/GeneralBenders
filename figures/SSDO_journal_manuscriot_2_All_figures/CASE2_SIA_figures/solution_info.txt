@@ -1,0 +1,23 @@
+
+-------CREATING PLOTS-------------------------------------
+
+Reformulation Summary
+--------------------------------------------------------------------------
+External variable x[0]  is associated to ['YR_T1_U1[2]'] and it must be within 1 and 1.
+External variable x[1]  is associated to ['YR_T2_U2[1]', 'YR_T2_U2[2]', 'YR_T2_U2[3]', 'YR_T2_U2[4]', 'YR_T2_U2[5]', 'YR_T2_U2[6]'] and it must be within 1 and 6.
+External variable x[2]  is associated to ['YR_T2_U3[1]', 'YR_T2_U3[2]', 'YR_T2_U3[3]', 'YR_T2_U3[4]', 'YR_T2_U3[5]', 'YR_T2_U3[6]'] and it must be within 1 and 6.
+External variable x[3]  is associated to ['YR_T3_U2[3]'] and it must be within 1 and 1.
+External variable x[4]  is associated to ['YR_T3_U3[8]'] and it must be within 1 and 1.
+External variable x[5]  is associated to ['YR_T4_U2[3]'] and it must be within 1 and 1.
+External variable x[6]  is associated to ['YR_T4_U3[15]'] and it must be within 1 and 1.
+External variable x[7]  is associated to ['YR_T5_U4[1]', 'YR_T5_U4[2]', 'YR_T5_U4[3]', 'YR_T5_U4[4]', 'YR_T5_U4[5]', 'YR_T5_U4[6]', 'YR_T5_U4[7]', 'YR_T5_U4[8]', 'YR_T5_U4[9]'] and it must be within 1 and 9.
+
+There are 8 external variables in total
+Objective = -372.7286613791043 best = [1, 3, 2, 1, 1, 1, 1, 1, 2, 2, 6, 5, 1, 1, 1, 1] cputime = 0.0
+TPC: Fixed costs for all unit-tasks:  195.0
+TPC: Variable cost for unit-tasks that do not consider dynamics:  480.0
+TPC: Variable cost for unit-tasks that do consider dynamics:  52.27133862089584
+TMC: Total material cost:  1300.0
+SALES: Revenue form selling products:  2400.0
+OBJ: -372.7286613791043
+TPC: Variable cost for unit-tasks that do consider dynamics, distillation only: 0.0

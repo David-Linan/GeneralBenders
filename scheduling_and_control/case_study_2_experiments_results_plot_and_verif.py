@@ -43,8 +43,8 @@ if __name__ == "__main__":
     last_disc=15
     last_time_h=5
     logic_fun=problem_logic_scheduling
-    with_distillation=False
-    sequential_naive=False #true if i am ploting results from sequential naive
+    with_distillation=True
+    sequential_naive=True #true if i am ploting results from sequential naive
 
     # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=2;','$onecho > dicopt.opt \n','feaspump 2\n','MAXCYCLES 1\n','stop 0\n','fp_sollimit 1\n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     # feasible_mod_name='case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars_from_naive'    #DSDA from sequential naive
 
-    feasible_mod_name= 'case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars'  #DSDA from sequential iterative
+    # feasible_mod_name= 'case_2_dsda_DICOPT_2_all_neigh_Verified_all_vars'  #DSDA from sequential iterative
 
 
     #with distillation model
@@ -95,9 +95,8 @@ if __name__ == "__main__":
 
     # feasible_mod_name='case_2_dbd_with_distillation_aprox_subproblems_DICOPT_2_all_neigh_Verified'
 
-
-    # feasible_mod_name2='case_2_scheduling_solution_with_distillation'  #sequential naive: scheduling solution
     # feasible_mod_name='case_2_min_proc_time_solution_with_distillation'     #sequential naive: minimum processing time solution
+    feasible_mod_name='case_2_scheduling_and_dynamics_solution_with_distillation' #final version of sequential naive
     m=initialize_model(m,from_feasible=True,feasible_model=feasible_mod_name) 
 
     Sol_found=[]
@@ -250,8 +249,8 @@ if __name__ == "__main__":
                             plt.plot(t, CA,label='CA',color='red')
                             plt.plot(t, CB,label='CB',color='green')
                             plt.plot(t, CC,label='CC',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Concentration $[kmol/m^{3}]$')
                             title=case[0]+' in '+case[1]+' Concentration'
                             plt.title(case[0]+' in '+case[1])
                             plt.legend()
@@ -261,10 +260,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
 
-                            plt.plot(t,Tr,label='T_reactor',color='red')
-                            plt.plot(t,Tj,label='T_jacket',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Temperature [K]')
+                            plt.plot(t,Tr,label=r'$T_{reactor}$',color='red')
+                            plt.plot(t,Tj,label=r'$T_{jacket}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Temperature [K]')
                             title=case[0]+' in '+case[1]+' Temperature'
                             plt.title(case[0]+' in '+case[1])
                             plt.legend()
@@ -274,10 +273,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
                             
-                            plt.plot(t, Fhot,label='F_hot',color='red')
-                            plt.plot(t,Fcold,label='F_cold',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            plt.plot(t, Fhot,label=r'$F_{hot}$',color='red')
+                            plt.plot(t,Fcold,label=r'$F_{cold}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate'
                             plt.title(case[0]+' in '+case[1])
                             plt.legend()
@@ -288,8 +287,8 @@ if __name__ == "__main__":
                             plt.close()
 
                             plt.plot(t, u_input,color='red')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate of B $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate of B'
                             plt.title(case[0]+' in '+case[1])
                             # plt.show()    
@@ -327,8 +326,8 @@ if __name__ == "__main__":
                             plt.plot(t, CA,label='CA',color='red')
                             plt.plot(t, CB,label='CB',color='green')
                             plt.plot(t, CC,label='CC',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Concentration $[kmol/m^{3}]$')
                             title=case[0]+' in '+case[1]+' Concentration'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -338,10 +337,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
 
-                            plt.plot(t,Tr,label='T_reactor',color='red')
-                            plt.plot(t,Tj,label='T_jacket',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Temperature [K]')
+                            plt.plot(t,Tr,label=r'$T_{reactor}$',color='red')
+                            plt.plot(t,Tj,label=r'$T_{jacket}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Temperature [K]')
                             title=case[0]+' in '+case[1]+' Temperature'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -351,10 +350,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
                             
-                            plt.plot(t, Fhot,label='F_hot',color='red')
-                            plt.plot(t,Fcold,label='F_cold',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            plt.plot(t, Fhot,label=r'$F_{hot}$',color='red')
+                            plt.plot(t,Fcold,label=r'$F_{cold}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -365,8 +364,8 @@ if __name__ == "__main__":
                             plt.close()
 
                             plt.plot(t, u_input,color='red')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate of B $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate of B'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             # plt.show()    
@@ -406,8 +405,8 @@ if __name__ == "__main__":
                             plt.plot(t, CA,label='CA',color='red')
                             plt.plot(t, CB,label='CB',color='green')
                             plt.plot(t, CC,label='CC',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Concentration $[kmol/m^{3}]$')
                             title=case[0]+' in '+case[1]+' Concentration'
                             plt.title(case[0]+' in '+case[1])
                             plt.legend()
@@ -417,10 +416,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
 
-                            plt.plot(t,Tr,label='T_reactor',color='red')
-                            plt.plot(t,Tj,label='T_jacket',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Temperature [K]')
+                            plt.plot(t,Tr,label=r'$T_{reactor}$',color='red')
+                            plt.plot(t,Tj,label=r'$T_{jacket}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Temperature [K]')
                             title=case[0]+' in '+case[1]+' Temperature'
                             plt.title(case[0]+' in '+case[1])
                             plt.legend()
@@ -430,10 +429,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
                             
-                            plt.plot(t, Fhot,label='F_hot',color='red')
-                            plt.plot(t,Fcold,label='F_cold',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            plt.plot(t, Fhot,label=r'$F_{hot}$',color='red')
+                            plt.plot(t,Fcold,label=r'$F_{cold}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate'
                             plt.title(case[0]+' in '+case[1])
                             plt.legend()
@@ -444,8 +443,8 @@ if __name__ == "__main__":
                             plt.close()
 
                             plt.plot(t, u_input,color='red')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate of B $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate of B'
                             plt.title(case[0]+' in '+case[1])
                             # plt.show()    
@@ -479,8 +478,8 @@ if __name__ == "__main__":
 
                             plt.plot(tdist, x_instantaneous,label='Mole fraction of desired product (distillate)',color='red')
                             plt.plot(tdist,  x_accumulated,label='Mole fraction of desired product (reciever)',color='green')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Mole fraction [kmol/kmol]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Mole fraction $[kmol/kmol]$')
                             title=case[0]+' in '+case[1]+' Mole fraction'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -494,9 +493,9 @@ if __name__ == "__main__":
                             l1=ax1.plot(tdist,Boil_up,label='Boil-up rate',color='red')
                             ax2=ax1.twinx()
                             l2=ax2.plot(tdist,Reflux_rate,label='Reflux rate',color='blue')
-                            plt.xlabel('Time [h]')
-                            ax1.set_ylabel('$Boil-up rate [m^{3}/h]$',color='red')
-                            ax2.set_ylabel('$Reflux rate [m^{3}/h]$',color='blue')                            
+                            plt.xlabel(r'Time [h]')
+                            ax1.set_ylabel(r'Boil-up rate $[m^{3}/h]$',color='red')
+                            ax2.set_ylabel(r'Reflux rate $[m^{3}/h]$',color='blue')                            
                             title=case[0]+' in '+case[1]+' Boil-up and reflux'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             # plt.legend()
@@ -508,8 +507,8 @@ if __name__ == "__main__":
 
                             plt.plot(tdist, Reboiler_hold_up,label='Reboiler level',color='red')
                             plt.plot(tdist,  Product_accumulated,label='Reciever level',color='green')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Volume [m^{3}]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Volume $[m^{3}]$')
                             title=case[0]+' in '+case[1]+' distillation levels'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -548,8 +547,8 @@ if __name__ == "__main__":
                             plt.plot(t, CA,label='CA',color='red')
                             plt.plot(t, CB,label='CB',color='green')
                             plt.plot(t, CC,label='CC',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Concentration [kmol/m^{3}]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Concentration $[kmol/m^{3}]$')
                             title=case[0]+' in '+case[1]+' Concentration'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -559,10 +558,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
 
-                            plt.plot(t,Tr,label='T_reactor',color='red')
-                            plt.plot(t,Tj,label='T_jacket',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Temperature [K]')
+                            plt.plot(t,Tr,label=r'$T_{reactor}$',color='red')
+                            plt.plot(t,Tj,label=r'$T_{jacket}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Temperature [K]')
                             title=case[0]+' in '+case[1]+' Temperature'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -572,10 +571,10 @@ if __name__ == "__main__":
                             plt.cla()
                             plt.close()
                             
-                            plt.plot(t, Fhot,label='F_hot',color='red')
-                            plt.plot(t,Fcold,label='F_cold',color='blue')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate $[m^{3}/h]$')
+                            plt.plot(t, Fhot,label=r'$F_{hot}$',color='red')
+                            plt.plot(t,Fcold,label=r'$F_{cold}$',color='blue')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -586,8 +585,8 @@ if __name__ == "__main__":
                             plt.close()
 
                             plt.plot(t, u_input,color='red')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('Flow rate of B $[m^{3}/h]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Flow rate of B $[m^{3}/h]$')
                             title=case[0]+' in '+case[1]+' Flow rate of B'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             # plt.show()    
@@ -621,8 +620,8 @@ if __name__ == "__main__":
 
                             plt.plot(tdist, x_instantaneous,label='Mole fraction of desired product (distillate)',color='red')
                             plt.plot(tdist,  x_accumulated,label='Mole fraction of desired product (reciever)',color='green')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Mole fraction [kmol/kmol]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Mole fraction $[kmol/kmol]$')
                             title=case[0]+' in '+case[1]+' Mole fraction'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
@@ -636,9 +635,9 @@ if __name__ == "__main__":
                             l1=ax1.plot(tdist,Boil_up,label='Boil-up rate',color='red')
                             ax2=ax1.twinx()
                             l2=ax2.plot(tdist,Reflux_rate,label='Reflux rate',color='blue')
-                            plt.xlabel('Time [h]')
-                            ax1.set_ylabel('$Boil-up rate [m^{3}/h]$',color='red')
-                            ax2.set_ylabel('$Reflux rate [m^{3}/h]$',color='blue')                            
+                            plt.xlabel(r'Time [h]')
+                            ax1.set_ylabel(r'Boil-up rate $[m^{3}/h]$',color='red')
+                            ax2.set_ylabel(r'Reflux rate $[m^{3}/h]$',color='blue')                            
                             title=case[0]+' in '+case[1]+' Boil-up and reflux'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             # plt.legend()
@@ -650,8 +649,8 @@ if __name__ == "__main__":
 
                             plt.plot(tdist, Reboiler_hold_up,label='Reboiler level',color='red')
                             plt.plot(tdist,  Product_accumulated,label='Reciever level',color='green')
-                            plt.xlabel('Time [h]')
-                            plt.ylabel('$Volume [m^{3}]$')
+                            plt.xlabel(r'Time [h]')
+                            plt.ylabel(r'Volume $[m^{3}]$')
                             title=case[0]+' in '+case[1]+' distillation levels'+' at '+str(m.t_p[T])+' h'
                             plt.title(case[0]+' in '+case[1]+' at '+str(m.t_p[T])+' h')
                             plt.legend()
