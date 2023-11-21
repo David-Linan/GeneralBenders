@@ -1728,80 +1728,80 @@ if __name__ == "__main__":
 ###############################################################################
 ###############################################################################
 
-    # print('\n-------DBD-approx solution of subproblems from infeasible-------------------------------------')
+    print('\n-------DBD-approx solution of subproblems from infeasible-------------------------------------')
 
 
 
-    # logic_fun=problem_logic_scheduling_complete
-    # model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
-    # model_fun_scheduling=case_2_scheduling_only_lower_bound_tau
-    # infinity_val=1e+4
-    # maxiter=10000
-    # neighdef='2'
-    # kwargs['sequential']=True
+    logic_fun=problem_logic_scheduling_complete
+    model_fun=case_2_scheduling_control_gdp_var_proc_time_simplified_for_sequential_with_distillation
+    model_fun_scheduling=case_2_scheduling_only_lower_bound_tau
+    infinity_val=1e+4
+    maxiter=10000
+    neighdef='2'
+    kwargs['sequential']=True
 
 
-    # m_scheduling_only=model_fun_scheduling(**kwargs)
-    # sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
-    # m_scheduling_only = solve_with_minlp(m_scheduling_only,transformation='bigm',minlp='cplex',minlp_options=sub_options_cplex_Feas,timelimit=360000000,gams_output=False,tee=True,rel_tol=0)
-    # Sol_found=[]
-    # for I in m_scheduling_only.I:
-    #     for J in m_scheduling_only.J:
-    #         if m_scheduling_only.I_i_j_prod[I,J]==1:
-    #             for K in m_scheduling_only.ordered_set[I,J]:
-    #                 if round(pe.value(m_scheduling_only.YR_disjunct[I,J][K].indicator_var))==1:
-    #                     Sol_found.append(K-m_scheduling_only.minTau[I,J]+1)
-    # for I_J in m_scheduling_only.I_J:
-    #     Sol_found.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
+    m_scheduling_only=model_fun_scheduling(**kwargs)
+    sub_options_cplex_Feas={'add_options':['GAMS_MODEL.optfile = 1;','$onecho > cplex.opt \n','$offecho \n']} 
+    m_scheduling_only = solve_with_minlp(m_scheduling_only,transformation='bigm',minlp='cplex',minlp_options=sub_options_cplex_Feas,timelimit=360000000,gams_output=False,tee=True,rel_tol=0)
+    Sol_found=[]
+    for I in m_scheduling_only.I:
+        for J in m_scheduling_only.J:
+            if m_scheduling_only.I_i_j_prod[I,J]==1:
+                for K in m_scheduling_only.ordered_set[I,J]:
+                    if round(pe.value(m_scheduling_only.YR_disjunct[I,J][K].indicator_var))==1:
+                        Sol_found.append(K-m_scheduling_only.minTau[I,J]+1)
+    for I_J in m_scheduling_only.I_J:
+        Sol_found.append(1+round(pe.value(m_scheduling_only.Nref[I_J])))
 
-    # print('Initialization=',Sol_found)
-
-
-
-    # initialization=Sol_found
-    # neigh=neighborhood_k_eq_2(len(Sol_found))
+    print('Initialization=',Sol_found)
 
 
 
-
-    # m=model_fun(**kwargs)
-    # ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
-    # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
-    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+    initialization=Sol_found
+    neigh=neighborhood_k_eq_2(len(Sol_found))
 
 
-    # start=time.time()
 
-    # [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=0,new_case=True,with_distillation=model_witn_distillation_dynamics,provide_starting_initialization=False)
+
+    m=model_fun(**kwargs)
+    ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
+    ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
+
+
+    start=time.time()
+
+    [important_info,important_info_preprocessing,D,x_actual,m]=run_function_dbd_aprox(initialization,infinity_val,nlp_solver,neigh,maxiter,ext_ref,logic_fun,model_fun,model_fun_scheduling,kwargs,use_random=False,sub_solver_opt=sub_options, tee=True,rel_tol=0,new_case=True,with_distillation=model_witn_distillation_dynamics,provide_starting_initialization=False)
     
-    # print('Objective value: ',str(pe.value(m.obj)))
-    # print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
+    print('Objective value: ',str(pe.value(m.obj)))
+    print('Objective value: ',str(important_info['m3_s3'][0])+'; time= ',str(important_info['m3_s3'][1]))
 
-    # end=time.time()
+    end=time.time()
 
-    # solname='case_2_dbd_with_distillation_aprox_subproblems_'+minlp_solver+'_'+neighdef+'_all_neigh_Verified_from_infeasible'
-    # save=generate_initialization(m=m,model_name=solname) 
-    # new_Sol_found=[]
-    # for I in m.I:
-    #     for J in m.J:
-    #         if m.I_i_j_prod[I,J]==1:
-    #             for K in m.ordered_set[I,J]:
-    #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-    #                     new_Sol_found.append(K-m.minTau[I,J]+1)
-    # for I_J in m.I_J:
-    #     new_Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-    # print(new_Sol_found)
-    # TPC1=pe.value(m.TCP1)
-    # TPC2=pe.value(m.TCP2)
-    # TPC3=pe.value(m.TCP3)
-    # TMC=pe.value(m.TMC)
-    # SALES=pe.value(m.SALES)
+    solname='case_2_dbd_with_distillation_aprox_subproblems_'+minlp_solver+'_'+neighdef+'_all_neigh_Verified_from_infeasible'
+    save=generate_initialization(m=m,model_name=solname) 
+    new_Sol_found=[]
+    for I in m.I:
+        for J in m.J:
+            if m.I_i_j_prod[I,J]==1:
+                for K in m.ordered_set[I,J]:
+                    if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                        new_Sol_found.append(K-m.minTau[I,J]+1)
+    for I_J in m.I_J:
+        new_Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+    print(new_Sol_found)
+    TPC1=pe.value(m.TCP1)
+    TPC2=pe.value(m.TCP2)
+    TPC3=pe.value(m.TCP3)
+    TMC=pe.value(m.TMC)
+    SALES=pe.value(m.SALES)
 
-    # print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
-    # print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
-    # print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
-    # print('TMC: Total material cost: ',str(TMC))
-    # print('SALES: Revenue form selling products: ',str(SALES)) 
+    print('TPC: Fixed costs for all unit-tasks: ',str(TPC1))   
+    print('TPC: Variable cost for unit-tasks that do not consider dynamics: ', str(TPC2))
+    print('TPC: Variable cost for unit-tasks that do consider dynamics: ',str(TPC3))
+    print('TMC: Total material cost: ',str(TMC))
+    print('SALES: Revenue form selling products: ',str(SALES)) 
 # #######-------plots------------------------
 #     for I in m.I_dynamics:
 #         for J in m.J_dynamics:
