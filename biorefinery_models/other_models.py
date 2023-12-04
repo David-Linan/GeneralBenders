@@ -144,13 +144,13 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     # MODELING OF REACTIONS
 
 
-    def _R_definition(m,t,x):
-        if m.j=='CS':
-            return 
-        elif m.j=='':
-            return
+    # def _R_definition(m,t,x):
+    #     if m.j=='CS':
+    #         return 
+    #     elif m.j=='':
+    #         return
 
-    m.R_definition=pe.Constraint(m.t,m.x,m.j, rule=_R_definition)
+    # m.R_definition=pe.Constraint(m.t,m.x,m.j, rule=_R_definition)
 
     #-------objective function--------------------------------------------
 

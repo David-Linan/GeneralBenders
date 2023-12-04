@@ -373,29 +373,30 @@ if __name__ == "__main__":
     # init_name='case_1_scheduling_and_dynamics_solution' # sequential naive
     # init_name='case_1_scheduling_and_dynamics_solution_seq_iterative' #sequential iterative
     # init_name='case_1_scheduling_and_dynamics_solution_DSDA_naive' #DSDA
-    init_name='bestknown' # best known solution
+    # init_name='bestknown' # best known solution
+    init_name='case_1_scheduling_and_dynamics_solution_DBD_onecut_naive'
 
 
-    # CASE STUDY 1 (LONG)
+    # # CASE STUDY 1 (LONG)
 
-    mip_solver='CPLEX'
-    minlp_solver='DICOPT'
-    nlp_solver='conopt4'
-    transform='bigm'
+    # mip_solver='CPLEX'
+    # minlp_solver='DICOPT'
+    # nlp_solver='conopt4'
+    # transform='bigm'
 
 
-    if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
-        print('DICOPT options:',sub_options)
-    elif minlp_solver=='OCTERACT':
-        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
+    # if minlp_solver=='dicopt' or minlp_solver=='DICOPT':
+    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > dicopt.opt \n','maxcycles 20000 \n','stop 3 \n','nlpsolver '+nlp_solver,'\n','$offecho \n','option mip='+mip_solver+';\n']}
+    #     print('DICOPT options:',sub_options)
+    # elif minlp_solver=='OCTERACT':
+    #     sub_options={'add_options':['GAMS_MODEL.optfile = 1;','Option Threads =0;','Option SOLVER = OCTERACT;','$onecho > octeract.opt \n','LOCAL_SEARCH true\n','$offecho \n']}
     
-    kwargs={'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
+    # kwargs={'last_time_hours':28,'demand_p1_kmol':2,'demand_p2_kmol':2}
 
-    model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
-    m=model_fun(**kwargs)
-    # init_name='case_1_28h_scheduling_and_dynamics_solution_DBD_pruning_aprox_subpr_DICOPT_2test_cutoff' # Simultaneous strategy
-    init_name='case_1_28h_scheduling_and_dynamics_solution' # Sequential naive initialization
+    # model_fun=scheduling_and_control_gdp_N_solvegdp_simpler
+    # m=model_fun(**kwargs)
+    # # init_name='case_1_28h_scheduling_and_dynamics_solution_DBD_pruning_aprox_subpr_DICOPT_2test_cutoff' # Simultaneous strategy
+    # init_name='case_1_28h_scheduling_and_dynamics_solution' # Sequential naive initialization
 
 
 
