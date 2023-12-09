@@ -45,9 +45,7 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     m.tR = pe.Param(initialize=7.8*(3600),doc='retention time [s]')  # NOTE:  based on "the reactor retention time in this simulation scenario is 7.8h..."
     m.FFM= pe.Param(initialize=1.16,doc='fiber mash outflow [kg/s]') #NOTE: based on table B.4
     m.vx = pe.Param(initialize=m.LR/m.tR,doc='horizontal speed [m/s]') #NOTE: according to equation B5 is considered constant along the length of the reactor
-
     m.MFM = pe.Param(initialize=m.tR*m.FFM,doc='total mass of fiber mash inside the tank [kg]')  # TODO: according to the article, vx is assumed constant, which means tR constant, which means ration between MFM=FFM is constant. To simplify, I assume that both MFM and FFM are constant
-    
     m.Boltzmann=pe.Param(initialize=1.380649E-23, doc='[J/K]')
     m.Avogadro=pe.Param(initialize= 6.02214076E+23 ,doc='[1/mol]')
     m.T=pe.Param(initialize=50+273.15, doc='Optimal enzymatic activity temperature [K]')
@@ -63,7 +61,9 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     # m.j = pe.Set(initialize=['CS', 'XS', 'AS', 'LS', 'ACS','G', 'XO', 'X', 'A', 'AC', 'F', 'H', 'W', 'O']) #TODO: this is the list of components from the pretreatment model
     m.j = pe.Set(initialize=['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E'])
                             # Solid part of the slurry       # Liquid part of the slurry 
-
+    # enzime types
+    m.e = pe.Set(initialize=['1','2','3']) #NOTE: Enzyme type 4 was not included because, according to Prunescu's hydrolisis paper, their concentration is negligible
+    
 
 
 
@@ -93,9 +93,19 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     _CFEED['E']=0.5
     m.CFEED=pe.Param(m.j,initialize=_CFEED,doc='Feed concentrations [g / kg]') # TODO: check units and declare correct values
 
+    # parameters for enzyme balance
+    _alpha_enzymes={}
+    _alpha_enzymes['1']=0.5
+    _alpha_enzymes['2']=0.3
+    _alpha_enzymes['3']=0.2
+    m.alpha_enzymes=pe.Param(m.e,initialize=_alpha_enzymes,doc='Fraction of each enzyme type (between 0 and 1)')
+
 
     # ---------variables-----------------------------------------------------
-    m.C=pe.Var(m.t, m.x, m.j, initialize=1,within=pe.NonNegativeReals, doc='units of g/kg') #bounds=(0, 10000))
+    m.C=pe.Var(m.t, m.x, m.j, initialize=1,within=pe.NonNegativeReals, doc='Concentrations, units of g/kg') #bounds=(0, 10000))
+    m.Ce=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m.Cef=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m.Ceb=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
     m.R = pe.Var(m.t, m.x, m.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
     m.D = pe.Var(m.t,m.x, initialize=1, within=pe.NonNegativeReals, doc='units of m^2 / s')
 
@@ -133,24 +143,50 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     m.D_definition=pe.Constraint(m.t,m.x, rule=_D_definition)
 
     # pH MODELING
-    #TODO: improve this model part
-
-
+    #TODO: improve this model part: currently assuming factor of one
 
     m.eta_T=pe.Param(initialize=1, doc='Temperature efficiency factor. Value between 0 and 1') #TODO: find a parameter from the plot in figure B.8. Temperature can be assumed constant at 50 C
     m.eta_pH=pe.Param(initialize=1, doc='pH efficiency factor. Value between 0 and 1') #TODO: find a parameter from the plot in figure B.8 assuming constant pH, or improve the pH modeling. 
-    m.eta=pe.Param(initialize=m.eta_T*m.eta_pH,doc='temperature and pH dependence of reaction rate r1') 
+    m.eta=pe.Param(initialize=m.eta_T*m.eta_pH,doc='temperature and pH dependence of reaction rates') 
+
+
+
+    # ENZYME BALANCES
+    # NOTE: I do not neet equation below because _enzyme_fractions constraint guarantees this 
+    # def _enzyme_balance(m,t,x):
+    #     return m.C[t,x,'E'] == sum(m.Ce[t,x,c] for c in m.e)
+    # m.enzyme_balance=pe.Constraint(m.t,m.x,rule=_enzyme_balance)
+
+    def _enzyme_fractions(m,t,x,c):
+        return m.Ce[t,x,c] == m.alpha_enzymes[c]*m.C[t,x,'E']
+    m.enzyme_fractions=pe.Constraint(m.t,m.x,m.c,rule=_enzyme_fractions)
+
+    def _bounded_free_equilibrium(m,t,x,c):
+        return m.Ce[t,x,c] == m.Ceb[t,x,c]  +    m.Cef[t,x,c]
+    m.bounded_free_equilibrium=pe.Constraint(m.t,m.x,m.c,rule=_bounded_free_equilibrium)
+
+    def _adsorbed_free_equilibrium(m,t,x,c): #NOTE: I am assuming that the concentration of 
+        return (m.Ceb[t,x,c])/('CS', 'XS', 'LS') ==
+    
+    
+
+
 
     # MODELING OF REACTIONS
 
 
-    # def _R_definition(m,t,x):
-    #     if m.j=='CS':
-    #         return 
-    #     elif m.j=='':
-    #         return
 
-    # m.R_definition=pe.Constraint(m.t,m.x,m.j, rule=_R_definition)
+    def _R_definition(m,t,x,j):
+        if j=='CS':              
+            K1_r1=0.00034 # kg/(g*s)
+            K2_r2=0.0053 # kg/(g*s)
+
+                                        #r1                     #r2
+            return m.R[t,x,j] == - ((K1_r1*m.eta*)/())     -   ()
+        elif j=='':
+            return
+
+    m.R_definition=pe.Constraint(m.t,m.x,m.j, rule=_R_definition)
 
     #-------objective function--------------------------------------------
 
