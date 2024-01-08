@@ -101,11 +101,29 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     m.alpha_enzymes=pe.Param(m.e,initialize=_alpha_enzymes,doc='Fraction of each enzyme type (between 0 and 1)')
 
 
+    _max_ads_enz={}
+    _max_ads_enz['1']=0.015
+    _max_ads_enz['2']=0.01
+    _max_ads_enz['3']=0.01
+    m.max_ads_enz=pe.Param(m.e,initialize=_max_ads_enz,doc='Maximum adsorbed enzymes [-]')
+
+
+
+    _k_ads={}
+    _k_ads['1']=0.84
+    _k_ads['2']=0.1
+    _k_ads['3']=0.1
+
+    m.k_ads=pe.Param(m.e,initialize=_k_ads,doc='Adsorption constant [-]')
+
+
     # ---------variables-----------------------------------------------------
     m.C=pe.Var(m.t, m.x, m.j, initialize=1,within=pe.NonNegativeReals, doc='Concentrations, units of g/kg') #bounds=(0, 10000))
     m.Ce=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
     m.Cef=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
     m.Ceb=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m.CebC=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to cellulose g/kg')
+    m.CebX=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to xylan g/kg')
     m.R = pe.Var(m.t, m.x, m.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
     m.D = pe.Var(m.t,m.x, initialize=1, within=pe.NonNegativeReals, doc='units of m^2 / s')
 
@@ -154,21 +172,31 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     # ENZYME BALANCES
     # NOTE: I do not neet equation below because _enzyme_fractions constraint guarantees this 
     # def _enzyme_balance(m,t,x):
-    #     return m.C[t,x,'E'] == sum(m.Ce[t,x,c] for c in m.e)
+    #     return m.C[t,x,'E'] == sum(m.Ce[t,x,e] for e in m.e)
     # m.enzyme_balance=pe.Constraint(m.t,m.x,rule=_enzyme_balance)
 
-    def _enzyme_fractions(m,t,x,c):
-        return m.Ce[t,x,c] == m.alpha_enzymes[c]*m.C[t,x,'E']
-    m.enzyme_fractions=pe.Constraint(m.t,m.x,m.c,rule=_enzyme_fractions)
+    def _enzyme_fractions(m,t,x,e):
+        return m.Ce[t,x,e] == m.alpha_enzymes[e]*m.C[t,x,'E']
+    m.enzyme_fractions=pe.Constraint(m.t,m.x,m.e,rule=_enzyme_fractions)
 
-    def _bounded_free_equilibrium(m,t,x,c):
-        return m.Ce[t,x,c] == m.Ceb[t,x,c]  +    m.Cef[t,x,c]
-    m.bounded_free_equilibrium=pe.Constraint(m.t,m.x,m.c,rule=_bounded_free_equilibrium)
+    def _bounded_free_equilibrium(m,t,x,e):
+        return m.Ce[t,x,e] == m.Ceb[t,x,e]  +    m.Cef[t,x,e]
+    m.bounded_free_equilibrium=pe.Constraint(m.t,m.x,m.e,rule=_bounded_free_equilibrium)
 
-    def _adsorbed_free_equilibrium(m,t,x,c): #NOTE: I am assuming that the concentration of 
-        return (m.Ceb[t,x,c])/('CS', 'XS', 'LS') ==
-    
-    
+    def _adsorbed_free_equilibrium(m,t,x,e): #NOTE: I am assuming that the concentration solids does not include enzymes. #TODO: check the effect of including them +sum(m.Ceb[t,x,e] for e in m.e)
+        
+        # if e=='1' or e=='2': #TODO: Check if this is for every enzyme, or just for 1 and 2. I think it should be for every enzyme, because we have all info needed for calculations 
+        return (m.Ceb[t,x,e])/(m.C[t,x,'CS']+ m.C[t,x,'XS']+m.C[t,x,'LS']) == m.max_ads_enz[e]*((m.k_ads[e]*m.Cef[t,x,e])/(1+m.k_ads[e]*m.Cef[t,x,e]))
+        # else:
+        #     return pe.Constraint.Skip
+    m.adsorbed_free_equilibrium=pe.Constraint(m.t,m.x,m.e,rule=_adsorbed_free_equilibrium)
+
+    def _bounded_enzyme_concentration(m,t,x,e):
+        if e=='1' or e=='2':                            # NOTE: that denominator is Solid concentration. modify if needed
+            return m.CebC[t,x,e] == m.Ceb[t,x,e]*((m.C[t,x,'CS'])/(m.C[t,x,'CS']+ m.C[t,x,'XS']+m.C[t,x,'LS'])) 
+        else:                                           # NOTE: that denominator is Solid concentration. modify if needed
+            return m.CebX[t,x,e] == m.Ceb[t,x,e]*((m.C[t,x,'XS'])/(m.C[t,x,'CS']+ m.C[t,x,'XS']+m.C[t,x,'LS']))
+    m.bounded_enzyme_concentration=pe.Constraint(m.t,m.x,m.e,rule=_bounded_enzyme_concentration)
 
 
 
