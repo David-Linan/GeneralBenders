@@ -1,0 +1,114 @@
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/01/23 09:13:54 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+
+
+COMPILATION TIME     =        0.156 SECONDS      9 MB  41.5.0 2a5a4ddc WEX-WEI
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/01/23 09:13:54 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Range Statistics    SOLVE GAMS_MODEL Using MIP From line 46431
+
+
+RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
+
+RHS       [min, max] : [ 5.000E-01, 1.200E+04] - Zero values observed as well
+Bound     [min, max] : [ 1.000E-01, 2.900E+01] - Zero values observed as well
+Matrix    [min, max] : [ 1.000E-02, 1.400E+03]
+
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/01/23 09:13:54 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE GAMS_MODEL Using MIP From line 46431
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS       9,813     SINGLE EQUATIONS        9,813
+BLOCKS OF VARIABLES       6,806     SINGLE VARIABLES        6,806  6 projected
+NON ZERO ELEMENTS        29,754     DISCRETE VARIABLES        342
+
+
+GENERATION TIME      =        0.063 SECONDS     14 MB  41.5.0 2a5a4ddc WEX-WEI
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/01/23 09:13:54 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE GAMS_MODEL Using MIP From line 46431
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   GAMS_MODEL          OBJECTIVE  GAMS_OBJECTIVE
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  46431
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      1 Optimal
+**** OBJECTIVE VALUE              -29.7750
+
+ RESOURCE USAGE, LIMIT         19.719   3600000.000
+ ITERATION COUNT, LIMIT    385881    2147483647
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+
+Reading parameter(s) from "N:\My Documents\GAMS\prueba_BendersDecompositionCplex
+                                                                     \cplex.opt"
+>>  bendersstrategy 1
+>>  BendersPartitionInStage 1
+Finished reading from "N:\My Documents\GAMS\prueba_BendersDecompositionCplex\cpl
+                                                                         ex.opt"
+
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.94 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 3.39 Mb (peak 3.44 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.0.0 link memory 0.24 Mb (peak 1.67 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 19.70sec (det. 38414.72 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.02sec (det. 9.80 ticks)
+
+
+Proven optimal solution
+MIP Solution:          -29.775000    (385881 iterations, 42022 nodes)
+Final Solve:           -29.775000    (13 iterations)
+
+Best possible:         -29.775000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 41.5.0  2a5a4ddc Jan 3, 2023           WEX-WEI x86 64bit/MS Windows - 02/01/23 09:13:54 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+**** REPORT FILE SUMMARY
+
+results N:\My Documents\GAMS\prueba_BendersDecompositionCplex\results.dat
+statresults N:\My Documents\GAMS\prueba_BendersDecompositionCplex\resultsstat.da
+            t
+
+
+EXECUTION TIME       =       20.032 SECONDS     14 MB  41.5.0 2a5a4ddc WEX-WEI
+
+
+USER: Prof. Ignacio E. Grossmann                     G221207|0002AS-GEN
+      Carnegie Mellon University, Dept. of Chemical Engineering  DCE375
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      N:\My Documents\GAMS\prueba_BendersDecompositionCplex\model.gms
+Output     N:\My Documents\GAMS\prueba_BendersDecompositionCplex\model.lst

@@ -1,0 +1,14 @@
+[PROJECT]
+
+[RP:MODEL]
+1=
+
+[OPENWINDOW_1]
+FILE0=N:\My Documents\GAMS\prueba_BendersDecompositionCplex\model.gms
+FILE1=N:\My Documents\GAMS\prueba_BendersDecompositionCplex\model.lst
+FILE2=N:\My Documents\GAMS\prueba_BendersDecompositionCplex\model.gms
+MAXIM=0
+TOP=50
+LEFT=50
+HEIGHT=856
+WIDTH=1130

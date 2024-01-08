@@ -1,0 +1,7 @@
+
+nlpsolver conopt4
+
+stop 1
+
+maxcycles 20000
+
