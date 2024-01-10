@@ -59,7 +59,7 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     m.x = dae.ContinuousSet(bounds=(0, m.LR))
     # chemical species
     # m.j = pe.Set(initialize=['CS', 'XS', 'AS', 'LS', 'ACS','G', 'XO', 'X', 'A', 'AC', 'F', 'H', 'W', 'O']) #TODO: this is the list of components from the pretreatment model
-    m.j = pe.Set(initialize=['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E'])
+    m.j = pe.Set(initialize=['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E','AC'])  #NOTE: In pretreatment model AC is organic acids, here it is acetic acid, given that according to the pretreatment article "Organic acids, mostly represented by acetic acid"
                             # Solid part of the slurry       # Liquid part of the slurry 
     # enzime types
     m.e = pe.Set(initialize=['1','2','3']) #NOTE: Enzyme type 4 was not included because, according to Prunescu's hydrolisis paper, their concentration is negligible
@@ -79,6 +79,7 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     _C0['X']=1
     _C0['F']=1
     _C0['E']=1
+    _C0['AC']=1
     m.C0=pe.Param(m.j,initialize=_C0,doc='Initial concentration of the differnt species [g / kg]')  # TODO: check units and declare correct values
 
 
@@ -91,6 +92,7 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     _CFEED['X']=0.5
     _CFEED['F']=0.5
     _CFEED['E']=0.5
+    _CFEED['AC']=0.5
     m.CFEED=pe.Param(m.j,initialize=_CFEED,doc='Feed concentrations [g / kg]') # TODO: check units and declare correct values
 
     # parameters for enzyme balance
@@ -124,6 +126,11 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     m.Ceb=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
     m.CebC=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to cellulose g/kg')
     m.CebX=pe.Var(m.t, m.x, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to xylan g/kg')
+    m.r1=pe.Var(m.t, m.x,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to cellobiose rate, g/kg s')
+    m.r2=pe.Var(m.t, m.x,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to glucose rate, g/kg s')
+    m.r3=pe.Var(m.t, m.x,initialize=1,within=pe.NonNegativeReals, doc='Cellobiose to glucose rate, g/kg s')
+    m.r4=pe.Var(m.t, m.x,initialize=1,within=pe.NonNegativeReals, doc='Xylan to xylose rate, g/kg s')
+    m.r5=pe.Var(m.t, m.x,initialize=1,within=pe.NonNegativeReals, doc='Xylan to acetic acid rate, g/kg s')
     m.R = pe.Var(m.t, m.x, m.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
     m.D = pe.Var(m.t,m.x, initialize=1, within=pe.NonNegativeReals, doc='units of m^2 / s')
 
@@ -200,20 +207,70 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
 
 
 
+
+
     # MODELING OF REACTIONS
+    def _r1_definition(m,t,x):
+        K1_r1=0.00034       # reaction rate constant, kg/(g*s)
+        IC1_r1=0.0014       # Inhibition of r1 by cellobiose, g/kg
+        IX1_r1=0.1007       # Inhibition of r1 by xylose, g/kg
+        IG1_r1=0.073        # Inhibition of r1 by glucose, g/kg
+        IF1_r1=10           #  Inhibition of r1 by furfural, g/kg
+        
+        return m.r1[t,x] == (K1_r1*m.eta*m.CebC[t,x,'1']*m.C[t,x,'CS'])/(1+(m.C[t,x,'C']/IC1_r1)+(m.C[t,x,'X']/IX1_r1)+(m.C[t,x,'G']/IG1_r1)+(m.C[t,x,'F']/IF1_r1))
+    m.r1_definition=pe.Constraint(m.t,m.x,rule=_r1_definition)
 
+    def _r2_definition(m,t,x):
+        K2_r2=0.0053          # reaction rate constant, kg/(g*s)
+        IC2_r2=132          # Inhibition of r2 by cellobiose, g/kg
+        IX2_r2=0.029           # Inhibition of r2 by xylose, g/kg
+        IG2_r2=0.34          # Inhibition of r2 by glucose, g/kg
+        IF2_r2=10          #  Inhibition of r2 by furfural, g/kg
+        return m.r2[t,x] == (K2_r2*m.eta*(m.CebC[t,x,'1']+m.CebC[t,x,'2'])*m.C[t,x,'CS'])/(1+(m.C[t,x,'C']/IC2_r2)+(m.C[t,x,'X']/IX2_r2)+(m.C[t,x,'G']/IG2_r2)+(m.C[t,x,'F']/IF2_r2))
+    m.r2_definition=pe.Constraint(m.t,m.x,rule=_r2_definition)
 
+    def _r3_definition(m,t,x):
+        K3_r3=0.07                # reaction rate constant, kg/(g*s)
+        I3_r3=24.3               #overall inhibition term for r3, g/kg
+        IX3_r3= 201              # Inhibition of r3 by xylose, g/kg
+        IG3_r3= 3.9             # Inhibition of r3 by glucose, g/kg
+        IF3_r3=10               #  Inhibition of r3 by furfural, g/kg
+        return m.r3[t,x] == (K3_r3*m.eta* m.Cef[t,x,'2']*m.C[t,x,'C'])/(I3_r3*(1+(m.C[t,x,'X']/IX3_r3)+(m.C[t,x,'G']/IG3_r3)+(m.C[t,x,'F']/IF3_r3))+m.C[t,x,'C'])
+    m.r3_definition=pe.Constraint(m.t,m.x,rule=_r3_definition)
 
+    def _r4_definition(m,t,x):
+        K4_r4=0.0027     # reaction rate constant, kg/(g*s)
+        IC4_r4= 24.3         # Inhibition of r4 by cellobiose, g/kg
+        IX4_r4= 201         # Inhibition of r4 by xylose, g/kg 
+        IG4_r4= 2.39         # Inhibition of r4 by glucose, g/kg
+        IF4_r4= 10         #  Inhibition of r4 by furfural, g/kg
+        return m.r4[t,x] == (K4_r4*m.eta*m.CebX[t,x,'3']*m.C[t,x,'XS'])/(1+(m.C[t,x,'C']/IC4_r4)+(m.C[t,x,'X']/IX4_r4)+(m.C[t,x,'G']/IG4_r4)+(m.C[t,x,'F']/IF4_r4))
+    m.r4_definition=pe.Constraint(m.t,m.x,rule=_r4_definition)
+
+    def _r5_definition(m,t,x):
+        Beta_r5=0.2     # acetic acid to xylose ratio
+        return m.r5[t,x] ==Beta_r5*m.r4[t,x] 
+    m.r5_definition=pe.Constraint(m.t,m.x,rule=_r5_definition)
+    # ['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E','AC']
     def _R_definition(m,t,x,j):
         if j=='CS':              
-            K1_r1=0.00034 # kg/(g*s)
-            K2_r2=0.0053 # kg/(g*s)
-
-                                        #r1                     #r2
-            return m.R[t,x,j] == - ((K1_r1*m.eta*)/())     -   ()
-        elif j=='':
-            return
-
+            return m.R[t,x,j] == -m.r1[t,x]-m.r2[t,x] #Cellulose->Cellobiose (r1), #Cellulose->Glucose (r2) 
+        elif j=='XS':
+            return m.R[t,x,j] == -m.r4[t,x]-m.r5[t,x] #Xylan->Xylose (r4), #Xylan->Acetic Acid (r5)
+        elif j=='LS':
+            return m.R[t,x,j] == 0 
+        elif j=='C':
+            return m.R[t,x,j] == m.r1[t,x]-m.r3[t,x]     #Cellulose->Cellobiose (r1),  #Cellobiose->Glucose (r3)
+        elif j=='G':
+            return m.R[t,x,j] == m.r2[t,x]+m.r3[t,x]      #Cellulose->Glucose (r2), #Cellobiose->Glucose (r3)
+        elif j=='X':
+            return m.R[t,x,j] == m.r4[t,x] #Xylan->Xylose (r4)
+        elif j=='F':
+            return m.R[t,x,j] == 0
+        elif j=='E':
+            return m.R[t,x,j] == 0 #NOTE: Deactivation of enzymes is not considered in Prunescu work
+        elif j=='AC':
+            return m.R[t,x,j] == m.r5[t,x] #Xylan->Acetic Acid (r5)         
     m.R_definition=pe.Constraint(m.t,m.x,m.j, rule=_R_definition)
 
     #-------objective function--------------------------------------------
@@ -232,10 +289,6 @@ def build_hydrolisis() -> pe.ConcreteModel(): #TODO: MODIFY INPUTS
     discretizer_t = pe.TransformationFactory('dae.collocation')
     discretizer_t.apply_to(m, nfe=10, ncp=3, wrt=m.t, scheme='LAGRANGE-RADAU')
 
-    for t in m.t:
-        for x in m.x:
-            for j in m.j:
-                m.R[t,x,j].fix(0)
 
     return m
 
