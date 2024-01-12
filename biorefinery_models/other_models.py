@@ -897,7 +897,7 @@ if __name__ == '__main__':
 
     # PARAMETERS
     sim_time=72000 #seconds
-    discretization_type='differences'#'collocation' #'differences'
+    discretization_type='collocation'#'collocation' #'differences'
     finite_elem_x=20
     finite_elem_t=20
 
