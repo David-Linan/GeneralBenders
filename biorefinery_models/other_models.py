@@ -943,6 +943,7 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
     m.final_time = pe.Param(initialize=time,doc='final simulation time [s]')  # NOTE: this is the time considered in one of the simulation experiments by prunescu.
     m.LR = pe.Param(initialize=20,doc='reactor length [m]')  # NOTE: this is the reactor length based on Fig. 4 of the hydrolisis article by prunescu.
     m.tR = pe.Param(initialize=7.8*(3600),doc='retention time [s]')  # NOTE:  based on "the reactor retention time in this simulation scenario is 7.8h..."
+    m.FFF=pe.Param(initialize=1.11,doc='fiber flow [kg/s]') #NOTE: based on table B.4
     m.FFM= pe.Param(initialize=1.16,doc='fiber mash outflow [kg/s]') #NOTE: based on table B.4
     m.FE=pe.Param(initialize=0.025,doc='enzyme flow [kg/s]')
     m.FB=pe.Param(initialize=0.012,doc='Base flow [kg/s]')
@@ -970,30 +971,28 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
     
     # ---------parameters----------------------------------------------------
     _C0={}
-    _C0['CS']=112.5
-    _C0['XS']=20
-    _C0['LS']=80
-    _C0['C']=0
-    _C0['G']=0.5
-    _C0['X']=2.5
-    _C0['F']=1.8
+    _C0['CS']=112.5*(m.FFF/m.FFM)
+    _C0['XS']=20*(m.FFF/m.FFM)
+    _C0['LS']=80*(m.FFF/m.FFM)
+    _C0['C']=0*(m.FFF/m.FFM)
+    _C0['G']=0.5*(m.FFF/m.FFM)
+    _C0['X']=2.5*(m.FFF/m.FFM)
+    _C0['F']=1.8*(m.FFF/m.FFM)
     _C0['E']=500*(m.FE/m.FFM)
-    # _C0['E']=500
-    _C0['AC']=5
+    _C0['AC']=5*(m.FFF/m.FFM)
     m.C0=pe.Param(m.j,initialize=_C0,doc='Initial concentration of the differnt species [g / kg]')  # TODO: check units and declare correct values
 
 
     _CFEED={}
-    _CFEED['CS']=112.5
-    _CFEED['XS']=20
-    _CFEED['LS']=80
-    _CFEED['C']=0
-    _CFEED['G']=0.5
-    _CFEED['X']=2.5
-    _CFEED['F']=1.8
+    _CFEED['CS']=112.5*(m.FFF/m.FFM)
+    _CFEED['XS']=20*(m.FFF/m.FFM)
+    _CFEED['LS']=80*(m.FFF/m.FFM)
+    _CFEED['C']=0*(m.FFF/m.FFM)
+    _CFEED['G']=0.5*(m.FFF/m.FFM)
+    _CFEED['X']=2.5*(m.FFF/m.FFM)
+    _CFEED['F']=1.8*(m.FFF/m.FFM)
     _CFEED['E']=500*(m.FE/m.FFM)
-    # _CFEED['E']=500
-    _CFEED['AC']=5
+    _CFEED['AC']=5*(m.FFF/m.FFM)
     m.CFEED=pe.Param(m.j,initialize=_CFEED,doc='Feed concentrations [g / kg]') # TODO: check units and declare correct values
 
     # parameters for enzyme balance
@@ -1200,15 +1199,17 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
 
     _C_elect_init_param={}
 
-    _C_elect_init_param['CO2aq']=0.001
-    _C_elect_init_param['C4H6O4']=0.4* m.rho_soluble_kg_L*(1/m.MW_elect['C4H6O4'])   #Succinic acid
-    _C_elect_init_param['C3H6O3']=0.7* m.rho_soluble_kg_L*(1/m.MW_elect['C3H6O3'])  #Lactic acid
+    _C_elect_init_param['CO2aq']=0.0011*(m.FFF/m.FFM)*m.rho_soluble_kg_L*(1/m.MW_elect['CO2aq'])
+    _C_elect_init_param['C4H6O4']=0.4*(m.FFF/m.FFM)* m.rho_soluble_kg_L*(1/m.MW_elect['C4H6O4'])   #Succinic acid
+    _C_elect_init_param['C3H6O3']=0.7*(m.FFF/m.FFM)* m.rho_soluble_kg_L*(1/m.MW_elect['C3H6O3'])  #Lactic acid
     _C_elect_init_param['NaOH']=270*(m.FB/m.FFM)* m.rho_soluble_kg_L*(1/m.MW_elect['NaOH'])
+    _C_elect_init_param['H+']=0.01#0.01
     m.C_elect_init_param=pe.Param(m.j_elect,initialize=_C_elect_init_param,default=0,doc='Initial concentration of electrolytes [mol/L]')
+    m.C_elect_init_param.pprint()
 
-
-
-
+    m.kCO2=pe.Param(initialize=489.6,doc='mass transfer coefficient of CO2 [   1/d    ]') #NOT given, retrieved from: "Extensions to modeling aerobic carbon degradation using combined respirometric–titrimetric measurements in view of activated sludge model calibration"    489.6
+    m.r_kCO2=pe.Param(initialize=2.4*(60)*(24),doc='reaction rate constant in the equilibrium CO2 reaction [   1/d    ]') #NOT given, retrieved from: "Extensions to modeling aerobic carbon degradation using combined respirometric–titrimetric measurements in view of activated sludge model calibration"
+    m.CO2_atm=pe.Param(initialize=1.71E-5,doc='Atmospheric CO2 concentration [ mol/L ]') #Given in ACC short paper
 
     m.avance=pe.Var(m.x,m.t,m.r_elect,within=pe.Reals,initialize=0,doc='production/consumption terms in reactions for pH calculations')
 
@@ -1226,14 +1227,24 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
 
 
     def _equilibrium_relationships(m,x,t,r):
-        if m.Equil_rhs[r]==0:
-            return m.Equil_lhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==-1])==0
+        # for the CO2 equilbrium reaction we also consider the transfer of aqueous CO2 to the gas phase
+        if r=='4':
+            return m.Equil_lhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==-1])+((m.kCO2*m.Equil_lhs[r])/m.r_kCO2)*(m.CO2_atm-m.C_elect_equil[x,t,'CO2aq'])==m.Equil_rhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==1])
+        # For the remaining reactions we only consider the normal equilibrium calculation
         else:
-            return m.Equil_lhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==-1])==m.Equil_rhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==1])
+            # If it is only a fordward reaction
+            if m.Equil_rhs[r]==0:
+                return m.Equil_lhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==-1])==0
+            # If the reaction is an equilibrium reaction
+            else:
+                return m.Equil_lhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==-1])==m.Equil_rhs[r]*pe.prod([m.C_elect_equil[x,t,j] for j in m.j_elect if m.coef_elect[j,r]==1])
     m.equilibrium_relationships=pe.Constraint(m.x,m.t,m.r_elect,rule=_equilibrium_relationships)
 
     def _elect_balances(m,x,t,j):
-        return m.C_elect_equil[x,t,j]==m.C_elect_init[x,t,j] + sum(m.coef_elect[j,r]*m.avance[x,t,r] for r in m.r_elect)
+        if j=='CO2aq':
+            return m.C_elect_equil[x,t,j]==m.C_elect_init[x,t,j] + sum(m.coef_elect[j,r]*m.avance[x,t,r] for r in m.r_elect)   
+        else:
+            return m.C_elect_equil[x,t,j]==m.C_elect_init[x,t,j] + sum(m.coef_elect[j,r]*m.avance[x,t,r] for r in m.r_elect)
     m.elect_balances=pe.Constraint(m.x,m.t,m.j_elect,rule=_elect_balances)
 
     def _pH(m,x,t): #TODO: either leave pH constant or include electrolyte balance
@@ -1305,7 +1316,7 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
     m.r1_definition=pe.Constraint(m.t,m.x,rule=_r1_definition)
 
     def _r2_definition(m,t,x):
-        K2_r2=0.0023          # reaction rate constant, kg/(g*s)
+        K2_r2=0.0023 #changed         # reaction rate constant, kg/(g*s)
         IC2_r2=132          # Inhibition of r2 by cellobiose, g/kg
         IX2_r2=0.029           # Inhibition of r2 by xylose, g/kg
         IG2_r2=0.34          # Inhibition of r2 by glucose, g/kg
@@ -1323,7 +1334,7 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
     m.r3_definition=pe.Constraint(m.t,m.x,rule=_r3_definition)
 
     def _r4_definition(m,t,x):
-        K4_r4=0.0027     # reaction rate constant, kg/(g*s)
+        K4_r4=0.0087#0.0027     # reaction rate constant, kg/(g*s)
         IC4_r4= 24.3         # Inhibition of r4 by cellobiose, g/kg
         IX4_r4= 201         # Inhibition of r4 by xylose, g/kg 
         IG4_r4= 2.39         # Inhibition of r4 by glucose, g/kg
@@ -1332,7 +1343,7 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
     m.r4_definition=pe.Constraint(m.t,m.x,rule=_r4_definition)
 
     def _r5_definition(m,t,x):
-        Beta_r5=0.2     # acetic acid to xylose ratio
+        Beta_r5=0.5     # acetic acid to xylose ratio
         return m.r5[t,x] ==Beta_r5*m.r4[t,x] 
     m.r5_definition=pe.Constraint(m.t,m.x,rule=_r5_definition)
     # ['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E','AC']
@@ -1369,168 +1380,165 @@ def build_hydrolisis_convergence_test4(time: float=170*(3600),discretization: st
     return m
 
 
-def build_fermentation_convergence_test1():
+# def build_fermentation_convergence_test1():
 
-    # ------------pyomo model------------------------------------------------
-    m = pe.ConcreteModel(name='fermentation_model')
-    # ------------shared scalars with hydrolisis model ----------------------
-    m.final_time = pe.Param(initialize=200*(60)*(60),doc='final simulation time [s]')  # NOTE: this is the time considered in one of the simulation experiments by prunescu.
-    m.Boltzmann=pe.Param(initialize=1.380649E-23, doc='[J/K]')
-    m.Avogadro=pe.Param(initialize= 6.02214076E+23 ,doc='[1/mol]')
-    m.T=pe.Param(initialize=50+273.15, doc='Optimal enzymatic activity temperature [K]')
-    m.rho_soluble=pe.Param(initialize=1.05*1000 , doc='Soluble fraction density [kg/ m^3]') #TODO: soluble liquid fraction assumed to have constant density of "Fiber mash density" in Table E2, page 198. Express as correlation!
-    m.rho_soluble_kg_L=pe.Param(initialize=m.rho_soluble/1000, doc='Soluble fraction density [kg/ L]') 
-    m.MW_soluble=pe.Param(initialize= 0.180156 ,doc='Molecular mass of soluble components in liquid fraction [kg/mol]') #TODO: same as rho_Soluble. Currently using molecular weight of glucose
-    #------------ new scalars -----------------------------------------------
+#     # ------------pyomo model------------------------------------------------
+#     m = pe.ConcreteModel(name='fermentation_model')
+#     # ------------shared scalars with hydrolisis model ----------------------
+#     m.final_time = pe.Param(initialize=200*(60)*(60),doc='final simulation time [s]')  # NOTE: this is the time considered in one of the simulation experiments by prunescu.
+#     m.Boltzmann=pe.Param(initialize=1.380649E-23, doc='[J/K]')
+#     m.Avogadro=pe.Param(initialize= 6.02214076E+23 ,doc='[1/mol]')
+#     m.T=pe.Param(initialize=50+273.15, doc='Optimal enzymatic activity temperature [K]')
+#     m.rho_soluble=pe.Param(initialize=1.05*1000 , doc='Soluble fraction density [kg/ m^3]') #TODO: soluble liquid fraction assumed to have constant density of "Fiber mash density" in Table E2, page 198. Express as correlation!
+#     m.rho_soluble_kg_L=pe.Param(initialize=m.rho_soluble/1000, doc='Soluble fraction density [kg/ L]') 
+#     m.MW_soluble=pe.Param(initialize= 0.180156 ,doc='Molecular mass of soluble components in liquid fraction [kg/mol]') #TODO: same as rho_Soluble. Currently using molecular weight of glucose
+#     #------------ new scalars -----------------------------------------------
 
 
-    # -----------sets--------------------------------------------------------
-    # Continuous time set
-    m.t = dae.ContinuousSet(bounds=(0, 1))   # NOTE: Dimentionless form so that I can optimize time in the future. 
+#     # -----------sets--------------------------------------------------------
+#     # Continuous time set
+#     m.t = dae.ContinuousSet(bounds=(0, 1))   # NOTE: Dimentionless form so that I can optimize time in the future. 
 
-    # chemical species
-    # m.j = pe.Set(initialize=['CS', 'XS', 'AS', 'LS', 'ACS','G', 'XO', 'X', 'A', 'AC', 'F', 'H', 'W', 'O']) #TODO: this is the list of components from the pretreatment model
-    # m.j = pe.Set(initialize=['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E','AC'])  #NOTE: In pretreatment model AC is organic acids, here it is acetic acid, given that according to the pretreatment article "Organic acids, mostly represented by acetic acid"
-                            # Solid part of the slurry       # Liquid part of the slurry 
+#     # chemical species
+#     # m.j = pe.Set(initialize=['CS', 'XS', 'AS', 'LS', 'ACS','G', 'XO', 'X', 'A', 'AC', 'F', 'H', 'W', 'O']) #TODO: this is the list of components from the pretreatment model
+#     # m.j = pe.Set(initialize=['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E','AC'])  #NOTE: In pretreatment model AC is organic acids, here it is acetic acid, given that according to the pretreatment article "Organic acids, mostly represented by acetic acid"
+#                             # Solid part of the slurry       # Liquid part of the slurry 
     
-    m.j = pe.Set(initialize=['CS', 'XS', 'LS','C','G', 'X', 'F', 'E','AC','Cell','Eth','CO2','ACT','HMF']) #Cell is cell biomass, ACT is acetate
-    # enzime types
-    m.e = pe.Set(initialize=['1','2','3']) #NOTE: Enzyme type 4 was not included because, according to Prunescu's hydrolisis paper, their concentration is negligible
+#     m.j = pe.Set(initialize=['CS', 'XS', 'LS','C','G', 'X', 'F', 'E','AC','Cell','Eth','CO2','ACT','HMF']) #Cell is cell biomass, ACT is acetate
+#     # enzime types
+#     m.e = pe.Set(initialize=['1','2','3']) #NOTE: Enzyme type 4 was not included because, according to Prunescu's hydrolisis paper, their concentration is negligible
     
-    # ---------parameters----------------------------------------------------
+#     # ---------parameters----------------------------------------------------
 
-    m.Y_CO2_G=pe.Param(initialize=0.47,doc='CO2 production from glucose uptake [kg/kg]')
-    m.Y_CO2_X=pe.Param(initialize=0.4,doc='CO2 production from xylose uptake [kg/kg]')
-    m.KI_F_S=pe.Param(initialize=0.05,doc='Furfural uptake self inhibition constant [g/kg]')
-    m.KI_F_G=pe.Param(initialize=0.75,doc='Glucose inhibition on furfural uptake [g/kg]')
-    m.KI_HMF_F=pe.Param(initialize=0.25,doc='Furfural inhibition on 5-HMF uptake [g/kg]')
-    m.KI_F_X=pe.Param(initialize=0.35,doc='Xylose inhibition on furfural uptake [g/kg]')
-    m.qmax_F=pe.Param(initialize=4.6706E-5,doc='Maximum furfural uptake [1/s]')
-    m.KIP_G=pe.Param(initialize=4890,doc='Glucose uptake self inhibition parameter [g/kg]')
-    m.KSP_G=pe.Param(initialize=1.342,doc='Glucose uptake self inhibition parameter [g/kg]')
-    m.PMP_G=pe.Param(initialize=103,doc='Ethanol inhibition in glucose uptake [g/kg]')
-    m.gamma_G=pe.Param(initialize=1.42,doc='Ethanol inhibition in glucose uptake [-]')
-    m.Y_Eth_G=pe.Param(initialize=0.47,doc='Ethanol production from glucoe uptake [kg/kg]')
-    m.Y_Cell_G=pe.Param(initialize=0.115,doc='Biomass growth on glucose [kg/kg]')
-    m.m_G=pe.Param(initialize=2.6944E-5,doc='Maintenance coefficient for biomass growth on glucose [1/s]')
-    m.qmax_G=pe.Param(initialize=0.000318,doc='Maximum glucose uptake rate [1/s]')
-    m.KIP_X=pe.Param(initialize=81.3,doc='Xylose uptake self inhibition parameter [g/kg]')
-    m.KSP_X=pe.Param(initialize=3.4,doc='Xylose uptake self inhibition parameter [g/kg]')
-    m.PMP_X=pe.Param(initialize=100.2,doc='Ethanol inhibition on xylose uptake [g/kg]')
-    m.gamma_X=pe.Param(initialize=0.608,doc='Ethanol inhibition on xylose uptake[-]')
-    m.Y_Eth_X=pe.Param(initialize=0.4,doc='Ethanol production from xylose uptake [kg/kg]')
-    m.Y_Cell_X=pe.Param(initialize=0.162,doc='Biomass growth on xylose [kg/kg]')
-    m.m_X=pe.Param(initialize=1.8611E-5,doc='Maintenance coefficient for biomass growth on xylose [1/s]')
-    m.qmax_X=pe.Param(initialize=0.00083444,doc='Maximum xylose uptake rate [1/s]')
-    m.KIP_ACT=pe.Param(initialize=2.5,doc='Acetate uptake self inhibition [g/kg]') #KACS in manuscript
-    m.KI_ACT_G=pe.Param(initialize=2.74,doc='Acetate inhibition on glucose uptake [g/kg]')
-    m.KI_ACT_X=pe.Param(initialize=0.2,doc='Acetate inhibition on xylose uptake [g/kg]')
-    m.Y_ACT_HMF=pe.Param(initialize=0.23392,doc='Acetate production from 5HMF uptake [kg/kg]')
-    m.Y_CO2_HMF=pe.Param(initialize=0.1,doc='CO2 production from 5HMF uptake [kg/kg]') #YCO2S in table
-    m.qmax_ATC=pe.Param(initialize=1.2292E-5,doc='Maximum acetate uptake rate [1/s]')
-    m.KIP_HMF=pe.Param(initialize=0.5,doc='5HMF uptake self inhibition [g/kg]') #KHMF_S in table
-    m.KI_HMF_G=pe.Param(initialize=2,doc='5HMF inhibition on glucose uptake [g/kg]')
-    m.KI_HMF_X=pe.Param(initialize=10,doc='5HMF inhibition on xylose uptake [g/kg]')
-    m.qmax_HMF=pe.Param(initialize=8.7576E-5,doc='Maximum 5HMF uptake rate [1/s]')
+#     m.Y_CO2_G=pe.Param(initialize=0.47,doc='CO2 production from glucose uptake [kg/kg]')
+#     m.Y_CO2_X=pe.Param(initialize=0.4,doc='CO2 production from xylose uptake [kg/kg]')
+#     m.KI_F_S=pe.Param(initialize=0.05,doc='Furfural uptake self inhibition constant [g/kg]')
+#     m.KI_F_G=pe.Param(initialize=0.75,doc='Glucose inhibition on furfural uptake [g/kg]')
+#     m.KI_HMF_F=pe.Param(initialize=0.25,doc='Furfural inhibition on 5-HMF uptake [g/kg]')
+#     m.KI_F_X=pe.Param(initialize=0.35,doc='Xylose inhibition on furfural uptake [g/kg]')
+#     m.qmax_F=pe.Param(initialize=4.6706E-5,doc='Maximum furfural uptake [1/s]')
+#     m.KIP_G=pe.Param(initialize=4890,doc='Glucose uptake self inhibition parameter [g/kg]')
+#     m.KSP_G=pe.Param(initialize=1.342,doc='Glucose uptake self inhibition parameter [g/kg]')
+#     m.PMP_G=pe.Param(initialize=103,doc='Ethanol inhibition in glucose uptake [g/kg]')
+#     m.gamma_G=pe.Param(initialize=1.42,doc='Ethanol inhibition in glucose uptake [-]')
+#     m.Y_Eth_G=pe.Param(initialize=0.47,doc='Ethanol production from glucoe uptake [kg/kg]')
+#     m.Y_Cell_G=pe.Param(initialize=0.115,doc='Biomass growth on glucose [kg/kg]')
+#     m.m_G=pe.Param(initialize=2.6944E-5,doc='Maintenance coefficient for biomass growth on glucose [1/s]')
+#     m.qmax_G=pe.Param(initialize=0.000318,doc='Maximum glucose uptake rate [1/s]')
+#     m.KIP_X=pe.Param(initialize=81.3,doc='Xylose uptake self inhibition parameter [g/kg]')
+#     m.KSP_X=pe.Param(initialize=3.4,doc='Xylose uptake self inhibition parameter [g/kg]')
+#     m.PMP_X=pe.Param(initialize=100.2,doc='Ethanol inhibition on xylose uptake [g/kg]')
+#     m.gamma_X=pe.Param(initialize=0.608,doc='Ethanol inhibition on xylose uptake[-]')
+#     m.Y_Eth_X=pe.Param(initialize=0.4,doc='Ethanol production from xylose uptake [kg/kg]')
+#     m.Y_Cell_X=pe.Param(initialize=0.162,doc='Biomass growth on xylose [kg/kg]')
+#     m.m_X=pe.Param(initialize=1.8611E-5,doc='Maintenance coefficient for biomass growth on xylose [1/s]')
+#     m.qmax_X=pe.Param(initialize=0.00083444,doc='Maximum xylose uptake rate [1/s]')
+#     m.KIP_ACT=pe.Param(initialize=2.5,doc='Acetate uptake self inhibition [g/kg]') #KACS in manuscript
+#     m.KI_ACT_G=pe.Param(initialize=2.74,doc='Acetate inhibition on glucose uptake [g/kg]')
+#     m.KI_ACT_X=pe.Param(initialize=0.2,doc='Acetate inhibition on xylose uptake [g/kg]')
+#     m.Y_ACT_HMF=pe.Param(initialize=0.23392,doc='Acetate production from 5HMF uptake [kg/kg]')
+#     m.Y_CO2_HMF=pe.Param(initialize=0.1,doc='CO2 production from 5HMF uptake [kg/kg]') #YCO2S in table
+#     m.qmax_ATC=pe.Param(initialize=1.2292E-5,doc='Maximum acetate uptake rate [1/s]')
+#     m.KIP_HMF=pe.Param(initialize=0.5,doc='5HMF uptake self inhibition [g/kg]') #KHMF_S in table
+#     m.KI_HMF_G=pe.Param(initialize=2,doc='5HMF inhibition on glucose uptake [g/kg]')
+#     m.KI_HMF_X=pe.Param(initialize=10,doc='5HMF inhibition on xylose uptake [g/kg]')
+#     m.qmax_HMF=pe.Param(initialize=8.7576E-5,doc='Maximum 5HMF uptake rate [1/s]')
 
-    # TODO: NOT PROVIDED!!
-    m.K0G=pe.Param(initialize=1,doc='Parameter for pH dependency in glucose rate of fermentation model')
-    m.K1G=pe.Param(initialize=1,doc='Parameter for pH dependency in glucose rate of fermentation model')
-    m.K2G=pe.Param(initialize=1,doc='Parameter for pH dependency in glucose rate of fermentation model')
-    #----- Initical conditions  ----------------------------------
+#     # TODO: NOT PROVIDED!!
+#     m.K0G=pe.Param(initialize=1,doc='Parameter for pH dependency in glucose rate of fermentation model')
+#     m.K1G=pe.Param(initialize=1,doc='Parameter for pH dependency in glucose rate of fermentation model')
+#     m.K2G=pe.Param(initialize=1,doc='Parameter for pH dependency in glucose rate of fermentation model')
+#     #----- Initical conditions  ----------------------------------
 
-    _C0={}
-    ...
-    m.C0=pe.Param(m.j,initialize=_C0,doc='Initial concentration of the components involved [g/kg]')
-    m.M0=pe.Param(m.j,initialize=,doc='Initial hold up in the reactor [kg]')
-
-
-    # ----- Feed --------------------------------------------------
-    _Fin={}
-    ...
-    m.Fin=pe.Param(m.t,initialize=_Fin,doc='Feed flow [kg/s]')
-
-    _Cin={}
-    ...
-    m.Cin=pe.Param(m.t,m.j,initialize=_Cin,doc='Feed composition [g/kg]')
-
-    _Fout={}
-    ...
-    m.Fout=pe.Param(m.t,initialize=_Fout,doc='Output flow [kg/s]')
-
-    #---- Variables from hydrolisis model
-    m.Ce=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
-    m.Cef=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
-    m.Ceb=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
-    m.CebC=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to cellulose g/kg')
-    m.CebX=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to xylan g/kg')
-    m.r1=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to cellobiose rate, g/kg s')
-    m.r2=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to glucose rate, g/kg s')
-    m.r3=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellobiose to glucose rate, g/kg s')
-    m.r4=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to xylose rate, g/kg s')
-    m.r5=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to acetic acid rate, g/kg s')
-
-    #---- main variables -------------------------------------------------------------
-    m.C=pe.Var(m.t, m.j, initialize=1,within=pe.NonNegativeReals, doc='Concentrations, units of g/kg') #bounds=(0, 10000))
-    m.M=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Fermenter hold-up in kg') #MAXIMUM HOLD UP IN m^3 is 250   The fermentation tank is filled up to 220 t with a constant feed rate calculated as the sum between the enzymatic hydrolysis outflow rate and the C5 liquid from the pretreatment process
-    m.R = pe.Var(m.t, m.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
-
-    # ---------Reaction kinetic expresions for fermentation part -------------------------
-
-    m.q=pe.Var(m.t,m.j,initialize=1,within=pe.NonNegativeReals,doc='fermentation reactions kinetic expresions [g/kg s]')
-
-    #---------derivative variables-------------------------------------------
-    m.dCdt=dae.DerivativeVar(m.C,wrt=m.t)
-    m.dMdt=dae.DerivativeVar(m.M,wrt=m.t)
-
-    #--------constraitns----------------------------------------------------
-
-    # Total balance differential equation
-    def _Diff_mass(m,t):    
-        if t==m.t.first(): #Initial condition
-            return m.M[t] == m.M0
-        else:
-            return  m.dMdt[t] == m.final_time*(m.Fin[t] - m.Fout[t]) 
-        -m.vx*m.dCdx[t,x,j] +m.R[t,x,j]            
-    m.Diff_mass=pe.Constraint(m.t,rule=_Diff_mass)
-
-    # Balance per component equation
-    def _Diff_comp(m,t,j):
-    #   if any(j == jp for jp in ['C','G', 'X', 'F', 'E','AC']): # NOTE: According to prunescu model, diffusivity effects are only considered in the liquid fraction of the slurry  
-        if t==m.t.first(): #Initial condition
-            return m.C[t,j] == m.C0[j]
-        else:
-            return  m.M[t]*m.dCdt[t,j]== m.final_time*(m.Fin[t]*(m.Cin[t,j]-m.C[t,j])) + m.R[t,j] 
-    m.Diff_comp=pe.Constraint(m.t,m.j,rule=_Diff_comp)
+#     _C0={}
+#     ...
+#     m.C0=pe.Param(m.j,initialize=_C0,doc='Initial concentration of the components involved [g/kg]')
+#     m.M0=pe.Param(m.j,initialize=,doc='Initial hold up in the reactor [kg]')
 
 
+#     # ----- Feed --------------------------------------------------
+#     _Fin={}
+#     ...
+#     m.Fin=pe.Param(m.t,initialize=_Fin,doc='Feed flow [kg/s]')
+
+#     _Cin={}
+#     ...
+#     m.Cin=pe.Param(m.t,m.j,initialize=_Cin,doc='Feed composition [g/kg]')
+
+#     _Fout={}
+#     ...
+#     m.Fout=pe.Param(m.t,initialize=_Fout,doc='Output flow [kg/s]')
+
+#     #---- Variables from hydrolisis model
+#     m.Ce=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+#     m.Cef=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+#     m.Ceb=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+#     m.CebC=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to cellulose g/kg')
+#     m.CebX=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to xylan g/kg')
+#     m.r1=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to cellobiose rate, g/kg s')
+#     m.r2=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to glucose rate, g/kg s')
+#     m.r3=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellobiose to glucose rate, g/kg s')
+#     m.r4=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to xylose rate, g/kg s')
+#     m.r5=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to acetic acid rate, g/kg s')
+
+#     #---- main variables -------------------------------------------------------------
+#     m.C=pe.Var(m.t, m.j, initialize=1,within=pe.NonNegativeReals, doc='Concentrations, units of g/kg') #bounds=(0, 10000))
+#     m.M=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Fermenter hold-up in kg') #MAXIMUM HOLD UP IN m^3 is 250   The fermentation tank is filled up to 220 t with a constant feed rate calculated as the sum between the enzymatic hydrolysis outflow rate and the C5 liquid from the pretreatment process
+#     m.R = pe.Var(m.t, m.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
+
+#     # ---------Reaction kinetic expresions for fermentation part -------------------------
+
+#     m.q=pe.Var(m.t,m.j,initialize=1,within=pe.NonNegativeReals,doc='fermentation reactions kinetic expresions [g/kg s]')
+
+#     #---------derivative variables-------------------------------------------
+#     m.dCdt=dae.DerivativeVar(m.C,wrt=m.t)
+#     m.dMdt=dae.DerivativeVar(m.M,wrt=m.t)
+
+#     #--------constraitns----------------------------------------------------
+
+#     # Total balance differential equation
+#     def _Diff_mass(m,t):    
+#         if t==m.t.first(): #Initial condition
+#             return m.M[t] == m.M0
+#         else:
+#             return  m.dMdt[t] == m.final_time*(m.Fin[t] - m.Fout[t]) 
+#         -m.vx*m.dCdx[t,x,j] +m.R[t,x,j]            
+#     m.Diff_mass=pe.Constraint(m.t,rule=_Diff_mass)
+
+#     # Balance per component equation
+#     def _Diff_comp(m,t,j):
+#     #   if any(j == jp for jp in ['C','G', 'X', 'F', 'E','AC']): # NOTE: According to prunescu model, diffusivity effects are only considered in the liquid fraction of the slurry  
+#         if t==m.t.first(): #Initial condition
+#             return m.C[t,j] == m.C0[j]
+#         else:
+#             return  m.M[t]*m.dCdt[t,j]== m.final_time*(m.Fin[t]*(m.Cin[t,j]-m.C[t,j])) + m.R[t,j] 
+#     m.Diff_comp=pe.Constraint(m.t,m.j,rule=_Diff_comp)
 
 
 
-    # Definition of fermentation kinetic expresions
-    def _q_definition(m,t,j):
-        if j=='G': 
-            # qmaxGpH=(   m.qmax_G*(m.K0G/(1+((10**m.pH[t])/m.K1G)+(m.K2G/(10**m.pH[t]))))   )
-            # qEthG=(   qmaxGpH*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )
-            # IEthG=(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )          
-            # IFG=(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )
-            # IAG=(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )
-            # IHMFG=(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
-            # qEthGI=qEthG*IEthG*IFG*IAG*IHMFG
-            # return m.q[t,j] == (1/m.Y_Eth_G)*qEthGI        
-            return m.q[t,j] == (1/m.Y_Eth_G)*(   (   m.qmax_G*(m.K0G/(1+((10**m.pH[t])/m.K1G)+(m.K2G/(10**m.pH[t]))))   )*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )*(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )*(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )*(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )*(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
+
+
+#     # Definition of fermentation kinetic expresions
+#     def _q_definition(m,t,j):
+#         if j=='G': 
+#             # qmaxGpH=(   m.qmax_G*(m.K0G/(1+((10**m.pH[t])/m.K1G)+(m.K2G/(10**m.pH[t]))))   )
+#             # qEthG=(   qmaxGpH*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )
+#             # IEthG=(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )          
+#             # IFG=(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )
+#             # IAG=(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )
+#             # IHMFG=(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
+#             # qEthGI=qEthG*IEthG*IFG*IAG*IHMFG
+#             # return m.q[t,j] == (1/m.Y_Eth_G)*qEthGI        
+#             return m.q[t,j] == (1/m.Y_Eth_G)*(   (   m.qmax_G*(m.K0G/(1+((10**m.pH[t])/m.K1G)+(m.K2G/(10**m.pH[t]))))   )*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )*(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )*(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )*(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )*(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
             
-        elif j=='X':
+#         elif j=='X':
 
 
-            return m.q[t,j]=()*
-
-
-
-    m.q_definition=pe.Constraint(m.t,m.j, rule=_q_definition)
+#             return m.q[t,j]=()*
 
 
 
+#     m.q_definition=pe.Constraint(m.t,m.j, rule=_q_definition)
 
 
 
@@ -1545,34 +1553,37 @@ def build_fermentation_convergence_test1():
 
 
 
-    # TODO: INCLUDE HERE ALL THE HYDROLISIS EQUATIONS THAT ARE NEEDED HERE TOO!!!!
+
+
+
+#     # TODO: INCLUDE HERE ALL THE HYDROLISIS EQUATIONS THAT ARE NEEDED HERE TOO!!!!
 
 
 
 
 
-    # Definition of reaction rates
-    def _R_definition(m,t,j):
-        if j=='CS':              
-            return m.R[t,x,j] == -m.r1[t,x]-m.r2[t,x] #Cellulose->Cellobiose (r1), #Cellulose->Glucose (r2) 
-        elif j=='XS':
-            return m.R[t,x,j] == -m.r4[t,x]-m.r5[t,x] #Xylan->Xylose (r4), #Xylan->Acetic Acid (r5)
-        elif j=='LS':
-            return m.R[t,x,j] == 0 
-        elif j=='C':
-            return m.R[t,x,j] == m.r1[t,x]-m.r3[t,x]     #Cellulose->Cellobiose (r1),  #Cellobiose->Glucose (r3)
-        elif j=='G':
-            return m.R[t,x,j] == m.r2[t,x]+m.r3[t,x]      #Cellulose->Glucose (r2), #Cellobiose->Glucose (r3)
-        elif j=='X':
-            return m.R[t,x,j] == m.r4[t,x] #Xylan->Xylose (r4)
-        elif j=='F':
-            return m.R[t,x,j] == 0
-        elif j=='E':
-            return m.R[t,x,j] == 0 #NOTE: Deactivation of enzymes is not considered in Prunescu work
-        elif j=='AC':
-            return m.R[t,x,j] == m.r5[t,x] #Xylan->Acetic Acid (r5)   
+#     # Definition of reaction rates
+#     def _R_definition(m,t,j):
+#         if j=='CS':              
+#             return m.R[t,x,j] == -m.r1[t,x]-m.r2[t,x] #Cellulose->Cellobiose (r1), #Cellulose->Glucose (r2) 
+#         elif j=='XS':
+#             return m.R[t,x,j] == -m.r4[t,x]-m.r5[t,x] #Xylan->Xylose (r4), #Xylan->Acetic Acid (r5)
+#         elif j=='LS':
+#             return m.R[t,x,j] == 0 
+#         elif j=='C':
+#             return m.R[t,x,j] == m.r1[t,x]-m.r3[t,x]     #Cellulose->Cellobiose (r1),  #Cellobiose->Glucose (r3)
+#         elif j=='G':
+#             return m.R[t,x,j] == m.r2[t,x]+m.r3[t,x]      #Cellulose->Glucose (r2), #Cellobiose->Glucose (r3)
+#         elif j=='X':
+#             return m.R[t,x,j] == m.r4[t,x] #Xylan->Xylose (r4)
+#         elif j=='F':
+#             return m.R[t,x,j] == 0
+#         elif j=='E':
+#             return m.R[t,x,j] == 0 #NOTE: Deactivation of enzymes is not considered in Prunescu work
+#         elif j=='AC':
+#             return m.R[t,x,j] == m.r5[t,x] #Xylan->Acetic Acid (r5)   
 
-    m.R_definition=pe.Constraint(m.t,m.j, rule=_R_definition)
+#     m.R_definition=pe.Constraint(m.t,m.j, rule=_R_definition)
 
 
 
@@ -1587,7 +1598,7 @@ if __name__ == '__main__':
     # # 1: SOLUTION OF THE PROBLEM USING A MODEL THAT IGNORES DIFFUSION EFFECTS
     # m=build_hydrolisis_convergence_tests1(time=sim_time,discretization=discretization_type,n_f_elements_x=finite_elem_x,n_f_elements_t=finite_elem_t) # Simplest version of the model that completely ignores diffusion effects
     # opt1 = SolverFactory('gams')
-    # results = opt1.solve(m, solver='knitro', tee=True)
+    # results = opt1.solve(m, solver='knitro', tee=False)
     # generate_initialization(m=m,model_name='validation_hydrolisis_1')
 
     # # # PLOT GENERATION
@@ -1628,7 +1639,7 @@ if __name__ == '__main__':
     #     for x in m.x:
     #         m.D[t,x].set_value((m.Boltzmann*m.T)/(6*math.pi*   (((3*m.MW_soluble)/(4*math.pi*m.Avogadro*m.rho_soluble))**(1/3))           *     (((A_W*pe.exp(B_W/m.T))          +       (pe.value(m.C[t,x,'G'])*m.rho_soluble*A_G*pe.exp(B_G/m.T))    )*(1/1000))             ))
     # opt1 = SolverFactory('gams')
-    # results = opt1.solve(m, solver='conopt4', tee=True)
+    # results = opt1.solve(m, solver='conopt4', tee=False)
     # generate_initialization(m=m,model_name='validation_hydrolisis_2')
 
     # # # PLOT GENERATION
@@ -1660,7 +1671,7 @@ if __name__ == '__main__':
     # m=build_hydrolisis_convergence_test3(time=sim_time,discretization=discretization_type,n_f_elements_x=finite_elem_x,n_f_elements_t=finite_elem_t)
     # m=initialize_model(m,from_feasible=True,feasible_model='validation_hydrolisis_2')
     # opt1 = SolverFactory('gams')
-    # results = opt1.solve(m, solver='conopt4', tee=True)
+    # results = opt1.solve(m, solver='conopt4', tee=False)
     # generate_initialization(m=m,model_name='validation_hydrolisis_3')
 
 
@@ -1752,7 +1763,7 @@ if __name__ == '__main__':
     m=initialize_model(m,from_feasible=True,feasible_model='validation_hydrolisis_3')
     opt1 = SolverFactory('gams')
     results = opt1.solve(m, solver='conopt4', tee=True)
-    generate_initialization(m=m,model_name='validation_hydrolisis_4')
+    generate_initialization(m=m,model_name='validation_hydrolisis_5')
 
  # PLOT GENERATION
     time=[]
@@ -1819,8 +1830,8 @@ if __name__ == '__main__':
 
     # SOLID FRACTION
     plt.plot(space,solid_fract[t],'k')
-    # original = pd.read_csv('biorefinery_models/solfrac_hydrolisis.csv', header=None)
-    # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
+    original = pd.read_csv('biorefinery_models/solid_hydrolisis.csv', header=None)
+    plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
     plt.xlabel('length [m]')
     plt.ylabel('Solid fraction [%]')
     plt.legend()
@@ -1828,8 +1839,8 @@ if __name__ == '__main__':
 
     # pH
     plt.plot(space,pH[t],'k')
-    # original = pd.read_csv('biorefinery_models/solfrac_hydrolisis.csv', header=None)
-    # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
+    original = pd.read_csv('biorefinery_models/ph_hydrolisis.csv', header=None)
+    plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
     plt.xlabel('length [m]')
     plt.ylabel('pH')
     plt.legend()
