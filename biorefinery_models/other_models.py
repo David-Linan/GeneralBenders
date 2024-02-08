@@ -9153,11 +9153,11 @@ def build_fermentation_convergence_testFinal6(discretization: str='collocation',
 
 if __name__ == '__main__':
 
-    # # PARAMETERS
-    # sim_time=72000 #seconds
-    # discretization_type='collocation'#'collocation' #'differences'
-    # finite_elem_x=6 # According to prunescu the first hydrolisis reactor is discretized into 6 cells
-    # finite_elem_t=5
+    # PARAMETERS
+    sim_time=72000 #seconds
+    discretization_type='collocation'#'collocation' #'differences'
+    finite_elem_x=6 # According to prunescu the first hydrolisis reactor is discretized into 6 cells
+    finite_elem_t=5
 
 #     # # 1: SOLUTION OF THE PROBLEM USING A MODEL THAT IGNORES DIFFUSION EFFECTS
 #     # m=build_hydrolisis_convergence_tests1(time=sim_time,discretization=discretization_type,n_f_elements_x=finite_elem_x,n_f_elements_t=finite_elem_t) # Simplest version of the model that completely ignores diffusion effects
@@ -9322,102 +9322,102 @@ if __name__ == '__main__':
 #     # #     plt.show()
 
 
-#     # 4: SOLUTION OF THE PROBLEM USING A MODEL THAT CONSIDERS DIFFUSION EFFECTS AND pH MODEL
-#     m=build_hydrolisis_convergence_test4(time=sim_time,discretization=discretization_type,n_f_elements_x=finite_elem_x,n_f_elements_t=finite_elem_t)
-#     m=initialize_model(m,from_feasible=True,feasible_model='validation_hydrolisis_3')
-#     opt1 = SolverFactory('gams')
-#     results = opt1.solve(m, solver='conopt4', tee=True)
-#     generate_initialization(m=m,model_name='validation_hydrolisis_5')
+    # 4: SOLUTION OF THE PROBLEM USING A MODEL THAT CONSIDERS DIFFUSION EFFECTS AND pH MODEL
+    m=build_hydrolisis_convergence_test4(time=sim_time,discretization=discretization_type,n_f_elements_x=finite_elem_x,n_f_elements_t=finite_elem_t)
+    m=initialize_model(m,from_feasible=True,feasible_model='validation_hydrolisis_3')
+    opt1 = SolverFactory('gams')
+    results = opt1.solve(m, solver='conopt4', tee=True)
+    generate_initialization(m=m,model_name='validation_hydrolisis_5')
 
-#  # PLOT GENERATION
-#     time=[]
-#     space=[]
-#     vec={}
-#     slurry_mu={}
-#     solid_fract={}
-#     pH={}
+ # PLOT GENERATION
+    time=[]
+    space=[]
+    vec={}
+    slurry_mu={}
+    solid_fract={}
+    pH={}
 
-#     for x in m.x:
-#         space.append(x)
+    for x in m.x:
+        space.append(x)
 
-#     for t in m.t:
-#         time.append(t)
-#         for j in m.j:
-#             vec[(j,t)]=[]
-#             for x in m.x:
-#                 vec[(j,t)].append(m.C[t,x,j].value)
+    for t in m.t:
+        time.append(t)
+        for j in m.j:
+            vec[(j,t)]=[]
+            for x in m.x:
+                vec[(j,t)].append(m.C[t,x,j].value)
 
-#     for t in m.t:
-#         slurry_mu[t]=[]
-#         solid_fract[t]=[]
-#         pH[t]=[]
-#         for x in m.x:
-#             slurry_mu[t].append(m.slurry_mu[t,x].value)
-#             solid_fract[t].append(100*(1/1000)*m.conv_fact_sol*(m.C[t,x,'CS'].value+m.C[t,x,'XS'].value+m.C[t,x,'LS'].value))
-#             pH[t].append(m.pH[x,t].value)
+    for t in m.t:
+        slurry_mu[t]=[]
+        solid_fract[t]=[]
+        pH[t]=[]
+        for x in m.x:
+            slurry_mu[t].append(m.slurry_mu[t,x].value)
+            solid_fract[t].append(100*(1/1000)*m.conv_fact_sol*(m.C[t,x,'CS'].value+m.C[t,x,'XS'].value+m.C[t,x,'LS'].value))
+            pH[t].append(m.pH[x,t].value)
              
 
-#     # # PLOT AT STEADY STATE
-#     # t=m.t.last()
-#     # for j in m.j:
-#     #     if j !='E':
+    # # PLOT AT STEADY STATE
+    # t=m.t.last()
+    # for j in m.j:
+    #     if j !='E':
         
-#     #         plt.plot(space,vec[(j,t)],label=j)
-#     #         plt.xlabel('length [m]')
-#     #         plt.ylabel('Concentration [g/kg]')
-#     # plt.legend()
-#     # plt.show()
+    #         plt.plot(space,vec[(j,t)],label=j)
+    #         plt.xlabel('length [m]')
+    #         plt.ylabel('Concentration [g/kg]')
+    # plt.legend()
+    # plt.show()
 
-#     # VALIDATION PLOT
-#     colors=['b','g','m','r','k']
-#     t=m.t.last()
-#     contador=-1
-#     for j in m.j:
-#         if any(j==c for c in ['XS','CS','C','G','X']):
-#             contador=contador+1
-#             plt.plot(space,vec[(j,t)],colors[contador],label=j)
-#             original = pd.read_csv('biorefinery_models/'+j+'_hydrolisis.csv', header=None)
-#             plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
-#             plt.xlabel('length [m]')
-#             plt.ylabel('Concentration [g/kg]')
-#     plt.legend()
-#     plt.show()
+    # VALIDATION PLOT
+    colors=['b','g','m','r','k']
+    t=m.t.last()
+    contador=-1
+    for j in m.j:
+        if any(j==c for c in ['XS','CS','C','G','X']):
+            contador=contador+1
+            plt.plot(space,vec[(j,t)],colors[contador],label=j)
+            original = pd.read_csv('biorefinery_models/'+j+'_hydrolisis.csv', header=None)
+            plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('length [m]')
+            plt.ylabel('Concentration [g/kg]')
+    plt.legend()
+    plt.show()
 
-#     # VISCOSITY PLOT
-#     plt.plot(space,slurry_mu[t],'k')
-#     original = pd.read_csv('biorefinery_models/viscosity_hydrolisis.csv', header=None)
-#     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
-#     plt.xlabel('length [m]')
-#     plt.ylabel('Slurry viscosity [g/m s]')
-#     plt.legend()
-#     plt.show()
+    # VISCOSITY PLOT
+    plt.plot(space,slurry_mu[t],'k')
+    original = pd.read_csv('biorefinery_models/viscosity_hydrolisis.csv', header=None)
+    plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
+    plt.xlabel('length [m]')
+    plt.ylabel('Slurry viscosity [g/m s]')
+    plt.legend()
+    plt.show()
 
-#     # SOLID FRACTION
-#     plt.plot(space,solid_fract[t],'k')
-#     original = pd.read_csv('biorefinery_models/solid_hydrolisis.csv', header=None)
-#     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
-#     plt.xlabel('length [m]')
-#     plt.ylabel('Solid fraction [%]')
-#     plt.legend()
-#     plt.show()
+    # SOLID FRACTION
+    plt.plot(space,solid_fract[t],'k')
+    original = pd.read_csv('biorefinery_models/solid_hydrolisis.csv', header=None)
+    plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
+    plt.xlabel('length [m]')
+    plt.ylabel('Solid fraction [%]')
+    plt.legend()
+    plt.show()
 
-#     # pH
-#     plt.plot(space,pH[t],'k')
-#     original = pd.read_csv('biorefinery_models/ph_hydrolisis.csv', header=None)
-#     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
-#     plt.xlabel('length [m]')
-#     plt.ylabel('pH')
-#     plt.legend()
-#     plt.show()
+    # pH
+    plt.plot(space,pH[t],'k')
+    original = pd.read_csv('biorefinery_models/ph_hydrolisis.csv', header=None)
+    plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--k')
+    plt.xlabel('length [m]')
+    plt.ylabel('pH')
+    plt.legend()
+    plt.show()
 
-#     # # PLOTS FOR EVERY COMPONENT AND EVERY POINT IN TIME
-#     # for j in m.j:
-#     #     for t in m.t:
-#     #         plt.plot(space,vec[(j,t)],label=str(t)+' [s]')
-#     #         plt.xlabel('length [m]')
-#     #         plt.ylabel(j+' [g/kg]')
-#     #     plt.legend()
-#     #     plt.show()
+    # # PLOTS FOR EVERY COMPONENT AND EVERY POINT IN TIME
+    # for j in m.j:
+    #     for t in m.t:
+    #         plt.plot(space,vec[(j,t)],label=str(t)+' [s]')
+    #         plt.xlabel('length [m]')
+    #         plt.ylabel(j+' [g/kg]')
+    #     plt.legend()
+    #     plt.show()
 
 
     # 5: Fermentation
@@ -9491,24 +9491,24 @@ if __name__ == '__main__':
     # results = opt1.solve(m, solver='conopt4', tee=True)
     # generate_initialization(m=m,model_name='validation_fermentation_20')
 
-    m=build_fermentation_convergence_testFinal4(discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer,conv_param=1)
-    m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_20')
-    # opt1 = SolverFactory('gams')
-    # results = opt1.solve(m, solver='conopt4', tee=True)
-    # generate_initialization(m=m,model_name='validation_fermentation_21')
+    # m=build_fermentation_convergence_testFinal4(discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer,conv_param=1)
+    # m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_20')
+    # # opt1 = SolverFactory('gams')
+    # # results = opt1.solve(m, solver='conopt4', tee=True)
+    # # generate_initialization(m=m,model_name='validation_fermentation_21')
 
-    time=[]
-    vec={}
-    pH=[]
+    # time=[]
+    # vec={}
+    # pH=[]
 
-    for t in m.t:
-        time.append(t*m.final_time*(1/60)*(1/60))
-        pH.append(m.pH[t].value)
+    # for t in m.t:
+    #     time.append(t*m.final_time*(1/60)*(1/60))
+    #     pH.append(m.pH[t].value)
 
-    for j in m.j:
-        vec[j]=[]
-        for t in m.t:
-            vec[j].append(m.C[t,j].value)
+    # for j in m.j:
+    #     vec[j]=[]
+    #     for t in m.t:
+    #         vec[j].append(m.C[t,j].value)
 
     # # for j in m.j:
 
@@ -9550,40 +9550,40 @@ if __name__ == '__main__':
     # plt.ylabel('pH')
     # plt.show()
 
-    # DATA TO ADJUST PARAMETERS
-    colors=['b','g','m','r','k','y','c']
-    adjust_data={}
-    contador=-1
-    for j in m.j:
-        if j=='G' or j=='X' or j=='Eth' or j=='Cell' or  j=='CS' or j=='XS' or j=='E':
-            contador=contador+1
-            original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
-            adjust_data[j]=[]
-            for t in m.t:
-                adjusted_t=t*m.final_time*(1/60)*(1/60)
-                adjust_data[j].append(max([np.interp(adjusted_t,original.iloc[:, 0],original.iloc[:, 1]),0]))
-            # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
-            # plt.plot(time,adjust_data[j],colors[contador],label=j)
-    # plt.xlabel('time [h]')
-    # plt.ylabel('Concentration [g/kg]')
-    # plt.legend()
-    # plt.show()
+    # # DATA TO ADJUST PARAMETERS
+    # colors=['b','g','m','r','k','y','c']
+    # adjust_data={}
+    # contador=-1
+    # for j in m.j:
+    #     if j=='G' or j=='X' or j=='Eth' or j=='Cell' or  j=='CS' or j=='XS' or j=='E':
+    #         contador=contador+1
+    #         original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
+    #         adjust_data[j]=[]
+    #         for t in m.t:
+    #             adjusted_t=t*m.final_time*(1/60)*(1/60)
+    #             adjust_data[j].append(max([np.interp(adjusted_t,original.iloc[:, 0],original.iloc[:, 1]),0]))
+    #         # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+    #         # plt.plot(time,adjust_data[j],colors[contador],label=j)
+    # # plt.xlabel('time [h]')
+    # # plt.ylabel('Concentration [g/kg]')
+    # # plt.legend()
+    # # plt.show()
 
 
 
 
-    m=build_fermentation_convergence_testFinal5_adjust(discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer,conv_param=1,data=adjust_data)
-    m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_21')
-    opt1 = SolverFactory('gams')
-    results = opt1.solve(m, solver='conopt4', tee=True)
-    generate_initialization(m=m,model_name='validation_fermentation_22')
+    # m=build_fermentation_convergence_testFinal5_adjust(discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer,conv_param=1,data=adjust_data)
+    # m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_21')
+    # opt1 = SolverFactory('gams')
+    # results = opt1.solve(m, solver='conopt4', tee=True)
+    # generate_initialization(m=m,model_name='validation_fermentation_22')
 
-    m.K0G.pprint()
-    m.K1G.pprint()
-    m.K2G.pprint()
-    m.K0X.pprint()
-    m.K1X.pprint()
-    m.K2X.pprint()
+    # m.K0G.pprint()
+    # m.K1G.pprint()
+    # m.K2G.pprint()
+    # m.K0X.pprint()
+    # m.K1X.pprint()
+    # m.K2X.pprint()
 
 
     m=build_fermentation_convergence_testFinal6(discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer)
@@ -9591,6 +9591,19 @@ if __name__ == '__main__':
     opt1 = SolverFactory('gams')
     results = opt1.solve(m, solver='conopt4', tee=True)
     generate_initialization(m=m,model_name='validation_fermentation_23')
+
+    time=[]
+    vec={}
+    pH=[]
+
+    for t in m.t:
+        time.append(t*m.final_time*(1/60)*(1/60))
+        pH.append(m.pH[t].value)
+
+    for j in m.j:
+        vec[j]=[]
+        for t in m.t:
+            vec[j].append(m.C[t,j].value)
 
     colors=['b','g','m','r','k','y','c']
     contador=-1
