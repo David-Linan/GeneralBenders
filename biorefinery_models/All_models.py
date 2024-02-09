@@ -347,20 +347,34 @@ def build_hydrolisis(time: float=170*(3600),discretization: str='collocation',n_
         if any(j == jp for jp in ['C','G', 'X', 'F', 'E','AC']): # NOTE: According to prunescu model, diffusivity effects are only considered in the liquid fraction of the slurry
             if t==m.t.first() and x>m.x.first() and x<m.x.last(): #Initial condition
                 return m.C[t,x,j] == m.C0[j]
-            elif x==m.x.first(): #boundary condition 1 #TODO: CHECK IF THIS IS CORRECT
+            elif x==m.x.first(): #boundary condition 1 
                 return m.C[t,x,j] == m.CFEED[j]
-            elif x==m.x.last():  #boundary condition 2 #TODO: CHECK IF THIS IS CORRECT
+            elif x==m.x.last():  #boundary condition 2 
                 return m.dCdx[t,x,j] == 0
             else:  # Partial differential equation
                 return  m.dCdt[t,x,j]== -m.vx*m.dCdx[t,x,j] + m.D[t,x]*m.dC2dx2[t,x,j]+m.dCdx[t,x,j]*m.dDdx[t,x]+m.R[t,x,j]
         else:
             if t==m.t.first() and x>m.x.first(): #Initial condition
                 return m.C[t,x,j] == m.C0[j]
-            elif x==m.x.first(): #boundary condition 1 #TODO: CHECK IF THIS IS CORRECT
+            elif x==m.x.first(): #boundary condition 1 
                 return m.C[t,x,j] == m.CFEED[j]
             else:  # Partial differential equation
                 return  m.dCdt[t,x,j]== -m.vx*m.dCdx[t,x,j] +m.R[t,x,j]            
     m.partialDiff=pe.Constraint(m.t,m.x,m.j,rule=_partialDiff)
+
+    # INITIAL CONDITION
+    # def _partialDiff_init(m,t,x,j):
+    #     if any(j == jp for jp in ['C','G', 'X', 'F', 'E','AC']): # NOTE: According to prunescu model, diffusivity effects are only considered in the liquid fraction of the slurry
+    #         if t==m.t.first() and x>m.x.first() and x<m.x.last(): #Initial condition
+    #             return m.C[t,x,j] == m.C0[j]
+    #         else: 
+    #             return  pe.Constraint.Skip
+    #     else:
+    #         if t==m.t.first() and x>m.x.first(): #Initial condition
+    #             return m.C[t,x,j] == m.C0[j]
+    #         else: 
+    #             return  pe.Constraint.Skip            
+    # m.partialDiff_init=pe.Constraint(m.t,m.x,m.j,rule=_partialDiff_init)   
 
 
     if discretization=='collocation':
@@ -680,6 +694,132 @@ def build_hydrolisis(time: float=170*(3600),discretization: str='collocation',n_
 
 
     return m
+
+def build_hydrolisis_cstr(m):
+
+    # Generating CSTR equations to model what happens at the exit of the first hydrolisis reactor
+    m_cstr=pe.ConcreteModel(name='CSTR hydrolisis reactor')
+    m_cstr.tau=pe.Param(initialize=140*3600-m.hyd.tR,doc='residence time of the CSTR reactor in seconds')
+
+    m_cstr.t=pe.Set(initialize=m.hyd.t)
+    m_cstr.j=pe.Set(initialize=m.hyd.j)
+    m_cstr.e=pe.Set(initialize=m.hyd.e)
+
+    m_cstr.alpha_enzymes=pe.Param(m_cstr.e,initialize=m.hyd.alpha_enzymes,doc='Fraction of each enzyme type (between 0 and 1)')
+    m_cstr.max_ads_enz=pe.Param(m_cstr.e,initialize=m.hyd.max_ads_enz,doc='Maximum adsorbed enzymes [-]')
+    m_cstr.k_ads=pe.Param(m_cstr.e,initialize=m.hyd.k_ads,doc='Adsorption constant [-]')
+
+
+    m_cstr.C=pe.Var(m_cstr.t, m_cstr.j, initialize=1,within=pe.NonNegativeReals, doc='Concentrations, units of g/kg') #bounds=(0, 10000))
+    m_cstr.Ce=pe.Var(m_cstr.t, m_cstr.e, initialize=1,within=pe.NonNegativeReals, doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m_cstr.Cef=pe.Var(m_cstr.t, m_cstr.e, initialize=1,within=pe.NonNegativeReals, doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m_cstr.Ceb=pe.Var(m_cstr.t,m_cstr.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m_cstr.CebC=pe.Var(m_cstr.t,  m_cstr.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to cellulose g/kg')
+    m_cstr.CebX=pe.Var(m_cstr.t, m_cstr.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to xylan g/kg')
+    m_cstr.r1=pe.Var(m_cstr.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to cellobiose rate, g/kg s')
+    m_cstr.r2=pe.Var(m_cstr.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to glucose rate, g/kg s')
+    m_cstr.r3=pe.Var(m_cstr.t,initialize=1,within=pe.NonNegativeReals, doc='Cellobiose to glucose rate, g/kg s')
+    m_cstr.r4=pe.Var(m_cstr.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to xylose rate, g/kg s')
+    m_cstr.r5=pe.Var(m_cstr.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to acetic acid rate, g/kg s')
+    m_cstr.R = pe.Var(m_cstr.t, m_cstr.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
+
+    m_cstr.eta=pe.Var(m_cstr.t,within=pe.NonNegativeReals,initialize=1,doc='temperature and pH dependence of reaction rates')
+    m_cstr.Cfeed=pe.Var(m_cstr.t, m_cstr.j, initialize=1,within=pe.NonNegativeReals, doc='Feed concentrations, units of g/kg')
+     
+    # enzyme balances
+    def _enzyme_fractions_cstr(m,t,e):
+        return m.Ce[t,e] == m.alpha_enzymes[e]*m.C[t,'E']
+    m_cstr.enzyme_fractions=pe.Constraint(m_cstr.t,m_cstr.e,rule=_enzyme_fractions_cstr)
+
+    def _bounded_free_equilibrium_cstr(m,t,e):
+        return m.Ce[t,e] == m.Ceb[t,e]  +    m.Cef[t,e]
+    m_cstr.bounded_free_equilibrium=pe.Constraint(m_cstr.t,m_cstr.e,rule=_bounded_free_equilibrium_cstr)
+
+    def _adsorbed_free_equilibrium_cstr(m,t,e): #NOTE: I am assuming that the concentration solids does not include enzymes. #TODO: check the effect of including them +sum(m_cstr.Ceb[t,x,e] for e in m_cstr.e)
+    
+        return (m.Ceb[t,e])/(m.C[t,'CS']+ m.C[t,'XS']+m.C[t,'LS']) == m.max_ads_enz[e]*((m.k_ads[e]*m.Cef[t,e])/(1+m.k_ads[e]*m.Cef[t,e]))
+
+    m_cstr.adsorbed_free_equilibrium=pe.Constraint(m_cstr.t,m_cstr.e,rule=_adsorbed_free_equilibrium_cstr)
+
+    def _bounded_enzyme_concentration_cstr(m,t,e):
+        if e=='1' or e=='2':                            # NOTE: that denominator is Solid concentration. modify if needed
+            return m.CebC[t,e] == m.Ceb[t,e]*((m.C[t,'CS'])/(m.C[t,'CS']+ m.C[t,'XS']+m.C[t,'LS'])) 
+        else:                                           # NOTE: that denominator is Solid concentration. modify if needed
+            return m.CebX[t,e] == m.Ceb[t,e]*((m.C[t,'XS'])/(m.C[t,'CS']+ m.C[t,'XS']+m.C[t,'LS']))
+    m_cstr.bounded_enzyme_concentration=pe.Constraint(m_cstr.t,m_cstr.e,rule=_bounded_enzyme_concentration_cstr)
+
+
+    # MODELING OF REACTIONS
+    def _r1_definition_cstr(m,t):
+        K1_r1=0.00034       # reaction rate constant, kg/(g*s)
+        IC1_r1=0.0014       # Inhibition of r1 by cellobiose, g/kg
+        IX1_r1=0.1007       # Inhibition of r1 by xylose, g/kg
+        IG1_r1=0.073        # Inhibition of r1 by glucose, g/kg
+        IF1_r1=10           #  Inhibition of r1 by furfural, g/kg
+        
+        return m.r1[t] == (K1_r1*m.eta[t]*m.CebC[t,'1']*m.C[t,'CS'])/(1+(m.C[t,'C']/IC1_r1)+(m.C[t,'X']/IX1_r1)+(m.C[t,'G']/IG1_r1)+(m.C[t,'F']/IF1_r1))
+    m_cstr.r1_definition=pe.Constraint(m_cstr.t,rule=_r1_definition_cstr)
+
+    def _r2_definition_cstr(m,t):
+        K2_r2=0.0023 #changed         # reaction rate constant, kg/(g*s)
+        IC2_r2=132          # Inhibition of r2 by cellobiose, g/kg
+        IX2_r2=0.029           # Inhibition of r2 by xylose, g/kg
+        IG2_r2=0.34          # Inhibition of r2 by glucose, g/kg
+        IF2_r2=10          #  Inhibition of r2 by furfural, g/kg
+        return m.r2[t] == (K2_r2*m.eta[t]*(m.CebC[t,'1']+m.CebC[t,'2'])*m.C[t,'CS'])/(1+(m.C[t,'C']/IC2_r2)+(m.C[t,'X']/IX2_r2)+(m.C[t,'G']/IG2_r2)+(m.C[t,'F']/IF2_r2))
+    m_cstr.r2_definition=pe.Constraint(m_cstr.t,rule=_r2_definition_cstr)
+
+    def _r3_definition_cstr(m,t):
+        K3_r3=0.07                # reaction rate constant, kg/(g*s)
+        I3_r3=24.3               #overall inhibition term for r3, g/kg
+        IX3_r3= 201              # Inhibition of r3 by xylose, g/kg
+        IG3_r3= 3.9             # Inhibition of r3 by glucose, g/kg
+        IF3_r3=10               #  Inhibition of r3 by furfural, g/kg
+        return m.r3[t] == (K3_r3*m.eta[t]* m.Cef[t,'2']*m.C[t,'C'])/(I3_r3*(1+(m.C[t,'X']/IX3_r3)+(m.C[t,'G']/IG3_r3)+(m.C[t,'F']/IF3_r3))+m.C[t,'C'])
+    m_cstr.r3_definition=pe.Constraint(m_cstr.t,rule=_r3_definition_cstr)
+
+    def _r4_definition_cstr(m,t):
+        K4_r4=0.0087#0.0027     # reaction rate constant, kg/(g*s)
+        IC4_r4= 24.3         # Inhibition of r4 by cellobiose, g/kg
+        IX4_r4= 201         # Inhibition of r4 by xylose, g/kg 
+        IG4_r4= 2.39         # Inhibition of r4 by glucose, g/kg
+        IF4_r4= 10         #  Inhibition of r4 by furfural, g/kg
+        return m.r4[t] == (K4_r4*m.eta[t]*m.CebX[t,'3']*m.C[t,'XS'])/(1+(m.C[t,'C']/IC4_r4)+(m.C[t,'X']/IX4_r4)+(m.C[t,'G']/IG4_r4)+(m.C[t,'F']/IF4_r4))
+    m_cstr.r4_definition=pe.Constraint(m_cstr.t,rule=_r4_definition_cstr)
+
+    def _r5_definition_cstr(m,t):
+        Beta_r5=0.5     # acetic acid to xylose ratio
+        return m.r5[t] ==Beta_r5*m.r4[t] 
+    m_cstr.r5_definition=pe.Constraint(m_cstr.t,rule=_r5_definition_cstr)
+    # ['CS', 'XS', 'LS',              'C','G', 'X', 'F', 'E','AC']
+    def _R_definition_cstr(m,t,j):
+        if j=='CS':              
+            return m.R[t,j] == -m.r1[t]-m.r2[t] #Cellulose->Cellobiose (r1), #Cellulose->Glucose (r2) 
+        elif j=='XS':
+            return m.R[t,j] == -m.r4[t]-m.r5[t] #Xylan->Xylose (r4), #Xylan->Acetic Acid (r5)
+        elif j=='LS':
+            return m.R[t,j] == 0 
+        elif j=='C':
+            return m.R[t,j] == m.r1[t]-m.r3[t]     #Cellulose->Cellobiose (r1),  #Cellobiose->Glucose (r3)
+        elif j=='G':
+            return m.R[t,j] == m.r2[t]+m.r3[t]      #Cellulose->Glucose (r2), #Cellobiose->Glucose (r3)
+        elif j=='X':
+            return m.R[t,j] == m.r4[t] #Xylan->Xylose (r4)
+        elif j=='F':
+            return m.R[t,j] == 0
+        elif j=='E':
+            return m.R[t,j] == 0 #NOTE: Deactivation of enzymes is not considered in Prunescu work
+        elif j=='AC':
+            return m.R[t,j] == m.r5[t] #Xylan->Acetic Acid (r5)         
+    m_cstr.R_definition=pe.Constraint(m_cstr.t,m_cstr.j, rule=_R_definition_cstr)
+
+
+    # CSTR EQUATION
+    def _cstr_eq(m,t,j):
+        return m.C[t,j]==m.Cfeed[t,j]+ m.tau*m.R[t,j]
+    m_cstr.cstr_eq=pe.Constraint(m_cstr.t,m_cstr.j, rule=_cstr_eq)
+
+    return m_cstr
 
 def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10) -> pe.ConcreteModel():
 
@@ -1247,9 +1387,10 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
 
     return m
 
-
-def global_model()-> pe.ConcreteModel():
-    # ------------pyomo model------------------------------------------------
+def global_model(initialize_vars_at_steady_state: bool=True)-> pe.ConcreteModel():
+    #-------------------------------------------------------------------------
+    #-------------pyomo model-------------------------------------------------
+    #-------------------------------------------------------------------------
     m = pe.ConcreteModel(name='global_model')
 
     #-------------------------------------------------------------------------
@@ -1262,13 +1403,13 @@ def global_model()-> pe.ConcreteModel():
     #------------creating new initial condition (at t=0), which will guarantee that the reactor is initially at steady state
     
     # Creating new parameterS with steady state concentration profiles 
-    def _C_SS_init(m_pre,k_pre,j_pre):
-        return pe.value(m_pre.c[m_pre.t.last(),k_pre,j_pre])
-    m.pre.C_SS=pe.Param(m.pre.k,m.pre.j,initialize=_C_SS_init,doc='Steady state concentration profiles')
+    def _C_SS_init_pre(m_pre,k_pre,j_pre):
+        return pe.value(m_pre.c[m.pre.t.last(),k_pre,j_pre])
+    m.pre.C_SS=pe.Param(m.pre.k,m.pre.j,initialize=_C_SS_init_pre,doc='Steady state concentration profiles')
 
-    def _h_SS_init(m_pre,k_pre):
+    def _h_SS_init_pre(m_pre,k_pre):
         return pe.value(m_pre.h[m_pre.t.last(),k_pre])
-    m.pre.h_SS=pe.Param(m.pre.k,initialize=_h_SS_init,doc='Steady state enthalpy profile')
+    m.pre.h_SS=pe.Param(m.pre.k,initialize=_h_SS_init_pre,doc='Steady state enthalpy profile')
 
     # Deleting initial condition constraint from the original model
     m.pre.del_component(m.pre.IC1)
@@ -1287,47 +1428,112 @@ def global_model()-> pe.ConcreteModel():
         return m_pre.h[0, k_pre] == m_pre.h_SS[k_pre]
     m.pre.IC2_new = pe.Constraint(m.pre.k, rule=_IC2)
 
-    # Reinitializing variable values at steadu state
-    time_index=m.pre.t # Time index. NOTE: depends on the case study
-    for v in m.pre.component_objects(ctype=pe.Var):
-        # Check if variable has time index. If it does, initialize this variable with its steady state value
-        position=[v.index_set()._sets[j].name==time_index.name for j in range(len(v.index_set()._sets))] # returns tru for the position of the index that corresponds to time
-        if any(position):
-            # itentify location of time index
-            cuenta=0
-            for i in position:
-                if i==True:
-                    loc=cuenta #location of time index
-                    break
-                cuenta=cuenta+1
-            # Assign steady state value for time-indexed variables, except final time
-            for index in v.index_set().data():
-                if index[loc]==time_index.last():
-                    continue
-                partial_index_lst=list(index)
-                partial_index_lst[loc]=time_index.last()
-                partial_index=tuple(partial_index_lst)
-                v[index].value=pe.value(v[partial_index])
+    if initialize_vars_at_steady_state:
+        # Reinitializing variable values at steady state
+        time_index=m.pre.t # Time index. NOTE: depends on the case study
+        for v in m.pre.component_objects(ctype=pe.Var):
+            # Check if variable has time index. If it does, initialize this variable with its steady state value
+            position=[v.index_set()._sets[j].name==time_index.name for j in range(len(v.index_set()._sets))] # returns tru for the position of the index that corresponds to time
+            if any(position):
+                # itentify location of time index
+                cuenta=0
+                for i in position:
+                    if i==True:
+                        loc=cuenta #location of time index
+                        break
+                    cuenta=cuenta+1
+                # Assign steady state value for time-indexed variables, except final time
+                for index in v.index_set().data():
+                    if index[loc]==time_index.last():
+                        continue
+                    partial_index_lst=list(index)
+                    partial_index_lst[loc]=time_index.last()
+                    partial_index=tuple(partial_index_lst)
+                    if v[partial_index].value!=None:
+                        v[index].value=pe.value(v[partial_index])
 
 
+    #-------------------------------------------------------------------------
+    #-------------hydrolisis part of the model--------------------------------
+    #-------------------------------------------------------------------------
+
+    m_hyd=build_hydrolisis(time=72000,discretization='collocation',n_f_elements_x=6,n_f_elements_t=5)
+    m.hyd=initialize_model(m_hyd,from_feasible=True,feasible_model='validation_hydrolisis')
+    m.hyd.del_component(m.hyd.obj)
 
 
+    #------------creating new initial condition (at t=0), which will guarantee that the reactor is initially at steady state
+    # Creating new parameterS with steady state concentration profiles 
+    def _C_SS_init_hyd(m_hyd,x_hyd,j_hyd):
+        return pe.value(m_hyd.C[m.hyd.t.last(),x_hyd,j_hyd])
+    m.hyd.C_SS=pe.Param(m.hyd.x,m.hyd.j,initialize=_C_SS_init_hyd,doc='Steady state concentration profiles')
 
+    #Updating partial differential equation in the original model with steady state initial condition
+    
+    for t in m.hyd.t:
+        for x in m.hyd.x:
+            for j in m.hyd.j:
+                if any(j == jp for jp in ['C','G', 'X', 'F', 'E','AC']): 
+                    if t==m.hyd.t.first() and x>m.hyd.x.first() and x<m.hyd.x.last(): 
+                        m.hyd.partialDiff[t,x,j].set_value(m.hyd.partialDiff[t,x,j].body==m.hyd.C_SS[x,j])
+                else:
+                    if t==m.hyd.t.first() and x>m.hyd.x.first(): 
+                        m.hyd.partialDiff[t,x,j].set_value(m.hyd.partialDiff[t,x,j].body==m.hyd.C_SS[x,j])
 
+    if initialize_vars_at_steady_state:
+        # Reinitializing variable values at steady state
+        time_index=m.hyd.t # Time index. NOTE: depends on the case study
+        for v in m.hyd.component_objects(ctype=pe.Var):
+            # Check if variable has time index. If it does, initialize this variable with its steady state value
+            position=[v.index_set()._sets[j].name==time_index.name for j in range(len(v.index_set()._sets))] # returns tru for the position of the index that corresponds to time
+            if any(position):
+                # itentify location of time index
+                cuenta=0
+                for i in position:
+                    if i==True:
+                        loc=cuenta #location of time index
+                        break
+                    cuenta=cuenta+1
+                # Assign steady state value for time-indexed variables, except final time
+                for index in v.index_set().data():
+                    if index[loc]==time_index.last():
+                        continue
+                    partial_index_lst=list(index)
+                    partial_index_lst[loc]=time_index.last()
+                    partial_index=tuple(partial_index_lst)
+                    if v[partial_index].value!=None:
+                        v[index].value=pe.value(v[partial_index])
 
+    #-----------CSTR model to complete desired retention time
+    m_cstr=build_hydrolisis_cstr(m) 
+    m.cstr=initialize_model(m_cstr,from_feasible=True,feasible_model='validation_cstr')
 
-    # m_fer=build_fermentation(discretization='differences',n_f_elements_t=50)
-    # m.fer=initialize_model(m_fer,from_feasible=True,feasible_model='validation_fermentation')
-    # m.fer.del_component(m.fer.obj)
+    # Equations that conect cstr with hydrolisis model
+    def _eta_hyd_cstr_definition(m,t):
+        return m.cstr.eta[t]==m.hyd.eta[m.hyd.x.last(),t]
+    m.eta_hyd_cstr=pe.Constraint(m.cstr.t,rule=_eta_hyd_cstr_definition)
+
+    def  _concentration_hyd_cstr(m,t,j):
+        return m.cstr.Cfeed[t,j]==m.hyd.C[t,m.hyd.x.last(),j]   
+    m.concentration_hyd_cstr=pe.Constraint(m.cstr.t,m.cstr.j,rule=_concentration_hyd_cstr)
+    #-------------------------------------------------------------------------
+    #-------------fermentation part of the model------------------------------
+    #-------------------------------------------------------------------------
+
+    m_fer=build_fermentation(discretization='differences',n_f_elements_t=50)
+    m.fer=initialize_model(m_fer,from_feasible=True,feasible_model='validation_fermentation')
+    m.fer.del_component(m.fer.obj)
+
     return m
 
 if __name__ == '__main__':
     ###-----------------------------------------------------------------
     ###------------------------VALIDATION-------------------------------
     ###-----------------------------------------------------------------
-    v1='PRETREATMENT-'
-    v2='HYDROLISIS-'
-    v3='FERMENTATION-'
+    v1='PRETREATMENT---'
+    v2='HYDROLISIS---'
+    v3='FERMENTATION---'
+    v4='GLOBAL'
     solver='conopt4'
 
     ### PRETREATMENT
@@ -1414,13 +1620,34 @@ if __name__ == '__main__':
         finite_elem_x=6 
         finite_elem_t=5
 
+        # PFR
         m=build_hydrolisis(time=sim_time,discretization=discretization_type,n_f_elements_x=finite_elem_x,n_f_elements_t=finite_elem_t)
         m=initialize_model(m,from_feasible=True,feasible_model='validation_hydrolisis_init')
         opt1 = SolverFactory('gams')
         results = opt1.solve(m, solver=solver, tee=True)
         generate_initialization(m=m,model_name='validation_hydrolisis')
 
-    # PLOT GENERATION
+
+        # CSTR
+        m_global=pe.ConcreteModel()
+        m_global.hyd=m
+        m_cstr=build_hydrolisis_cstr(m_global)
+
+        # Equations that conect cstr with hydrolisis model
+        def _eta_hyd_cstr_definition(m_cstr,t):
+            return m_cstr.eta[t]==pe.value(m.eta[m.x.last(),t])
+        m_cstr.eta_hyd_cstr=pe.Constraint(m_cstr.t,rule=_eta_hyd_cstr_definition)
+
+        def  _concentration_hyd_cstr(m_cstr,t,j):
+            return m_cstr.Cfeed[t,j]==pe.value(m.C[t,m.x.last(),j])   
+        m_cstr.concentration_hyd_cstr=pe.Constraint(m_cstr.t,m_cstr.j,rule=_concentration_hyd_cstr)
+        m_cstr.obj=pe.Objective(expr=1)
+
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m_cstr, solver=solver, tee=True)
+        generate_initialization(m=m_cstr,model_name='validation_cstr')
+
+        # PLOT GENERATION
         time=[]
         space=[]
         vec={}
@@ -1544,11 +1771,9 @@ if __name__ == '__main__':
         plt.ylabel('pH')
         plt.show()
 
-
-
-
-
-# 1: Feed to pretreatment is soaked until approx. 40% dry matter before entering the thermal reactor, resulting in a total outlet flow of 2316 kg/h
-    m=global_model()
-    opt1 = SolverFactory('gams')
-    results = opt1.solve(m, solver=solver, tee=True)
+    ### GLOBAL MODEL
+    if v4=='GLOBAL':
+        # 1: Feed to pretreatment is soaked until approx. 40% dry matter before entering the thermal reactor, resulting in a total outlet flow of 2316 kg/h
+        m=global_model()
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m, solver=solver, tee=True)
