@@ -1,12 +1,12 @@
 {
   "__metadata__": {
     "format_version": 4,
-    "date": "2024-02-08",
-    "time": "22:26:04.485971",
+    "date": "2024-02-09",
+    "time": "10:56:13.805917",
     "other": {},
     "__performance__": {
       "n_components": 1533,
-      "etime_make_dict": 0.006981372833251953
+      "etime_make_dict": 0.004986286163330078
     }
   },
   "CSTR hydrolisis reactor": {
