@@ -2575,9 +2575,6 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
 
     return m
 
-
-
-
 def fermentation_optimal_control(include_parametrization: bool=True,simple_parametrization: bool=True,fix_base_flow: bool=True, include_flow_integrals: bool=True, fed_batch_and_batch_phase: bool=True, param_val: int=2)-> pe.ConcreteModel():
     
     m=pe.ConcreteModel(name='Fermentation_control')
@@ -2921,7 +2918,7 @@ if __name__ == '__main__':
     v5='1_FERMENTATION_CONTROL'
     solver='conopt4'
 
-    ### PRETREATMENT
+    ### PRETREATMENT SIMULATION
     if v1=='PRETREATMENT':
         m = build_pretreatment()
         opt1 = SolverFactory('gams')
@@ -2998,7 +2995,7 @@ if __name__ == '__main__':
         plt.ylabel('Temperature, °C')
         plt.show()
 
-    ### HYDROLISIS
+    ### HYDROLISIS SIMULATION
     if v2=='HYDROLISIS':
         sim_time=72000 #seconds
         discretization_type='collocation'
@@ -3102,7 +3099,7 @@ if __name__ == '__main__':
         plt.legend()
         plt.show()
 
-    ### FERMENTATION
+    ### FERMENTATION ADJUSTMENT AND SIMULATION
     if v3=='FERMENTATION':
         discretization_type_fer='differences'
         finite_elem_t_fer=50
@@ -3223,31 +3220,31 @@ if __name__ == '__main__':
         m=global_model()
         opt1 = SolverFactory('gams')
         results = opt1.solve(m, solver=solver, tee=True)
-
+    ### FERMENTATION OPTIMIZATION TESTS
     if v5=='1_FERMENTATION_CONTROL':
     
-        # m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=True,include_flow_integrals=True,fed_batch_and_batch_phase=False)
+        m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=True,include_flow_integrals=True,fed_batch_and_batch_phase=False)
         # m=initialize_model(m,from_feasible=True,feasible_model='')         
-        # opt1 = SolverFactory('gams')
-        # results = opt1.solve(m, solver='conopt4', tee=True)  
-        # generate_initialization(m=m,model_name='fermentation_control2')   
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m, solver='conopt4', tee=True)  
+        generate_initialization(m=m,model_name='fermentation_control2')   
 
 
-        # m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
-        # m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control2')         
-        # for t in m.fer.t:
-        #     m.fer.F_base[t].fix(0) 
-        # opt1 = SolverFactory('gams')
-        # results = opt1.solve(m, solver='conopt4', tee=True)  
-        # generate_initialization(m=m,model_name='fermentation_control3')   
+        m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
+        m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control2')         
+        for t in m.fer.t:
+            m.fer.F_base[t].fix(0) 
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m, solver='conopt4', tee=True)  
+        generate_initialization(m=m,model_name='fermentation_control3')   
 
 
 
-        # m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
-        # m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control3') 
-        # opt1 = SolverFactory('gams')
-        # results = opt1.solve(m, solver='conopt4', tee=True)  
-        # generate_initialization(m=m,model_name='fermentation_control4') 
+        m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
+        m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control3') 
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m, solver='conopt4', tee=True)  
+        generate_initialization(m=m,model_name='fermentation_control4') 
 
         m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
         m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control4')
