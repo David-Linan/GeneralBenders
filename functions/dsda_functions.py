@@ -459,7 +459,7 @@ def external_ref(
     return m
 
 
-#this only keeps disjunctions and boolean variables within a neighborhood of the current point active. 
+#this only keeps disjunctions and boolean variables within a neighborhood of the current point active. This version is not general
 def external_ref_neighborhood(
     m: pe.ConcreteModel(),
     x,
@@ -710,6 +710,114 @@ def external_ref_neighborhood(
     #             for k in range(1, len(dict_extvar[i]['Binary_vars'])+1):
     #                 print(dict_extvar[i]['Binary_vars_names'][k-1] +
     #                       '='+str(dict_extvar[i]['Binary_vars'][k-1].value))
+
+    return m
+#this only keeps disjunctions and boolean variables within a neighborhood of the current point active. This version is more general
+def external_ref_neighborhood_general(
+    m: pe.ConcreteModel(),
+    x,
+    extra_logic_function,
+    dict_extvar: dict = {},
+    feasibility_cuts: list=[],
+    neigh_size: int=1, # 1 means infinity neighborhood, 2 means second-nearest neighbors, etc
+    limit_interactions=False, #True if the optimized value of Boolean variables within a neighborhood will be limited to consider only some interactions. See "interactions"
+    interactions: int=1, #1 means neighbors with no interaction, 2 means neighbors with at most double interactions, etc. Must be greater or equal to 1
+):
+    """
+    Function that
+    Args:
+        m: GDP model that is going to be reformulated
+        x: List with current value of the external variables
+        dict_extvar: A dictionary of dictionaries that looks as follows:
+            {1:{'exactly_number':Number of external variables for this type,
+                'Boolean_vars_names':list with names of the ordered Boolean variables to be reformulated,
+                'Boolean_vars_ordered_index': Indexes where the external reformulation is applied,
+                'Binary_vars_names':list with names of the ordered Binary variables to be reformulated, [Potentially]
+                'Binary_vars_ordered_index': Indexes where the external reformulation is applied, [Potentially]
+                'Ext_var_lower_bound': Lower bound for this type of external variable,
+                'Ext_var_upper_bound': Upper bound for this type of external variable },
+             2:{...},...}
+
+            The first key (positive integer) represent a type of external variable identified in the model. For this type of external variable
+            a dictionary is created.
+        mip_ref: whether the reformulation will consider binary variables besides Booleans coming from a GDP->MIP reformulation
+        tee: Display reformulation
+    Returns:
+        m: A model that restricts boolean variables within a neighborhood of x
+
+    """
+
+    num_ext=len(x) #number of external variables
+    param_interaction=num_ext-interactions
+    # This part of code is required due to the deep copy issue: we have to compare Boolean variables by name
+    for i in dict_extvar:
+        dict_extvar[i]['Boolean_vars'] = []
+        for j in dict_extvar[i]['Boolean_vars_names']:
+            for boolean in m.component_data_objects(pe.BooleanVar, descend_into=True):
+                if(boolean.name == j):
+                    dict_extvar[i]['Boolean_vars'] = dict_extvar[i]['Boolean_vars']+[boolean]
+
+
+# The function would start here if there were no problems with deep copy.
+
+    ext_var_position = 0
+    for i in dict_extvar:
+        for j in range(dict_extvar[i]['exactly_number']):
+            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                if k<x[ext_var_position]-neigh_size or k>x[ext_var_position]+neigh_size:            
+                    if not dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(False) #fix all variables outside current neighborhood to false
+                else:
+                    if dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
+                        dict_extvar[i]['Boolean_vars'][k-1].unfix()                   
+            ext_var_position = ext_var_position+1
+
+
+
+    if feasibility_cuts: # if there are feasibility cuts, add them
+        m.feas_cut_con={}
+        posit=0
+        for avoid in feasibility_cuts:
+            posit=posit+1
+            avoid_list=[]
+            ext_var_position = 0
+            for i in dict_extvar:
+                for j in range(dict_extvar[i]['exactly_number']):
+                    avoid_list.append(dict_extvar[i]['Boolean_vars'][avoid[ext_var_position]-1])
+                    ext_var_position = ext_var_position+1
+
+            def feas_cut_rule(m):
+                return pe.lnot(pe.land(avoid_list))
+            m.feas_cut_con[posit]=pe.LogicalConstraint(rule=feas_cut_rule)   
+            setattr(m,'feas_cut_con_%s' %str(posit),m.feas_cut_con[posit]) 
+                
+    
+    #Constraint to only accept interactions between 2, 3 ,4... variables
+    if limit_interactions==True and param_interaction>=1:
+        ext_var_position = 0
+        exactly_list=[]
+        for i in dict_extvar:
+            for j in range(dict_extvar[i]['exactly_number']):
+                for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                    if x[ext_var_position] == k:
+                        exactly_list.append(dict_extvar[i]['Boolean_vars'][k-1])
+                ext_var_position = ext_var_position+1
+
+        def exactly_cont_rule(m):
+            return pe.exactly(param_interaction,exactly_list)
+        m.exactly_cont=pe.LogicalConstraint(rule=exactly_cont_rule)
+
+
+    # # Other Boolean and Indicator variables are fixed depending on the information provided by the user
+    logic_expr = extra_logic_function(m)
+    for i in logic_expr:
+        if i[0].is_fixed():
+            i[1].fix(pe.value(i[0]))
+
+                
+    # pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    # pe.TransformationFactory('gdp.transform_current_disjunctive_state').apply_to(m)
+    # pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(m, tmp=False, ignore_infeasible=True)
 
     return m
 
@@ -2614,16 +2722,16 @@ def solve_with_gdpopt(
                           minlp_solver='gams',
                           minlp_solver_args=dict(
                               solver=minlp, warmstart=True, tee=tee, **minlp_options), local_minlp_solver='gams', local_minlp_solver_args=dict(
-                              solver=minlp, warmstart=True, tee=tee, **minlp_options),
-                        #   mip_presolve=True, #True is the default
-                          init_strategy='fix_disjuncts',#'fix_disjuncts'##'set_covering'#
-                          init_algorithm='fix_disjuncts',
-                          #   set_cover_iterlim=0,
-                          #iterlim#=1000,
-                        #   force_subproblem_nlp=False,
-                          subproblem_presolve=False,
-                          #   bound_tolerance=rel_tol
-                          #   calc_disjunctive_bounds=True
+                              solver=minlp, warmstart=True, tee=tee, **minlp_options)
+                        # #   mip_presolve=True, #True is the default
+                        #   init_strategy='fix_disjuncts',#'fix_disjuncts'##'set_covering'#
+                        #   init_algorithm='fix_disjuncts',
+                        #   #   set_cover_iterlim=0,
+                        #   #iterlim#=1000,
+                        # #   force_subproblem_nlp=False,
+                        #   subproblem_presolve=False,
+                        #   #   bound_tolerance=rel_tol
+                        #   #   calc_disjunctive_bounds=True
                           )
     # update_boolean_vars_from_binary(m)
     return m
