@@ -47,41 +47,41 @@ if __name__ == "__main__":
         ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
         # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
         [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=False)
-        # start=time.time()
-        # m=solve_with_minlp(m,transformation='bigm',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0)
-        # end=time.time()
-        # # print('num_disc:',param,'obj:',pe.value(m.obj))
-        # Sol_found=[]
-        # for I in m.I:
-        #     for J in m.J:
-        #         if m.I_i_j_prod[I,J]==1:
-        #             for K in m.ordered_set[I,J]:
-        #                 if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-        #                     Sol_found.append(K-m.minTau[I,J]+1)
-        # # for I_J in m.I_J:
-        # #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
-
-        # print('Objective CPLEX=',pe.value(m.obj),'best CPLEX=',Sol_found,'cputime CPLEX=',str(end-start))
-
-        # textbuffer = io.StringIO()
-        # for v in m.component_objects(pe.Var, descend_into=True):
-        #     v.pprint(textbuffer)
-        #     textbuffer.write('\n')
-        # textbuffer.write('\n Objective: \n') 
-        # textbuffer.write(str(pe.value(m.obj)))  
-        # file_name='Results_var_proc_time.txt'  
-        # with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/Scheduling',file_name), 'w') as outputfile:
-        #     outputfile.write(textbuffer.getvalue())
-    
+        start=time.time()
+        m=solve_with_minlp(m,transformation='bigm',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0)
+        end=time.time()
+        # print('num_disc:',param,'obj:',pe.value(m.obj))
+        Sol_found=[]
+        for I in m.I:
+            for J in m.J:
+                if m.I_i_j_prod[I,J]==1:
+                    for K in m.ordered_set[I,J]:
+                        if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                            Sol_found.append(K-m.minTau[I,J]+1)
         # for I_J in m.I_J:
-        #     I=I_J[0]
-        #     J=I_J[1]
-        #     for K in m.ordered_set[I,J]:
-        #         if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
-        #             variable_bound_found=K*m.delta
-        #     print(I_J)
-        #     if sum(pe.value(m.X[I,J,T]) for T in m.T)>=1:
-        #         print('maximum variable time [h]: ',max(pe.value(m.varTime[I,J,T]) for T in m.T if round(pe.value(m.X[I,J,T]))==1),'<= current bound (based on discretization) [h]: ',variable_bound_found,'<= initial bound (user) [h]: ',UP_PROC_TIME[(I,J)])
+        #     Sol_found.append(1+round(pe.value(m.Nref[I_J])))
+
+        print('Objective CPLEX=',pe.value(m.obj),'best CPLEX=',Sol_found,'cputime CPLEX=',str(end-start))
+
+        textbuffer = io.StringIO()
+        for v in m.component_objects(pe.Var, descend_into=True):
+            v.pprint(textbuffer)
+            textbuffer.write('\n')
+        textbuffer.write('\n Objective: \n') 
+        textbuffer.write(str(pe.value(m.obj)))  
+        file_name='Results_var_proc_time.txt'  
+        with open(os.path.join('C:/Users/dlinanro/Desktop/GeneralBenders/Scheduling',file_name), 'w') as outputfile:
+            outputfile.write(textbuffer.getvalue())
+    
+        for I_J in m.I_J:
+            I=I_J[0]
+            J=I_J[1]
+            for K in m.ordered_set[I,J]:
+                if round(pe.value(m.YR_disjunct[I,J][K].indicator_var))==1:
+                    variable_bound_found=K*m.delta
+            print(I_J)
+            if sum(pe.value(m.X[I,J,T]) for T in m.T)>=1:
+                print('maximum variable time [h]: ',max(pe.value(m.varTime[I,J,T]) for T in m.T if round(pe.value(m.X[I,J,T]))==1),'<= current bound (based on discretization) [h]: ',variable_bound_found,'<= initial bound (user) [h]: ',UP_PROC_TIME[(I,J)])
 
 
 
