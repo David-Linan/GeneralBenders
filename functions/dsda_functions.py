@@ -3812,9 +3812,9 @@ def solve_with_dsda(
         print('--------------------------------------------------------------------------')
 
     # Initialize
-    route =[]# route_initial
-    obj_route =[]# obj_route_initial
-    global_evaluated =[]# route_initial
+    route =route_initial
+    obj_route =obj_route_initial
+    global_evaluated =route_initial
     ext_var = starting_point
 
     # Check if  feasible initialization is provided
