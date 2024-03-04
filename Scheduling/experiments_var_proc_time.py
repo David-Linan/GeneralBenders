@@ -48,11 +48,11 @@ if __name__ == "__main__":
 
 
     # EXPERIMENTS
-    Naive_cplex_experiment=True
+    Naive_cplex_experiment=False
     D_SDA_and_DSDSA_experiments=False
     CG_DSDA_experiment=True
-    first=2
-    last=500
+    first=19#2
+    last=20#500
 
     for param in range(first,last):
         print('\n------------ num discrete points: ',param,' -------------------------------')
@@ -211,7 +211,7 @@ if __name__ == "__main__":
                 # solve the problem
                 m=original_m.clone() #initialize mip problem
                 # m=solve_with_gdpopt(m,mip=mip_solver,mip_options=sub_options,timelimit=86400,rel_tol=0,strategy='LOA',tee=True)
-                m =solve_with_minlp(m,transformation='hull',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0) 
+                m =solve_with_minlp(m,transformation='bigm',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0) 
                 
                 # Extract solution
                 Sol_found=[]
@@ -239,20 +239,22 @@ if __name__ == "__main__":
                 direction=[]
                 for i in range(len(Sol_found)):
                     direction.append(Sol_found[i]-current_central[i])              
-                
+
                 if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger': 
                     m.mip_status='Infeasible'
+                    #TODO: IN CASE OF INFEASIBILITIES, I should declare infinity objective, however, it is not possible because new neighborhood always have the previous feasible solution in it.
                 else:
                     m.mip_status='Optimal'
-                if m.mip_status == 'Optimal' and teed:  
+                if teed:
+                    if m.mip_status == 'Optimal':  
 
-                    print('   Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
-                                
-                else:
-                    print('   Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))        
+                        print('   Evaluated:', Sol_found, '   |   Objective:', round(pe.value(m.obj), 5), '   |   Global Time:', round(time.time()- start, 2))
+                                    
+                    else:
+                        print('   Evaluated infeasible:', Sol_found, '   |   Objective: -    |   Global Time:', round(time.time()- start, 2))        
 
 
-                print('   SEARCH DIRECTION: ', direction)                
+                    print('   SEARCH DIRECTION: ', direction)                
                 
                 if round(sum(abs(j) for j in direction))==0 or old_obj<=round(pe.value(m.obj)):    
                     end=time.time()
