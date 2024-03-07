@@ -48,10 +48,10 @@ if __name__ == "__main__":
 
 
     # EXPERIMENTS
-    Naive_cplex_experiment=False
+    Naive_cplex_experiment=True
     D_SDA_and_DSDSA_experiments=False
     CG_DSDA_experiment=True
-    first=19#2
+    first=2
     last=20#500
 
     for param in range(first,last):
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
         if Naive_cplex_experiment:
             start=time.time()
-            m=solve_with_minlp(m,transformation='bigm',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0)
+            m=solve_with_minlp(m,transformation='bigm',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=True,rel_tol=0)
             end=time.time()
             # print('num_disc:',param,'obj:',pe.value(m.obj))
             Sol_found=[]
@@ -174,7 +174,7 @@ if __name__ == "__main__":
             max_iter_out=1000000 # Maximum number of iterations
             upper_evaluated={} #evaluated points
             old_obj=1e+10
-            teed=False
+            teed=True
 
             # CG_DSDA algorithm
             start=time.time()
