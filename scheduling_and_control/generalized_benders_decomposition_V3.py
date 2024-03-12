@@ -32,7 +32,7 @@ if __name__ == "__main__":
    # 3: Execution of GBD with heuristic cuts: minimum processing time s.t. fixed capacity at its maximum
    # 4: Execution of GBD with heuristic cuts: no-good cuts in master problem
    # 5: Execution of GBD with heuristic cuts: no-good cuts in master problem, only for binary variables related to variable processing times
-    experiment=3
+    experiment=6
  
     if experiment ==1:
         best_sol_name='current_best_GBD_V3_subproblem_naive'
@@ -44,6 +44,10 @@ if __name__ == "__main__":
         best_sol_name='current_best_GBD_V3_subproblem_no_good_all'
     elif experiment ==5:
         best_sol_name='current_best_GBD_V3_subproblem_no_good_t_only'
+    elif experiment ==6:
+        best_sol_name='current_best_GBD_V3_naive_from_sequential_naive'
+    elif experiment ==7:
+        best_sol_name='current_best_GBD_V3_naive_from_sequential_naive_min_t_vary_B'
  
     ######-------------------------- MATER PROBLEM ------------------------------##################
     mas=model_fun(**kwargs2) #master problem
@@ -127,7 +131,7 @@ if __name__ == "__main__":
     sub.dual = pe.Suffix(direction=pe.Suffix.IMPORT) #define dual variables
 
     #####------------------Heuristic cuts for experiments 2 and 3-------------------------######################
-    if experiment ==2 or experiment ==3:
+    if experiment ==2 or experiment ==3 or experiment ==7:
     # TEST MINIMUM PROCESSING TIME (add minimum processing time constraint to master)
         mint=sub.clone()
         mint.obj_dyn.deactivate()
@@ -189,73 +193,143 @@ if __name__ == "__main__":
     feas.obj_feas = pe.Objective(rule=_obj_feas, sense=pe.minimize)     
 
     ######---------------------------- SOLUTION OF FIRST SUBPROBLEM --------------------------------##################
-    mas=initialize_model(mas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution_GDB_init') #Initialization from solution that is known to be feasible
-    for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
-        if v.name=='varTime' or v.name=='B':
-            for index in v:
-                if index==None:
-                    v.fix(pe.value(v))
-                else:
-                    v[index].fix(pe.value(v[index]))
-        elif v.name=='X':
-            for index in v:
-                if index==None:
-                    v.fix(round(pe.value(v)))
-                else:
-                    v[index].fix(round(pe.value(v[index])))
+    if experiment ==6 or experiment ==7:
+        mas=initialize_model(mas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution') #Initialization from solution that is known to be feasible
+        for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
+            if v.name=='varTime' or v.name=='B':
+                for index in v:
+                    if index==None:
+                        v.fix(pe.value(v))
+                    else:
+                        v[index].fix(pe.value(v[index]))
+            elif v.name=='X':
+                for index in v:
+                    if index==None:
+                        v.fix(round(pe.value(v)))
+                    else:
+                        v[index].fix(round(pe.value(v[index])))
 
-    mas=solve_with_minlp(mas,transformation='',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0,transform_required=False)
-    print(pe.value(mas.obj))
+        mas=solve_with_minlp(mas,transformation='',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0,transform_required=False)
+        print(pe.value(mas.obj))
 
-    # fix master variables in subproblem 
-    for I in sub.I:
-        for J in sub.J:
+        # fix master variables in subproblem 
+        for I in sub.I:
+            for J in sub.J:
+                for T in sub.T:
+                    sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
+                    sub.link_X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
+
+        for I_J in sub.I_J:
+                I=I_J[0]
+                J=I_J[1]
+                sub.Nref[I,J].fix(round(pe.value(mas.Nref[I,J])))
+
+        for K in sub.K:
             for T in sub.T:
-                sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
-                sub.link_X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
+                sub.S[K,T].fix(pe.value(mas.S[K,T]))
 
-    for I_J in sub.I_J:
-            I=I_J[0]
-            J=I_J[1]
-            sub.Nref[I,J].fix(round(pe.value(mas.Nref[I,J])))
-
-    for K in sub.K:
-        for T in sub.T:
-            sub.S[K,T].fix(pe.value(mas.S[K,T]))
-
-    for I in sub.I_reactions:
-        for J in sub.J_reactors:
-            sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
+        for I in sub.I_reactions:
+            for J in sub.J_reactors:
+                sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
 
 
-    sub=solve_subproblem(sub,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)
-  
+        sub=solve_subproblem(sub,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)
     
-    if sub.dsda_status=='Optimal':
-        mas.cuts.add(sum(sum( sub.dual[sub.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(sub.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  sub.dual[sub.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(sub.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  sub.dual[sub.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(sub.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+pe.value(sub.TCP3)<=mas.TCP3)
-        print('Optimality cut to initialize: ')
-        mas.cuts.pprint()
         
-        TPC1=pe.value(sub.TCP1)
-        TPC2=pe.value(sub.TCP2)
-        TPC3=pe.value(sub.TCP3)
-        TMC=pe.value(sub.TMC)
-        SALES=pe.value(sub.SALES)
-        sub.UBD=TPC1+TPC2+TPC3+TMC-SALES
-        print(sub.UBD)
-    else:
-        sub.UBD=Infinity_aprox
-        print('Initialization is ot feasible')
-        exit()
+        if sub.dsda_status=='Optimal':
+            mas.cuts.add(sum(sum( sub.dual[sub.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(sub.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  sub.dual[sub.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(sub.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  sub.dual[sub.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(sub.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+pe.value(sub.TCP3)<=mas.TCP3)
+            print('Optimality cut to initialize: ')
+            mas.cuts.pprint()
+            
+            TPC1=pe.value(sub.TCP1)
+            TPC2=pe.value(sub.TCP2)
+            TPC3=pe.value(sub.TCP3)
+            TMC=pe.value(sub.TMC)
+            SALES=pe.value(sub.SALES)
+            sub.UBD=TPC1+TPC2+TPC3+TMC-SALES
+            print(sub.UBD)
+            generate_initialization(m=sub,model_name=best_sol_name)
+        else:
+            sub.UBD=Infinity_aprox
+            print('Initialization is not feasible')
+            exit()
 
-    # make sure that variables in master are left unfixed
-    for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
-        if v.name=='varTime' or v.name=='B' or v.name=='X':
-            for index in v:
-                if index==None:
-                    v.unfix()
-                else:
-                    v[index].unfix()
+        # make sure that variables in master are left unfixed
+        for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
+            if v.name=='varTime' or v.name=='B' or v.name=='X':
+                for index in v:
+                    if index==None:
+                        v.unfix()
+                    else:
+                        v[index].unfix()
+    else:
+        mas=initialize_model(mas,from_feasible=True,feasible_model='case_1_scheduling_and_dynamics_solution_GDB_init') #Initialization from solution that is known to be feasible
+        for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
+            if v.name=='varTime' or v.name=='B':
+                for index in v:
+                    if index==None:
+                        v.fix(pe.value(v))
+                    else:
+                        v[index].fix(pe.value(v[index]))
+            elif v.name=='X':
+                for index in v:
+                    if index==None:
+                        v.fix(round(pe.value(v)))
+                    else:
+                        v[index].fix(round(pe.value(v[index])))
+
+        mas=solve_with_minlp(mas,transformation='',minlp=mip_solver,minlp_options=sub_options,timelimit=86400,gams_output=False,tee=False,rel_tol=0,transform_required=False)
+        print(pe.value(mas.obj))
+
+        # fix master variables in subproblem 
+        for I in sub.I:
+            for J in sub.J:
+                for T in sub.T:
+                    sub.link_B[I,J,T].fix(pe.value(mas.B[I,J,T]))
+                    sub.link_X[I,J,T].fix(round(pe.value(mas.X[I,J,T])))
+
+        for I_J in sub.I_J:
+                I=I_J[0]
+                J=I_J[1]
+                sub.Nref[I,J].fix(round(pe.value(mas.Nref[I,J])))
+
+        for K in sub.K:
+            for T in sub.T:
+                sub.S[K,T].fix(pe.value(mas.S[K,T]))
+
+        for I in sub.I_reactions:
+            for J in sub.J_reactors:
+                sub.link_varTime[I,J].fix(pe.value(mas.varTime[I,J]))  
+
+
+        sub=solve_subproblem(sub,subproblem_solver=nlp_solver,subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = False,rel_tol = 0)
+    
+        
+        if sub.dsda_status=='Optimal':
+            mas.cuts.add(sum(sum( sub.dual[sub.const_link_VarTime[I,J]]*(mas.varTime[I,J]-pe.value(sub.link_varTime[I,J])) for I in mas.I_reactions)  for J in mas.J_reactors)+sum(sum(sum(  sub.dual[sub.const_link_B[I,J,T]]*( mas.B[I,J,T]-pe.value(sub.link_B[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+sum(sum(sum(  sub.dual[sub.const_link_X[I,J,T]]*( mas.X[I,J,T]-pe.value(sub.link_X[I,J,T])   )      for I in mas.I) for J in mas.J) for T in mas.T)+pe.value(sub.TCP3)<=mas.TCP3)
+            print('Optimality cut to initialize: ')
+            mas.cuts.pprint()
+            
+            TPC1=pe.value(sub.TCP1)
+            TPC2=pe.value(sub.TCP2)
+            TPC3=pe.value(sub.TCP3)
+            TMC=pe.value(sub.TMC)
+            SALES=pe.value(sub.SALES)
+            sub.UBD=TPC1+TPC2+TPC3+TMC-SALES
+            print(sub.UBD)
+        else:
+            sub.UBD=Infinity_aprox
+            print('Initialization is ot feasible')
+            exit()
+
+        # make sure that variables in master are left unfixed
+        for v in mas.component_objects(pe.Var, descend_into=True): #test: master problem initialized with fixed linking variabels that guaranteee feasibility (NOTE: this is jsut a test to see what happens!!!)
+            if v.name=='varTime' or v.name=='B' or v.name=='X':
+                for index in v:
+                    if index==None:
+                        v.unfix()
+                    else:
+                        v[index].unfix()
 
     ######---------------------------- GENERALIZED BENDERS DECOMPOSIION ALGORITHM --------------------------------##################
 
@@ -452,52 +526,52 @@ if __name__ == "__main__":
     print('OBJECTIVE:',str(OBJ_FOUND))
 
 
-    ######---------------------------- INFEASIBILITY VERIFICATION EXPERIMENT 3 --------------------------------##################
-    #PROOF that the infeasibility detected by one of the subproblems (the first one) in experiment 3 is due to a numerical issue, rahter than the 
-    # problem is actually infeasible. To prove this, we solve again this infeasible subproblem, but with a different solver and find feasibility
-    model_fun=scheduling_and_control_gdp_N_GBD
-    kwargs3=kwargs.copy()  
-    subsol=model_fun(**kwargs3)
-    subsol=initialize_model(subsol,from_feasible=True,feasible_model='feasibility_subproblem')
+    # ######---------------------------- INFEASIBILITY VERIFICATION EXPERIMENT 3 --------------------------------##################
+    # #PROOF that the infeasibility detected by one of the subproblems (the first one) in experiment 3 is due to a numerical issue, rahter than the 
+    # # problem is actually infeasible. To prove this, we solve again this infeasible subproblem, but with a different solver and find feasibility
+    # model_fun=scheduling_and_control_gdp_N_GBD
+    # kwargs3=kwargs.copy()  
+    # subsol=model_fun(**kwargs3)
+    # subsol=initialize_model(subsol,from_feasible=True,feasible_model='feasibility_subproblem')
 
-    # Infeasibility test
-    feas2=sub.clone()
-    # fix variables in subproblem 
-    for I in feas2.I:
-        for J in feas2.J:
-            for T in feas2.T:
+    # # Infeasibility test
+    # feas2=sub.clone()
+    # # fix variables in subproblem 
+    # for I in feas2.I:
+    #     for J in feas2.J:
+    #         for T in feas2.T:
 
-                if pe.value(subsol.B[I,J,T])>=subsol.B[I,J,T].ub: 
-                    feas2.link_B[I,J,T].fix(subsol.B[I,J,T].ub)
-                elif pe.value(subsol.B[I,J,T])<=subsol.B[I,J,T].lb:
-                    feas2.link_B[I,J,T].fix(subsol.B[I,J,T].lb)
-                else:
-                    feas2.link_B[I,J,T].fix(pe.value(subsol.B[I,J,T]))
+    #             if pe.value(subsol.B[I,J,T])>=subsol.B[I,J,T].ub: 
+    #                 feas2.link_B[I,J,T].fix(subsol.B[I,J,T].ub)
+    #             elif pe.value(subsol.B[I,J,T])<=subsol.B[I,J,T].lb:
+    #                 feas2.link_B[I,J,T].fix(subsol.B[I,J,T].lb)
+    #             else:
+    #                 feas2.link_B[I,J,T].fix(pe.value(subsol.B[I,J,T]))
 
-                feas2.link_X[I,J,T].fix(round(pe.value(subsol.X[I,J,T])))
+    #             feas2.link_X[I,J,T].fix(round(pe.value(subsol.X[I,J,T])))
 
-    for I_J in feas2.I_J:
-            I=I_J[0]
-            J=I_J[1]
-            feas2.Nref[I,J].fix(round(pe.value(subsol.Nref[I,J])))
+    # for I_J in feas2.I_J:
+    #         I=I_J[0]
+    #         J=I_J[1]
+    #         feas2.Nref[I,J].fix(round(pe.value(subsol.Nref[I,J])))
 
-    for K in feas2.K:
-        for T in feas2.T:
-            if pe.value(subsol.S[K,T])>=subsol.S[K,T].ub:
-                feas2.S[K,T].fix(subsol.S[K,T].ub)
-            elif pe.value(subsol.S[K,T])<=subsol.S[K,T].lb:
-                feas2.S[K,T].fix(subsol.S[K,T].lb)
-            else:
-                feas2.S[K,T].fix(pe.value(subsol.S[K,T]))
+    # for K in feas2.K:
+    #     for T in feas2.T:
+    #         if pe.value(subsol.S[K,T])>=subsol.S[K,T].ub:
+    #             feas2.S[K,T].fix(subsol.S[K,T].ub)
+    #         elif pe.value(subsol.S[K,T])<=subsol.S[K,T].lb:
+    #             feas2.S[K,T].fix(subsol.S[K,T].lb)
+    #         else:
+    #             feas2.S[K,T].fix(pe.value(subsol.S[K,T]))
 
-    for I in feas2.I_reactions:
-        for J in feas2.J_reactors:
-            if pe.value(subsol.varTime[I,J])>=subsol.varTime[I,J].ub:
-                feas2.link_varTime[I,J].fix(subsol.varTime[I,J].ub)  
-            elif pe.value(subsol.varTime[I,J])<=subsol.varTime[I,J].lb:
-                feas2.link_varTime[I,J].fix(subsol.varTime[I,J].lb)  
-            else:
-                feas2.link_varTime[I,J].fix(pe.value(subsol.varTime[I,J]))  
+    # for I in feas2.I_reactions:
+    #     for J in feas2.J_reactors:
+    #         if pe.value(subsol.varTime[I,J])>=subsol.varTime[I,J].ub:
+    #             feas2.link_varTime[I,J].fix(subsol.varTime[I,J].ub)  
+    #         elif pe.value(subsol.varTime[I,J])<=subsol.varTime[I,J].lb:
+    #             feas2.link_varTime[I,J].fix(subsol.varTime[I,J].lb)  
+    #         else:
+    #             feas2.link_varTime[I,J].fix(pe.value(subsol.varTime[I,J]))  
 
-    feas2=solve_subproblem(feas2,subproblem_solver='knitro',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = True,rel_tol = 0) 
+    # feas2=solve_subproblem(feas2,subproblem_solver='knitro',subproblem_solver_options = sub_options,timelimit = 86400, gams_output = False,tee = True,rel_tol = 0) 
  

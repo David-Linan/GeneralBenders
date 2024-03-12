@@ -5,7 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import pandas as pd
-from dsda_functions import initialize_model, generate_initialization
+import os
+
+# get the current working directory
+current_working_directory = os.getcwd()
+
+# print output to the console
+print('Current working directory:',current_working_directory)
+
+import sys
+sys.path.append('C:/Users/dlinanro/Desktop/GeneralBenders/')
+from functions.dsda_functions import initialize_model, generate_initialization
+
 
 
 def reactor_model():
@@ -207,10 +218,10 @@ def reactor_model():
 
 if __name__ == "__main__":
     m = reactor_model()
-    # opt1 = SolverFactory('gams')
-    # results = opt1.solve(m, solver='ipopt', tee=True)
-    # solved=generate_initialization(m=m,model_name='validation')
-    m=initialize_model(m,from_feasible=True,feasible_model='validation')
+    opt1 = SolverFactory('gams')
+    results = opt1.solve(m, solver='ipopt', tee=True)
+    solved=generate_initialization(m=m,model_name='validation_pretreatment')
+    
 
     s0 = []
     T1 = []
@@ -244,13 +255,13 @@ if __name__ == "__main__":
         a = i-273
         TT.append(a)
 
-    original = pd.read_csv('Cellulose.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Cellulose.csv', header=None)
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--g')
     plt.plot(t, s0, 'g', label='Cellulose ')
-    original = pd.read_csv('Xylan.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Xylan.csv', header=None)
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--m')
     plt.plot(t, s1, 'm', label='Xylan')
-    original = pd.read_csv('Arabinan.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Arabinan.csv', header=None)
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--r')
     plt.plot(t, s2, 'r', label='Arabinan')
 
@@ -259,13 +270,13 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
-    original = pd.read_csv('Glucose.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Glucose.csv', header=None)
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--g')
     plt.plot(t, s3, 'g', label='Glucose')
-    original = pd.read_csv('Xylose.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Xylose.csv', header=None)
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--m')
     plt.plot(t, s5, 'm', label='Xylose')
-    original = pd.read_csv('Arabinose.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Arabinose.csv', header=None)
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--r')
     plt.plot(t, s6, 'r', label='Arabinose')
 
@@ -274,7 +285,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
-    original = pd.read_csv('Temperature.csv', header=None)
+    original = pd.read_csv('biorefinery_models/Temperature.csv', header=None)
     plt.plot(t, TT, 'k')
     plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values, '--k')
     plt.xlabel('length,m')
