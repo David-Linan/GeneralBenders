@@ -15,7 +15,7 @@ def personal_model():
 
     # ------------scalars    ------------------------------------------------   
     m.delta=pe.Param(initialize=1,doc='lenght of time periods of discretized time grid for scheduling [days]')
-    m.lastT=pe.Param(initialize=7*4,doc='last discrete time value in the scheduling time grid')
+    m.lastT=pe.Param(initialize=7*1,doc='last discrete time value in the scheduling time grid')
     
     # -----------sets--------------------------------------------------------
     #Main sets
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                     or sum(round(pe.value(m.X[I,JP,T])) for JP in m.J_morning)>=1\
                     or sum(round(pe.value(m.X[I,JP,T])) for JP in m.J_day)>=1\
                     or sum(round(pe.value(m.X[I,JP,T])) for JP in m.J_night)>=1\
-                    or sum(sum(sum(round(pe.value(m.X[IP,JP,TP])) for IP in m.I) for JP in m.J) for TP in m.T)>=0.1*m.T.__len__()*m.J.__len__()):
+                    or sum(sum(sum(round(pe.value(m.X[IP,JP,TP])) for IP in m.I) for JP in m.J) for TP in m.T)>=0.7*m.T.__len__()*m.J.__len__()):
 
                     m.X[I,J,T].fix(0)
                 else:
