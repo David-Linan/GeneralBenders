@@ -2088,8 +2088,8 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
     m.F_C5liquid=pe.Param(initialize=628*(1/60)*(1/60),doc='C5liquid flow [kg/s]')
     m.F_liquified_fibers=pe.Param(initialize=2487*(1/60)*(1/60),doc='Liquified fibers flow [kg/s]')
 
-    m.F_base=pe.Var(m.t,initialize=20, within=pe.NonNegativeReals,doc='base flow for pH control [kg/s]')
-    m.F_acid=pe.Param(m.t,initialize=20,mutable=True,doc='acid flow for pH control [kg/s]')
+    m.F_base=pe.Var(m.t,initialize=0.01, within=pe.NonNegativeReals,bounds=(0,0.01),doc='base flow for pH control [kg/s]')
+    m.F_acid=pe.Param(m.t,initialize=0,mutable=True,doc='acid flow for pH control [kg/s]')
     
 
 
@@ -2156,36 +2156,36 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
     m.Mmax=pe.Param(initialize=220000,doc='Maximum hold up in the reactor [kg]') #TODO: not using it so far
 
     # ----- Feed parameters --------------------------------------------------
-    m.Fin=pe.Var(m.t,initialize=0,within=pe.NonNegativeReals,doc='Feed flow [kg/s]')
-    m.Cin=pe.Var(m.t,m.j,initialize=0,within=pe.NonNegativeReals,doc='Feed composition [g/kg]')
+    m.Fin=pe.Var(m.t,initialize=0,within=pe.NonNegativeReals,bounds=(0,10),doc='Feed flow [kg/s]')
+    m.Cin=pe.Var(m.t,m.j,initialize=0,within=pe.NonNegativeReals,bounds=(0,1000),doc='Feed composition [g/kg]')
     m.Fout=pe.Param(m.t,initialize=0,mutable=True,doc='Output flow [kg/s]') # NOTE we are not considering the unload phase, hence we fix output flow as 0 
 
     #---- Variables from hydrolisis model--------------------------------------------------
-    m.Ce=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
-    m.Cef=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
-    m.Ceb=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
-    m.CebC=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to cellulose g/kg')
-    m.CebX=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals, doc='Concentration of adsorbed enzymes to xylan g/kg')
-    m.r1=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to cellobiose rate, g/kg s')
-    m.r2=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellulose to glucose rate, g/kg s')
-    m.r3=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Cellobiose to glucose rate, g/kg s')
-    m.r4=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to xylose rate, g/kg s')
-    m.r5=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals, doc='Xylan to acetic acid rate, g/kg s')
+    m.Ce=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals,bounds=(0,1000), doc='Enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m.Cef=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals,bounds=(0,1000), doc='Free enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m.Ceb=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals,bounds=(0,1000), doc='Bounded enzyme types concentrations, units of g/kg') #bounds=(0, 10000))
+    m.CebC=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals,bounds=(0,1000), doc='Concentration of adsorbed enzymes to cellulose g/kg')
+    m.CebX=pe.Var(m.t, m.e, initialize=1,within=pe.NonNegativeReals,bounds=(0,1000), doc='Concentration of adsorbed enzymes to xylan g/kg')
+    m.r1=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals,bounds=(0,1), doc='Cellulose to cellobiose rate, g/kg s')
+    m.r2=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals,bounds=(0,1), doc='Cellulose to glucose rate, g/kg s')
+    m.r3=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals,bounds=(0,1), doc='Cellobiose to glucose rate, g/kg s')
+    m.r4=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals,bounds=(0,1), doc='Xylan to xylose rate, g/kg s')
+    m.r5=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals,bounds=(0,1), doc='Xylan to acetic acid rate, g/kg s')
 
     #---- main variables -------------------------------------------------------------
     def _C_init(m,t,j):
         return m.C0[j]
-    m.C=pe.Var(m.t, m.j, initialize=_C_init,within=pe.NonNegativeReals, doc='Concentrations, units of g/kg') #bounds=(0, 10000))
+    m.C=pe.Var(m.t, m.j, initialize=_C_init,within=pe.NonNegativeReals,bounds=(0,1000), doc='Concentrations, units of g/kg') #bounds=(0, 10000))
     m.M=pe.Var(m.t,initialize=1,within=pe.NonNegativeReals,bounds=(0,m.Mmax), doc='Fermenter hold-up in kg') #MAXIMUM HOLD UP IN m^3 is 250   The fermentation tank is filled up to 220 t with a constant feed rate calculated as the sum between the enzymatic hydrolysis outflow rate and the C5 liquid from the pretreatment process
-    m.R = pe.Var(m.t, m.j, initialize=1, within=pe.Reals, doc='units of g/ (kg s)')
+    m.R = pe.Var(m.t, m.j, initialize=1, within=pe.Reals,bounds=(-1,1), doc='units of g/ (kg s)')
 
     # ---------Reaction kinetic expresions for fermentation part -------------------------
 
-    m.q=pe.Var(m.t,m.j,initialize=1,within=pe.Reals,doc='fermentation reactions kinetic expresions [g/kg s]')
+    m.q=pe.Var(m.t,m.j,initialize=1,within=pe.Reals,bounds=(-1,1),doc='fermentation reactions kinetic expresions [g/kg s]')
 
     #---------derivative variables-------------------------------------------
-    m.dCdt=dae.DerivativeVar(m.C,wrt=m.t)
-    m.dMdt=dae.DerivativeVar(m.M,wrt=m.t)
+    m.dCdt=dae.DerivativeVar(m.C,wrt=m.t,bounds=(-10000,10000),initialize=0)
+    m.dMdt=dae.DerivativeVar(m.M,wrt=m.t,bounds=(-10000000,10000000),initialize=0)
 
     #--------constraitns----------------------------------------------------
 
@@ -2334,9 +2334,9 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
     m.r_kCO2=pe.Param(initialize=2.4*(60)*(24),doc='reaction rate constant in the equilibrium CO2 reaction [   1/d    ]') #NOT given, retrieved from: "Extensions to modeling aerobic carbon degradation using combined respirometric–titrimetric measurements in view of activated sludge model calibration"
     m.CO2_atm=pe.Param(initialize=1.71E-5,doc='Atmospheric CO2 concentration [ mol/L ]') #Given in ACC short paper
 
-    m.avance=pe.Var(m.t,m.r_elect,within=pe.Reals,initialize=0,doc='production/consumption terms in reactions for pH calculations')
+    m.avance=pe.Var(m.t,m.r_elect,within=pe.Reals,bounds=(-10,10),initialize=0,doc='production/consumption terms in reactions for pH calculations')
 
-    m.C_elect_init=pe.Var(m.t,m.j_elect,within=pe.NonNegativeReals,initialize=0.001,doc='Initial concentration of electrolytes')
+    m.C_elect_init=pe.Var(m.t,m.j_elect,within=pe.NonNegativeReals,bounds=(0,10),initialize=0.001,doc='Initial concentration of electrolytes')
 
     def _C_elect_init_constraint(m,t,j):
         if j=='C2H4O2': #Acetic acid
@@ -2350,7 +2350,7 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
 
     m.C_elect_init_constraint=pe.Constraint(m.t,m.j_elect,rule=_C_elect_init_constraint)
 
-    m.C_elect_equil=pe.Var(m.t,m.j_elect,within=pe.NonNegativeReals,initialize=1E-5,doc='Equilibrium concentration of electrolytes')
+    m.C_elect_equil=pe.Var(m.t,m.j_elect,within=pe.NonNegativeReals,bounds=(0,10),initialize=1E-5,doc='Equilibrium concentration of electrolytes')
 
 
     def _equilibrium_relationships(m,t,r):
@@ -2376,7 +2376,7 @@ def build_fermentation(discretization: str='collocation',n_f_elements_t: int=10)
 
     def _pH(m,t): #TODO: either leave pH constant or include electrolyte balance
         return 5.5
-    m.pH=pe.Var(m.t,within=pe.NonNegativeReals,initialize=_pH,bounds=(0,30),doc='pH profile for model validation')
+    m.pH=pe.Var(m.t,within=pe.NonNegativeReals,initialize=_pH,bounds=(1,8),doc='pH profile for model validation')
 
 
     def _pH_definition(m,t):
@@ -2760,9 +2760,75 @@ def fermentation_optimal_control(include_parametrization: bool=True,simple_param
     # Objective function
     def _obj_rule(m):
         # return -m.C[m.t.last(),'Eth']*m.M[m.t.last()]
-        return -m.C[m.t.last(),'Eth']#+1000*(sum((m.F_C5liquid_new[t]-m.F_C5liquid_new[m.t.prev(t)])**2 for t in m.t if t!=m.t.first())+sum((m.F_liquified_fibers_new[t]-m.F_liquified_fibers_new[m.t.prev(t)])**2 for t in m.t if t!=m.t.first()))
+        return -m.C[m.t.last(),'Eth']
     m.fer.obj=pe.Objective(rule=_obj_rule)
     return m
+
+#SIMPLIFIED VERSION, GIVEN THAT THE PROBLEM IN fermentation_optimal_control BECAME TOO COMPLEX
+def fermentation_optimal_control_2()-> pe.ConcreteModel():
+    
+    m=pe.ConcreteModel(name='Fermentation_control_simplified')
+
+
+    m_fer=build_fermentation(discretization='differences',n_f_elements_t=50)
+    m.fer=initialize_model(m_fer,from_feasible=True,feasible_model='validation_fermentation')
+
+    m.fer.del_component(m.fer.obj)
+    m.fer.del_component(m.fer.F_base)
+    m.fer.F_base_constant=pe.Var(initialize=0.01,within=pe.NonNegativeReals,bounds=(0,1),doc='Constant base flow during fed-batch phase')
+
+    # Remove constant feed parameters
+    # val1=pe.value(m.fer.F_C5liquid)
+    # val2=pe.value(m.fer.F_liquified_fibers)
+    m.fer.del_component(m.fer.F_C5liquid)
+    m.fer.del_component(m.fer.F_liquified_fibers)
+
+    # Creating new variables for time
+    def _F_C5liquid_new(m):
+        return 628*(1/60)*(1/60)
+    m.fer.F_C5liquid_new=pe.Var(initialize=_F_C5liquid_new,within=pe.NonNegativeReals,bounds=(0,628*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
+
+    # m.fer.F_C5liquid_new.fix(val1)
+
+
+    def _F_liquified_fibers_new(m):
+        return 2487*(1/60)*(1/60)
+    m.fer.F_liquified_fibers_new=pe.Var(initialize=_F_liquified_fibers_new,within=pe.NonNegativeReals,bounds=(0,2487*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
+    
+    # m.fer.F_liquified_fibers_new.fix(val2)
+
+    # Updating input flow constraints
+    m.fer.del_component(m.fer.Feed_constraint)
+    m.fer.del_component(m.fer.Feed_concentration_constraint)
+
+    def _Feed_constraint_new(m,t):
+
+        if t*m.final_time<=10*60*60: # Inoculum phase
+            return m.Fin[t]==m.F_liquified_fibers_new
+        elif t*m.final_time> 10*60*60 and t*m.final_time <=70*60*60: #Fed-batch phase
+            return m.Fin[t]==m.F_C5liquid_new + m.F_liquified_fibers_new+m.F_base_constant+m.F_acid[t]       #(m.Mmax-m.M0)/(70*60*60-10*60*60)
+        elif t*m.final_time>70*60*60 and t*m.final_time<=190*60*60: #Batch phase
+            return m.Fin[t]==0
+
+    m.fer.Feed_constraint_new=pe.Constraint(m.fer.t,rule=_Feed_constraint_new)
+
+    def _Feed_concentration_constraint_new(m,t,j):
+        if t*m.final_time<=10*60*60: # Inoculum phase
+            return m.Cin[t,j]==m.C_liquified_fibers[j]
+        elif t*m.final_time> 10*60*60 and t*m.final_time <=70*60*60: #Fed-batch phase
+            return m.Cin[t,j]*(m.F_C5liquid_new + m.F_liquified_fibers_new+m.F_base_constant+m.F_acid[t])==(m.F_C5liquid_new*m.C_C5liquid[j]+m.F_liquified_fibers_new*m.C_liquified_fibers[j]+m.F_base_constant*m.C_base[j]+m.F_acid[t]*m.C_acid[j])
+        elif t*m.final_time>70*60*60 and t*m.final_time<=190*60*60: #Batch phase
+            return m.Cin[t,j]== 0  
+    m.fer.Feed_concentration_constraint_new=pe.Constraint(m.fer.t,m.fer.j,rule=_Feed_concentration_constraint_new)
+
+    # Objective function
+    def _obj_rule(m):
+        # return -m.C[m.t.last(),'Eth']*m.M[m.t.last()]
+        return -m.C[m.t.last(),'Eth']
+    m.fer.obj=pe.Objective(rule=_obj_rule)
+    return m
+
+
 
 def global_model(initialize_vars_at_steady_state: bool=True)-> pe.ConcreteModel():
     #-------------------------------------------------------------------------
@@ -2915,8 +2981,9 @@ if __name__ == '__main__':
     v2='HYDROLISIS--'
     v3='FERMENTATION--'
     v4='GLOBAL--'
-    v5='1_FERMENTATION_CONTROL'
-    solver='conopt4'
+    v5='1_FERMENTATION_CONTROL--' # FIRST TESTS TO IDENTIFY FEASIBLE SOLUTION WITHOUT PARAMETRIZATION
+    v6='2_FERMENTATION_CONTROL' # TRYING TO INCLUDE FLOW PARAMETRIZATION
+    solver='conopt'
 
     ### PRETREATMENT SIMULATION
     if v1=='PRETREATMENT':
@@ -2994,7 +3061,6 @@ if __name__ == '__main__':
         plt.xlabel('length,m')
         plt.ylabel('Temperature, °C')
         plt.show()
-
     ### HYDROLISIS SIMULATION
     if v2=='HYDROLISIS':
         sim_time=72000 #seconds
@@ -3098,7 +3164,6 @@ if __name__ == '__main__':
         plt.ylabel('pH')
         plt.legend()
         plt.show()
-
     ### FERMENTATION ADJUSTMENT AND SIMULATION
     if v3=='FERMENTATION':
         discretization_type_fer='differences'
@@ -3132,7 +3197,7 @@ if __name__ == '__main__':
         mad=build_fermentation_pH_control_adjustment2(discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer,data=adjust_data)
         mad=initialize_model(mad,from_feasible=True,feasible_model='validation_fermentation_init2')        
         opt1 = SolverFactory('gams')
-        results = opt1.solve(mad, solver='conopt4', tee=True)
+        results = opt1.solve(mad, solver=solver, tee=True)
         generate_initialization(m=mad,model_name='validation_fermentation_readjusted2')
 
         mad.K0G.pprint()
@@ -3147,7 +3212,7 @@ if __name__ == '__main__':
         for t in mad.t:
             mad.F_base[t].fix(mad.F_base[t].value)   
         opt1 = SolverFactory('gams')
-        results = opt1.solve(mad, solver='conopt4', tee=True)
+        results = opt1.solve(mad, solver=solver, tee=True)
         generate_initialization(m=mad,model_name='validation_fermentation')
 
         time=[]
@@ -3224,9 +3289,9 @@ if __name__ == '__main__':
     if v5=='1_FERMENTATION_CONTROL':
     
         m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=True,include_flow_integrals=True,fed_batch_and_batch_phase=False)
-        # m=initialize_model(m,from_feasible=True,feasible_model='')         
+        # Note that "fermentation_optimal_control" has an initialization from the simulation inside, hence I do not need to initialize here!       
         opt1 = SolverFactory('gams')
-        results = opt1.solve(m, solver='conopt4', tee=True)  
+        results = opt1.solve(m, solver=solver, tee=True)  
         generate_initialization(m=m,model_name='fermentation_control2')   
 
 
@@ -3235,7 +3300,7 @@ if __name__ == '__main__':
         for t in m.fer.t:
             m.fer.F_base[t].fix(0) 
         opt1 = SolverFactory('gams')
-        results = opt1.solve(m, solver='conopt4', tee=True)  
+        results = opt1.solve(m, solver=solver, tee=True)  
         generate_initialization(m=m,model_name='fermentation_control3')   
 
 
@@ -3243,11 +3308,11 @@ if __name__ == '__main__':
         m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
         m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control3') 
         opt1 = SolverFactory('gams')
-        results = opt1.solve(m, solver='conopt4', tee=True)  
+        results = opt1.solve(m, solver=solver, tee=True)  
         generate_initialization(m=m,model_name='fermentation_control4') 
 
         m=fermentation_optimal_control(include_parametrization=False,simple_parametrization=False,fix_base_flow=False,include_flow_integrals=True,fed_batch_and_batch_phase=False)
-        m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control4')
+        m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control3')
 
         # # # for j in range(1,100,1):
         # # #     start=tim.time()
@@ -3328,25 +3393,203 @@ if __name__ == '__main__':
             plt.legend()
         plt.show()
 
-        # plt.plot(time,pH)
-        # plt.xlabel('time [-]')
-        # plt.ylabel('pH')
-        # plt.show()
+        plt.plot(time,pH)
+        plt.xlabel('time [-]')
+        plt.ylabel('pH')
+        plt.show()
 
         plt.plot(time,Hold_up)
         plt.xlabel('time [-]')
         plt.ylabel('Hold-up [kg]')
         plt.show()
 
-        # plt.plot(time,Flow_acid)
-        # plt.xlabel('time [-]')
-        # plt.ylabel('Acid flow')
-        # plt.show()
+        plt.plot(time,Flow_acid)
+        plt.xlabel('time [-]')
+        plt.ylabel('Acid flow')
+        plt.show()
 
-        # plt.plot(time,Flow_base)
-        # plt.xlabel('time [-]')
-        # plt.ylabel('Base flow')
-        # plt.show()
+        plt.plot(time,Flow_base)
+        plt.xlabel('time [-]')
+        plt.ylabel('Base flow')
+        plt.show()
+
+        plt.plot(time,Flow_C5)
+        plt.xlabel('time [-]')
+        plt.ylabel('C5 flow')
+        plt.show()
+
+        plt.plot(time,Flow_F)
+        plt.xlabel('time [-]')
+        plt.ylabel('Liquified fibers flow')
+        plt.show()
+
+
+    if v6=='2_FERMENTATION_CONTROL':
+        m=fermentation_optimal_control_2()
+
+
+
+        m.fer.obj.deactivate()
+
+        def _obj_rule2(m):
+            return 1#-m.C[m.t.last(),'Eth']#-m.M[m.t.last()]   #-m.C[m.t.last(),'Eth']
+        m.fer.obj2=pe.Objective(rule=_obj_rule2)
+
+
+        m.scaling_factor = pe.Suffix(direction=pe.Suffix.EXPORT)
+        # m.scaling_factor[m.fer.obj2] = 1e-6 # scale the objective
+        m.scaling_factor[m.fer.F_base_constant]=1e+3
+        m.scaling_factor[m.fer.Fin]=1e+1
+        m.scaling_factor[m.fer.Cin]=1e-2
+        m.scaling_factor[m.fer.Ce]=1
+        m.scaling_factor[m.fer.Cef]=1
+        m.scaling_factor[m.fer.Ceb]=1e+1
+        m.scaling_factor[m.fer.CebC]=1e+3
+        m.scaling_factor[m.fer.r1]=1e+7
+        m.scaling_factor[m.fer.r2]=1e+6
+        m.scaling_factor[m.fer.r3]=1e+6
+        m.scaling_factor[m.fer.r4]=1e+7
+        m.scaling_factor[m.fer.r5]=1e+7
+        m.scaling_factor[m.fer.C]=1
+        m.scaling_factor[m.fer.M]=1e-5
+        m.scaling_factor[m.fer.R]=1e+5
+        m.scaling_factor[m.fer.q]=1e+5
+        m.scaling_factor[m.fer.avance]=1
+        m.scaling_factor[m.fer.C_elect_init]=1e+1
+        m.scaling_factor[m.fer.C_elect_equil]=1e+1
+        m.scaling_factor[m.fer.dCdt]=1e-3
+        m.scaling_factor[m.fer.dMdt]=1e-5
+
+        m = pe.TransformationFactory('core.scale_model').create_using(m)
+
+        # m.fer.F_liquified_fibers_new.pprint()
+
+        # var_val_comparison={}
+        # for v in m.component_data_objects(ctype=pe.Var):
+        #     try:
+        #         var_val_comparison[v.name]=[pe.value(v),0]
+        #     except:
+        #         var_val_comparison[v.name]=[0,0]
+
+
+
+
+        # def _CEth_concentration(m):
+        #     return m.C[m.t.last(),'Eth']<=60
+        # m.fer.CEth_concentration=pe.Constraint(rule=_CEth_concentration)
+
+
+        # m=initialize_model(m,from_feasible=True,feasible_model='fermentation_control4') 
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m, solver=solver, tee=True)  
+
+
+        # m = pe.TransformationFactory('core.scale_model').propagate_solution(scaled_model,m)
+
+        # generate_initialization(m=m,model_name='fermentation_control_new') 
+        
+        m.fer.scaled_obj2.deactivate()
+
+        def _obj_rule3(m):
+            return -m.scaled_M[m.t.last()]#-m.C[m.t.last(),'Eth']#-m.C[m.t.last(),'Eth']#-m.M[m.t.last()]   #-m.C[m.t.last(),'Eth']
+        m.fer.obj3=pe.Objective(rule=_obj_rule3)
+
+        m.fer.scaled_F_C5liquid_new.fix(pe.value(m.fer.scaled_F_C5liquid_new))   
+        m.fer.scaled_F_liquified_fibers_new.fix(pe.value(m.fer.scaled_F_liquified_fibers_new))
+        m.fer.scaled_F_base_constant.fix(pe.value(m.fer.scaled_F_base_constant))
+
+
+        opt1 = SolverFactory('gams')
+        results = opt1.solve(m, solver=solver, tee=True) 
+
+
+        # generate_initialization(m=m,model_name='fermentation_control_new2') 
+        # for v in m.component_data_objects(ctype=pe.Var):
+        #     try:
+        #         var_val_comparison[v.name][1]=pe.value(v)
+        #     except:
+        #         var_val_comparison[v.name][1]=0
+
+
+        # magnitude_dif={}
+        # for v in m.component_data_objects(ctype=pe.Var):
+        #     magnitude_dif[v.name]=abs(var_val_comparison[v.name][1]-var_val_comparison[v.name][0])
+        # magnitude_dif_sorted=sorted(magnitude_dif.items(), key=lambda x: x[1])
+        # print(magnitude_dif_sorted)
+
+
+
+        mad=m.fer
+
+
+
+        time=[]
+        vec={}
+        pH=[]
+        Hold_up=[]
+        Flow_base=[]
+        Flow_acid=[]
+        Flow_C5=[]
+        Flow_F=[]
+
+        for t in mad.t:
+            time.append(t*mad.final_time*(1/60)*(1/60))
+            pH.append(mad.scaled_pH[t].value)
+            Hold_up.append(mad.scaled_M[t].value)
+            Flow_base.append(mad.scaled_F_base_constant.value)
+            Flow_acid.append(mad.F_acid[t].value)
+            Flow_C5.append(mad.scaled_F_C5liquid_new.value)
+            Flow_F.append(mad.scaled_F_liquified_fibers_new.value)
+
+        for j in mad.j:
+            vec[j]=[]
+            for t in mad.t:
+                vec[j].append(mad.scaled_C[t,j].value)
+
+        colors=['b','g','m','r','k','y','c']
+        contador=-1
+        for j in mad.j:
+            if j=='G' or j=='X' or j=='Eth' or j=='Cell':
+                contador=contador+1
+                plt.plot(time,vec[j],colors[contador],label=j)
+                original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
+                plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('time [h]')
+            plt.ylabel('Concentration [g/kg]')
+            plt.legend()
+        plt.show()
+
+        contador=-1
+        for j in mad.j:
+            if j=='CS' or j=='XS' or j=='E':
+                contador=contador+1
+                plt.plot(time,vec[j],colors[contador],label=j)
+                original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
+                plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('time [h]')
+            plt.ylabel('Concentration [g/kg]')
+            plt.legend()
+        plt.show()
+
+        plt.plot(time,pH)
+        plt.xlabel('time [-]')
+        plt.ylabel('pH')
+        plt.show()
+
+        plt.plot(time,Hold_up)
+        plt.xlabel('time [-]')
+        plt.ylabel('Hold-up [kg]')
+        plt.show()
+
+        plt.plot(time,Flow_acid)
+        plt.xlabel('time [-]')
+        plt.ylabel('Acid flow')
+        plt.show()
+
+        plt.plot(time,Flow_base)
+        plt.xlabel('time [-]')
+        plt.ylabel('Base flow')
+        plt.show()
 
         plt.plot(time,Flow_C5)
         plt.xlabel('time [-]')
