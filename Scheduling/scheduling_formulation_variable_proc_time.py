@@ -18,8 +18,8 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     m = pe.ConcreteModel(name='scheduling_gdp_var_proc_time')
 
     # ------------scalars    ------------------------------------------------   
-    m.delta=pe.Param(initialize=last_time_hours/last_disc_point,doc='lenght of time periods of discretized time grid for scheduling [units of time]') #TODO: Update as required
-    m.lastT=pe.Param(initialize=last_disc_point,doc='last discrete time value in the scheduling time grid') #TODO: Update as required
+    m.delta=pe.Param(initialize=last_time_hours/last_disc_point,doc='lenght of time periods of discretized time grid for scheduling [units of time]') 
+    m.lastT=pe.Param(initialize=last_disc_point,doc='last discrete time value in the scheduling time grid') 
     
     # -----------sets--------------------------------------------------------
     #Main sets
@@ -238,7 +238,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         else:
             return m.beta_min[I,J]*m.X[I,J,T]<=m.B[I,J,T]
 
-    m.E2_CAPACITY_LOW=pe.Constraint(m.I,m.J,m.T,rule=_E2_CAPACITY_LOW,doc='UNIT CAPACITY LOWER BOUND')
+    m.E2_CAPACITY_LOW=pe.Constraint(m.I,m.J,m.T,rule=_E2_CAPACITY_LOW,doc='(1A): UNIT CAPACITY LOWER BOUND')
 
     def _E2_CAPACITY_UP(m,I,J,T):
         if  m.I_i_j_prod[I,J]!=1:
@@ -246,57 +246,31 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         else:
             return m.B[I,J,T]<=m.beta_max[I,J]*m.X[I,J,T]
 
-    m.E2_CAPACITY_UP=pe.Constraint(m.I,m.J,m.T,rule=_E2_CAPACITY_UP,doc='UNIT CAPACITY UPPER BOUND')
+    m.E2_CAPACITY_UP=pe.Constraint(m.I,m.J,m.T,rule=_E2_CAPACITY_UP,doc='(1A): UNIT CAPACITY UPPER BOUND')
 
     def _E3_BALANCE_INIT(m,K):
         return m.S[K,0]==m.S0[K]-sum(m.rho_minus[I,K]*sum(m.B[I,J,0] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)#-m.demand[K,0]
-    m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='MATERIAL BALANCES INITIAL CONDITION')
+    m.E3_BALANCE_INIT=pe.Constraint(m.K,rule=_E3_BALANCE_INIT,doc='(1C): MATERIAL BALANCES INITIAL CONDITION')
 
     # TODO, IN THIS CASE I ASSUME AN EQUALITY CONSTRAINT
     if obj_type=='cost_min': 
         def _E_DEMAND_SATISFACTION(m,K):
             return m.S[K,m.lastT]==m.demand[K,m.lastT]
-        m.E_DEMAND_SATISFACTION=pe.Constraint(m.K_products,rule=_E_DEMAND_SATISFACTION,doc='INVENTORY LEVEL OF PRODUCTS NEEDS TO MEET THE ORDER DEMAND')
+        m.E_DEMAND_SATISFACTION=pe.Constraint(m.K_products,rule=_E_DEMAND_SATISFACTION,doc='DOES NOT APPEAR IN MANUSCRIPT: INVENTORY LEVEL OF PRODUCTS NEEDS TO MEET THE ORDER DEMAND')
                
     def _E1_UNIT(m,J,T):
         return sum(m.sumX[I,J,T] for I in m.I if  m.I_i_j_prod[I,J]==1) <=  1           
-    m.E1_UNIT=pe.Constraint(m.J,m.T,rule=_E1_UNIT,doc='UNIT UTILIZATION')
+    m.E1_UNIT=pe.Constraint(m.J,m.T,rule=_E1_UNIT,doc='(1B): UNIT UTILIZATION')
 
     def _E3_BALANCE(m,K,T):
         if T==0:
             return pe.Constraint.Skip
         else:
             return m.S[K,T]==m.S[K,T-1]+sum(m.rho_plus[I,K]*sum(m.B_shift[I,J,T] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_plus[I,K]==1) - sum(m.rho_minus[I,K]*sum(m.B[I,J,T] for J in m.J if m.I_i_j_prod[I,J]==1) for I in m.I if m.I_i_k_minus[I,K]==1)#-m.demand[K,T]    
-    m.E3_BALANCE=pe.Constraint(m.K,m.T,rule=_E3_BALANCE,doc='MATERIAL BALANCES')
+    m.E3_BALANCE=pe.Constraint(m.K,m.T,rule=_E3_BALANCE,doc='(1D): MATERIAL BALANCES')
 
     #*****DISJUNCTIVE SECTION**********************************   
-#TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
-    # _minTau={}
-    # _minTau['T1','U1']=math.ceil(1/m.delta)
 
-    # _minTau['T2','U2']=math.ceil(1/m.delta)
-    # _minTau['T2','U3']=math.ceil(1/m.delta)
-
-    # _minTau['T3','U2']=math.ceil(1/m.delta)
-    # _minTau['T3','U3']=math.ceil(1/m.delta)
-
-    # _minTau['T4','U2']=math.ceil(1/m.delta)
-    # _minTau['T4','U3']=math.ceil(4/m.delta)
-
-    # _minTau['T5','U4']=math.ceil(1/m.delta)
-
-    # _minTau['T1','U1']=1
-
-    # _minTau['T2','U2']=1
-    # _minTau['T2','U3']=2
-
-    # _minTau['T3','U2']=1
-    # _minTau['T3','U3']=3
-
-    # _minTau['T4','U2']=1
-    # _minTau['T4','U3']=5
-
-    # _minTau['T5','U4']=2
     def _minTau_rule(m,I,J):
         if m.I_i_j_prod[I,J]==1:
             return math.ceil(lower_t_h[(I,J)]/m.delta)
@@ -304,33 +278,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
             return 0
     m.minTau=pe.Param(m.I,m.J,initialize=_minTau_rule,doc='Minimum number of discrete elements required to complete task [dimensionless]')
 
-#TODO: note that I am using the discrete varions of tau here. Hence, these bounds depend on the discretization step. Whenever I try a differnt discretization step I have to change these bounds accordingly
-    # _maxTau={}
-    # _maxTau['T1','U1']=math.ceil(2/m.delta)
 
-    # _maxTau['T2','U2']=math.ceil(2/m.delta)
-    # _maxTau['T2','U3']=math.ceil(3/m.delta)
-
-    # _maxTau['T3','U2']=math.ceil(2/m.delta)
-    # _maxTau['T3','U3']=math.ceil(6/m.delta)
-
-    # _maxTau['T4','U2']=math.ceil(2/m.delta)
-    # _maxTau['T4','U3']=math.ceil(6/m.delta)
-
-    # _maxTau['T5','U4']=math.ceil(3/m.delta)
-
-    # _maxTau['T1','U1']=1
-
-    # _maxTau['T2','U2']=1
-    # _maxTau['T2','U3']=2
-
-    # _maxTau['T3','U2']=1
-    # _maxTau['T3','U3']=3
-
-    # _maxTau['T4','U2']=1
-    # _maxTau['T4','U3']=5
-
-    # _maxTau['T5','U4']=2
     def _maxTau_rule(m,I,J):
         if m.I_i_j_prod[I,J]==1:
             return math.ceil(upper_t_h[(I,J)]/m.delta)
@@ -344,9 +292,9 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
             return (0,upper_t_h[(I,J)])
         else:
             return (0,0)
-    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing time for units that consider dynamics [h]')
+    m.varTime=pe.Var(m.I,m.J,m.T,within=pe.NonNegativeReals,bounds=_varTime_bounds,doc='Variable processing times [h]')
 
-
+    #NOTE: that Eq. (1G) in the manuscript is not needed because lower bound for processing time is 0
 
     ### THIS SECTION CONSIDERS THE RELATIONSHIP BETWEEN varTime and b.
     def _rule_beta_time(m,I,J):
@@ -368,8 +316,11 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         else:
             return m.varTime[I,J,T]-m.beta_time[I,J]*m.B[I,J,T]<=upper_t_h[(I,J)]*(1-m.X[I,J,T])
     
-    m.ineq_rel_1=pe.Constraint(m.I,m.J,m.T,rule=_rule_ineqrel_1)
-    m.ineq_rel_2=pe.Constraint(m.I,m.J,m.T,rule=_rule_ineqrel_2)
+    m.ineq_rel_1=pe.Constraint(m.I,m.J,m.T,rule=_rule_ineqrel_1,doc='DOES NOT APPEAR IN MANUSCRIPT: Linear Big-M relationship between processing times and size of batches')
+    m.ineq_rel_2=pe.Constraint(m.I,m.J,m.T,rule=_rule_ineqrel_2,doc='DOES NOT APPEAR IN MANUSCRIPT: Linear Big-M relationship between processing times and size of batches')
+
+
+
     ### END OF THE SECTION
 
     m.ordered_set={}
@@ -396,7 +347,7 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                 #Constraint that allow to apply the reformulation over YR
                 def _select_one(m):
                     return pe.exactly(1,m.YR[I,J])
-                m.oneYR[I,J]=pe.LogicalConstraint(rule=_select_one) 
+                m.oneYR[I,J]=pe.LogicalConstraint(rule=_select_one,doc='(1H): exactly on (OR) operator between disjunctions') 
                 setattr(m,'oneYR_%s_%s' %(I,J),m.oneYR[I,J])  
 
                 # Declaration of disjuncts
@@ -406,14 +357,14 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                     # #----------- Variable processing times----------------------------------------------------------------
                     # TODO: CHANGE TO INEQUALITY AND ADD NEW CONSTRAINT RELATING varTime AND B outside disjunction
                     def _DEF_VAR_TIME(m,T):
-                        return m.model().varTime[I,J,T]<=pe.value(m.model().tau_p[I,J]) #NOTE #when using les or equal this formulation is correct. But when using equal I should use the min operatior
-                    m.DEF_VAR_TIME=pe.Constraint(m.model().T,rule=_DEF_VAR_TIME,doc='Assignment of variable time value')
+                        return m.model().varTime[I,J,T]<=pe.value(m.model().tau_p[I,J]) #NOTE #when using les or equal this formulation is correct. But when using equal I should use the min operatior in Eq. (1H)
+                    m.DEF_VAR_TIME=pe.Constraint(m.model().T,rule=_DEF_VAR_TIME,doc='(1H): Relationshipt between continuous and discrete processing time')
                     # m.DEF_VAR_TIME.display()
 
                     # # --------- Constraint for Aux variable 1-------------------------------------------------------------
                     def _DEF_AUX1(m,T):
                         return m.model().sumX[I,J,T]==sum(m.model().X[I,J,TP] for TP in m.model().T if TP<=T and TP>=T-pe.value(m.model().tau[I,J])+1)
-                    m.DEF_AUX1=pe.Constraint(m.model().T,rule=_DEF_AUX1,doc='Definition of auxiliary variable 1')
+                    m.DEF_AUX1=pe.Constraint(m.model().T,rule=_DEF_AUX1,doc='(1H):Definition of auxiliary variable 1')
                     # # --------- Constraint for Aux variable 2-------------------------------------------------------------
                     def _DEF_AUX2(m,T):
                         if T==0:        
@@ -422,15 +373,15 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                             return m.model().B_shift[I,J,T]==m.model().B[I,J,T-pe.value(m.model().tau[I,J])]
                         else:
                             return m.model().B_shift[I,J,T]==0
-                    m.DEF_AUX2=pe.Constraint(m.model().T,rule=_DEF_AUX2,doc='Definition of auxiliary variable 2')
+                    m.DEF_AUX2=pe.Constraint(m.model().T,rule=_DEF_AUX2,doc='(1H):Definition of auxiliary variable 2')
                     # # ----------Scheduling Constraints that depend on disjunctions-----------------------------------------    
-                m.YR_disjunct[I,J]=Disjunct(m.ordered_set[I,J],rule=_build_disjuncts,doc="each disjunct defines those constraints that are activated depending on the selected tau")    
+                m.YR_disjunct[I,J]=Disjunct(m.ordered_set[I,J],rule=_build_disjuncts,doc="(1H): each disjunct defines those constraints that are activated depending on the selected tau")    
                 setattr(m,'YR_Disjunct_%s_%s' %(I,J),m.YR_disjunct[I,J])
                 
                 #Create disjunction
                 def Disjunction1(m):    #Disjunction for first Boolean variable
                     return [m.YR_disjunct[I,J][dis_set] for dis_set in m.ordered_set[I,J]]
-                m.Disjunction1[I,J]=Disjunction(rule=Disjunction1,xor=True)
+                m.Disjunction1[I,J]=Disjunction(rule=Disjunction1,xor=True,doc='(1H): Declaration of disjunction')
                 setattr(m,'Disjunction1_%s_%s' %(I,J),m.Disjunction1[I,J])
 
                 # Associate disjuncts with boolean variables
@@ -453,70 +404,18 @@ def scheduling_gdp_var_proc_time(x_initial: list=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
     def _X_Z_relation(m,I,J):
         return sum(m.X[I,J,T] for T in m.T)==m.Nref[I,J]
-    m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='constraint that specifies the relationship between Integer and binary variables')   
-
-#-------- this is required to apply dsda and ldbd (however when using variable continuous processing time these disjunctions now serve a purpose!!!!)----------------------------------------
-    # m.ordered_set2={}
-    # m.YR2={}
-    # m.oneYR2={}
-    # m.YR2_Disjunct={}
-    # m.Disjunction2={}
-    # for I_J in m.I_J:
-    #     positcui=positcui+1
-    #     I=I_J[0]
-    #     J=I_J[1]
-    #     m.ordered_set2[I,J]=pe.RangeSet(0,m.lastN[I,J],doc='Ordered set for each task-unit pair, related to batching variable') 
-    #     setattr(m,'ordered_set2_%s_%s' %(I,J),m.ordered_set2[I,J])
-          
-    #     def _YR2init(m,ordered_set2):
-    #         if ordered_set2== x_initial[positcui]-1:
-    #             return True
-    #         else:
-    #             return False       
-    #     m.YR2[I,J]=pe.BooleanVar(m.ordered_set2[I,J],initialize=_YR2init)
-    #     setattr(m,'YR2_%s_%s' %(I,J), m.YR2[I,J])
-
-    #     def _select_one2(m):
-    #         return pe.exactly(1,m.YR2[I,J])
-    #     m.oneYR2[I,J]=pe.LogicalConstraint(rule=_select_one2) 
-    #     setattr(m,'oneYR2_%s_%s' %(I,J),m.oneYR2[I,J])        
-
-    #     def _build_YR2_Disjunct(m,indexN):
-    #         def _DEF_Nref(m):
-    #             return m.model().Nref[I,J]==indexN
-    #         m.DEF_Nref=pe.Constraint(rule=_DEF_Nref)
-    #     m.YR2_Disjunct[I,J]=Disjunct(m.ordered_set2[I,J],rule=_build_YR2_Disjunct)
-    #     setattr(m,'YR2_Disjunct_%s_%s' %(I,J),m.YR2_Disjunct[I,J])
-
-    #     #Create disjunction
-    #     def Disjunction2(m):   
-    #         return [m.YR2_Disjunct[I,J][dis_set] for dis_set in m.ordered_set2[I,J]]
-    #     m.Disjunction2[I,J]=Disjunction(rule=Disjunction2,xor=True)
-    #     setattr(m,'Disjunction2_%s_%s' %(I,J),m.Disjunction2[I,J])
-
-
-    # # Associate disjuncts with boolean variables
-    #     for index in m.ordered_set2[I,J]:
-    #         m.YR2[I,J][index].associate_binary_var(m.YR2_Disjunct[I,J][index].indicator_var)
+    m.X_Z_relation=pe.Constraint(m.I_J,rule=_X_Z_relation,doc='(1F): constraint that specifies the relationship between Integer and binary variables')   
 
 
     # # -----------------------------------------------------------------------
     # # -----------------------------------------------------------------------
     #-----------Objective function----------------------------------------------
-    # def _obj(m): 
-    #     return  (    
-    #       sum(sum(sum(  m.fixed_cost[I,J]*m.X[I,J,T] for J in m.J) for I in m.I) for T in m.T)                                                                          #TPC: Fixed costs for all unit-tasks
-    #     + sum(sum(sum( m.variable_cost[I,J]*m.B[I,J,T] for J in m.J_noDynamics) for I in m.I_noDynamics) for T in m.T)                                                #TPC: Variable cost for unit-tasks that do not consider dynamics
-    #     + sum(sum(sum(m.X[I,J,T]*(m.hot_cost*m.Integral_hot[I,J][m.N[I,J].last()]   +  m.cold_cost*m.Integral_cold[I,J][m.N[I,J].last()]  ) for T in m.T) for I in m.I_reactions)for J in m.J_reactors) #TPC: Variable cost for unit-tasks that do consider dynamics
-    #     + sum( m.raw_cost[K]*(m.S0[K]-m.S[K,m.lastT]) for K in m.K_inputs)                                                                                            #TMC: Total material cost
-    #     - sum( m.revenue[K]*m.S[K,m.lastT]  for K in m.K_products)                                                                                                    #SALES: Revenue form selling products
-    #     )/100 
-    # m.obj=pe.Objective(rule=_obj,sense=pe.minimize)
+
     m.TCP1=pe.Var(within=pe.Reals,initialize=0,doc='TPC: Fixed costs for all unit-tasks')
     def _C_TCP1(m):
         return  m.TCP1==sum(sum(sum(m.fixed_cost[I, J]*m.X[I, J, T]for J in m.J) for I in m.I) for T in m.T) 
     m.C_TCP1=pe.Constraint(rule=_C_TCP1)
-    m.TCP2=pe.Var(within=pe.Reals,initialize=0,doc='TPC: Variable cost for unit-tasks that do not consider dynamics')
+    m.TCP2=pe.Var(within=pe.Reals,initialize=0,doc='TPC: Variable cost for unit-tasks')
     def _C_TCP2(m):
         return m.TCP2==sum(sum(sum(m.variable_cost[I, J]*m.B[I, J, T] for J in m.J) for I in m.I) for T in m.T)
     m.C_TCP2=pe.Constraint(rule=_C_TCP2)
