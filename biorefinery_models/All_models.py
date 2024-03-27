@@ -7,9 +7,1223 @@ import math
 import pandas as pd
 import sys
 import numpy as np
-import time as tim
-sys.path.append('C:/Users/dlinanro/Desktop/GeneralBenders/')
-from functions.dsda_functions import initialize_model, generate_initialization
+from pyomo.gdp import Disjunct, Disjunction
+import copy
+import csv
+import itertools as it
+import os
+import time
+from math import isnan
+from model_serializer import StoreSpec, from_json, to_json
+from pyomo.common.errors import InfeasibleConstraintException
+from pyomo.contrib.fbbt.fbbt import fbbt
+# from pyomo.contrib.gdpopt.data_class import MasterProblemResult
+from pyomo.core.base.misc import display
+from pyomo.core.plugins.transform.logical_to_linear import \
+    update_boolean_vars_from_binary
+from pyomo.opt import SolutionStatus, SolverResults
+from pyomo.opt import TerminationCondition as tc
+from copy import deepcopy
+import logging
+
+
+
+def dummy_logic(m):
+    logic_expr = []
+    return logic_expr
+def complementary_model(m,x,dict_extvar,tee: bool = False):
+
+    m.fer.scaled_F_C5liquid_new.fix(     ((m.fer.scaled_F_C5liquid_new.ub-m.fer.scaled_F_C5liquid_new.lb)/(dict_extvar[1]['Ext_var_upper_bound']-dict_extvar[1]['Ext_var_lower_bound']))*(x[0]-dict_extvar[1]['Ext_var_upper_bound']) +  m.fer.scaled_F_C5liquid_new.ub           )   
+    m.fer.scaled_F_liquified_fibers_new.fix(((m.fer.scaled_F_liquified_fibers_new.ub-m.fer.scaled_F_liquified_fibers_new.lb)/(dict_extvar[2]['Ext_var_upper_bound']-dict_extvar[2]['Ext_var_lower_bound']))*(x[1]-dict_extvar[2]['Ext_var_upper_bound']) +  m.fer.scaled_F_liquified_fibers_new.ub   )
+    m.fer.scaled_F_base_constant.fix( ((m.fer.scaled_F_base_constant.ub-m.fer.scaled_F_base_constant.lb)/(dict_extvar[3]['Ext_var_upper_bound']-dict_extvar[3]['Ext_var_lower_bound']))*(x[2]-dict_extvar[3]['Ext_var_upper_bound']) +  m.fer.scaled_F_base_constant.ub  )
+    if tee:
+        print('*****Current value of complicating variables: '+m.fer.scaled_F_C5liquid_new.name+'='+str(m.fer.scaled_F_C5liquid_new.value)+m.fer.scaled_F_liquified_fibers_new.name+'='+str(m.fer.scaled_F_liquified_fibers_new.value)+m.fer.scaled_F_base_constant.name+'='+str(m.fer.scaled_F_base_constant.value))
+
+    return m
+
+def get_external_information(
+    m: pe.ConcreteModel(),
+    ext_ref,
+    tee: bool = False,
+):
+    """
+    Function that obtains information from the model to perform the reformulation with external variables.
+    The model must be a GDP problem with exactly one "Exactly(k_j, [Y_j1,Y_j2,Y_j3,...])" constraint for each list of variables
+    [Y_j1,Y_j2,Y_j3,...] that is going to be reformulated over set j.
+    Args:
+        m: GDP model that is going to be reformulated
+        ext_ref: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values). Both keys and values are pyomo objects.
+        tee: Display reformulation
+    Returns:
+        reformulation_dict: A dictionary of dictionaries that looks as follows:
+            {1:{'exactly_number':Number of external variables for this type,
+                'Boolean_vars_names':list with names of the ordered Boolean variables to be reformulated,
+                'Boolean_vars_ordered_index': Indexes where the external reformulation is applied,
+                'Ext_var_lower_bound': Lower bound for this type of external variable,
+                'Ext_var_upper_bound': Upper bound for this type of external variable },
+             2:{...},...}
+
+            The first key (positive integer) represent a type of external variable identified in the model. For this type of external variable
+            a dictionary is created.
+        number_of_external_variables: Number of external variables
+        lower_bounds: Dictionary with positive integer keys identifying the external variable, and its lower bound as value
+        upper_bounds: Dictionary with positive integer keys identifying the external variable, and its upper bound as value
+
+    """
+
+    # If Boolean variables that are going to be reformulated are defined over multiple sets try:
+    try:
+        # index of the set where reformultion can be applied for a given boolean variable
+        ref_index = {}
+        # index of the sets where the reformulation cannot be applied for a given boolean variable
+        no_ref_index = {}
+        for i in ext_ref:
+            ref_index[i] = []
+            no_ref_index[i] = []
+            for index_set in range(len(i.index_set()._sets)):
+                if i.index_set()._sets[index_set].name == ext_ref[i].name:
+                    ref_index[i].append(index_set)
+                else:
+                    no_ref_index[i].append(index_set)
+    # If boolean variables that are going to be reformulated are defined over a single set except:
+    except:
+        # index of the set where reformultion can be applied for a given boolean variable
+        ref_index = {}
+        # index of the sets where the reformulation cannot be applied for a given boolean variable
+        no_ref_index = {}
+        for i in ext_ref:
+            ref_index[i] = []
+            no_ref_index[i] = []
+            if i.index_set().name == ext_ref[i].name:
+                ref_index[i].append(0)
+            else:
+                no_ref_index[i].append(0)
+
+    # Identify the variables that can be reformulated by performing a loop over logical constraints
+    count = 1
+    # dict of dicts: it contains information from the exactly variables that can be reformulated into external variables.
+    reformulation_dict = {}
+    for c in m.component_data_objects(pe.LogicalConstraint, descend_into=True):
+        if c.body.getname() == 'exactly':
+            exactly_number = c.body.args[0]
+            for possible_Boolean in ext_ref:
+
+                # expected boolean variable where the reformulation is going to be applied
+                expected_Boolean = possible_Boolean.name
+                Boolean_name_list = []
+                Boolean_name_list = Boolean_name_list + \
+                    [c.body.args[1:][k]._component()._name for k in range(
+                        len(c.body.args[1:]))]
+                if all(x == expected_Boolean for x in Boolean_name_list):
+                    # expected ordered set index where the reformulation is going to be applied
+                    expected_ordered_set_index = ref_index[possible_Boolean]
+                    # index of sets where the reformulation is not applied
+                    index_of_other_sets = no_ref_index[possible_Boolean]
+                    if len(index_of_other_sets) >= 1:  # If there are other indexes
+                        Other_Sets_listOFlists = []
+                        verification_Other_Sets_listOFlists = []
+                        for j in index_of_other_sets:
+                            Other_Sets_listOFlists.append(
+                                [c.body.args[1:][k].index()[j] for k in range(len(c.body.args[1:]))])
+                            if all(c.body.args[1:][x].index()[j] == c.body.args[1:][0].index()[j] for x in range(len(c.body.args[1:]))):
+                                verification_Other_Sets_listOFlists.append(
+                                    True)
+                            else:
+                                verification_Other_Sets_listOFlists.append(
+                                    False)
+                        # If we get to this point and it is true, it means that we can apply the reformulation for this combination of Boolean var and Exactly-type constraint
+                        if all(verification_Other_Sets_listOFlists):
+                            reformulation_dict[count] = {}
+                            reformulation_dict[count]['exactly_number'] = exactly_number
+                            # rearange boolean vars in constraint
+                            sorted_args = sorted(c.body.args[1:], key=lambda x: x.index()[
+                                                 expected_ordered_set_index[0]])
+                            # Now work with the ordered version sorted_args instead of c.body.args[1:]
+                            reformulation_dict[count]['Boolean_vars_names'] = [
+                                sorted_args[k].name for k in range(len(sorted_args))]
+                            reformulation_dict[count]['Boolean_vars_ordered_index'] = [sorted_args[k].index(
+                            )[expected_ordered_set_index[0]] for k in range(len(sorted_args))]
+                            reformulation_dict[count]['Ext_var_lower_bound'] = 1
+                            reformulation_dict[count]['Ext_var_upper_bound'] = len(
+                                sorted_args)
+
+                            count = count+1
+                    # If there is only one index, then we can apply the reformulation at this point
+                    else:
+                        reformulation_dict[count] = {}
+                        reformulation_dict[count]['exactly_number'] = exactly_number
+                        # rearange boolean vars in constraint
+                        sorted_args = sorted(
+                            c.body.args[1:], key=lambda x: x.index())
+                        # Now work with the ordered version sorted_args instead of c.body.args[1:]
+                        reformulation_dict[count]['Boolean_vars_names'] = [
+                            sorted_args[k].name for k in range(len(sorted_args))]
+                        reformulation_dict[count]['Boolean_vars_ordered_index'] = [
+                            sorted_args[k].index() for k in range(len(sorted_args))]
+                        reformulation_dict[count]['Ext_var_lower_bound'] = 1
+                        reformulation_dict[count]['Ext_var_upper_bound'] = len(
+                            sorted_args)
+
+                        count = count+1
+
+    number_of_external_variables = sum(
+        reformulation_dict[j]['exactly_number'] for j in reformulation_dict)
+
+    lower_bounds = {}
+    upper_bounds = {}
+
+    exvar_num = 1
+    for i in reformulation_dict:
+        for j in range(reformulation_dict[i]['exactly_number']):
+            lower_bounds[exvar_num] = reformulation_dict[i]['Ext_var_lower_bound']
+            upper_bounds[exvar_num] = reformulation_dict[i]['Ext_var_upper_bound']
+        exvar_num = exvar_num+1
+
+    if tee:
+        print('\nReformulation Summary\n--------------------------------------------------------------------------')
+        exvar_num = 0
+        for i in reformulation_dict:
+            for j in range(reformulation_dict[i]['exactly_number']):
+                print('External variable x['+str(exvar_num)+'] '+' is associated to '+str(reformulation_dict[i]['Boolean_vars_names']) +
+                      ' and it must be within '+str(reformulation_dict[i]['Ext_var_lower_bound'])+' and '+str(reformulation_dict[i]['Ext_var_upper_bound'])+'.')
+                exvar_num = exvar_num+1
+
+        print('\nThere are '+str(number_of_external_variables) +
+              ' external variables in total')
+
+    return reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds
+
+def external_ref(
+    m: pe.ConcreteModel(),
+    x,
+    extra_logic_function,
+    dict_extvar: dict = {},
+    mip_ref: bool = False,
+    transformation: str = 'bigm',
+    tee: bool = False
+):
+    """
+    Function that
+    Args:
+        m: GDP model that is going to be reformulated
+        x: List with current value of the external variables
+        extra_logic_function: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a)
+        dict_extvar: A dictionary of dictionaries that looks as follows:
+            {1:{'exactly_number':Number of external variables for this type,
+                'Boolean_vars_names':list with names of the ordered Boolean variables to be reformulated,
+                'Boolean_vars_ordered_index': Indexes where the external reformulation is applied,
+                'Binary_vars_names':list with names of the ordered Binary variables to be reformulated, [Potentially]
+                'Binary_vars_ordered_index': Indexes where the external reformulation is applied, [Potentially]
+                'Ext_var_lower_bound': Lower bound for this type of external variable,
+                'Ext_var_upper_bound': Upper bound for this type of external variable },
+             2:{...},...}
+
+            The first key (positive integer) represent a type of external variable identified in the model. For this type of external variable
+            a dictionary is created.
+        mip_ref: whether the reformulation will consider binary variables besides Booleans coming from a GDP->MIP reformulation
+        tee: Display reformulation
+    Returns:
+        m: A model where the independent Boolean variables that were reformulated are fixed and Boolean/indicator variables that are calculated in
+        terms of the independent Boolean variables are fixed too (depending on the extra_logic_function provided by the user)
+
+    """
+    # This part of code is required due to the deep copy issue: we have to compare Boolean variables by name
+    for i in dict_extvar:
+        dict_extvar[i]['Boolean_vars'] = []
+        for j in dict_extvar[i]['Boolean_vars_names']:
+            for boolean in m.component_data_objects(pe.BooleanVar, descend_into=True):
+                if(boolean.name == j):
+                    dict_extvar[i]['Boolean_vars'] = dict_extvar[i]['Boolean_vars']+[boolean]
+        if mip_ref:
+            # This part of code is required due to the deep copy issue: we have to compare binary variables by name
+            # By uncommenting in previous function extvars_gdp_to_mip we would pass directly dict_extvar[i]['Binary_vars']
+            dict_extvar[i]['Binary_vars'] = []
+            for j in dict_extvar[i]['Binary_vars_names']:
+                for binary in m.component_data_objects(pe.Var, descend_into=True):
+                    if(binary.name == j):
+                        dict_extvar[i]['Binary_vars'] = dict_extvar[i]['Binary_vars']+[binary]
+
+# The function would start here if there were no problems with deep copy.
+    ext_var_position = 0
+    for i in dict_extvar:
+        for j in range(dict_extvar[i]['exactly_number']):
+            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                if x[ext_var_position] == k:
+                    if not mip_ref:
+                        # fix True variables: depending on the current value of the external variables, some Independent Boolean variables can be fixed
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(True)
+                    else:
+                        # fix 0 variables: depending on the current value of the external variables, some Independent Binary variables can be fixed
+                        dict_extvar[i]['Binary_vars'][k-1].fix(1)
+                        dict_extvar[i]['Boolean_vars'][k-1].set_value(True)
+            ext_var_position = ext_var_position+1
+        # Double loop required from fact that exactly_number >= 1. TODO Is there a better way to do this?
+        for j in range(dict_extvar[i]['exactly_number']):
+            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                if not mip_ref:
+                    # fix False variables: If the independent Boolean variable is not fixed at "True", then it is fixed at "False".
+                    if not dict_extvar[i]['Boolean_vars'][k-1].is_fixed():
+                        dict_extvar[i]['Boolean_vars'][k-1].fix(False)
+                else:
+                    # fix 0 variables: If the independent Boolean variable is not fixed at "1", then it is fixed at "0".
+                    if not dict_extvar[i]['Binary_vars'][k-1].is_fixed():
+                        dict_extvar[i]['Binary_vars'][k-1].fix(0)
+                        dict_extvar[i]['Boolean_vars'][k-1].set_value(False)
+
+    # Other Boolean and Indicator variables are fixed depending on the information provided by the user
+    logic_expr = extra_logic_function(m)
+    for i in logic_expr:
+        if not mip_ref:
+            i[1].fix(pe.value(i[0]))
+        else:
+            i[1].set_value(pe.value(i[0]))
+
+    pe.TransformationFactory('core.logical_to_linear').apply_to(m)
+    if mip_ref:  # Transform problem to MINLP
+        transformation_string = 'gdp.' + transformation
+        pe.TransformationFactory(transformation_string).apply_to(m)
+    else:  # Deactivate disjunction's constraints in the case of pure GDP
+        pe.TransformationFactory('gdp.fix_disjuncts').apply_to(m)
+
+    pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
+        m, tmp=False, ignore_infeasible=True)
+
+
+
+
+    # NOTE: THIS PART IS CASE STUDY DEPENDENT
+
+    m=complementary_model(m,x,dict_extvar,tee)
+
+    #********************THE LINE ABOVE IS SIMPLY A TEST FOR SCHEDULING AND CONTROL PROBLEMS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if tee:
+        print('\nFixed variables at current iteration:\n')
+        print('\n Independent Boolean variables\n')
+        for i in dict_extvar:
+            for k in range(1, len(dict_extvar[i]['Boolean_vars'])+1):
+                print(dict_extvar[i]['Boolean_vars_names'][k-1] +
+                      '='+str(dict_extvar[i]['Boolean_vars'][k-1].value))
+
+        print('\n Dependent Boolean variables and disjunctions\n')
+        for i in logic_expr:
+            print(i[1].name+'='+str(i[1].value))
+
+        if mip_ref:
+            print('\n Independent binary variables\n')
+            for i in dict_extvar:
+                for k in range(1, len(dict_extvar[i]['Binary_vars'])+1):
+                    print(dict_extvar[i]['Binary_vars_names'][k-1] +
+                          '='+str(dict_extvar[i]['Binary_vars'][k-1].value))
+
+    return m
+
+def preprocess_problem(m, simple: bool = True):
+    """
+    Function that applies certain tranformations to the mdoel to first verify that it is not trivially 
+    infeasible (via FBBT) and second, remove extra constraints to help NLP solvers
+    Args:
+        m: MI(N)LP model that is going to be preprocessed
+        simple: Boolean variable to carry on a simple preprocessing (only FBBT) or a more complete one, prone to fail
+    Returns:
+
+    """
+    if not simple:
+        pe.TransformationFactory('contrib.detect_fixed_vars').apply_to(m)
+        pe.TransformationFactory('contrib.propagate_fixed_vars').apply_to(m)
+        pe.TransformationFactory('contrib.remove_zero_terms').apply_to(m)
+        pe.TransformationFactory('contrib.propagate_zero_sum').apply_to(m)
+        pe.TransformationFactory(
+            'contrib.constraints_to_var_bounds').apply_to(m)
+        pe.TransformationFactory('contrib.detect_fixed_vars').apply_to(m)
+        pe.TransformationFactory('contrib.propagate_zero_sum').apply_to(m)
+        pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
+            m, tmp=False, ignore_infeasible=True)
+    # fbbt(m)
+
+def solve_subproblem(
+    m: pe.ConcreteModel(),
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    timelimit: float = 1000,
+    gams_output: bool = False,
+    tee: bool = False,
+    rel_tol: float = 0,
+) -> pe.ConcreteModel():
+    """
+    Function that checks feasibility and optimizes subproblem model.
+    Note integer variables have to be previously fixed in the external reformulation
+    Args:
+        m: Fixed subproblem model that is to be solved
+        subproblem_solver: MINLP or NLP solver algorithm
+        timelimit: time limit in seconds for the solve statement
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        rel_tol: Relative optimality tolerance
+    Returns:
+        m: Solved subproblem model
+    """
+    # Initialize D-SDA status
+    m.dsda_status = 'Initialized'
+    m.dsda_usertime = 0
+    start_prep=time.time()
+    try:
+        # Feasibility and preprocessing checks
+        preprocess_problem(m, simple=True)
+
+    except InfeasibleConstraintException:
+        m.dsda_status = 'FBBT_Infeasible'
+        return m
+    end_prep=time.time()
+    m.dsda_usertime =m.dsda_usertime + (end_prep-start_prep)
+    output_options = {}
+
+    # Output report
+    if gams_output:
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        gams_path = os.path.join(dir_path, "gamsfiles/")
+        if not(os.path.exists(gams_path)):
+            print('Directory for automatically generated files ' +
+                  gams_path + ' does not exist. We will create it')
+            os.makedirs(gams_path)
+        output_options = {'keepfiles': True,
+                          'tmpdir': gams_path,
+                          'symbolic_solver_labels': True}
+
+    subproblem_solver_options['add_options'] = subproblem_solver_options.get(
+        'add_options', [])
+    subproblem_solver_options['add_options'].append(
+        'option reslim=%s;' % timelimit)
+    subproblem_solver_options['add_options'].append(
+        'option optcr=%s;' % rel_tol)
+    # Solve
+    solvername = 'gams'
+    
+    if subproblem_solver=='OCTERACT':
+        opt = SolverFactory(solvername)
+    else:
+        opt = SolverFactory(solvername, solver=subproblem_solver)
+
+    m.results = opt.solve(m, tee=tee,
+                          **output_options,
+                          **subproblem_solver_options,
+                          skip_trivial_constraints=True,
+                          )
+
+    m.dsda_usertime =m.dsda_usertime + m.results.solver.user_time
+
+    # Assign D-SDA status
+    if m.results.solver.termination_condition == 'infeasible' or m.results.solver.termination_condition == 'other' or m.results.solver.termination_condition == 'unbounded' or m.results.solver.termination_condition == 'invalidProblem' or m.results.solver.termination_condition == 'solverFailure' or m.results.solver.termination_condition == 'internalSolverError' or m.results.solver.termination_condition == 'error'  or m.results.solver.termination_condition == 'resourceInterrupt' or m.results.solver.termination_condition == 'licensingProblem' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'noSolution' or m.results.solver.termination_condition == 'intermediateNonInteger':
+        m.dsda_status = 'Evaluated_Infeasible'
+        m.obj.value=0
+    else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+        m.dsda_status = 'Optimal'
+    # if m.results.solver.termination_condition == 'locallyOptimal' or m.results.solver.termination_condition == 'optimal' or m.results.solver.termination_condition == 'globallyOptimal':
+    #     m.dsda_status = 'Optimal'
+
+    return m
+
+def neighborhood_k_eq_all(dimension: int = 2) -> dict:
+    """
+    Function creates a k=all neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+
+    num_neigh = 2
+    directions={}
+    directions[1]=list(1*np.ones(dimension, dtype=int))
+    directions[2]=list(-1*np.ones(dimension, dtype=int))
+    return directions
+
+
+def neighborhood_k_eq_2(dimension: int = 2) -> dict:
+    """
+    Function creates a k=2 neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+
+    num_neigh = 2*dimension
+    neighbors = np.concatenate(
+        (np.eye(dimension, dtype=int), -np.eye(dimension, dtype=int)), axis=1)
+    directions = {}
+    for i in range(num_neigh):
+        direct = []
+        directions[i+1] = direct
+        for j in range(dimension):
+            direct.append(neighbors[j, i])
+    return directions
+
+
+def neighborhood_k_eq_inf(dimension: int = 2) -> dict:
+    """
+    Function creates a k=Infinity neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        temp: Dictionary contaning in each item a list with a direction within the neighborhood
+        TODO change temp name here to something more useful
+    """
+
+    neighbors = list(it.product([-1, 0, 1], repeat=dimension))
+    directions = {}
+    for i in range(len(neighbors)):
+        directions[i+1] = list(neighbors[i])
+    temp = directions.copy()
+    for i in directions.keys():
+        if temp[i] == [0]*dimension:
+            temp.pop(i, None)
+    return temp
+
+def neighborhood_k_eq_l_natural(dimension: int = 2) -> dict:
+    """
+    Function creates a k=l_natural neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+    if dimension==1:
+        directions=neighborhood_k_eq_2(dimension)
+    else:
+        set_=np.arange(1,dimension+1,1)
+        N_lflat=np.zeros(((2**(dimension+1))-2,dimension),dtype=int)
+        k=0
+        for i in range(dimension):
+            sub=np.array(list(it.combinations(set_,dimension-i)),dtype=int)
+            f=np.size(sub,0)
+            for j in range(0,f):
+                N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                k=k+1
+                N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                k=k+1
+
+        # if dimension>=3:
+        #     sort_=np.lexsort(N_lflat,axis=1)
+        # else: 
+        #     sort_=np.lexsort(N_lflat,axis=0)
+        directions=dict(enumerate(N_lflat.tolist(),1))
+    return directions
+
+
+def neighborhood_k_eq_l_natural_modified(dimension: int = 2) -> dict:
+    """
+    Function creates a k=l_natural_modified neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+    num_var_proc_time=6
+
+
+    if dimension==1:
+        directions=neighborhood_k_eq_2(dimension)
+    else:
+        set_=np.arange(1,dimension+1,1)
+        N_lflat=np.zeros(((2**(dimension+1))-2,dimension),dtype=int)
+        k=0
+        for i in range(dimension):
+            sub=np.array(list(it.combinations(set_,dimension-i)),dtype=int)
+            f=np.size(sub,0)
+            for j in range(0,f):
+                partial=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                # # The following is equivalent to saying that: for procesing times k=2, for N_ij: k=l_natural. I am eliminating interactions between processing times and processing times-N_ij. Thus, size of neighborhood is: (2^(n_Nij+1)-2      +         2*n_tau)
+                # if ~((sum(abs(partial[k]) for k in range(num_var_proc_time))>=2) or (sum(abs(partial[k]) for k in range(num_var_proc_time))>=1 and sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))>=1)):
+                #     N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+                #     N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+                # #The following is equivalent to saying that: for procesing times k=2, for N_ij: k=l_natural. I am eliminating interactions between processing times and processing times-N_ij. Also, I am not considering interactions between pairs, trios, 4,5 or 6 or 7 or 8 (i.e., only interactions of 9 and 10 vars)
+                # if ~((sum(abs(partial[k]) for k in range(num_var_proc_time))>=2) or (sum(abs(partial[k]) for k in range(num_var_proc_time))>=1 and sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))>=1) or (sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))<=8 and sum(abs(partial[k]) for k in range(num_var_proc_time,dimension))>=2)):
+                #     N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+                #     N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                #     k=k+1
+
+                #Only consider second order interactions
+                if sum(abs(partial[k]) for k in range(dimension))<=2:
+                    N_lflat[k,0:dimension]=np.array(np.isin(set_,sub[j,:]),dtype=int)
+                    k=k+1
+                    N_lflat[k,0:dimension]=-np.array(np.isin(set_,sub[j,:]),dtype=int)
+                    k=k+1
+        N_lflat=N_lflat[~np.all(N_lflat==0, axis=1)]
+        # if dimension>=3:
+        #     sort_=np.lexsort(N_lflat,axis=1)
+        # else: 
+        #     sort_=np.lexsort(N_lflat,axis=0)
+        directions=dict(enumerate(N_lflat.tolist(),1))
+    return directions
+
+
+def neighborhood_k_eq_m_natural(dimension: int = 2) -> dict:
+    """
+    Function creates a k=m_natural neighborhood of the given dimension
+    Args:
+        dimension: Dimension of the neighborhood
+    Returns:
+        directions: Dictionary contaning in each item a list with a direction within the neighborhood
+    """
+    N_Mflat=np.zeros((dimension*(dimension+1),dimension),dtype=int)
+    mat1=np.eye(dimension,dimension,dtype=int)
+    mat1=np.append(mat1,np.zeros((1,dimension),dtype=int),axis=0)
+    f=np.size(mat1,0)
+    k=0
+    for i in range(f):
+        for j in range(f):
+            if i!=j:
+                N_Mflat[k,0:dimension]=mat1[i,:]-mat1[j,:]
+
+                k=k+1
+    
+    directions=dict(enumerate(N_Mflat.tolist(),1))
+    return directions
+
+
+def initialize_model(
+    m: pe.ConcreteModel(),
+    json_path=None,
+    from_feasible: bool = False,
+    feasible_model: str = '',
+) -> pe.ConcreteModel():
+    """
+    Function that return an initialized model from an existing json file
+    Args:
+        m: Pyomo model that is to be initialized
+        from_feasible: If initialization is made from an external file
+        feasible_model: Feasible initialization path or example
+    Returns:
+        m: Initialized Pyomo model
+    """
+
+    wts = StoreSpec.value()
+
+    if json_path is None:
+        os.path.join(os.path.curdir)
+
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+
+        if from_feasible:
+            json_path = os.path.join(
+                dir_path, feasible_model+'_initialization.json')
+        else:
+            json_path = os.path.join(
+                dir_path, 'dsda_initialization.json')
+
+    from_json(m, fname=json_path, wts=wts)
+    return m
+
+
+def generate_initialization(
+    m: pe.ConcreteModel(),
+    starting_initialization: bool = False,
+    model_name: str = '',
+    human_read: bool = True,
+    wts=StoreSpec.value(),
+):
+    """
+    Function that creates a json file for initialization based on a model m
+    Args:
+        m: Base Pyomo model for initializtion
+        starting_intialization: Use to create "dsda_starting_initialization.json" file with a known feasible initialized model m
+        model_name: Name of the model for the initialization
+        human_read: Make the json file readable by a human
+        wts: What to save, initially the values, but we might want something different. Check model_serializer tests for examples
+    Returns:
+        json_path: Path where json file is stored
+    """
+
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+
+    if starting_initialization:
+        json_path = os.path.join(
+            dir_path, model_name + '_initialization.json')
+    else:
+        if model_name != '':
+            json_path = os.path.join(
+                dir_path, model_name + '_initialization.json')
+        else:
+            json_path = os.path.join(
+                dir_path, 'dsda_initialization.json')
+
+    to_json(m, fname=json_path, human_read=human_read, wts=wts)
+
+    return json_path
+
+
+def find_actual_neighbors(
+    start: list,
+    neighborhood: dict,
+    min_allowed: dict = {},
+    max_allowed: dict = {}
+) -> dict:
+    """
+    Function that creates all neighbors of a given point. Neighbor 0 is the starting point
+    Args:
+        start: Point of which neighbors want to be created
+        neighborhood: Neighborhood (output of a k-Neighborhood function)
+        min_allowed: In keys contains external variables and in items their respective lower bounds
+        max_allowed: In keys contains external variables and in items their respective upper bounds
+    Returns:
+        new_neighbors: Contains neighbors of the actual point
+    """
+
+    neighbors = {0: start}
+    for i in neighborhood.keys():   # Calculate neighbors
+        neighbors[i] = list(map(sum, zip(start, list(neighborhood[i]))))
+
+    new_neighbors = {}
+    num_vars = len(neighbors[0])
+    for i in neighbors.keys():
+        checked = 0
+        for j in range(num_vars):  # Check if within bounds
+            if neighbors[i][j] >= min_allowed[j+1] and neighbors[i][j] <= max_allowed[j+1]:
+                checked += 1
+        if checked == num_vars:  # Add neighbor if all variables are within bounds
+            new_neighbors[i] = neighbors[i]
+
+    return new_neighbors
+
+
+def evaluate_neighbors(
+    stop_when_improvement_found: bool,
+    ext_vars: dict,
+    fmin: float,
+    model_function,
+    model_args: dict,
+    ext_dict: dict,
+    ext_logic,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    iter_timelimit: float = 10,
+    current_time: float = 0,
+    timelimit: float = 3600,
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 1e-3,
+    global_evaluated: list = [],
+    init_path=None,
+):
+    """
+    Function that evaluates a group of given points and returns the best
+    Args:
+        ext_vars: dict with neighbors where neighbor 0 is actual point
+        fmin: Objective at actual point
+        model_function: function that returns GDP model to be solved
+        model_args: Contains the argument values needed for model_function
+        ext_dict: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values)
+        ext_logic: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a)
+        mip_transformation: Whether to solve the enumeration using the external variables applied to the MIP problem insed of the GDP
+        transformation: Which transformation to apply to the GDP 
+        subproblem_solver: MINLP or NLP solver algorithm
+        subproblem_solver_options: MINLP or NLP solver algorithm options
+        iter_timelimit: time limit in seconds for the solve statement for each iteration
+        current_time: Current time in global algorithm
+        timelimit: time limit in seconds for the algorithm
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        global_tee: display D-SDA iteration output
+        rel_tol: Relative optimality tolerance
+        global_evaluated: list with points already evaluated
+        init_path: path to initialization file
+    Returns:
+        fmin: Type int and gives the best neighbor's objective
+        best_var: Type list and gives the best neighbor
+        best_dir: Type int and is the steepest direction (key in neighborhood)
+        improve: Type bool and shows if an improvement was made while looking for neighbors
+        evaluation_time: Total solver-statement time only
+        ns_evaluated: evaluations in neighbor search
+        best_path: path to json with best solution found
+
+    """
+    # Global Tolerance parameters
+    epsilon = 1e-10
+    abs_tol = 1e-5
+    min_improve = 1e-5
+    min_improve_rel = 1e-3
+
+    # Initialize
+    ns_evaluated = []
+    evaluation_time = 0
+    improve = False
+    best_var = ext_vars[0]
+    here = ext_vars[0]
+    best_dir = 0  # Position in dictionary
+    best_dist = 0
+    best_path = init_path
+    temp = ext_vars  # TODO change name to something more saying. Points? Combinations?
+    temp.pop(0, None)
+
+    if global_tee:
+        print()
+        print('Neighbor search around:', best_var)
+
+    for i in temp.keys():   # Solve all models
+        if temp[i] not in global_evaluated:
+            m = model_function(**model_args)
+            m_init = initialize_model(m, json_path=init_path)
+            if mip_transformation:  # If you want a MIP reformulation, go ahead and use it'
+                m_init, ext_dict = extvars_gdp_to_mip(
+                    m=m,
+                    gdp_dict_extvar=ext_dict,
+                    transformation=transformation,
+                )
+
+            m_fixed = external_ref(
+                m=m_init,
+                x=temp[i],
+                extra_logic_function=ext_logic,
+                dict_extvar=ext_dict,
+                mip_ref=mip_transformation,
+                tee=False,
+            )
+            t_remaining = min(iter_timelimit, timelimit -
+                              (time.perf_counter() - current_time))
+            if t_remaining < 0:  # No time reamining for optimization
+                break
+            m_solved = solve_subproblem(
+                m=m_fixed,
+                subproblem_solver=subproblem_solver,
+                subproblem_solver_options=subproblem_solver_options,
+                timelimit=t_remaining,
+                gams_output=gams_output,
+                tee=tee,
+                rel_tol=rel_tol)
+            evaluation_time += m_solved.dsda_usertime
+            ns_evaluated.append(temp[i])
+            t_end = time.perf_counter()
+
+            if m_solved.dsda_status == 'Optimal':   # Check if D-SDA status is optimal
+                if global_tee:
+                    print('Evaluated:', temp[i], '   |   Objective:', round(pe.value(
+                        m_solved.obj), 5), '   |   Global Time:', round(t_end - current_time, 2))
+                dist = sum((x-y)**2 for x, y in zip(temp[i], here))
+                act_obj = pe.value(m_solved.obj)
+
+                # Assuming minimization problem
+                # Implements heuristic of largest move
+                # if not improve:
+                    # We want a minimum improvement in the first found solution
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = temp[i]
+                    best_dir = i
+                    best_dist = dist
+                    improve = True
+                    best_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+                    if stop_when_improvement_found:
+                        break
+                # else:
+                #     # We want slightly worse solutions if the distance is larger
+                #     if (((act_obj - fmin) < abs_tol) or ((act_obj - fmin)/(abs(fmin)+epsilon) < rel_tol)) and dist >= best_dist:
+                #         fmin = act_obj
+                #         best_var = temp[i]
+                #         best_dir = i
+                #         best_dist = dist
+                #         improve = True
+                #         best_path = generate_initialization(
+                #             m_solved, starting_initialization=False, model_name='best')
+
+            if time.perf_counter() - current_time > timelimit:  # current
+                break
+
+    if global_tee:
+        print()
+        print('New best neighbor:', best_var)
+    return fmin, best_var, best_dir, improve, evaluation_time, ns_evaluated, best_path
+
+def do_line_search(
+    start: list,
+    fmin: float,
+    direction: list,
+    model_function,
+    model_args: dict,
+    ext_dict: dict,
+    ext_logic,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    min_allowed: dict = {},
+    max_allowed: dict = {},
+    iter_timelimit: float = 10,
+    timelimit: float = 3600,
+    current_time: float = 0,
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = False,
+    rel_tol: float = 1e-3,
+    global_evaluated: list = [],
+    init_path=None
+):
+    """
+    Function that moves in a given "best direction" and evaluates the new moved point
+    Args:
+        start: Point of that is to be moved
+        fmin: Objective at actual point
+        direction: moving direction
+        model_function: function that returns GDP model to be solved
+        model_args: Contains the argument values needed for model_function
+        ext_dict: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values)
+        ext_logic: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a)
+        mip_transformation: Whether to solve the enumeration using the external variables applied to the MIP problem insed of the GDP
+        transformation: Which transformation to apply to the GDP 
+        subproblem_solver: MINLP or NLP solver algorithm
+        subproblem_solver_options: MINLP or NLP solver algorithm options
+        min_allowed: In keys contains external variables and in items their respective lower bounds
+        max_allowed: In keys contains external variables and in items their respective upper bounds
+        iter_timelimit: time limit in seconds for the solve statement for each iteration
+        current_time: Current time in global algorithm
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        global_tee: display D-SDA iteration output
+        rel_tol: Relative optimality tolerance
+        global_evaluated: list with points already evaluated
+        init_path: path to initialization file
+    Returns:
+        fmin: Type int and gives the moved point objective
+        best_var: Type list and gives the moved point
+        moved: Type bool and shows if an improvement was made while line searching
+        ls_time: Total solver-statement time only
+        ls_evaluated: evaluations in line search
+        new_path: path of best json file
+    """
+    # Global Tolerance parameters
+    epsilon = 1e-10
+    min_improve = 1e-5
+    min_improve_rel = 1e-3
+
+    # Initialize
+    ls_evaluated = []
+    ls_time = 0
+    best_var = start
+    moved = False
+    new_path = init_path
+
+    # Line search in given direction
+    moved_point = list(map(sum, zip(list(start), list(direction))))
+    checked = 0
+    for j in range(len(moved_point)):   # Check if within bounds
+        if moved_point[j] >= min_allowed[j+1] and moved_point[j] <= max_allowed[j+1]:
+            checked += 1
+
+    if checked == len(moved_point):     # Solve model
+        if moved_point not in global_evaluated:
+            m = model_function(**model_args)
+            m_init = initialize_model(m, json_path=init_path)
+            if mip_transformation:  # If you want a MIP reformulation, go ahead and use it'
+                m_init, ext_dict = extvars_gdp_to_mip(
+                    m=m,
+                    gdp_dict_extvar=ext_dict,
+                    transformation=transformation,
+                )
+            m_fixed = external_ref(
+                m=m_init,
+                x=moved_point,
+                extra_logic_function=ext_logic,
+                dict_extvar=ext_dict,
+                mip_ref=mip_transformation,
+                tee=False,
+            )
+
+            t_remaining = min(iter_timelimit, timelimit -
+                              (time.perf_counter() - current_time))
+            if t_remaining < 0:
+                return fmin, best_var, moved, ls_time, ls_evaluated, new_path
+            m_solved = solve_subproblem(
+                m=m_fixed,
+                subproblem_solver=subproblem_solver,
+                subproblem_solver_options=subproblem_solver_options,
+                timelimit=t_remaining,
+                gams_output=gams_output,
+                tee=tee,
+                rel_tol=rel_tol
+            )
+            ls_time += m_solved.dsda_usertime
+            ls_evaluated.append(moved_point)
+
+            if m_solved.dsda_status == 'Optimal':   # Check status
+                if global_tee:
+                    print('Evaluated:', moved_point, '   |   Objective:', round(pe.value(
+                        m_solved.obj), 5), '   |   Global Time:', round(time.perf_counter() - current_time, 2))
+                act_obj = pe.value(m_solved.obj)
+                # Return moved point
+                if (fmin - act_obj) > min_improve or (fmin - act_obj)/(abs(fmin)+epsilon) > min_improve_rel:
+                    fmin = act_obj
+                    best_var = moved_point
+                    moved = True
+                    new_path = generate_initialization(
+                        m_solved, starting_initialization=False, model_name='best')
+
+    return fmin, best_var, moved, ls_time, ls_evaluated, new_path
+
+def solve_with_dsda(
+    model_function,
+    model_args: dict,
+    starting_point: list,
+    ext_dict,
+    ext_logic,
+    mip_transformation: bool = False,
+    transformation: str = 'bigm',
+    k: str = 'Infinity',
+    provide_starting_initialization: bool = True,
+    feasible_model: str = '',
+    subproblem_solver: str = 'knitro',
+    subproblem_solver_options: dict = {},
+    iter_timelimit: float = 1000,
+    timelimit: float = 3600,
+    gams_output: bool = False,
+    tee: bool = False,
+    global_tee: bool = True,
+    rel_tol: float = 1e-3,
+    scaling: bool=False,
+    scale_factor: float = 1,
+    stop_neigh_verif_when_improv: bool=False,
+    route_initial: list=[],
+    obj_route_initial: list=[]
+):
+    """
+    Function that computes Discrete-Steepest Descend Algorithm
+    Args:
+        k: Type of neighborhood
+        model_function: function that returns GDP model to be solved
+        model_args: Contains the argument values needed for model_function
+        starting_point: Feasible external variable initial point
+        ext_dict: Dictionary with Boolean variables to be reformulated (keys) and their corresponding ordered sets (values). Both keys and values are pyomo objects.
+        ext_logic: Function that returns a list of lists of the form [a,b], where a is an expressions of the reformulated Boolean variables and b is an equivalent Boolean or indicator variable (b<->a).
+        mip_transformation: Whether to solve the enumeration using the external variables applied to the MIP problem insed of the GDP
+        transformation: Which transformation to apply to the GDP 
+        provide_intialization: If an existing json file is provided with a feasible initialization of starting_point
+        subproblem_solver: MINLP or NLP solver algorithm
+        subproblem_solver_options: MINLP or NLP solver algorithm options
+        iter_timelimit: time limit in seconds for the solve statement for each iteration
+        timelimit: time limit in seconds for the algorithm
+        gams_output: Determine keeping or not GAMS files
+        tee: Display iteration output
+        global_tee: Display D-SDA output
+        rel_tol: Relative optimality tolerance
+    Returns:
+        m2_solved: Solved Pyomo Model
+        route: List containing points evaluated in throughout iteration
+        obj_route: List containing objectives evaluated in throughout iteration
+
+    """
+
+    if global_tee:
+        print('\nStarting D-SDA with k =', k)
+        print('--------------------------------------------------------------------------')
+
+    # Initialize
+    route =route_initial
+    obj_route =obj_route_initial
+    global_evaluated =route_initial
+    ext_var = starting_point
+
+    # Check if  feasible initialization is provided
+    m = model_function(**model_args)
+    dict_extvar, num_ext_var, min_allowed, max_allowed = get_external_information(
+        m, ext_dict)
+    if len(starting_point) != num_ext_var:
+        print("The size of the initialization vector must be equal to "+str(num_ext_var))
+
+    t_start = time.perf_counter()
+    dsda_usertime = 0
+    if provide_starting_initialization:
+        m_init = initialize_model(
+            m, from_feasible=True, feasible_model=feasible_model, json_path=None)
+    else:
+        m_init = m
+
+    if mip_transformation:  # If you want a MIP reformulation, go ahead and use it'
+        m_init, dict_extvar = extvars_gdp_to_mip(
+            m=m,
+            gdp_dict_extvar=dict_extvar,
+            transformation=transformation,
+        )
+
+    m_fixed = external_ref(
+        m=m_init,
+        x=ext_var,
+        extra_logic_function=ext_logic,
+        dict_extvar=dict_extvar,
+        mip_ref=mip_transformation,
+        tee=False
+    )
+
+    # Solve for initialization
+    m_solved = solve_subproblem(
+        m=m_fixed,
+        subproblem_solver=subproblem_solver,
+        subproblem_solver_options=subproblem_solver_options,
+        timelimit=iter_timelimit,
+        gams_output=gams_output,
+        tee=tee,
+        rel_tol=rel_tol,
+    )
+    dsda_usertime += m_solved.dsda_usertime
+    fmin = pe.value(m_solved.obj)
+    if global_tee:
+        print('Initializing...')
+        print('Evaluated:', ext_var, '   |   Objective:', round(fmin, 5),
+              '   |   Global Time:', round(time.perf_counter() - t_start, 2))
+        if m_solved.dsda_status=='FBBT_Infeasible' or m_solved.dsda_status=='Evaluated_Infeasible':
+            print('WARNING: Initialization is infeasible. Neighborhood verification will be performed to check if there is a feasible point nearby.') 
+
+    # m_solved.pprint()
+    best_path = generate_initialization(m_solved)
+
+    route.append(ext_var)
+    obj_route.append(fmin)
+    global_evaluated.append(ext_var)
+
+    # Define neighborhood
+    if k == '2':
+        neighborhood = neighborhood_k_eq_2(len(ext_var))
+    elif k == 'Infinity':
+        neighborhood = neighborhood_k_eq_inf(len(ext_var))
+    elif k == 'L_natural':
+        neighborhood = neighborhood_k_eq_l_natural(len(ext_var))   
+    elif k == 'L_natural_modified':
+        neighborhood = neighborhood_k_eq_l_natural_modified(len(ext_var)) 
+    elif k == 'M_natural':
+        neighborhood = neighborhood_k_eq_m_natural(len(ext_var))   
+    elif k == 'all_interactions':
+        neighborhood = neighborhood_k_eq_all(len(ext_var))  
+    else:
+        return "Enter a valid neighborhood"
+    
+    if scaling:
+        for i in neighborhood.keys():
+            neighborhood[i]=list(scale_factor*np.asarray(neighborhood[i]))
+
+    looking_in_neighbors = True
+
+    # Look in neighbors (outer cycle)
+    while looking_in_neighbors:
+
+        if time.perf_counter() - t_start > timelimit:
+            break
+
+        # Find neighbors of the actual point
+        neighbors = find_actual_neighbors(ext_var, neighborhood,
+                                          min_allowed=min_allowed, max_allowed=max_allowed)
+
+        if time.perf_counter() - t_start > timelimit:
+            break
+
+        fmin, best_var, best_dir, improve, eval_time, ns_evaluated, best_path = evaluate_neighbors(
+            stop_when_improvement_found=stop_neigh_verif_when_improv,
+            ext_vars=neighbors,
+            fmin=fmin,
+            model_function=model_function,
+            model_args=model_args,
+            ext_dict=dict_extvar,
+            ext_logic=ext_logic,
+            mip_transformation=mip_transformation,
+            transformation=transformation,
+            subproblem_solver=subproblem_solver,
+            subproblem_solver_options=subproblem_solver_options,
+            iter_timelimit=iter_timelimit,
+            timelimit=timelimit,
+            current_time=t_start,
+            gams_output=gams_output,
+            tee=tee,
+            global_tee=global_tee,
+            rel_tol=rel_tol,
+            global_evaluated=global_evaluated,
+            init_path=best_path,
+        )
+
+        dsda_usertime += eval_time
+        global_evaluated = global_evaluated + ns_evaluated
+
+        # Stopping condition in case there is no improvement amongst neighbors
+        if improve:
+            line_searching = True
+            route.append(best_var)
+            obj_route.append(fmin)
+            if global_tee and time.perf_counter() - t_start < timelimit:
+                print()
+                print('Line search in direction:', neighborhood[best_dir])
+
+            # If improvement was made start line search (inner cycle)
+            while line_searching:
+
+                if time.perf_counter() - t_start > timelimit:
+                    break
+
+                fmin, best_var, moved, ls_time, ls_evaluated, best_path = do_line_search(
+                    start=best_var,
+                    fmin=fmin,
+                    direction=neighborhood[best_dir],
+                    model_function=model_function,
+                    model_args=model_args,
+                    ext_dict=dict_extvar,
+                    ext_logic=ext_logic,
+                    mip_transformation=mip_transformation,
+                    transformation=transformation,
+                    subproblem_solver=subproblem_solver,
+                    min_allowed=min_allowed,
+                    max_allowed=max_allowed,
+                    iter_timelimit=iter_timelimit,
+                    timelimit=timelimit,
+                    current_time=t_start,
+                    gams_output=gams_output,
+                    tee=tee,
+                    global_tee=global_tee,
+                    rel_tol=rel_tol,
+                    global_evaluated=global_evaluated,
+                    init_path=best_path,
+                )
+                global_evaluated = global_evaluated + ls_evaluated
+                dsda_usertime += ls_time
+
+                if time.perf_counter() - t_start > timelimit:
+                    break
+
+                # Stopping condition in case no movement was done
+                if moved:
+                    route.append(best_var)
+                    obj_route.append(fmin)
+                else:
+                    ext_var = best_var
+                    line_searching = False
+                    if global_tee:
+                        print()
+                        print('New best point:', best_var)
+
+        else:
+            looking_in_neighbors = False
+
+    t_end = round(time.perf_counter() - t_start, 2)
+
+    # Generate final solved model
+    m2 = model_function(**model_args)
+    m2_solved = initialize_model(m2, json_path=best_path)
+    m2_solved.dsda_time = t_end
+    m2_solved.dsda_usertime = dsda_usertime
+    if t_end > timelimit:
+        m2_solved.dsda_status = 'maxTimeLimit'
+    else:
+        m2_solved.dsda_status = 'optimal'
+
+    # Print results
+    if global_tee:
+        print('--------------------------------------------------------------------------')
+        print('Objective:', round(fmin, 5))
+        print('External variables:', route[-1])
+        print('Execution time [s]:', t_end)
+        print('User time [s]:', round(dsda_usertime, 5))
+
+    return m2_solved, route, obj_route
 
 
 def build_pretreatment():
@@ -2828,6 +4042,141 @@ def fermentation_optimal_control_2()-> pe.ConcreteModel():
     m.fer.obj=pe.Objective(rule=_obj_rule)
     return m
 
+def dsda_model(x_up: list=[100,100,100])-> pe.ConcreteModel():
+
+    #-----Model
+    m=pe.ConcreteModel(name='gdp_dsda_model')
+   #-------Ordered sets 
+    m.set1=pe.RangeSet(1,x_up[0],doc= "set of first group of Boolean variables") #C5
+    m.set2=pe.RangeSet(1,x_up[1],doc= "set of second group of Boolean variables") #FIBERS
+    m.set3=pe.RangeSet(1,x_up[2],doc= "set of third group of Boolean variables") #BASE
+
+    #-----Variables
+    m.Y1=pe.BooleanVar(m.set1,doc="Boolean variable associated to set 1")
+    m.Y2=pe.BooleanVar(m.set2,doc="Boolean variable associated to set 2")
+    m.Y3=pe.BooleanVar(m.set3,doc="Boolean variable associated to set 3")
+    #-----Logical constraints
+
+    #Constraint that allow to apply the reformulation over Y1
+    def select_one_Y1(m):
+        return pe.exactly(1,m.Y1)
+    m.oneY1=pe.LogicalConstraint(rule=select_one_Y1)
+
+    #Constraint that allow to apply the reformulation over Y2
+    def select_one_Y2(m):
+        return pe.exactly(1,m.Y2)
+    m.oneY2=pe.LogicalConstraint(rule=select_one_Y2)
+
+    #Constraint that allow to apply the reformulation over Y3
+    def select_one_Y3(m):
+        return pe.exactly(1,m.Y3)
+    m.oneY3=pe.LogicalConstraint(rule=select_one_Y3)
+
+    #Fermentation model
+    m_fer=build_fermentation(discretization='differences',n_f_elements_t=50)
+    m.fer=initialize_model(m_fer,from_feasible=True,feasible_model='validation_fermentation')
+
+    m.fer.del_component(m.fer.obj)
+    m.fer.del_component(m.fer.F_base)
+    m.fer.F_base_constant=pe.Var(initialize=0.0001,within=pe.NonNegativeReals,bounds=(0,0.01),doc='Constant base flow during fed-batch phase')
+
+    # Remove constant feed parameters
+    # val1=pe.value(m.fer.F_C5liquid)
+    # val2=pe.value(m.fer.F_liquified_fibers)
+    m.fer.del_component(m.fer.F_C5liquid)
+    m.fer.del_component(m.fer.F_liquified_fibers)
+
+    # Creating new variables for time
+    def _F_C5liquid_new(m):
+        return 628*(1/60)*(1/60)
+    m.fer.F_C5liquid_new=pe.Var(initialize=_F_C5liquid_new,within=pe.NonNegativeReals,bounds=(0,628*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
+
+    # m.fer.F_C5liquid_new.fix(val1)
+
+
+    def _F_liquified_fibers_new(m):
+        return 2487*(1/60)*(1/60)
+    m.fer.F_liquified_fibers_new=pe.Var(initialize=_F_liquified_fibers_new,within=pe.NonNegativeReals,bounds=(0,2487*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
+    
+    # m.fer.F_liquified_fibers_new.fix(val2)
+
+    # Updating input flow constraints
+    m.fer.del_component(m.fer.Feed_constraint)
+    m.fer.del_component(m.fer.Feed_concentration_constraint)
+
+    def _Feed_constraint_new(m,t):
+
+        if t*m.final_time<=10*60*60: # Inoculum phase
+            return m.Fin[t]==m.F_liquified_fibers_new
+        elif t*m.final_time> 10*60*60 and t*m.final_time <=70*60*60: #Fed-batch phase
+            return m.Fin[t]==m.F_C5liquid_new + m.F_liquified_fibers_new+m.F_base_constant+m.F_acid[t]       #(m.Mmax-m.M0)/(70*60*60-10*60*60)
+        elif t*m.final_time>70*60*60 and t*m.final_time<=190*60*60: #Batch phase
+            return m.Fin[t]==0
+
+    m.fer.Feed_constraint_new=pe.Constraint(m.fer.t,rule=_Feed_constraint_new)
+
+    def _Feed_concentration_constraint_new(m,t,j):
+        if t*m.final_time<=10*60*60: # Inoculum phase
+            return m.Cin[t,j]==m.C_liquified_fibers[j]
+        elif t*m.final_time> 10*60*60 and t*m.final_time <=70*60*60: #Fed-batch phase
+            return m.Cin[t,j]*(m.F_C5liquid_new + m.F_liquified_fibers_new+m.F_base_constant+m.F_acid[t])==(m.F_C5liquid_new*m.C_C5liquid[j]+m.F_liquified_fibers_new*m.C_liquified_fibers[j]+m.F_base_constant*m.C_base[j]+m.F_acid[t]*m.C_acid[j])
+        elif t*m.final_time>70*60*60 and t*m.final_time<=190*60*60: #Batch phase
+            return m.Cin[t,j]== 0  
+    m.fer.Feed_concentration_constraint_new=pe.Constraint(m.fer.t,m.fer.j,rule=_Feed_concentration_constraint_new)
+
+
+    
+        
+    #OBJECTIVE FUNCTION EQUAL TO CONSTANT TO INDICATE ITS A SIMULATION
+
+    def _obj_rule2(m):
+        return 1
+    m.fer.obj2=pe.Objective(rule=_obj_rule2)
+
+
+
+    #SCALE MODEL TRANSFORMATION
+    m=scale_model(m)
+
+    #DUMMY OBJECTIVE
+    m.obj=pe.Var(initialize=0) #Store objective function
+
+
+    def _obj_cons_rule(m):
+        return  m.model().obj==-m.scaled_C[m.t.last(),'Eth']
+    m.fer.obj_cons=pe.Constraint(rule=_obj_cons_rule)
+    return m
+
+
+def scale_model(m):
+
+    m.scaling_factor = pe.Suffix(direction=pe.Suffix.EXPORT)
+    # m.scaling_factor[m.fer.obj2] = 1e-6 # scale the objective
+    m.scaling_factor[m.fer.F_base_constant]=1e+3
+    m.scaling_factor[m.fer.Fin]=1e+1
+    m.scaling_factor[m.fer.Cin]=1e-2
+    m.scaling_factor[m.fer.Ce]=1
+    m.scaling_factor[m.fer.Cef]=1
+    m.scaling_factor[m.fer.Ceb]=1e+1
+    m.scaling_factor[m.fer.CebC]=1e+3
+    m.scaling_factor[m.fer.r1]=1e+7
+    m.scaling_factor[m.fer.r2]=1e+6
+    m.scaling_factor[m.fer.r3]=1e+6
+    m.scaling_factor[m.fer.r4]=1e+7
+    m.scaling_factor[m.fer.r5]=1e+7
+    m.scaling_factor[m.fer.C]=1
+    m.scaling_factor[m.fer.M]=1e-5
+    m.scaling_factor[m.fer.R]=1e+5
+    m.scaling_factor[m.fer.q]=1e+5
+    m.scaling_factor[m.fer.avance]=1
+    m.scaling_factor[m.fer.C_elect_init]=1e+1
+    m.scaling_factor[m.fer.C_elect_equil]=1e+1
+    m.scaling_factor[m.fer.dCdt]=1e-3
+    m.scaling_factor[m.fer.dMdt]=1e-5
+
+    m = pe.TransformationFactory('core.scale_model').create_using(m)
+
+    return m
 
 
 def global_model(initialize_vars_at_steady_state: bool=True)-> pe.ConcreteModel():
@@ -2974,6 +4323,8 @@ def global_model(initialize_vars_at_steady_state: bool=True)-> pe.ConcreteModel(
 
 
 if __name__ == '__main__':
+    #Do not show warnings
+    logging.getLogger('pyomo').setLevel(logging.ERROR)
     ###-----------------------------------------------------------------
     ###------------------------VALIDATION-------------------------------
     ###-----------------------------------------------------------------
@@ -2982,7 +4333,8 @@ if __name__ == '__main__':
     v3='FERMENTATION--'
     v4='GLOBAL--'
     v5='1_FERMENTATION_CONTROL--' # FIRST TESTS TO IDENTIFY FEASIBLE SOLUTION WITHOUT PARAMETRIZATION
-    v6='2_FERMENTATION_CONTROL' # TRYING TO INCLUDE FLOW PARAMETRIZATION
+    v6='2_FERMENTATION_CONTROL--' # TRYING TO INCLUDE FLOW PARAMETRIZATION
+    v7='FERMENTATION_DSDA_TEST'
     solver='conopt'
 
     ### PRETREATMENT SIMULATION
@@ -3491,13 +4843,17 @@ if __name__ == '__main__':
         m.fer.scaled_obj2.deactivate()
 
         def _obj_rule3(m):
-            return -m.scaled_M[m.t.last()]#-m.C[m.t.last(),'Eth']#-m.C[m.t.last(),'Eth']#-m.M[m.t.last()]   #-m.C[m.t.last(),'Eth']
+            return 1#-m.scaled_M[m.t.last()]#-m.C[m.t.last(),'Eth']#-m.C[m.t.last(),'Eth']#-m.M[m.t.last()]   #-m.C[m.t.last(),'Eth']
         m.fer.obj3=pe.Objective(rule=_obj_rule3)
 
         m.fer.scaled_F_C5liquid_new.fix(pe.value(m.fer.scaled_F_C5liquid_new))   
         m.fer.scaled_F_liquified_fibers_new.fix(pe.value(m.fer.scaled_F_liquified_fibers_new))
         m.fer.scaled_F_base_constant.fix(pe.value(m.fer.scaled_F_base_constant))
 
+
+        m.fer.scaled_F_C5liquid_new.pprint()
+        m.fer.scaled_F_liquified_fibers_new.pprint()
+        m.fer.scaled_F_base_constant.pprint()
 
         opt1 = SolverFactory('gams')
         results = opt1.solve(m, solver=solver, tee=True) 
@@ -3600,3 +4956,52 @@ if __name__ == '__main__':
         plt.xlabel('time [-]')
         plt.ylabel('Liquified fibers flow')
         plt.show()
+
+    if v7=='FERMENTATION_DSDA_TEST':
+
+        # RETRIEVE ORDERED VARIABLES
+        x_up=[100,100,100]   #Upper bound for discrete search range. Must be greater or equal to 1
+        mdsda=dsda_model(x_up=x_up)
+        ext_ref={mdsda.Y1:mdsda.set1,mdsda.Y2:mdsda.set2,mdsda.Y3:mdsda.set3}
+        [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(mdsda,ext_ref,tee=True)
+        
+
+
+
+
+# scaled_F_C5liquid_new : C5liquid flow [kg/s]
+#     Size=1, Index=None
+#     Key  : Lower : Value             : Upper              : Fixed : Stale : Domain
+#     None :   0.0 : 0.174441527677707 : 0.3488888888888889 :  True : False : NonNegativeReals
+# scaled_F_liquified_fibers_new : C5liquid flow [kg/s]
+#     Size=1, Index=None
+#     Key  : Lower : Value             : Upper              : Fixed : Stale : Domain
+#     None :   0.0 : 0.690843130837456 : 1.3816666666666668 :  True : False : NonNegativeReals
+# scaled_F_base_constant : Constant base flow during fed-batch phase
+#     Size=1, Index=None
+#     Key  : Lower : Value            : Upper  : Fixed : Stale : Domain
+#     None :   0.0 : 1.41509777957679 : 1000.0 :  True : False : NonNegativeReals
+
+
+
+        x_init=[round((0.174441527677707-mdsda.fer.scaled_F_C5liquid_new.ub)*((upper_bounds[1]-lower_bounds[1])/(mdsda.fer.scaled_F_C5liquid_new.ub-mdsda.fer.scaled_F_C5liquid_new.lb))+upper_bounds[1])
+           ,round((0.690843130837456 -mdsda.fer.scaled_F_liquified_fibers_new.ub)*((upper_bounds[2]-lower_bounds[2])/(mdsda.fer.scaled_F_liquified_fibers_new.ub-mdsda.fer.scaled_F_liquified_fibers_new.lb))+upper_bounds[2])
+           ,round((1.41509777957679 -mdsda.fer.scaled_F_base_constant.ub)*((upper_bounds[3]-lower_bounds[3])/(mdsda.fer.scaled_F_base_constant.ub-mdsda.fer.scaled_F_base_constant.lb))+upper_bounds[3])]
+        print(x_init)
+        # mdsda.fer.scaled_F_C5liquid_new.pprint()
+        # mdsda.fer.scaled_F_liquified_fibers_new.pprint()
+        # mdsda.fer.scaled_F_base_constant.pprint()
+
+        # mdsda=external_ref(mdsda,x_init,dummy_logic,reformulation_dict,tee =True)
+
+        # opt1 = SolverFactory('gams')
+        # results = opt1.solve(mdsda, solver=solver, tee=True)  
+
+        # DSDA test
+        
+        start=time.time()
+        neighdef='Infinity'
+        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(dsda_model,{'x_up':x_up},x_init,ext_ref,dummy_logic,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = solver,subproblem_solver_options={},iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+        end=time.time()
+        print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
+
