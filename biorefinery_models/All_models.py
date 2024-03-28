@@ -5001,7 +5001,7 @@ if __name__ == '__main__':
         
         start=time.time()
         neighdef='Infinity'
-        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(dsda_model,{'x_up':x_up},x_init,ext_ref,dummy_logic,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = solver,subproblem_solver_options={},iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(dsda_model,{'x_up':x_up},x_init,ext_ref,dummy_logic,k = neighdef,provide_starting_initialization= False,feasible_model='dsda',subproblem_solver = solver,subproblem_solver_options={},iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=True)
         end=time.time()
         print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
 
