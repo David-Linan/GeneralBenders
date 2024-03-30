@@ -33,7 +33,13 @@ def dummy_logic(m):
     for n in m.set1:
         logic_expr.append([m.Y1[n],m.Y1_disjunct[n].indicator_var])
     return logic_expr
-
+def dummy_logic_v2(m):
+    logic_expr = []
+    for n in m.set1:
+        logic_expr.append([m.Y1[n],m.Y1_disjunct[n].indicator_var])
+    for n in m.set2:
+        logic_expr.append([m.Y2[n],m.Y2_disjunct[n].indicator_var])
+    return logic_expr
 def get_external_information(
     m: pe.ConcreteModel(),
     ext_ref,
@@ -4029,6 +4035,7 @@ def fermentation_optimal_control_2()-> pe.ConcreteModel():
     m.fer.obj=pe.Objective(rule=_obj_rule)
     return m
 
+# DISJUCTION FOR FED BATCH PROCESSING TIME
 def dsda_model(x_up: list=[50])-> pe.ConcreteModel():
 
     #-----Model
@@ -4076,7 +4083,7 @@ def dsda_model(x_up: list=[50])-> pe.ConcreteModel():
         elif t*m.final_time>70*60*60 and t*m.final_time<=190*60*60: #Batch phase
             return 0
     m.fer.F_liquified_fibers_new=pe.Var(m.fer.t,initialize=_F_liquified_fibers_new,within=pe.NonNegativeReals,bounds=(0,2487*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
-
+    # m.fer.F_liquified_fibers_new[m.fer.t.first()].fix(0)
     # m.fer.F_liquified_fibers_new.fix(val2)
 
     # Updating input flow constraints
@@ -4133,8 +4140,147 @@ def dsda_model(x_up: list=[50])-> pe.ConcreteModel():
     #OBJECTIVE FUNCTION EQUAL TO CONSTANT TO INDICATE ITS A SIMULATION
     def _obj_rule(m):
         return -m.fer.C[m.fer.t.last(),'Eth']
+        # return -m.fer.C[m.fer.t.last(),'Eth']*m.fer.M[m.fer.t.last()]
     m.obj=pe.Objective(rule=_obj_rule)
     return m
+
+# DISJUNCTION FOR FED BATCH PROCESSING TIME AND TOTAL PROCESSING TIME
+def dsda_model_v2(x_up: list=[50])-> pe.ConcreteModel():
+    #-----Model
+    m=pe.ConcreteModel(name='gdp_dsda_model')
+    #Fermentation model
+    m_fer=build_fermentation(discretization='differences',n_f_elements_t=x_up[0])
+    m.fer=initialize_model(m_fer,from_feasible=True,feasible_model='validation_fermentation')
+
+   #-------Ordered sets 
+    m.set1=pe.RangeSet(1,x_up[0]+1,doc= "set of first group of Boolean variables") #Fed batch time
+    m.set2=pe.Set(initialize=m.fer.t)#pe.RangeSet(1,x_up[0]+1,doc= "set of second group of Boolean variables") #Processing time
+    #-----Variables
+    m.Y1=pe.BooleanVar(m.set1,doc="Boolean variable associated to set 1")
+    m.Y2=pe.BooleanVar(m.set2,doc="Boolean variable associated to set 2")
+    #-----Logical constraints
+
+    #Constraint that allow to apply the reformulation over Y1
+    def select_one_Y1(m):
+        return pe.exactly(1,m.Y1)
+    m.oneY1=pe.LogicalConstraint(rule=select_one_Y1)
+
+    #Constraint that allow to apply the reformulation over Y2
+    def select_one_Y2(m):
+        return pe.exactly(1,m.Y2)
+    m.oneY2=pe.LogicalConstraint(rule=select_one_Y2)
+
+    # Fermentation model update
+
+    m.fer.del_component(m.fer.obj)
+    m.fer.del_component(m.fer.F_base)
+    m.fer.F_base_constant=pe.Var(initialize=0.0001,within=pe.NonNegativeReals,bounds=(0,0.01),doc='Constant base flow during fed-batch phase')
+
+    # Remove constant feed parameters
+    # val1=pe.value(m.fer.F_C5liquid)
+    # val2=pe.value(m.fer.F_liquified_fibers)
+    m.fer.del_component(m.fer.F_C5liquid)
+    m.fer.del_component(m.fer.F_liquified_fibers)
+
+    # Creating new variables for time
+    def _F_C5liquid_new(m):
+        return 628*(1/60)*(1/60)
+    m.fer.F_C5liquid_new=pe.Var(initialize=_F_C5liquid_new,within=pe.NonNegativeReals,bounds=(0,628*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
+
+    # m.fer.F_C5liquid_new.fix(val1)
+
+
+    def _F_liquified_fibers_new(m,t):
+        if t*m.final_time<=10*60*60: # Inoculum phase
+            return 2487*(1/60)*(1/60)
+        elif t*m.final_time> 10*60*60 and t*m.final_time <=70*60*60: #Fed-batch phase
+            return 2487*(1/60)*(1/60)
+        elif t*m.final_time>70*60*60 and t*m.final_time<=190*60*60: #Batch phase
+            return 0
+    m.fer.F_liquified_fibers_new=pe.Var(m.fer.t,initialize=_F_liquified_fibers_new,within=pe.NonNegativeReals,bounds=(0,2487*(1/60)*(1/60)*2),doc='C5liquid flow [kg/s]')
+    # m.fer.F_liquified_fibers_new[m.fer.t.first()].fix(0)
+    # m.fer.F_liquified_fibers_new.fix(val2)
+
+    # Updating input flow constraints
+    m.fer.del_component(m.fer.Feed_constraint)
+    m.fer.del_component(m.fer.Feed_concentration_constraint)
+
+
+
+    # Disjunctive section
+    m.delta=pe.Param(initialize=m.fer.final_time /(m.fer.t.__len__()-1),doc='lenght of time periods of discretized time grid for dynamcis [seconds]')    
+    m.tau_p=pe.Param(initialize=70*60*60,mutable=True,doc='Time required for the fed batch phase [seconds]')
+    # m.tau_p_batch=pe.Param(initialize=m.fer.final_time,mutable=True,doc='Time required for batch operation [seconds]')
+    #-----First disjunction
+    def build_disjuncts1(m,set1):  #Disjuncts for first Boolean variable
+
+        m.model().tau_p.value=(set1-1)*m.model().delta
+
+        def _Feed_constraint_new(m,t):
+
+            if t*m.model().fer.final_time<=10*60*60: # Inoculum phase
+                return m.model().fer.Fin[t]==m.model().fer.F_liquified_fibers_new[t]
+            elif t*m.model().fer.final_time> 10*60*60 and t*m.model().fer.final_time <=pe.value(m.model().tau_p) : #Fed-batch phase
+                return m.model().fer.Fin[t]==m.model().fer.F_C5liquid_new + m.model().fer.F_liquified_fibers_new[t]+m.model().fer.F_base_constant+m.model().fer.F_acid[t]       #(m.model().Mmax-m.model().M0)/(70*60*60-10*60*60)
+            elif t*m.model().fer.final_time>pe.value(m.model().tau_p)  and t*m.model().fer.final_time<=190*60*60: #Batch phase
+                return m.model().fer.Fin[t]==0
+
+        m.Feed_constraint_new=pe.Constraint(m.model().fer.t,rule=_Feed_constraint_new)
+
+        def _Feed_concentration_constraint_new(m,t,j):
+            if t*m.model().fer.final_time<=10*60*60: # Inoculum phase
+                return m.model().fer.Cin[t,j]==m.model().fer.C_liquified_fibers[j]
+            elif t*m.model().fer.final_time> 10*60*60 and t*m.model().fer.final_time <=pe.value(m.model().tau_p) : #Fed-batch phase
+                return m.model().fer.Cin[t,j]*(m.model().fer.F_C5liquid_new + m.model().fer.F_liquified_fibers_new[t]+m.model().fer.F_base_constant+m.model().fer.F_acid[t])==(m.model().fer.F_C5liquid_new*m.model().fer.C_C5liquid[j]+m.model().fer.F_liquified_fibers_new[t]*m.model().fer.C_liquified_fibers[j]+m.model().fer.F_base_constant*m.model().fer.C_base[j]+m.model().fer.F_acid[t]*m.model().fer.C_acid[j])
+            elif t*m.model().fer.final_time>pe.value(m.model().tau_p)  and t*m.model().fer.final_time<=190*60*60: #Batch phase
+                return m.model().fer.Cin[t,j]== 0  
+        m.Feed_concentration_constraint_new=pe.Constraint(m.model().fer.t,m.model().fer.j,rule=_Feed_concentration_constraint_new)
+    
+    m.Y1_disjunct=Disjunct(m.set1,rule=build_disjuncts1,doc="each disjunct is defined over set 1")
+    # m.Y1_disjunct.pprint()
+
+
+    m.obj_dummy_time=pe.Var(within=pe.NonNegativeReals)
+
+    def build_disjuncts2(m,set2):  #Disjuncts for first Boolean variable
+        def _ethanol_concentration_Requirement(m):
+            return m.model().fer.C[set2,'Eth']>=80
+        m.ethanol_concentration_Requirement=pe.Constraint(rule=_ethanol_concentration_Requirement)
+
+        def _batch_time(m):
+            return m.model().obj_dummy_time==set2*m.model().fer.final_time
+        m.batch_time=pe.Constraint(rule=_batch_time)
+    m.Y2_disjunct=Disjunct(m.set2,rule=build_disjuncts2,doc="each disjunct is defined over set 2")
+
+    # def Disjunction1(m):    #Disjunction for first Boolean variable
+    #     return [m.Y1_disjunct[j] for j in m.set1]
+    # m.Disjunction1=Disjunction(rule=Disjunction1,xor=True)
+
+
+    # def Disjunction2(m):    #Disjunction for second Boolean variable
+    #     return [m.Y2_disjunct[j] for j in m.set2]
+    # m.Disjunction2=Disjunction(rule=Disjunction2,xor=True)
+
+    #Associate boolean variables to disjuncts
+    for n1 in m.set1:
+        m.Y1[n1].associate_binary_var(m.Y1_disjunct[n1].indicator_var)
+
+    for n2 in m.set2:
+        m.Y2[n2].associate_binary_var(m.Y2_disjunct[n2].indicator_var)
+
+
+
+    #SCALE MODEL TRANSFORMATION
+    # m=scale_model(m)
+    #OBJECTIVE FUNCTION EQUAL TO CONSTANT TO INDICATE ITS A SIMULATION
+    def _obj_rule(m):
+        # return -m.fer.C[m.fer.t.last(),'Eth']
+        # return -m.fer.C[m.fer.t.last(),'Eth']*m.fer.M[m.fer.t.last()]
+        return -m.obj_dummy_time-m.fer.C[m.fer.t.last(),'Eth']
+    m.obj=pe.Objective(rule=_obj_rule)
+    return m
+
+
 
 
 def scale_model(m):
@@ -4323,7 +4469,8 @@ if __name__ == '__main__':
     v4='GLOBAL--'
     v5='1_FERMENTATION_CONTROL--' # FIRST TESTS TO IDENTIFY FEASIBLE SOLUTION WITHOUT PARAMETRIZATION
     v6='2_FERMENTATION_CONTROL--' # TRYING TO INCLUDE FLOW PARAMETRIZATION
-    v7='FERMENTATION_DSDA_TEST'
+    v7='FERMENTATION_DSDA_TEST--'
+    v8='FERMENTATION_DSDA_TEST_2'
     solver='conopt4'
 
     ### PRETREATMENT SIMULATION
@@ -4958,6 +5105,7 @@ if __name__ == '__main__':
 
 
         x_init=[round((70*60*60-mdsda.fer.final_time)*((upper_bounds[1]-lower_bounds[1])/(mdsda.fer.final_time))+upper_bounds[1])]
+        final_sol=x_init
         print(x_init)
         # mdsda=external_ref(mdsda,x_init,dummy_logic,reformulation_dict,tee =False)
         # mdsda.obj.deactivate()
@@ -5004,7 +5152,7 @@ if __name__ == '__main__':
         end=time.time()
         print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
 
-        final_sol=routeDSDA[-1] #TODO: UPDATE
+        final_sol=routeDSDA[-1] 
 
         mdsda=dsda_model(x_up=x_up)
         mdsda=initialize_model(mdsda,from_feasible=True,feasible_model='best')
@@ -5093,3 +5241,132 @@ if __name__ == '__main__':
         plt.xlabel('time_vec [s]')
         plt.ylabel('Liquified fibers flow [kg/s]')
         plt.show()
+    
+    if v8=='FERMENTATION_DSDA_TEST_2':
+
+        # RETRIEVE ORDERED VARIABLES
+
+        x_up=[50]  # Number of discretization points
+        mdsda=dsda_model_v2(x_up=x_up)
+        ext_ref={mdsda.Y1:mdsda.set1,mdsda.Y2:mdsda.set2}
+        [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(mdsda,ext_ref,tee=True)
+        
+
+
+        x_init=[round((70*60*60-mdsda.fer.final_time)*((upper_bounds[1]-lower_bounds[1])/(mdsda.fer.final_time))+upper_bounds[1]),x_up[0]+1]
+        final_sol=x_init
+        print(x_init)
+
+        # NOTE: THIS ONE IS GOOD, ALSO NOTE THAT I MODIFIED ONE OF MY CONSTRAINTS
+        mdsda=dsda_model_v2(x_up=x_up)
+        # mdsda=initialize_model(mdsda,from_feasible=True,feasible_model='feas_init_dsda2')
+        mdsda=external_ref(mdsda,x_init,dummy_logic_v2,reformulation_dict,tee =False)
+        # mdsda.obj.deactivate()
+        # def _obj_rule3(m):
+        #     return sum( (m.fer.F_liquified_fibers_new[t]-m.fer.F_liquified_fibers_new[m.fer.t.prev(t)])**2 for t in m.fer.t if t!=m.fer.t.first() and t*m.fer.final_time<= (x_init[0]-1)*(m.fer.final_time /(m.fer.t.__len__()-1)))
+        # mdsda.obj3=pe.Objective(rule=_obj_rule3)
+        sub_options={'add_options':['option nlp='+solver+';\n','GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > conopt4.opt \n','Tol_Feas_Min 1e-6\n','$offecho \n']}
+        mdsda=solve_subproblem(mdsda,subproblem_solver=solver,subproblem_solver_options=sub_options,tee=True)
+        generate_initialization(m=mdsda,model_name='feas_init_dsda3_v2') 
+
+        # DSDA test
+        # x_init=[18]
+        start=time.time()
+        neighdef='Infinity'
+        sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > conopt4.opt \n','Tol_Feas_Min 5e-7 \n','$offecho \n']}
+        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=1;','$onecho > conopt4.opt \n','Tol_Bound 1e-8 \n','$offecho \n']}
+        # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;']}
+        D_SDAsol,routeDSDA,obj_route=solve_with_dsda(dsda_model_v2,{'x_up':x_up},x_init,ext_ref,dummy_logic_v2,k = neighdef,provide_starting_initialization= True,feasible_model='feas_init_dsda3',subproblem_solver = solver,subproblem_solver_options=sub_options,iter_timelimit= 300,timelimit = 86400,gams_output = False,tee= False,global_tee = True,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+        end=time.time()
+        print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
+
+        final_sol=routeDSDA[-1] 
+
+        mdsda=dsda_model_v2(x_up=x_up)
+        mdsda=initialize_model(mdsda,from_feasible=True,feasible_model='best')
+        mdsda=external_ref(mdsda,final_sol,dummy_logic_v2,reformulation_dict,tee =False)
+        sub_options={'add_options':['option nlp='+solver+';\n','GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > conopt4.opt \n',' Tol_Feas_Min 5e-7\n','$offecho \n']}
+        mdsda=solve_subproblem(mdsda,subproblem_solver=solver,subproblem_solver_options=sub_options,tee=True)
+        generate_initialization(m=mdsda,model_name='final_sol_v2') 
+
+
+        mad=mdsda.fer
+
+        time_vec=[]
+        vec={}
+        pH=[]
+        Hold_up=[]
+        Flow_base=[]
+        Flow_C5=[]
+        Flow_F=[]
+
+        for t in mad.t:
+            time_vec.append(t*mad.final_time)
+            pH.append(mad.pH[t].value)
+            Hold_up.append(mad.M[t].value)
+            if t*mad.final_time<= (final_sol[0]-1)*(mad.final_time /(mad.t.__len__()-1)): #Inoulum and fed batch
+                Flow_F.append(mad.F_liquified_fibers_new[t].value)
+            else:
+                Flow_F.append(0)
+            if t*mad.final_time>10*60*60 and t*mad.final_time<= (final_sol[0]-1)*(mad.final_time /(mad.t.__len__()-1)): #Only fed batch
+                Flow_base.append(mad.F_base_constant.value)
+                Flow_C5.append(mad.F_C5liquid_new.value)
+            else:
+                Flow_base.append(0)
+                Flow_C5.append(0)
+
+        for j in mad.j:
+            vec[j]=[]
+            for t in mad.t:
+                vec[j].append(mad.C[t,j].value)
+
+        colors=['b','g','m','r','k','y','c']
+        contador=-1
+        for j in mad.j:
+            if j=='G' or j=='X' or j=='Eth' or j=='Cell':
+                contador=contador+1
+                plt.plot(time_vec,vec[j],colors[contador],label=j)
+                # original = pd.read_csv('C:/Users/dlinanro/Desktop/GeneralBenders/biorefinery_models/'+j+'_ferm.csv', header=None)
+                # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('time_vec [s]')
+            plt.ylabel('Concentration [g/kg]')
+            plt.legend()
+        plt.show()
+
+        contador=-1
+        for j in mad.j:
+            if j=='CS' or j=='XS' or j=='E':
+                contador=contador+1
+                plt.plot(time_vec,vec[j],colors[contador],label=j)
+                # original = pd.read_csv('C:/Users/dlinanro/Desktop/GeneralBenders/biorefinery_models/'+j+'_ferm.csv', header=None)
+                # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('time_vec [s]')
+            plt.ylabel('Concentration [g/kg]')
+            plt.legend()
+        plt.show()
+
+        plt.plot(time_vec,pH)
+        plt.xlabel('time_vec [s]')
+        plt.ylabel('pH')
+        plt.show()
+
+        plt.plot(time_vec,Hold_up)
+        plt.xlabel('time_vec [s]')
+        plt.ylabel('Hold-up [kg]')
+        plt.show()
+
+        plt.plot(time_vec,Flow_base)
+        plt.xlabel('time_vec [s]')
+        plt.ylabel('Base flow [kg/s]')
+        plt.show()
+
+        plt.plot(time_vec,Flow_C5)
+        plt.xlabel('time_vec [s]')
+        plt.ylabel('C5 flow [kg/s]')
+        plt.show()
+
+        plt.plot(time_vec,Flow_F)
+        plt.xlabel('time_vec [s]')
+        plt.ylabel('Liquified fibers flow [kg/s]')
+        plt.show()
+           
