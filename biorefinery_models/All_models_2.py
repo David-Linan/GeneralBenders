@@ -6179,8 +6179,9 @@ def simulation_sensitivity(current_pH: list=[5.5 for i in range(50)],total_eleme
 
         generate_initialization(m=mad,model_name='prev_init')
 
-
-        print('Iteration:',disc_time,'--Status:',mad.dsda_status,'--last solver used:',solver_used)
+        if tee:
+            print('Iteration:',disc_time,'--Status:',mad.dsda_status,'--last solver used:',solver_used)
+        
         if mad.dsda_status=='Evaluated_Infeasible':
             break
         #Update previous conditions for next iteration
@@ -6286,11 +6287,11 @@ def simulate_and_get_multipliers(pH_profile: list=[],pH_step: float=0.1,total_si
 
     return current_point_objective,derivative_dict,simulation_status
 
-def master_problem_fermentation(set_time_pH: list=[])-> pe.ConcreteModel():
+def master_problem_fermentation(set_time_pH: list=[],boundspH: tuple=())-> pe.ConcreteModel():
     m=pe.ConcreteModel(name='Master_problem')
 
     m.set_time_pH=pe.Set(initialize=set_time_pH)
-    m.pH_master=pe.Var(m.set_time_pH,within=pe.NonNegativeReals,bounds=(5.4,5.6))
+    m.pH_master=pe.Var(m.set_time_pH,within=pe.NonNegativeReals,bounds=boundspH)
     #Cuts
     m.cuts=pe.ConstraintList()
 
@@ -7389,9 +7390,9 @@ if __name__ == '__main__':
         new_solver='knitro'
         solver_list=['conopt','knitro','conopt4','baron','ipopth']
         tee=False
-        discretization_type_fer='differences'
+        discretization_type_fer='DIFFERENCES'
         finite_elem_t_fer=1 # 1 meaning that we will consider ony one finite element at a time
-        total_elements=10 #total number of finite elements to be considered (not including 0). This will be the same as the total number of simulations
+        total_elements=50 #total number of finite elements to be considered (not including 0). This will be the same as the total number of simulations
         total_sim_time=190*(60)*(60) #Total batch time in seconds
 
 
@@ -7469,11 +7470,15 @@ if __name__ == '__main__':
         # Generalized Benders Decomposition
 
         # Initialize
+        upper_bound_pH=5.4
+        lower_bound_pH=5.36
         max_iter=10
-        pH_initial_guess=[5.4+(i/total_elements)*(5.6-5.4) for i in range(total_elements)]
-        pH_step=0.001
+        # pH_initial_guess=[5.4, 5.4, 5.4, 5.4, 5.4, 5.52, 5.4, 5.4, 5.52, 5.52]
+        pH_initial_guess=[5.37 for i in range(total_elements)]
+        # pH_initial_guess=[lower_bound_pH+(i/total_elements)*(upper_bound_pH-lower_bound_pH) for i in range(total_elements)]
+        pH_step=1e-5
         set_time_pH=[i for i in range(total_elements)]
-        master=master_problem_fermentation(set_time_pH=set_time_pH)
+        master=master_problem_fermentation(set_time_pH=set_time_pH,boundspH=(lower_bound_pH,upper_bound_pH))
 
         #GBD
         pH_prev_iter=copy.deepcopy(pH_initial_guess)
@@ -7493,6 +7498,8 @@ if __name__ == '__main__':
 
             #master problem
             master.cuts.add(sum( derivative_dict[j]*(master.pH_master[j]-subproblem_pH[j]) for j in master.set_time_pH) + current_point_objective<=master.zobj) 
+            # for j in master.set_time_pH:
+            #     master.cuts.add(derivative_dict[j]*(master.pH_master[j]-subproblem_pH[j]) + current_point_objective<=master.zobj) 
             # Initialize master
             for j in master.set_time_pH:
                 master.pH_master[j].value=subproblem_pH[j]
