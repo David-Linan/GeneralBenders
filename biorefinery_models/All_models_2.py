@@ -25,6 +25,8 @@ from pyomo.opt import SolutionStatus, SolverResults
 from pyomo.opt import TerminationCondition as tc
 from copy import deepcopy
 import logging
+import random
+
 
 
 
@@ -6348,7 +6350,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
         # return 1 
         # return sum((m.C[t,'Eth']-100)**2  for t in m.t)
         # return -1*m.C[m.t.last(),'Eth']+1000*sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+1000*sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
-        return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+1e+7*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+        return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
         # return -m.M[m.t.last()]-1000*m.C[m.t.last(),'Eth']
         # return -sum(m.pH[t] for t in m.t)
         # return -m.C_elect_equil[m.t.last(),'H+']
@@ -6363,7 +6365,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
 
     return m
 # FOR ONE STEP SIMULATION
-def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,M0_prev_input: float=0,C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0},pH_val: float=5.5,M_yeast: float=100,F_fibers:float=1,F_C5:float=1) -> pe.ConcreteModel():
+def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,M0_prev_input: float=0,C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0},pH_val: float=5.5,M_yeast: float=100,F_fibers:float=1,F_C5:float=1,glucose_disturbance_F:float=0,xylose_disturbance_F:float=0,glucose_disturbance_C5:float=0,xylose_disturbance_C5:float=0) -> pe.ConcreteModel():
 
     # ------------pyomo model------------------------------------------------
     m = pe.ConcreteModel(name='fermentation_model')
@@ -6484,8 +6486,8 @@ def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,discret
     _C_C5liquid['XS']=0.5
     _C_C5liquid['LS']=0.7
     _C_C5liquid['C']=0 #0.1   # NOT reported. Guess
-    _C_C5liquid['G']=10
-    _C_C5liquid['X']=29.7
+    _C_C5liquid['G']=max(10+glucose_disturbance_C5*10,0)
+    _C_C5liquid['X']=max(29.7+xylose_disturbance_C5*29.7,0)
     _C_C5liquid['F']=0.5
     _C_C5liquid['E']=0
     _C_C5liquid['AC']=4.1 # this may be the mixture of acids
@@ -6502,8 +6504,8 @@ def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,discret
     _C_liquified_fibers['XS']=1
     _C_liquified_fibers['LS']=78
     _C_liquified_fibers['C']=0 #26.6/2   # NOT reported
-    _C_liquified_fibers['G']=98
-    _C_liquified_fibers['X']=59
+    _C_liquified_fibers['G']=max(98+glucose_disturbance_F*98,0)
+    _C_liquified_fibers['X']=max(59+xylose_disturbance_F*59,0)
     _C_liquified_fibers['F']=0.2
     _C_liquified_fibers['E']=4.9
     _C_liquified_fibers['AC']=16 # this may be the mixture of acids
@@ -8284,7 +8286,8 @@ if __name__ == '__main__':
     v12='NONLINAR_MODEL_PREDICTIVE_CONTROL_VALIDATION--'
     v13='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_OPEN_LOOP--'
     v14='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_NO_DISTURBANCES--'
-    v15='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES'
+    v15='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_TEST--'
+    v16='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_IMPLEMENTED'
     solver='conopt4'
 
     ### PRETREATMENT SIMULATION
@@ -10064,7 +10067,7 @@ if __name__ == '__main__':
         plt.ylabel('yeast [kg]')
         plt.show()
 
-    if v15=='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES':
+    if v15=='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_TEST':
 
         solver_list=['conopt','conopt4','knitro']
         tee=False
@@ -10296,4 +10299,457 @@ if __name__ == '__main__':
         plt.plot(yeast_list)
         plt.xlabel('time [h]')
         plt.ylabel('yeast [kg]')
+        plt.show()
+
+    if v16=='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_IMPLEMENTED':
+
+        solver_list=['conopt','conopt4','knitro','baron','ipopth']
+        tee=False
+        discretization_type_fer='DIFFERENCES'
+        # discretization_type_fer='collocation'
+        finite_elem_t_fer=50 
+        total_elements=finite_elem_t_fer #prediction horizon, which is constnt, i.e., the total batch duration
+        total_sim_time=190*(60)*(60) #Total batch time in seconds 
+        step=total_sim_time/total_elements      #Sampling_time
+        start_time=0
+        disturbance=True
+
+
+        control_horizon=19   # 19 is actually the last time I perform control actions, hence, the control horizon should be at most this or less
+
+        # Simulation parameters
+        sim_discretization='differences'
+        sim_n_finite_elements=1
+        simulation_solvers=['conopt','conopt4','knitro','baron','ipopth']
+
+
+        # CLOSED LOOP
+        random.seed(10)
+        time_list=[] #Simulated time points
+        Hold_up_list=[] #Simulated hold ups
+        pH_list=[] # Simulated pH
+        yeast_list=[] # Simulated yeast
+        C5_list=[] # Simulated C5 flow
+        fiber_list=[] #Simulated fibers flow
+        objective_list=[]
+        Concentration_dict={'CS':[], 'XS':[], 'LS':[],'C':[],'G':[], 'X':[], 'F':[], 'E':[],'AC':[],'Cell':[],'Eth':[],'CO2':[],'ACT':[],'HMF':[],'Base':[]} #Simulated concentrations
+
+        C0_prev={}
+        count_last_elements=0
+        for disc_time in range(total_elements):
+        # for disc_time in [0]:
+            current_start_time=disc_time*step #current start time
+
+            # Define optimization model
+            mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time)  
+
+            #Decrease number of finite elements in control horizon once we are approaching the end of the batch
+            if disc_time+control_horizon>=total_elements+1:
+                count_last_elements=count_last_elements+1
+                control_horizon_updated=control_horizon-count_last_elements
+            else:
+                control_horizon_updated=control_horizon 
+
+                # Keep control actions constant after the end of the control horizon                
+                non_controlled_horizon=total_elements-control_horizon_updated
+                
+                # TODO: assuming finite differences
+                def _constant_control_C5(m,t):
+                    if m.t.ord(m.t.last())-m.t.ord(t)<=non_controlled_horizon-1 and all([(m.current_starting_time+tt*(m.current_final_time-m.current_starting_time))> 10*60*60 and (m.current_starting_time+tt*(m.current_final_time-m.current_starting_time)) <=70*60*60 for tt in [m.t.prev(t),t]]):
+                        return m.F_C5liquid[t]==m.F_C5liquid[m.t.prev(t)]
+                    else:
+                        return pe.Constraint.Skip
+                mad.constant_control_C5=pe.Constraint(mad.t,rule=_constant_control_C5)
+                def _constant_control_F(m,t):
+                    if m.t.ord(m.t.last())-m.t.ord(t)<=non_controlled_horizon-1 and all([(m.current_starting_time+tt*(m.current_final_time-m.current_starting_time)) <=70*60*60 for tt in [m.t.prev(t),t]]):
+                        return m.F_liquified_fibers[t]==m.F_liquified_fibers[m.t.prev(t)]
+                    else:
+                        return pe.Constraint.Skip
+                mad.constant_control_F=pe.Constraint(mad.t,rule=_constant_control_F)
+
+    
+            if disc_time!=0: 
+                mad=initialize_model(mad,from_feasible=True,feasible_model='prev_init') 
+
+                # Fix first stage desicions
+                mad.pH.fix(pe.value(mad.pH))
+                mad.M0_yeast.fix(pe.value(mad.M0_yeast))       
+
+                # Fix previous steps desicions @TODO: what I should do here is a simulation of one time step in the Simulation oriented Model (SOM), including potential disturbances; then fix previous control actions , update states and remove differential equations to avoid infeasibilities
+                # TODO: assuming finite differences, actually, to consider mistmatch, I can assume orthogonal collocation for simulation to consider mistmatch
+
+                for t in mad.t:
+                    if mad.t.ord(t)<=disc_time+1:
+                        mad.F_C5liquid[t].fix(pe.value(mad.F_C5liquid[t]))
+                        mad.F_liquified_fibers[t].fix(pe.value(mad.F_liquified_fibers[t]))
+                        mad.M[t].fix(pe.value(mad.M[t]))
+                        for j in mad.j:
+                            mad.C[t,j].fix(pe.value(mad.C[t,j]))
+                        
+                        mad.Diff_mass[t].deactivate()
+                        for j in mad.j:
+                            mad.Diff_comp[t,j].deactivate()
+
+
+                    #     # TODO: also fix states up to this point+1 (those measured from simulation) and remove constraints up to this point. Do not remove integral constraints or other constraints needed during the whole horizon
+                    # elif mad.t.ord(t)<=disc_time+1:
+                    #     mad.M[t].fix(pe.value(mad.M[t]))
+                    #     for j in mad.j:
+                    #         mad.C[t,j].fix(pe.value(mad.C[t,j]))
+            else: 
+                mad=initialize_model(mad,from_feasible=True,feasible_model='validation_fermentation')
+
+            if current_start_time<=70*60*60:
+                opt1 = SolverFactory('gams') # Solve problem
+
+                for solver_used in solver_list:
+                    mad.results = opt1.solve(mad, solver=solver_used, tee=tee)
+
+                    if mad.results.solver.termination_condition == 'infeasible' or mad.results.solver.termination_condition == 'other' or mad.results.solver.termination_condition == 'unbounded' or mad.results.solver.termination_condition == 'invalidProblem' or mad.results.solver.termination_condition == 'solverFailure' or mad.results.solver.termination_condition == 'internalSolverError' or mad.results.solver.termination_condition == 'error'  or mad.results.solver.termination_condition == 'resourceInterrupt' or mad.results.solver.termination_condition == 'licensingProblem' or mad.results.solver.termination_condition == 'noSolution' or mad.results.solver.termination_condition == 'noSolution' or mad.results.solver.termination_condition == 'intermediateNonInteger':
+                        mad.dsda_status = 'Evaluated_Infeasible'
+                        if disc_time!=0:
+                            mad=initialize_model(mad,from_feasible=True,feasible_model='prev_init')  
+                    else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                        mad.dsda_status = 'Optimal'
+                        break
+                
+
+                
+
+
+                print('Iteration:',disc_time,'--Status:',mad.dsda_status,'--last solver used:',solver_used)
+                if mad.dsda_status=='Evaluated_Infeasible':
+                    break
+            
+            # Simulate optimal control action using one time step
+            # --1) retrieve optimal control action 
+            optimal_F=pe.value(mad.F_liquified_fibers[round((current_start_time+step)/total_sim_time,6)])
+            print(optimal_F)
+            optimal_C5=pe.value(mad.F_C5liquid[round((current_start_time+step)/total_sim_time,6)])
+            print(optimal_C5)
+            optimal_pH=pe.value(mad.pH)
+            optimal_yeast=pe.value(mad.M0_yeast)
+            # --2) retrieve current initial state
+            M0_prev=pe.value(mad.M[round(current_start_time/total_sim_time,6)]) 
+            for j in mad.j:
+                C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
+            # --3) perform one time step simulation
+            if disturbance:
+                disturb_G_F=random.uniform(-0.5,0)
+                disturb_X_F=random.uniform(-0.5,0)
+                disturb_G_C5=random.uniform(-0.5,0)
+                disturb_X_C5=random.uniform(-0.5,0)
+            else:
+                disturb_G_F=0
+                disturb_X_F=0
+                disturb_G_C5=0
+                disturb_X_C5=0                
+            mad_sim=build_fermentation_one_time_step_new(total_sim_time=total_sim_time,discretization=sim_discretization,n_f_elements_t=sim_n_finite_elements,total_f_elements_t=total_elements,current_start_time_sconds=current_start_time,M0_prev_input=M0_prev,C0_prev_input=C0_prev,pH_val=optimal_pH,M_yeast=optimal_yeast,F_fibers=optimal_F,F_C5=optimal_C5,glucose_disturbance_F=disturb_G_F,xylose_disturbance_F=disturb_X_F,glucose_disturbance_C5=disturb_G_C5,xylose_disturbance_C5=disturb_X_C5) 
+            if disc_time!=0:
+                mad_sim=initialize_model(mad_sim,from_feasible=True,feasible_model='prev_init_sim')  
+            # --4) Solve simulation
+            opt2 = SolverFactory('gams') # Solve problem
+
+            for solver_used in simulation_solvers:
+                mad_sim.results = opt2.solve(mad_sim, solver=solver_used, tee=tee)
+
+                if mad_sim.results.solver.termination_condition == 'infeasible' or mad_sim.results.solver.termination_condition == 'other' or mad_sim.results.solver.termination_condition == 'unbounded' or mad_sim.results.solver.termination_condition == 'invalidProblem' or mad_sim.results.solver.termination_condition == 'solverFailure' or mad_sim.results.solver.termination_condition == 'internalSolverError' or mad_sim.results.solver.termination_condition == 'error'  or mad_sim.results.solver.termination_condition == 'resourceInterrupt' or mad_sim.results.solver.termination_condition == 'licensingProblem' or mad_sim.results.solver.termination_condition == 'noSolution' or mad_sim.results.solver.termination_condition == 'noSolution' or mad_sim.results.solver.termination_condition == 'intermediateNonInteger':
+                    mad_sim.dsda_status = 'Evaluated_Infeasible'
+
+                else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                    mad_sim.dsda_status = 'Optimal'
+                    break
+            print('Iteration:',disc_time,'--Simulation Status:',mad_sim.dsda_status,'--last solver used:',solver_used)
+            if mad_sim.dsda_status=='Evaluated_Infeasible':
+                break            
+            # --5): Update original model miwth new states
+            # print(mad_sim.final_time.value,round((current_start_time+step),6))
+            # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
+            mad.M[round((current_start_time+step)/total_sim_time,6)].value=pe.value(mad_sim.M[mad_sim.t.last()])
+            # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
+            for j in mad.j:
+                mad.C[round((current_start_time+step)/total_sim_time,6),j].value=pe.value(mad_sim.C[mad_sim.t.last(),j])
+
+
+            generate_initialization(m=mad_sim,model_name='prev_init_sim')
+            generate_initialization(m=mad,model_name='prev_init')
+
+          
+            # for t in [k for k in mad.t if mad.t.ord(k)==disc_time+1]:
+            #     time_list.append((mad.current_starting_time+t*(mad.current_final_time-mad.current_starting_time))*(1/(60*60)))
+            #     Hold_up_list.append(pe.value(mad.M[t]))
+            #     pH_list.append(pe.value(mad.pH))
+            #     yeast_list.append(pe.value(mad.M0_yeast))
+            #     C5_list.append(pe.value(mad.F_C5liquid[t]))
+            #     fiber_list.append(pe.value(mad.F_liquified_fibers[t]))
+            #     for j in mad.j:
+            #         Concentration_dict[j].append(pe.value(mad.C[t,j]))
+            # if disc_time==total_elements-1:
+            #     time_list.append(total_sim_time*(1/(60*60)))
+            #     Hold_up_list.append(pe.value(mad.M[mad.t.last()]))
+            #     pH_list.append(pe.value(mad.pH))
+            #     yeast_list.append(pe.value(mad.M0_yeast))
+            #     C5_list.append(pe.value(mad.F_C5liquid[mad.t.last()]))
+            #     fiber_list.append(pe.value(mad.F_liquified_fibers[mad.t.last()]))
+            #     for j in mad.j:
+            #         Concentration_dict[j].append(pe.value(mad.C[mad.t.last(),j]))     
+
+
+            for t in mad_sim.t:
+                time_list.append((mad_sim.current_starting_time+t*(mad_sim.current_final_time-mad_sim.current_starting_time))*(1/(60*60)))
+                Hold_up_list.append(pe.value(mad_sim.M[t]))
+                pH_list.append(pe.value(mad_sim.pH))
+                yeast_list.append(pe.value(mad_sim.M0_yeast))
+                C5_list.append(pe.value(mad_sim.F_C5liquid))
+                fiber_list.append(pe.value(mad_sim.F_liquified_fibers))
+                for j in mad_sim.j:
+                    Concentration_dict[j].append(pe.value(mad_sim.C[t,j]))            
+ 
+            # save objective function
+            # objective_list.append()
+    
+
+
+
+
+
+        # OPEN LOOP
+        random.seed(10)
+        time_list_open=[] #Simulated time points
+        Hold_up_list_open=[] #Simulated hold ups
+        pH_list_open=[] # Simulated pH
+        yeast_list_open=[] # Simulated yeast
+        C5_list_open=[] # Simulated C5 flow
+        fiber_list_open=[] #Simulated fibers flow
+        objective_list_open=[]
+        Concentration_dict_open={'CS':[], 'XS':[], 'LS':[],'C':[],'G':[], 'X':[], 'F':[], 'E':[],'AC':[],'Cell':[],'Eth':[],'CO2':[],'ACT':[],'HMF':[],'Base':[]} #Simulated concentrations
+
+        C0_prev={}
+        count_last_elements=0
+        for disc_time in range(total_elements):
+        # for disc_time in [0]:
+            current_start_time=disc_time*step #current start time
+
+            # Define optimization model
+            mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time)  
+
+            #Decrease number of finite elements in control horizon once we are approaching the end of the batch
+            if disc_time+control_horizon>=total_elements+1:
+                count_last_elements=count_last_elements+1
+                control_horizon_updated=control_horizon-count_last_elements
+            else:
+                control_horizon_updated=control_horizon 
+
+                # Keep control actions constant after the end of the control horizon                
+                non_controlled_horizon=total_elements-control_horizon_updated
+                
+                # TODO: assuming finite differences
+                def _constant_control_C5(m,t):
+                    if m.t.ord(m.t.last())-m.t.ord(t)<=non_controlled_horizon-1 and all([(m.current_starting_time+tt*(m.current_final_time-m.current_starting_time))> 10*60*60 and (m.current_starting_time+tt*(m.current_final_time-m.current_starting_time)) <=70*60*60 for tt in [m.t.prev(t),t]]):
+                        return m.F_C5liquid[t]==m.F_C5liquid[m.t.prev(t)]
+                    else:
+                        return pe.Constraint.Skip
+                mad.constant_control_C5=pe.Constraint(mad.t,rule=_constant_control_C5)
+                def _constant_control_F(m,t):
+                    if m.t.ord(m.t.last())-m.t.ord(t)<=non_controlled_horizon-1 and all([(m.current_starting_time+tt*(m.current_final_time-m.current_starting_time)) <=70*60*60 for tt in [m.t.prev(t),t]]):
+                        return m.F_liquified_fibers[t]==m.F_liquified_fibers[m.t.prev(t)]
+                    else:
+                        return pe.Constraint.Skip
+                mad.constant_control_F=pe.Constraint(mad.t,rule=_constant_control_F)
+
+    
+            if disc_time!=0: 
+                mad=initialize_model(mad,from_feasible=True,feasible_model='prev_init') 
+
+                # Fix first stage desicions
+                mad.pH.fix(pe.value(mad.pH))
+                mad.M0_yeast.fix(pe.value(mad.M0_yeast))       
+
+                # Fix previous steps desicions @TODO: what I should do here is a simulation of one time step in the Simulation oriented Model (SOM), including potential disturbances; then fix previous control actions , update states and remove differential equations to avoid infeasibilities
+                # TODO: assuming finite differences, actually, to consider mistmatch, I can assume orthogonal collocation for simulation to consider mistmatch
+
+                for t in mad.t:
+                    mad.F_C5liquid[t].fix(pe.value(mad.F_C5liquid[t]))
+                    mad.F_liquified_fibers[t].fix(pe.value(mad.F_liquified_fibers[t]))
+
+
+
+                    #     # TODO: also fix states up to this point+1 (those measured from simulation) and remove constraints up to this point. Do not remove integral constraints or other constraints needed during the whole horizon
+                    # elif mad.t.ord(t)<=disc_time+1:
+                    #     mad.M[t].fix(pe.value(mad.M[t]))
+                    #     for j in mad.j:
+                    #         mad.C[t,j].fix(pe.value(mad.C[t,j]))
+            else: 
+                mad=initialize_model(mad,from_feasible=True,feasible_model='validation_fermentation')
+
+            if current_start_time==0:
+                opt1 = SolverFactory('gams') # Solve problem
+
+                for solver_used in solver_list:
+                    mad.results = opt1.solve(mad, solver=solver_used, tee=tee)
+
+                    if mad.results.solver.termination_condition == 'infeasible' or mad.results.solver.termination_condition == 'other' or mad.results.solver.termination_condition == 'unbounded' or mad.results.solver.termination_condition == 'invalidProblem' or mad.results.solver.termination_condition == 'solverFailure' or mad.results.solver.termination_condition == 'internalSolverError' or mad.results.solver.termination_condition == 'error'  or mad.results.solver.termination_condition == 'resourceInterrupt' or mad.results.solver.termination_condition == 'licensingProblem' or mad.results.solver.termination_condition == 'noSolution' or mad.results.solver.termination_condition == 'noSolution' or mad.results.solver.termination_condition == 'intermediateNonInteger':
+                        mad.dsda_status = 'Evaluated_Infeasible'
+                        if disc_time!=0:
+                            mad=initialize_model(mad,from_feasible=True,feasible_model='prev_init')  
+                    else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                        mad.dsda_status = 'Optimal'
+                        break
+                
+
+                
+
+
+                print('Iteration:',disc_time,'--Status:',mad.dsda_status,'--last solver used:',solver_used)
+                if mad.dsda_status=='Evaluated_Infeasible':
+                    break
+            
+            # Simulate optimal control action using one time step
+            # --1) retrieve optimal control action 
+            optimal_F=pe.value(mad.F_liquified_fibers[round((current_start_time+step)/total_sim_time,6)])
+            print(optimal_F)
+            optimal_C5=pe.value(mad.F_C5liquid[round((current_start_time+step)/total_sim_time,6)])
+            print(optimal_C5)
+            optimal_pH=pe.value(mad.pH)
+            optimal_yeast=pe.value(mad.M0_yeast)
+            # --2) retrieve current initial state
+            M0_prev=pe.value(mad.M[round(current_start_time/total_sim_time,6)]) 
+            for j in mad.j:
+                C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
+            # --3) perform one time step simulation
+            if disturbance:
+                disturb_G_F=random.uniform(-0.5,0)
+                disturb_X_F=random.uniform(-0.5,0)
+                disturb_G_C5=random.uniform(-0.5,0)
+                disturb_X_C5=random.uniform(-0.5,0)
+            else:
+                disturb_G_F=0
+                disturb_X_F=0
+                disturb_G_C5=0
+                disturb_X_C5=0               
+            mad_sim=build_fermentation_one_time_step_new(total_sim_time=total_sim_time,discretization=sim_discretization,n_f_elements_t=sim_n_finite_elements,total_f_elements_t=total_elements,current_start_time_sconds=current_start_time,M0_prev_input=M0_prev,C0_prev_input=C0_prev,pH_val=optimal_pH,M_yeast=optimal_yeast,F_fibers=optimal_F,F_C5=optimal_C5,glucose_disturbance_F=disturb_G_F,xylose_disturbance_F=disturb_X_F,glucose_disturbance_C5=disturb_G_C5,xylose_disturbance_C5=disturb_X_C5) 
+            if disc_time!=0:
+                mad_sim=initialize_model(mad_sim,from_feasible=True,feasible_model='prev_init_sim')  
+            # --4) Solve simulation
+            opt2 = SolverFactory('gams') # Solve problem
+
+            for solver_used in simulation_solvers:
+                mad_sim.results = opt2.solve(mad_sim, solver=solver_used, tee=tee)
+
+                if mad_sim.results.solver.termination_condition == 'infeasible' or mad_sim.results.solver.termination_condition == 'other' or mad_sim.results.solver.termination_condition == 'unbounded' or mad_sim.results.solver.termination_condition == 'invalidProblem' or mad_sim.results.solver.termination_condition == 'solverFailure' or mad_sim.results.solver.termination_condition == 'internalSolverError' or mad_sim.results.solver.termination_condition == 'error'  or mad_sim.results.solver.termination_condition == 'resourceInterrupt' or mad_sim.results.solver.termination_condition == 'licensingProblem' or mad_sim.results.solver.termination_condition == 'noSolution' or mad_sim.results.solver.termination_condition == 'noSolution' or mad_sim.results.solver.termination_condition == 'intermediateNonInteger':
+                    mad_sim.dsda_status = 'Evaluated_Infeasible'
+
+                else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                    mad_sim.dsda_status = 'Optimal'
+                    break
+            print('Iteration:',disc_time,'--Simulation Status:',mad_sim.dsda_status,'--last solver used:',solver_used)
+            if mad_sim.dsda_status=='Evaluated_Infeasible':
+                break            
+            # --5): Update original model miwth new states
+            # print(mad_sim.final_time.value,round((current_start_time+step),6))
+            # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
+            mad.M[round((current_start_time+step)/total_sim_time,6)].value=pe.value(mad_sim.M[mad_sim.t.last()])
+            # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
+            for j in mad.j:
+                mad.C[round((current_start_time+step)/total_sim_time,6),j].value=pe.value(mad_sim.C[mad_sim.t.last(),j])
+
+
+            generate_initialization(m=mad_sim,model_name='prev_init_sim')
+            generate_initialization(m=mad,model_name='prev_init')
+
+          
+            # for t in [k for k in mad.t if mad.t.ord(k)==disc_time+1]:
+            #     time_list.append((mad.current_starting_time+t*(mad.current_final_time-mad.current_starting_time))*(1/(60*60)))
+            #     Hold_up_list.append(pe.value(mad.M[t]))
+            #     pH_list.append(pe.value(mad.pH))
+            #     yeast_list.append(pe.value(mad.M0_yeast))
+            #     C5_list.append(pe.value(mad.F_C5liquid[t]))
+            #     fiber_list.append(pe.value(mad.F_liquified_fibers[t]))
+            #     for j in mad.j:
+            #         Concentration_dict[j].append(pe.value(mad.C[t,j]))
+            # if disc_time==total_elements-1:
+            #     time_list.append(total_sim_time*(1/(60*60)))
+            #     Hold_up_list.append(pe.value(mad.M[mad.t.last()]))
+            #     pH_list.append(pe.value(mad.pH))
+            #     yeast_list.append(pe.value(mad.M0_yeast))
+            #     C5_list.append(pe.value(mad.F_C5liquid[mad.t.last()]))
+            #     fiber_list.append(pe.value(mad.F_liquified_fibers[mad.t.last()]))
+            #     for j in mad.j:
+            #         Concentration_dict[j].append(pe.value(mad.C[mad.t.last(),j]))     
+
+
+            for t in mad_sim.t:
+                time_list_open.append((mad_sim.current_starting_time+t*(mad_sim.current_final_time-mad_sim.current_starting_time))*(1/(60*60)))
+                Hold_up_list_open.append(pe.value(mad_sim.M[t]))
+                pH_list_open.append(pe.value(mad_sim.pH))
+                yeast_list_open.append(pe.value(mad_sim.M0_yeast))
+                C5_list_open.append(pe.value(mad_sim.F_C5liquid))
+                fiber_list_open.append(pe.value(mad_sim.F_liquified_fibers))
+                for j in mad_sim.j:
+                    Concentration_dict_open[j].append(pe.value(mad_sim.C[t,j]))            
+ 
+            # save objective function
+            # objective_list_open.append()
+
+
+        colors=['b','g','m','r','k','y','c']
+        contador=-1
+        for j in mad.j:
+            if j=='G' or j=='X' or j=='Eth' or j=='Cell':
+                contador=contador+1
+                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (Closed-loop)')
+                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Open-loop)')
+                # original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
+                # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('time [h]')
+            plt.ylabel('Concentration [g/kg]')
+            plt.legend()
+        plt.show()
+
+        contador=-1
+        for j in mad.j:
+            if j=='CS' or j=='XS' or j=='E':
+                contador=contador+1
+                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (Closed-loop)')
+                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Open-loop)')
+                # original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
+                # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
+            plt.xlabel('time [h]')
+            plt.ylabel('Concentration [g/kg]')
+            plt.legend()
+        plt.show()
+
+        plt.plot(time_list,pH_list,label='Closed-loop')
+        plt.plot(time_list_open,pH_list_open,label='Open-loop')
+        plt.xlabel('time [h]')
+        plt.ylabel('pH')
+        plt.legend()
+        plt.show()
+
+        plt.plot(time_list,C5_list,label='Closed-loop')
+        plt.plot(time_list_open,C5_list_open,label='Open-loop')
+        plt.xlabel('time [h]')
+        plt.ylabel('C5 flow [kg/s]')
+        plt.legend()
+        plt.show()
+
+        plt.plot(time_list,fiber_list,label='Closed-loop')
+        plt.plot(time_list_open,fiber_list_open,label='Open-loop')
+        plt.xlabel('time [h]')
+        plt.ylabel('Liquified fibers flow [kg/s]')
+        plt.legend()
+        plt.show()
+
+        plt.plot(time_list,Hold_up_list,label='Closed-loop')
+        plt.plot(time_list_open,Hold_up_list_open,label='Open-loop')
+        plt.xlabel('time [h]')
+        plt.ylabel('Hold-up [kg]')
+        plt.legend()
+        plt.show()
+
+        plt.plot(time_list,yeast_list,label='Closed-loop')
+        plt.plot(time_list_open,yeast_list_open,label='Open-loop')
+        plt.xlabel('time [h]')
+        plt.ylabel('yeast [kg]')
+        plt.legend()
         plt.show()
