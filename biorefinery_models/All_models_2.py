@@ -5660,7 +5660,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH(total_sim_time: float=1
 
     return m
 # FOR OPEN LOOP OPTIMIZATION
-def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,M0_prev_input: float=0,C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0}):
+def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,M0_prev_input: float=0,C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0},keep_constant_flows: bool=False):
     # ------------pyomo model------------------------------------------------
     m = pe.ConcreteModel(name='fermentation_model')
     # ------------shared scalars with hydrolisis model ----------------------
@@ -5771,7 +5771,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
 
     m.F_C5liquid=pe.Var(m.t,initialize=628*(1/60)*(1/60),within=pe.NonNegativeReals,bounds=(0,2*628*(1/60)*(1/60)),doc='C5liquid flow [kg/s]')
     m.F_liquified_fibers=pe.Var(m.t,initialize=2487*(1/60)*(1/60),within=pe.NonNegativeReals,bounds=(0,2*2487*(1/60)*(1/60)),doc='Liquified fibers flow [kg/s]')
-    
+
     m.pH=pe.Var(initialize=5.39,bounds=(5.36,5.4),within=pe.NonNegativeReals,doc='pH')     #bounds=(5.36,5.4)
     # m.pH.fix(5.41)
 
@@ -5836,8 +5836,11 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
     m.M0_yeast=pe.Var(initialize=147,within=pe.NonNegativeReals,bounds=(10,1000),doc='Initial yeast hold up in the reactor [kg]')
     # m.M0_yeast.fix(147)
     m.M0_water=pe.Param(initialize=2400,doc='Initial water hold up in the reactor [kg]') #TODO: Adjust to complete 220 tons, which should also agree if adjusting to guarantee initial yeast concentration in plot
-    m.M0=pe.Param(initialize=m.M0_fibers+m.M0_water+m.M0_yeast,doc='Initial hold up in the reactor [kg]')
+    m.M0=pe.Var(initialize=m.M0_fibers+m.M0_water+pe.value(m.M0_yeast),within=pe.NonNegativeReals,bounds=(m.M0_fibers+m.M0_water+10,m.M0_fibers+m.M0_water+1000),doc='Initial hold up in the reactor [kg]')
 
+    def _M0_def(m):
+        return m.M0==m.M0_fibers+m.M0_water+m.M0_yeast
+    m.M0_def=pe.Constraint(rule=_M0_def)
     # def _C0(m,j):
     #     if j=='Cell':
     #         return (1000*m.M0_yeast)/(m.M0)
@@ -5969,37 +5972,83 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
     m.Feed_concentration_constraint=pe.Constraint(m.t,m.j,rule=_Feed_concentration_constraint)
 
 
+    m.F_C5liquid[m.t.first()].fix(0)
+    m.F_liquified_fibers[m.t.first()].fix(0)
 
+
+    # def _current_integral_F(m):
+    #     return  m.final_time*sum(  ((pe.value(m.F_liquified_fibers[m.t.prev(t)])+pe.value(m.F_liquified_fibers[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())
+    # m.current_integral_F=pe.Param(initialize=_current_integral_F)
+
+    # def _current_integral_C5(m):    
+    #     return m.final_time*sum(  ((pe.value(m.F_C5liquid[m.t.prev(t)])+pe.value(m.F_C5liquid[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())
+    # m.current_integral_C5=pe.Param(initialize=_current_integral_C5)
+
+    # def _ingegral_F(m):
+    #     return m.final_time*sum(  (((m.F_liquified_fibers[m.t.prev(t)])+(m.F_liquified_fibers[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())==m.current_integral_F
+    # m.ingegral_F=pe.Constraint(rule=_ingegral_F)
+
+    # def _ingegral_C5(m):
+    #     return m.final_time*sum(  (((m.F_C5liquid[m.t.prev(t)])+(m.F_C5liquid[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())==m.current_integral_C5
+    # m.ingegral_C5=pe.Constraint(rule=_ingegral_C5)
+
+
+    # def _current_integral_F(m):
+    #     return  m.final_time*sum(  ((pe.value(m.F_liquified_fibers[t])))*(m.t.next(t)-t)    for t in m.t if t!=m.t.last())
+    # m.current_integral_F=pe.Param(initialize=_current_integral_F)
+
+    # def _current_integral_C5(m):    
+    #     return m.final_time*sum(  ((pe.value(m.F_C5liquid[t])))*(m.t.next(t)-t)    for t in m.t if t!=m.t.last())
+    # m.current_integral_C5=pe.Param(initialize=_current_integral_C5)
+
+    # def _ingegral_F(m):
+    #     return m.final_time*sum(  (((m.F_liquified_fibers[t])))*(m.t.next(t)-t)    for t in m.t if t!=m.t.last())==m.current_integral_F
+    # m.ingegral_F=pe.Constraint(rule=_ingegral_F)
+
+    # def _ingegral_C5(m):
+    #     return m.final_time*sum(  (((m.F_C5liquid[t])))*(m.t.next(t)-t)    for t in m.t if t!=m.t.last())==m.current_integral_C5
+    # m.ingegral_C5=pe.Constraint(rule=_ingegral_C5)
 
 
     def _current_integral_F(m):
-        return  m.final_time*sum(  ((pe.value(m.F_liquified_fibers[m.t.prev(t)])+pe.value(m.F_liquified_fibers[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())
+        return  m.final_time*sum(  ((pe.value(m.F_liquified_fibers[t])))*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())
     m.current_integral_F=pe.Param(initialize=_current_integral_F)
 
     def _current_integral_C5(m):    
-        return m.final_time*sum(  ((pe.value(m.F_C5liquid[m.t.prev(t)])+pe.value(m.F_C5liquid[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())
+        return m.final_time*sum(  ((pe.value(m.F_C5liquid[t])))*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())
     m.current_integral_C5=pe.Param(initialize=_current_integral_C5)
 
     def _ingegral_F(m):
-        return m.final_time*sum(  (((m.F_liquified_fibers[m.t.prev(t)])+(m.F_liquified_fibers[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())==m.current_integral_F
+        return m.final_time*sum(  (((m.F_liquified_fibers[t])))*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())==m.current_integral_F
     m.ingegral_F=pe.Constraint(rule=_ingegral_F)
 
     def _ingegral_C5(m):
-        return m.final_time*sum(  (((m.F_C5liquid[m.t.prev(t)])+(m.F_C5liquid[t]))/2)*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())==m.current_integral_C5
+        return m.final_time*sum(  (((m.F_C5liquid[t])))*(t-m.t.prev(t))    for t in m.t if t!=m.t.first())==m.current_integral_C5
     m.ingegral_C5=pe.Constraint(rule=_ingegral_C5)
+
 
     def _ingegral_F_rq(m,t):
         if  (m.current_starting_time+t*(m.current_final_time-m.current_starting_time)) >70*60*60:
             return m.F_liquified_fibers[t]==0
+        elif t!=m.t.first():
+            if keep_constant_flows:
+                return m.F_liquified_fibers[t]==2487*(1/60)*(1/60)
+            else:
+                return pe.Constraint.Skip
         else:
-            return pe.Constraint.Skip#pe.Constraint.Skip m.F_liquified_fibers[t]==2487*(1/60)*(1/60)
+            return pe.Constraint.Skip
     m.ingegral_F_rq=pe.Constraint(m.t,rule=_ingegral_F_rq)
 
     def _ingegral_C5_rq(m,t):
         if (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))<= 10*60*60 or (m.current_starting_time+t*(m.current_final_time-m.current_starting_time)) >70*60*60:
             return  m.F_C5liquid[t]==0
+        elif t!=m.t.first():
+            if keep_constant_flows:
+                return m.F_C5liquid[t]==628*(1/60)*(1/60)
+            else:
+                return pe.Constraint.Skip
         else:
-            return pe.Constraint.Skip#pe.Constraint.Skip m.F_C5liquid[t]==628*(1/60)*(1/60)
+            return pe.Constraint.Skip
     m.ingegral_C5_rq=pe.Constraint(m.t,rule=_ingegral_C5_rq)
 
     #------------------- pH modeling (from hydrolysis) ----------------------------------------------
@@ -6349,8 +6398,11 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
         # 1000*sum( (m.pH[t]-5.5)**2 for t in m.t)
         # return 1 
         # return sum((m.C[t,'Eth']-100)**2  for t in m.t)
+        # return -m.C[m.t.last(),'Eth'] +100*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+
         # return -1*m.C[m.t.last(),'Eth']+1000*sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+1000*sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
         return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+        # return (50*m.M0_yeast-5*m.C[m.t[19],'Eth']*m.M[m.t[19]])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
         # return -m.M[m.t.last()]-1000*m.C[m.t.last(),'Eth']
         # return -sum(m.pH[t] for t in m.t)
         # return -m.C_elect_equil[m.t.last(),'H+']
@@ -6365,7 +6417,37 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
 
     return m
 # FOR ONE STEP SIMULATION
-def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,M0_prev_input: float=0,C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0},pH_val: float=5.5,M_yeast: float=100,F_fibers:float=1,F_C5:float=1,glucose_disturbance_F:float=0,xylose_disturbance_F:float=0,glucose_disturbance_C5:float=0,xylose_disturbance_C5:float=0) -> pe.ConcreteModel():
+def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,
+                                         discretization: str='collocation',
+                                         n_f_elements_t: int=1,total_f_elements_t:int=50,
+                                         current_start_time_sconds: float=0,
+                                         M0_prev_input: float=0,
+                                         C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0},
+                                         pH_val: float=5.5,
+                                         M_yeast: float=100,
+                                         F_fibers:float=1,
+                                         F_C5:float=1,
+                                         glucose_disturbance_F:float=0,
+                                         xylose_disturbance_F:float=0,
+                                         cs_disturbance_F:float=0,
+                                         xs_disturbance_F:float=0,
+                                         ls_disturbance_F:float=0,
+                                         f_disturbance_F:float=0,
+                                         e_disturbance_F:float=0,
+                                         ac_disturbance_F:float=0,
+                                         act_disturbance_F:float=0,
+                                         hmf_disturbance_F:float=0,
+                                         base_disturbance_F:float=0,
+                                         glucose_disturbance_C5:float=0,
+                                         xylose_disturbance_C5:float=0,
+                                         cs_disturbance_C5:float=0,
+                                         xs_disturbance_C5:float=0,
+                                         ls_disturbance_C5:float=0,
+                                         f_disturbance_C5:float=0,
+                                         ac_disturbance_C5:float=0,
+                                         act_disturbance_C5:float=0,
+                                         hmf_disturbance_C5:float=0,
+                                         ) -> pe.ConcreteModel():
 
     # ------------pyomo model------------------------------------------------
     m = pe.ConcreteModel(name='fermentation_model')
@@ -6482,39 +6564,39 @@ def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,discret
 
 
     _C_C5liquid={}
-    _C_C5liquid['CS']=1.2
-    _C_C5liquid['XS']=0.5
-    _C_C5liquid['LS']=0.7
+    _C_C5liquid['CS']=max(1.2+cs_disturbance_C5*1.2,0)
+    _C_C5liquid['XS']=max(0.5+xs_disturbance_C5*0.5,0)
+    _C_C5liquid['LS']=max(0.7+ls_disturbance_C5*0.7,0)
     _C_C5liquid['C']=0 #0.1   # NOT reported. Guess
     _C_C5liquid['G']=max(10+glucose_disturbance_C5*10,0)
     _C_C5liquid['X']=max(29.7+xylose_disturbance_C5*29.7,0)
-    _C_C5liquid['F']=0.5
+    _C_C5liquid['F']=max(0.5+f_disturbance_C5*0.5,0)
     _C_C5liquid['E']=0
-    _C_C5liquid['AC']=4.1 # this may be the mixture of acids
+    _C_C5liquid['AC']=max(4.1+ac_disturbance_C5*4.1,0) # this may be the mixture of acids
     _C_C5liquid['Cell']=0 # Same as yeast (?)
     _C_C5liquid['Eth']=0
     _C_C5liquid['CO2']=0
-    _C_C5liquid['ACT']=0.2/2 # Maybe "Acetyls" in table?
-    _C_C5liquid['HMF']=0.3 
+    _C_C5liquid['ACT']=max(0.2/2+act_disturbance_C5*(0.2/2),0) # Maybe "Acetyls" in table?
+    _C_C5liquid['HMF']=max(0.3+hmf_disturbance_C5*0.3,0) 
     _C_C5liquid['Base']=0
     m.C_C5liquid=pe.Param(m.j,initialize=_C_C5liquid,doc='C5liquid concentration [g/kg]')
 
     _C_liquified_fibers={}
-    _C_liquified_fibers['CS']=50
-    _C_liquified_fibers['XS']=1
-    _C_liquified_fibers['LS']=78
+    _C_liquified_fibers['CS']=max(50+cs_disturbance_F*50,0)
+    _C_liquified_fibers['XS']=max(1+xs_disturbance_F*1,0)
+    _C_liquified_fibers['LS']=max(78+ls_disturbance_F*78,0)
     _C_liquified_fibers['C']=0 #26.6/2   # NOT reported
     _C_liquified_fibers['G']=max(98+glucose_disturbance_F*98,0)
     _C_liquified_fibers['X']=max(59+xylose_disturbance_F*59,0)
-    _C_liquified_fibers['F']=0.2
-    _C_liquified_fibers['E']=4.9
-    _C_liquified_fibers['AC']=16 # this may be the mixture of acids
+    _C_liquified_fibers['F']=max(0.2+f_disturbance_F*0.2,0)
+    _C_liquified_fibers['E']=max(4.9+e_disturbance_F*4.9,0)
+    _C_liquified_fibers['AC']=max(16+ac_disturbance_F*16,0) # this may be the mixture of acids
     _C_liquified_fibers['Cell']=0 # Same as yeast (?)
     _C_liquified_fibers['Eth']=0
     _C_liquified_fibers['CO2']=0
-    _C_liquified_fibers['ACT']=0.1
-    _C_liquified_fibers['HMF']= 0.1
-    _C_liquified_fibers['Base']=8.6  
+    _C_liquified_fibers['ACT']=max(0.1+act_disturbance_F*0.1,0)
+    _C_liquified_fibers['HMF']= max(0.1+hmf_disturbance_F*0.1,0)    
+    _C_liquified_fibers['Base']=max(8.6+base_disturbance_F*8.6,0)  
     m.C_liquified_fibers=pe.Param(m.j,initialize=_C_liquified_fibers,doc='Liquified fibers concentration [g/kg]')
 
 
@@ -10324,6 +10406,7 @@ if __name__ == '__main__':
 
 
         # CLOSED LOOP
+        constant_flows=True
         random.seed(10)
         time_list=[] #Simulated time points
         Hold_up_list=[] #Simulated hold ups
@@ -10341,7 +10424,7 @@ if __name__ == '__main__':
             current_start_time=disc_time*step #current start time
 
             # Define optimization model
-            mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time)  
+            mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)  
 
             #Decrease number of finite elements in control horizon once we are approaching the end of the batch
             if disc_time+control_horizon>=total_elements+1:
@@ -10377,6 +10460,7 @@ if __name__ == '__main__':
 
                 # Fix previous steps desicions @TODO: what I should do here is a simulation of one time step in the Simulation oriented Model (SOM), including potential disturbances; then fix previous control actions , update states and remove differential equations to avoid infeasibilities
                 # TODO: assuming finite differences, actually, to consider mistmatch, I can assume orthogonal collocation for simulation to consider mistmatch
+
 
                 for t in mad.t:
                     if mad.t.ord(t)<=disc_time+1:
@@ -10435,16 +10519,105 @@ if __name__ == '__main__':
                 C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
             # --3) perform one time step simulation
             if disturbance:
-                disturb_G_F=random.uniform(-0.5,0)
-                disturb_X_F=random.uniform(-0.5,0)
-                disturb_G_C5=random.uniform(-0.5,0)
-                disturb_X_C5=random.uniform(-0.5,0)
+                # g_disturbance_F=random.uniform(-0.5,0.5)
+                # x_disturbance_F=random.uniform(-0.5,0.5)
+                # cs_disturbance_F=random.uniform(-0.5,0.5)
+                # xs_disturbance_F=random.uniform(-0.5,0.5)
+                # ls_disturbance_F=random.uniform(-0.5,0.5)
+                # f_disturbance_F=random.uniform(-0.5,0.5)
+                # e_disturbance_F=random.uniform(-0.5,0.5)
+                # ac_disturbance_F=random.uniform(-0.5,0.5)
+                # act_disturbance_F=random.uniform(-0.5,0.5)
+                # hmf_disturbance_F=random.uniform(-0.5,0.5)
+                # base_disturbance_F=random.uniform(-0.5,0.5)
+
+                
+                # g_disturbance_C5=random.uniform(-0.5,0.5)
+                # x_disturbance_C5=random.uniform(-0.5,0.5)
+                # cs_disturbance_C5=random.uniform(-0.5,0.5)
+                # xs_disturbance_C5=random.uniform(-0.5,0.5)
+                # ls_disturbance_C5=random.uniform(-0.5,0.5)
+                # f_disturbance_C5=random.uniform(-0.5,0.5)
+                # ac_disturbance_C5=random.uniform(-0.5,0.5)
+                # act_disturbance_C5=random.uniform(-0.5,0.5)
+                # hmf_disturbance_C5=random.uniform(-0.5,0.5)
+
+                g_disturbance_F=-0.5#random.uniform(-0.5,0.5)
+                x_disturbance_F=-0.5#random.uniform(-0.5,0.5)
+                cs_disturbance_F=0
+                xs_disturbance_F=0
+                ls_disturbance_F=0
+                f_disturbance_F=0
+                e_disturbance_F=0
+                ac_disturbance_F=0
+                act_disturbance_F=0
+                hmf_disturbance_F=0
+                base_disturbance_F=0
+
+                
+                g_disturbance_C5=-0.5#random.uniform(-0.5,0.5)
+                x_disturbance_C5=-0.5#random.uniform(-0.5,0.5)
+                cs_disturbance_C5=0
+                xs_disturbance_C5=0
+                ls_disturbance_C5=0
+                f_disturbance_C5=0
+                ac_disturbance_C5=0
+                act_disturbance_C5=0
+                hmf_disturbance_C5=0
             else:
-                disturb_G_F=0
-                disturb_X_F=0
-                disturb_G_C5=0
-                disturb_X_C5=0                
-            mad_sim=build_fermentation_one_time_step_new(total_sim_time=total_sim_time,discretization=sim_discretization,n_f_elements_t=sim_n_finite_elements,total_f_elements_t=total_elements,current_start_time_sconds=current_start_time,M0_prev_input=M0_prev,C0_prev_input=C0_prev,pH_val=optimal_pH,M_yeast=optimal_yeast,F_fibers=optimal_F,F_C5=optimal_C5,glucose_disturbance_F=disturb_G_F,xylose_disturbance_F=disturb_X_F,glucose_disturbance_C5=disturb_G_C5,xylose_disturbance_C5=disturb_X_C5) 
+                g_disturbance_F=0
+                x_disturbance_F=0
+                cs_disturbance_F=0
+                xs_disturbance_F=0
+                ls_disturbance_F=0
+                f_disturbance_F=0
+                e_disturbance_F=0
+                ac_disturbance_F=0
+                act_disturbance_F=0
+                hmf_disturbance_F=0
+                base_disturbance_F=0
+
+                
+                g_disturbance_C5=0
+                x_disturbance_C5=0
+                cs_disturbance_C5=0
+                xs_disturbance_C5=0
+                ls_disturbance_C5=0
+                f_disturbance_C5=0
+                ac_disturbance_C5=0
+                act_disturbance_C5=0
+                hmf_disturbance_C5=0              
+            mad_sim=build_fermentation_one_time_step_new(total_sim_time=total_sim_time,
+                                                         discretization=sim_discretization,
+                                                         n_f_elements_t=sim_n_finite_elements,
+                                                         total_f_elements_t=total_elements,
+                                                         current_start_time_sconds=current_start_time,
+                                                         M0_prev_input=M0_prev,
+                                                         C0_prev_input=C0_prev,
+                                                         pH_val=optimal_pH,
+                                                         M_yeast=optimal_yeast,
+                                                         F_fibers=optimal_F,
+                                                         F_C5=optimal_C5,
+                                                         glucose_disturbance_F=g_disturbance_F,
+                                                         xylose_disturbance_F=x_disturbance_F,
+                                                         cs_disturbance_F=cs_disturbance_F,
+                                                         xs_disturbance_F=xs_disturbance_F,
+                                                         ls_disturbance_F=ls_disturbance_F,
+                                                         f_disturbance_F=f_disturbance_F,
+                                                         e_disturbance_F=e_disturbance_F,
+                                                         ac_disturbance_F=ac_disturbance_F,
+                                                         act_disturbance_F=act_disturbance_F,
+                                                         hmf_disturbance_F=hmf_disturbance_F,
+                                                         base_disturbance_F=base_disturbance_F,
+                                                         glucose_disturbance_C5=g_disturbance_C5,
+                                                         xylose_disturbance_C5=x_disturbance_C5,
+                                                         cs_disturbance_C5=cs_disturbance_C5,
+                                                         xs_disturbance_C5=xs_disturbance_C5,
+                                                         ls_disturbance_C5=ls_disturbance_C5,
+                                                         f_disturbance_C5=f_disturbance_C5,
+                                                         ac_disturbance_C5=ac_disturbance_C5,
+                                                         act_disturbance_C5=act_disturbance_C5,
+                                                         hmf_disturbance_C5=hmf_disturbance_C5) 
             if disc_time!=0:
                 mad_sim=initialize_model(mad_sim,from_feasible=True,feasible_model='prev_init_sim')  
             # --4) Solve simulation
@@ -10503,7 +10676,9 @@ if __name__ == '__main__':
                 C5_list.append(pe.value(mad_sim.F_C5liquid))
                 fiber_list.append(pe.value(mad_sim.F_liquified_fibers))
                 for j in mad_sim.j:
-                    Concentration_dict[j].append(pe.value(mad_sim.C[t,j]))            
+                    Concentration_dict[j].append(pe.value(mad_sim.C[t,j])) 
+        final_objective=(50*yeast_list[0]-5*Concentration_dict['Eth'][-1]*Hold_up_list[-1])
+        print('Evaluated objective function: ',final_objective)           
  
             # save objective function
             # objective_list.append()
@@ -10514,6 +10689,7 @@ if __name__ == '__main__':
 
 
         # OPEN LOOP
+        constant_flows=False
         random.seed(10)
         time_list_open=[] #Simulated time points
         Hold_up_list_open=[] #Simulated hold ups
@@ -10531,7 +10707,7 @@ if __name__ == '__main__':
             current_start_time=disc_time*step #current start time
 
             # Define optimization model
-            mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time)  
+            mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)  
 
             #Decrease number of finite elements in control horizon once we are approaching the end of the batch
             if disc_time+control_horizon>=total_elements+1:
@@ -10618,16 +10794,105 @@ if __name__ == '__main__':
                 C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
             # --3) perform one time step simulation
             if disturbance:
-                disturb_G_F=random.uniform(-0.5,0)
-                disturb_X_F=random.uniform(-0.5,0)
-                disturb_G_C5=random.uniform(-0.5,0)
-                disturb_X_C5=random.uniform(-0.5,0)
+                # g_disturbance_F=random.uniform(-0.5,0.5)
+                # x_disturbance_F=random.uniform(-0.5,0.5)
+                # cs_disturbance_F=random.uniform(-0.5,0.5)
+                # xs_disturbance_F=random.uniform(-0.5,0.5)
+                # ls_disturbance_F=random.uniform(-0.5,0.5)
+                # f_disturbance_F=random.uniform(-0.5,0.5)
+                # e_disturbance_F=random.uniform(-0.5,0.5)
+                # ac_disturbance_F=random.uniform(-0.5,0.5)
+                # act_disturbance_F=random.uniform(-0.5,0.5)
+                # hmf_disturbance_F=random.uniform(-0.5,0.5)
+                # base_disturbance_F=random.uniform(-0.5,0.5)
+
+                
+                # g_disturbance_C5=random.uniform(-0.5,0.5)
+                # x_disturbance_C5=random.uniform(-0.5,0.5)
+                # cs_disturbance_C5=random.uniform(-0.5,0.5)
+                # xs_disturbance_C5=random.uniform(-0.5,0.5)
+                # ls_disturbance_C5=random.uniform(-0.5,0.5)
+                # f_disturbance_C5=random.uniform(-0.5,0.5)
+                # ac_disturbance_C5=random.uniform(-0.5,0.5)
+                # act_disturbance_C5=random.uniform(-0.5,0.5)
+                # hmf_disturbance_C5=random.uniform(-0.5,0.5)
+
+                g_disturbance_F=-0.5#random.uniform(-0.5,0.5)
+                x_disturbance_F=-0.5#random.uniform(-0.5,0.5)
+                cs_disturbance_F=0
+                xs_disturbance_F=0
+                ls_disturbance_F=0
+                f_disturbance_F=0
+                e_disturbance_F=0
+                ac_disturbance_F=0
+                act_disturbance_F=0
+                hmf_disturbance_F=0
+                base_disturbance_F=0
+
+                
+                g_disturbance_C5=-0.5#random.uniform(-0.5,0.5)
+                x_disturbance_C5=-0.5#random.uniform(-0.5,0.5)
+                cs_disturbance_C5=0
+                xs_disturbance_C5=0
+                ls_disturbance_C5=0
+                f_disturbance_C5=0
+                ac_disturbance_C5=0
+                act_disturbance_C5=0
+                hmf_disturbance_C5=0
             else:
-                disturb_G_F=0
-                disturb_X_F=0
-                disturb_G_C5=0
-                disturb_X_C5=0               
-            mad_sim=build_fermentation_one_time_step_new(total_sim_time=total_sim_time,discretization=sim_discretization,n_f_elements_t=sim_n_finite_elements,total_f_elements_t=total_elements,current_start_time_sconds=current_start_time,M0_prev_input=M0_prev,C0_prev_input=C0_prev,pH_val=optimal_pH,M_yeast=optimal_yeast,F_fibers=optimal_F,F_C5=optimal_C5,glucose_disturbance_F=disturb_G_F,xylose_disturbance_F=disturb_X_F,glucose_disturbance_C5=disturb_G_C5,xylose_disturbance_C5=disturb_X_C5) 
+                g_disturbance_F=0
+                x_disturbance_F=0
+                cs_disturbance_F=0
+                xs_disturbance_F=0
+                ls_disturbance_F=0
+                f_disturbance_F=0
+                e_disturbance_F=0
+                ac_disturbance_F=0
+                act_disturbance_F=0
+                hmf_disturbance_F=0
+                base_disturbance_F=0
+
+                
+                g_disturbance_C5=0
+                x_disturbance_C5=0
+                cs_disturbance_C5=0
+                xs_disturbance_C5=0
+                ls_disturbance_C5=0
+                f_disturbance_C5=0
+                ac_disturbance_C5=0
+                act_disturbance_C5=0
+                hmf_disturbance_C5=0               
+            mad_sim=build_fermentation_one_time_step_new(total_sim_time=total_sim_time,
+                                                         discretization=sim_discretization,
+                                                         n_f_elements_t=sim_n_finite_elements,
+                                                         total_f_elements_t=total_elements,
+                                                         current_start_time_sconds=current_start_time,
+                                                         M0_prev_input=M0_prev,
+                                                         C0_prev_input=C0_prev,
+                                                         pH_val=optimal_pH,
+                                                         M_yeast=optimal_yeast,
+                                                         F_fibers=optimal_F,
+                                                         F_C5=optimal_C5,
+                                                         glucose_disturbance_F=g_disturbance_F,
+                                                         xylose_disturbance_F=x_disturbance_F,
+                                                         cs_disturbance_F=cs_disturbance_F,
+                                                         xs_disturbance_F=xs_disturbance_F,
+                                                         ls_disturbance_F=ls_disturbance_F,
+                                                         f_disturbance_F=f_disturbance_F,
+                                                         e_disturbance_F=e_disturbance_F,
+                                                         ac_disturbance_F=ac_disturbance_F,
+                                                         act_disturbance_F=act_disturbance_F,
+                                                         hmf_disturbance_F=hmf_disturbance_F,
+                                                         base_disturbance_F=base_disturbance_F,
+                                                         glucose_disturbance_C5=g_disturbance_C5,
+                                                         xylose_disturbance_C5=x_disturbance_C5,
+                                                         cs_disturbance_C5=cs_disturbance_C5,
+                                                         xs_disturbance_C5=xs_disturbance_C5,
+                                                         ls_disturbance_C5=ls_disturbance_C5,
+                                                         f_disturbance_C5=f_disturbance_C5,
+                                                         ac_disturbance_C5=ac_disturbance_C5,
+                                                         act_disturbance_C5=act_disturbance_C5,
+                                                         hmf_disturbance_C5=hmf_disturbance_C5) 
             if disc_time!=0:
                 mad_sim=initialize_model(mad_sim,from_feasible=True,feasible_model='prev_init_sim')  
             # --4) Solve simulation
@@ -10691,6 +10956,8 @@ if __name__ == '__main__':
             # save objective function
             # objective_list_open.append()
 
+        final_objective_open=(50*yeast_list_open[0]-5*Concentration_dict_open['Eth'][-1]*Hold_up_list_open[-1])
+        print('Evaluated objective function: ',final_objective_open)  
 
         colors=['b','g','m','r','k','y','c']
         contador=-1
