@@ -2,11 +2,11 @@
   "__metadata__": {
     "format_version": 4,
     "date": "2024-04-17",
-    "time": "20:49:06.273044",
+    "time": "20:49:06.596159",
     "other": {},
     "__performance__": {
       "n_components": 27,
-      "etime_make_dict": 0.000997304916381836
+      "etime_make_dict": 0.0
     }
   },
   "A survey of nonlinear robust optimization, Illustrative example": {
