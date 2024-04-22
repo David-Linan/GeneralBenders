@@ -5799,7 +5799,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
     _C_C5liquid['ACT']=0.2/2 # Maybe "Acetyls" in table?
     _C_C5liquid['HMF']=0.3 
     _C_C5liquid['Base']=0
-    m.C_C5liquid=pe.Param(m.j,initialize=_C_C5liquid,doc='C5liquid concentration [g/kg]')
+    m.C_C5liquid=pe.Param(m.j,initialize=_C_C5liquid,mutable=True,doc='C5liquid concentration [g/kg]')
 
     _C_liquified_fibers={}
     _C_liquified_fibers['CS']=50
@@ -5817,7 +5817,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
     _C_liquified_fibers['ACT']=0.1
     _C_liquified_fibers['HMF']= 0.1
     _C_liquified_fibers['Base']=8.6  
-    m.C_liquified_fibers=pe.Param(m.j,initialize=_C_liquified_fibers,doc='Liquified fibers concentration [g/kg]')
+    m.C_liquified_fibers=pe.Param(m.j,initialize=_C_liquified_fibers,mutable=True,doc='Liquified fibers concentration [g/kg]')
 
 
 
@@ -5857,9 +5857,9 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop(total_sim_tim
 
     def _C0_def(m,j):
         if j=='Cell':
-            return m.C0[j]== (1000*m.M0_yeast)/(m.M0)
+            return m.C0[j] == (1000*m.M0_yeast)/(m.M0)
         else:
-            return m.C0[j]==(m.C_liquified_fibers[j]*m.M0_fibers)/(m.M0)
+            return m.C0[j] == (m.C_liquified_fibers[j]*m.M0_fibers)/(m.M0)
     m.C0_def=pe.Constraint(m.j,rule=_C0_def)
     #----- Maximum reactor hold up------------------------------------------------
     m.Mmax=pe.Param(initialize=220000,doc='Maximum hold up in the reactor [kg]') #TODO: not using it so far
@@ -7158,7 +7158,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_variable_open_loop(tota
         # return -m.C[m.t.last(),'Eth'] +100*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
 
         # return -1*m.C[m.t.last(),'Eth']+1000*sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+1000*sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
-        return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+1e+6*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))+1e+6*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+        return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
         # return (50*m.M0_yeast-5*m.C[m.t[19],'Eth']*m.M[m.t[19]])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
         # return -m.M[m.t.last()]-1000*m.C[m.t.last(),'Eth']
         # return -sum(m.pH[t] for t in m.t)
@@ -9166,8 +9166,8 @@ if __name__ == '__main__':
     v13='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_OPEN_LOOP--'
     v14='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_NO_DISTURBANCES--'
     v15='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_TEST--'
-    v16='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_IMPLEMENTED--'
-    v17='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_IMPLEMENTED_AND_PH_SETPOINT_OPTIMIZATION'
+    v16='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_IMPLEMENTED'
+    v17='NONLINAR_MODEL_PREDICTIVE_CONTROL_OPTIMAL_CLOSED_LOOP_WITH_DISTURBANCES_IMPLEMENTED_AND_PH_SETPOINT_OPTIMIZATION--'
     solver='conopt4'
 
     ### PRETREATMENT SIMULATION
@@ -11198,8 +11198,8 @@ if __name__ == '__main__':
         control_horizon=19   # 19 is actually the last time I perform control actions, hence, the control horizon should be at most this or less
 
         # Simulation parameters
-        sim_discretization='differences'
-        sim_n_finite_elements=1
+        sim_discretization='collocation'
+        sim_n_finite_elements=3
         simulation_solvers=['conopt','conopt4','knitro','baron','ipopth']
 
 
@@ -11487,7 +11487,7 @@ if __name__ == '__main__':
 
 
         # OPEN LOOP
-        constant_flows=True
+        constant_flows=False
         random.seed(10)
         time_list_open=[] #Simulated time points
         Hold_up_list_open=[] #Simulated hold ups
@@ -12136,7 +12136,7 @@ if __name__ == '__main__':
 
 
         # OPEN LOOP
-        constant_flows=True
+        constant_flows=False
         random.seed(10)
         time_list_open=[] #Simulated time points
         Hold_up_list_open=[] #Simulated hold ups
@@ -12413,8 +12413,8 @@ if __name__ == '__main__':
         for j in mad.j:
             if j=='G' or j=='X' or j=='Eth' or j=='Cell':
                 contador=contador+1
-                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (Closed-loop)')
-                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Open-loop)')
+                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (NE-MPC)')
+                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Traditional)')
                 # original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
                 # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
             plt.xlabel('time [h]')
@@ -12426,8 +12426,8 @@ if __name__ == '__main__':
         for j in mad.j:
             if j=='CS' or j=='XS' or j=='E':
                 contador=contador+1
-                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (Closed-loop)')
-                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Open-loop)')
+                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (NE-MPC)')
+                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Traditional)')
                 # original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
                 # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
             plt.xlabel('time [h]')
@@ -12435,36 +12435,36 @@ if __name__ == '__main__':
             plt.legend()
         plt.show()
 
-        plt.plot(time_list,pH_list,label='Closed-loop')
-        plt.plot(time_list_open,pH_list_open,label='Open-loop')
+        plt.plot(time_list,pH_list,label='NE-MPC')
+        plt.plot(time_list_open,pH_list_open,label='Traditional')
         plt.xlabel('time [h]')
         plt.ylabel('pH')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,C5_list,label='Closed-loop')
-        plt.plot(time_list_open,C5_list_open,label='Open-loop')
+        plt.plot(time_list,C5_list,label='NE-MPC')
+        plt.plot(time_list_open,C5_list_open,label='Traditional')
         plt.xlabel('time [h]')
         plt.ylabel('C5 flow [kg/s]')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,fiber_list,label='Closed-loop')
-        plt.plot(time_list_open,fiber_list_open,label='Open-loop')
+        plt.plot(time_list,fiber_list,label='NE-MPC')
+        plt.plot(time_list_open,fiber_list_open,label='Traditional')
         plt.xlabel('time [h]')
         plt.ylabel('Liquified fibers flow [kg/s]')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,Hold_up_list,label='Closed-loop')
+        plt.plot(time_list,Hold_up_list,label='NE-MPC')
         plt.plot(time_list_open,Hold_up_list_open,label='Open-loop')
         plt.xlabel('time [h]')
         plt.ylabel('Hold-up [kg]')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,yeast_list,label='Closed-loop')
-        plt.plot(time_list_open,yeast_list_open,label='Open-loop')
+        plt.plot(time_list,yeast_list,label='NE-MPC')
+        plt.plot(time_list_open,yeast_list_open,label='Traditional')
         plt.xlabel('time [h]')
         plt.ylabel('yeast [kg]')
         plt.legend()
