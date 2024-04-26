@@ -10687,6 +10687,7 @@ def main_robust_model():
 def objective_function(m):
     return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+1e+8*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
     # return (50*m.M0_yeast-5*m.C[m.t[20],'Eth']*m.M[m.t[20]])+1e+8*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+    # return (-5*m.C[m.t.last(),'Eth'])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
 
 def solve_robust(mad,aux,disc_time,vtol,variation_param,solver_list,tee):
     '''
@@ -14579,20 +14580,20 @@ if __name__ == '__main__':
         keep_Ph_FIXED=False
         pHval=5.37#5.3805
 
-        keep_Yeast_FIXED=True
+        keep_Yeast_FIXED=False
         Yeastval=10
 
 
         solver_list=['conopt','conopt4','knitro','baron','ipopth']
         tee=False
-        discretization_type_fer='DIFFERENCES'
+        discretization_type_fer='collocation'
         # discretization_type_fer='collocation'
         finite_elem_t_fer=50 
         total_elements=finite_elem_t_fer #prediction horizon, which is constnt, i.e., the total batch duration
         total_sim_time=190*(60)*(60) #Total batch time in seconds 
         step=total_sim_time/total_elements      #Sampling_time
         start_time=0
-        disturbance=False
+        disturbance=True
 
 
  
@@ -14601,13 +14602,13 @@ if __name__ == '__main__':
         control_horizon=19   # 19 is actually the last time I perform control actions, hence, the control horizon should be at most this or less
 
         # Simulation parameters
-        sim_discretization='collocation'
+        sim_discretization='differences'
         sim_n_finite_elements=3
         simulation_solvers=['conopt','conopt4','knitro','baron','ipopth']
 
 
         # ROBUST OPTIMIZATION parameters
-        robust=True# True if optimization problems solved using robust optimization
+        robust=False# True if optimization problems solved using robust optimization
         vtol=1e-5
         variation_param_opt=0.3 # parameter to define uncertainty range (for optimization)
         variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
@@ -14625,13 +14626,72 @@ if __name__ == '__main__':
         Concentration_dict={'CS':[], 'XS':[], 'LS':[],'C':[],'G':[], 'X':[], 'F':[], 'E':[],'AC':[],'Cell':[],'Eth':[],'CO2':[],'ACT':[],'HMF':[],'Base':[]} #Simulated concentrations
 
 
+        # INITIALIZE FINITE FIFFERENCES VERSION
 
-        # GENERATE INITALIZATION
-        init=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
+
+        init=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
         init=initialize_model(init,from_feasible=True,feasible_model='validation_fermentation')
         opt1 = SolverFactory('gams') # Solve problem
-        init.results = opt1.solve(init, solver='conopt4', tee=tee)   
+        init.results = opt1.solve(init, solver='conopt4', tee=False)   
         generate_initialization(m=init,model_name='validation_fermentation_updated')
+
+        # INITIALIZE COLLOCATION MODEL VERSION
+
+
+
+        init_old=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
+        init_old=initialize_model(init_old,from_feasible=True,feasible_model='validation_fermentation_updated')
+
+
+        init_new=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='collocation',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
+        # init_new=initialize_model(init_new,from_feasible=True,feasible_model='validation_fermentation')
+        
+        
+        time_index=init_new.t
+        old_time_index=init_old.t
+        for v in init_new.component_objects(ctype=pe.Var):
+            for c in init_old.component_objects(ctype=pe.Var):
+                if v.name==c.name:
+                    old_v=c
+            # Check if variable has time index. If it does, initialize this variable with its final state value
+            try: # If variable is defined over multiple sets
+                position=[v.index_set()._sets[j].name==time_index.name for j in range(len(v.index_set()._sets))] # returns tru for the position of the index that corresponds to time
+            except: # If only defined over a single set
+                position=[v.index_set().name==time_index.name]
+            if any(position): # If the variable has time index
+                # itentify location of time index
+                cuenta=0
+                for i in position:
+                    if i==True:
+                        loc=cuenta #location of time index
+                        break
+                    cuenta=cuenta+1
+                for index in v.index_set().data():                
+                    if len(position)==1: # variables only have time index
+                        v[index].value=np.interp(index,[old_index for old_index in old_v.index_set().data()],[old_v[old_index].value or 0 for old_index in old_v.index_set().data()]) 
+                    else: # variables also have other indexes
+                        # print([old_index[loc] for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])],[old_v[old_index].value for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])])
+                        v[index].value=np.interp(index[loc],[old_index[loc] for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])],[old_v[old_index].value or 0 for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])])
+                        
+
+            else:
+                for index in v.index_set().data(): 
+                    v[index].value=old_v[index].value
+
+
+        opt1 = SolverFactory('gams') # Solve problem
+        init_new.results = opt1.solve(init_new, solver='conopt4', tee=True)   
+        generate_initialization(m=init_new,model_name='validation_fermentation_updated_col')        
+
+
+
+
+
+
+
+
+
+
 
 
         C0_prev={}
@@ -14759,58 +14819,58 @@ if __name__ == '__main__':
                 C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
             # --3) perform one time step simulation
             if disturbance:
-                u_disturbance=[-0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, 0, -0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, -0.3, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0.3, 0.3, 0.3, 0.3, 0, 0.0]
+                # u_disturbance=[-0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, 0, -0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, -0.3, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0.3, 0.3, 0.3, 0.3, 0, 0.0]
 
-                # #0,1,2,3,4,5,8,9,10,11,12,13,15,16,17,24,25,26,27,29
-                cs_disturbance_C5=u_disturbance[0]
-                xs_disturbance_C5=u_disturbance[2]
-                ls_disturbance_C5=u_disturbance[4]
-                g_disturbance_C5=u_disturbance[8]
-                x_disturbance_C5=u_disturbance[10]
-                f_disturbance_C5=u_disturbance[12]
-                ac_disturbance_C5=u_disturbance[16]
-                act_disturbance_C5=u_disturbance[24]
-                hmf_disturbance_C5=u_disturbance[26]
-
-
-                cs_disturbance_F=u_disturbance[1]
-                xs_disturbance_F=u_disturbance[3]
-                ls_disturbance_F=u_disturbance[5]
-                g_disturbance_F=u_disturbance[9]
-                x_disturbance_F=u_disturbance[11]
-                f_disturbance_F=u_disturbance[13]
-                e_disturbance_F=u_disturbance[15]
-                ac_disturbance_F=u_disturbance[17]
-                act_disturbance_F=u_disturbance[25]
-                hmf_disturbance_F=u_disturbance[27]
-                base_disturbance_F=u_disturbance[29]
-
-                
+                # # #0,1,2,3,4,5,8,9,10,11,12,13,15,16,17,24,25,26,27,29
+                # cs_disturbance_C5=u_disturbance[0]
+                # xs_disturbance_C5=u_disturbance[2]
+                # ls_disturbance_C5=u_disturbance[4]
+                # g_disturbance_C5=u_disturbance[8]
+                # x_disturbance_C5=u_disturbance[10]
+                # f_disturbance_C5=u_disturbance[12]
+                # ac_disturbance_C5=u_disturbance[16]
+                # act_disturbance_C5=u_disturbance[24]
+                # hmf_disturbance_C5=u_disturbance[26]
 
 
-
-                # g_disturbance_F=-variation_param_sim
-                # x_disturbance_F=-variation_param_sim
-                # cs_disturbance_F=-variation_param_sim
-                # xs_disturbance_F=-variation_param_sim
-                # ls_disturbance_F=-variation_param_sim
-                # f_disturbance_F=-variation_param_sim
-                # e_disturbance_F=-variation_param_sim
-                # ac_disturbance_F=-variation_param_sim
-                # act_disturbance_F=-variation_param_sim
-                # hmf_disturbance_F=-variation_param_sim
-                # base_disturbance_F=-variation_param_sim
+                # cs_disturbance_F=u_disturbance[1]
+                # xs_disturbance_F=u_disturbance[3]
+                # ls_disturbance_F=u_disturbance[5]
+                # g_disturbance_F=u_disturbance[9]
+                # x_disturbance_F=u_disturbance[11]
+                # f_disturbance_F=u_disturbance[13]
+                # e_disturbance_F=u_disturbance[15]
+                # ac_disturbance_F=u_disturbance[17]
+                # act_disturbance_F=u_disturbance[25]
+                # hmf_disturbance_F=u_disturbance[27]
+                # base_disturbance_F=u_disturbance[29]
 
                 
-                # g_disturbance_C5=-variation_param_sim
-                # x_disturbance_C5=-variation_param_sim
-                # cs_disturbance_C5=-variation_param_sim
-                # xs_disturbance_C5=-variation_param_sim
-                # ls_disturbance_C5=-variation_param_sim
-                # f_disturbance_C5=-variation_param_sim
-                # ac_disturbance_C5=-variation_param_sim
-                # act_disturbance_C5=-variation_param_sim
-                # hmf_disturbance_C5=-variation_param_sim
+
+
+
+                g_disturbance_F=-variation_param_sim
+                x_disturbance_F=-variation_param_sim
+                cs_disturbance_F=-variation_param_sim
+                xs_disturbance_F=-variation_param_sim
+                ls_disturbance_F=-variation_param_sim
+                f_disturbance_F=-variation_param_sim
+                e_disturbance_F=-variation_param_sim
+                ac_disturbance_F=-variation_param_sim
+                act_disturbance_F=-variation_param_sim
+                hmf_disturbance_F=-variation_param_sim
+                base_disturbance_F=-variation_param_sim
+
+                
+                g_disturbance_C5=-variation_param_sim
+                x_disturbance_C5=-variation_param_sim
+                cs_disturbance_C5=-variation_param_sim
+                xs_disturbance_C5=-variation_param_sim
+                ls_disturbance_C5=-variation_param_sim
+                f_disturbance_C5=-variation_param_sim
+                ac_disturbance_C5=-variation_param_sim
+                act_disturbance_C5=-variation_param_sim
+                hmf_disturbance_C5=-variation_param_sim
 
                 # g_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
                 # x_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
@@ -15090,54 +15150,54 @@ if __name__ == '__main__':
                 C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
             # --3) perform one time step simulation
             if disturbance:
-                u_disturbance=[-0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, 0, -0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, -0.3, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0.3, 0.3, 0.3, 0.3, 0, 0.0]
+                # u_disturbance=[-0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, 0, -0.3, -0.3, -0.3, -0.3, 0.3, 0.3, 0, -0.3, 0.0, 0.0, 0, 0, 0, 0, 0, 0, 0.3, 0.3, 0.3, 0.3, 0, 0.0]
 
-                # #0,1,2,3,4,5,8,9,10,11,12,13,15,16,17,24,25,26,27,29
-                cs_disturbance_C5=u_disturbance[0]
-                xs_disturbance_C5=u_disturbance[2]
-                ls_disturbance_C5=u_disturbance[4]
-                g_disturbance_C5=u_disturbance[8]
-                x_disturbance_C5=u_disturbance[10]
-                f_disturbance_C5=u_disturbance[12]
-                ac_disturbance_C5=u_disturbance[16]
-                act_disturbance_C5=u_disturbance[24]
-                hmf_disturbance_C5=u_disturbance[26]
+                # # #0,1,2,3,4,5,8,9,10,11,12,13,15,16,17,24,25,26,27,29
+                # cs_disturbance_C5=u_disturbance[0]
+                # xs_disturbance_C5=u_disturbance[2]
+                # ls_disturbance_C5=u_disturbance[4]
+                # g_disturbance_C5=u_disturbance[8]
+                # x_disturbance_C5=u_disturbance[10]
+                # f_disturbance_C5=u_disturbance[12]
+                # ac_disturbance_C5=u_disturbance[16]
+                # act_disturbance_C5=u_disturbance[24]
+                # hmf_disturbance_C5=u_disturbance[26]
 
 
-                cs_disturbance_F=u_disturbance[1]
-                xs_disturbance_F=u_disturbance[3]
-                ls_disturbance_F=u_disturbance[5]
-                g_disturbance_F=u_disturbance[9]
-                x_disturbance_F=u_disturbance[11]
-                f_disturbance_F=u_disturbance[13]
-                e_disturbance_F=u_disturbance[15]
-                ac_disturbance_F=u_disturbance[17]
-                act_disturbance_F=u_disturbance[25]
-                hmf_disturbance_F=u_disturbance[27]
-                base_disturbance_F=u_disturbance[29]
+                # cs_disturbance_F=u_disturbance[1]
+                # xs_disturbance_F=u_disturbance[3]
+                # ls_disturbance_F=u_disturbance[5]
+                # g_disturbance_F=u_disturbance[9]
+                # x_disturbance_F=u_disturbance[11]
+                # f_disturbance_F=u_disturbance[13]
+                # e_disturbance_F=u_disturbance[15]
+                # ac_disturbance_F=u_disturbance[17]
+                # act_disturbance_F=u_disturbance[25]
+                # hmf_disturbance_F=u_disturbance[27]
+                # base_disturbance_F=u_disturbance[29]
 
-                # g_disturbance_F=-variation_param_sim
-                # x_disturbance_F=-variation_param_sim
-                # cs_disturbance_F=-variation_param_sim
-                # xs_disturbance_F=-variation_param_sim
-                # ls_disturbance_F=-variation_param_sim
-                # f_disturbance_F=-variation_param_sim
-                # e_disturbance_F=-variation_param_sim
-                # ac_disturbance_F=-variation_param_sim
-                # act_disturbance_F=-variation_param_sim
-                # hmf_disturbance_F=-variation_param_sim
-                # base_disturbance_F=-variation_param_sim
+                g_disturbance_F=-variation_param_sim
+                x_disturbance_F=-variation_param_sim
+                cs_disturbance_F=-variation_param_sim
+                xs_disturbance_F=-variation_param_sim
+                ls_disturbance_F=-variation_param_sim
+                f_disturbance_F=-variation_param_sim
+                e_disturbance_F=-variation_param_sim
+                ac_disturbance_F=-variation_param_sim
+                act_disturbance_F=-variation_param_sim
+                hmf_disturbance_F=-variation_param_sim
+                base_disturbance_F=-variation_param_sim
 
                 
-                # g_disturbance_C5=-variation_param_sim
-                # x_disturbance_C5=-variation_param_sim
-                # cs_disturbance_C5=-variation_param_sim
-                # xs_disturbance_C5=-variation_param_sim
-                # ls_disturbance_C5=-variation_param_sim
-                # f_disturbance_C5=-variation_param_sim
-                # ac_disturbance_C5=-variation_param_sim
-                # act_disturbance_C5=-variation_param_sim
-                # hmf_disturbance_C5=-variation_param_sim
+                g_disturbance_C5=-variation_param_sim
+                x_disturbance_C5=-variation_param_sim
+                cs_disturbance_C5=-variation_param_sim
+                xs_disturbance_C5=-variation_param_sim
+                ls_disturbance_C5=-variation_param_sim
+                f_disturbance_C5=-variation_param_sim
+                ac_disturbance_C5=-variation_param_sim
+                act_disturbance_C5=-variation_param_sim
+                hmf_disturbance_C5=-variation_param_sim
 
                 # g_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
                 # x_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
@@ -15309,8 +15369,8 @@ if __name__ == '__main__':
         for j in mad.j:
             if j=='G' or j=='X' or j=='Eth' or j=='Cell':
                 contador=contador+1
-                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (Closed-loop)')
-                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Open-loop)')
+                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (ENMPC)')
+                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Constant flows)')
                 # original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
                 # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
             plt.xlabel('time [h]')
@@ -15322,8 +15382,8 @@ if __name__ == '__main__':
         for j in mad.j:
             if j=='CS' or j=='XS' or j=='E':
                 contador=contador+1
-                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (Closed-loop)')
-                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Open-loop)')
+                plt.plot(time_list,Concentration_dict[j],colors[contador],label=j+' (ENMPC)')
+                plt.plot(time_list_open,Concentration_dict_open[j],'--'+colors[contador],label=j+' (Constant flows)')
                 # original = pd.read_csv('biorefinery_models/'+j+'_ferm.csv', header=None)
                 # plt.plot(original.iloc[:, 0].values, original.iloc[:, 1].values,'--'+colors[contador])
             plt.xlabel('time [h]')
@@ -15331,36 +15391,36 @@ if __name__ == '__main__':
             plt.legend()
         plt.show()
 
-        plt.plot(time_list,pH_list,label='Closed-loop')
-        plt.plot(time_list_open,pH_list_open,label='Open-loop')
+        plt.plot(time_list,pH_list,label='ENMPC')
+        plt.plot(time_list_open,pH_list_open,label='Constant flows')
         plt.xlabel('time [h]')
         plt.ylabel('pH')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,C5_list,label='Closed-loop')
-        plt.plot(time_list_open,C5_list_open,label='Open-loop')
+        plt.plot(time_list,C5_list,label='ENMPC')
+        plt.plot(time_list_open,C5_list_open,label='Constant flows')
         plt.xlabel('time [h]')
         plt.ylabel('C5 flow [kg/s]')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,fiber_list,label='Closed-loop')
-        plt.plot(time_list_open,fiber_list_open,label='Open-loop')
+        plt.plot(time_list,fiber_list,label='ENMPC')
+        plt.plot(time_list_open,fiber_list_open,label='Constant flows')
         plt.xlabel('time [h]')
         plt.ylabel('Liquified fibers flow [kg/s]')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,Hold_up_list,label='Closed-loop')
-        plt.plot(time_list_open,Hold_up_list_open,label='Open-loop')
+        plt.plot(time_list,Hold_up_list,label='ENMPC')
+        plt.plot(time_list_open,Hold_up_list_open,label='Constant flows')
         plt.xlabel('time [h]')
         plt.ylabel('Hold-up [kg]')
         plt.legend()
         plt.show()
 
-        plt.plot(time_list,yeast_list,label='Closed-loop')
-        plt.plot(time_list_open,yeast_list_open,label='Open-loop')
+        plt.plot(time_list,yeast_list,label='ENMPC')
+        plt.plot(time_list_open,yeast_list_open,label='Constant flows')
         plt.xlabel('time [h]')
         plt.ylabel('yeast [kg]')
         plt.legend()

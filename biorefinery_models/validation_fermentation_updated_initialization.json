@@ -2,11 +2,11 @@
   "__metadata__": {
     "format_version": 4,
     "date": "2024-04-24",
-    "time": "00:05:39.400787",
+    "time": "17:05:41.298277",
     "other": {},
     "__performance__": {
       "n_components": 10040,
-      "etime_make_dict": 0.04545164108276367
+      "etime_make_dict": 0.03234720230102539
     }
   },
   "fermentation_model": {
