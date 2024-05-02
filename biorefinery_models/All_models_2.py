@@ -8214,7 +8214,6 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(
         discretizer_t = pe.TransformationFactory('dae.finite_difference')
         discretizer_t.apply_to(m, nfe=n_f_elements_t, wrt=m.t, scheme='BACKWARD')
 
-
     # # ------------------Definition of feed flow and output flow information---------------------
 
     # def _initF_C5(m,t):
@@ -8974,21 +8973,15 @@ def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,
 
     # ------------------Definition of feed flow and output flow information---------------------
     def _Feed_constraint(m,t):
-        if (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))<=10*60*60: # Inoculum phase
-            return m.Fin[t]==m.F_liquified_fibers
-        elif (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))> 10*60*60 and (m.current_starting_time+t*(m.current_final_time-m.current_starting_time)) <=70*60*60: #Fed-batch phase
-            return m.Fin[t]==m.F_C5liquid + m.F_liquified_fibers+m.F_base+m.F_acid       #(m.Mmax-m.M0)/(70*60*60-10*60*60)
-        elif (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))>70*60*60 and (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))<=190*60*60: #Batch phase
-            return m.Fin[t]==0#m.F_base+m.F_acid
+
+        return m.Fin[t]==m.F_C5liquid + m.F_liquified_fibers+m.F_base+m.F_acid       #(m.Mmax-m.M0)/(70*60*60-10*60*60)
+
     m.Feed_constraint=pe.Constraint(m.t,rule=_Feed_constraint)
 
     def _Feed_concentration_constraint(m,t,j):
-        if (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))<=10*60*60: # Inoculum phase
-            return m.Cin[t,j]==m.C_liquified_fibers[j]
-        elif (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))> 10*60*60 and (m.current_starting_time+t*(m.current_final_time-m.current_starting_time)) <=70*60*60: #Fed-batch phase
-            return m.Cin[t,j]*(m.F_C5liquid + m.F_liquified_fibers+m.F_base+m.F_acid)==(m.F_C5liquid*m.C_C5liquid[j]+m.F_liquified_fibers*m.C_liquified_fibers[j]+m.F_base*m.C_base[j]+m.F_acid*m.C_acid[j])
-        elif (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))>70*60*60 and (m.current_starting_time+t*(m.current_final_time-m.current_starting_time))<=190*60*60: #Batch phase
-            return m.Cin[t,j]*(m.F_base+m.F_acid)== 0#m.F_base*m.C_base[j]+m.F_acid*m.C_acid[j]    
+
+        return m.Cin[t,j]*(m.F_C5liquid + m.F_liquified_fibers+m.F_base+m.F_acid)==(m.F_C5liquid*m.C_C5liquid[j]+m.F_liquified_fibers*m.C_liquified_fibers[j]+m.F_base*m.C_base[j]+m.F_acid*m.C_acid[j])
+  
     m.Feed_concentration_constraint=pe.Constraint(m.t,m.j,rule=_Feed_concentration_constraint)
 
     #------------------- pH modeling (from hydrolysis) ----------------------------------------------
@@ -10685,7 +10678,7 @@ def main_robust_model():
     return m
 
 def objective_function(m):
-    return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+1e+8*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+    return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
     # return (50*m.M0_yeast-5*m.C[m.t[20],'Eth']*m.M[m.t[20]])+1e+8*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
     # return (-5*m.C[m.t.last(),'Eth'])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
 
@@ -14581,12 +14574,12 @@ if __name__ == '__main__':
         pHval=5.37#5.3805
 
         keep_Yeast_FIXED=False
-        Yeastval=10
+        Yeastval=80
 
 
         solver_list=['conopt','conopt4','knitro','baron','ipopth']
         tee=False
-        discretization_type_fer='collocation'
+        discretization_type_fer='differences'
         # discretization_type_fer='collocation'
         finite_elem_t_fer=50 
         total_elements=finite_elem_t_fer #prediction horizon, which is constnt, i.e., the total batch duration
@@ -14602,13 +14595,13 @@ if __name__ == '__main__':
         control_horizon=19   # 19 is actually the last time I perform control actions, hence, the control horizon should be at most this or less
 
         # Simulation parameters
-        sim_discretization='differences'
+        sim_discretization='collocation'
         sim_n_finite_elements=3
         simulation_solvers=['conopt','conopt4','knitro','baron','ipopth']
 
 
         # ROBUST OPTIMIZATION parameters
-        robust=False# True if optimization problems solved using robust optimization
+        robust=True# True if optimization problems solved using robust optimization
         vtol=1e-5
         variation_param_opt=0.3 # parameter to define uncertainty range (for optimization)
         variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
@@ -14639,49 +14632,75 @@ if __name__ == '__main__':
 
 
 
-        init_old=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
-        init_old=initialize_model(init_old,from_feasible=True,feasible_model='validation_fermentation_updated')
+        # init_old=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
+        # init_old=initialize_model(init_old,from_feasible=True,feasible_model='validation_fermentation_updated')
 
 
-        init_new=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='collocation',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
-        # init_new=initialize_model(init_new,from_feasible=True,feasible_model='validation_fermentation')
+        # init_new=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='collocation',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
+        # # # init_new=initialize_model(init_new,from_feasible=True,feasible_model='validation_fermentation')
         
         
-        time_index=init_new.t
-        old_time_index=init_old.t
-        for v in init_new.component_objects(ctype=pe.Var):
-            for c in init_old.component_objects(ctype=pe.Var):
-                if v.name==c.name:
-                    old_v=c
-            # Check if variable has time index. If it does, initialize this variable with its final state value
-            try: # If variable is defined over multiple sets
-                position=[v.index_set()._sets[j].name==time_index.name for j in range(len(v.index_set()._sets))] # returns tru for the position of the index that corresponds to time
-            except: # If only defined over a single set
-                position=[v.index_set().name==time_index.name]
-            if any(position): # If the variable has time index
-                # itentify location of time index
-                cuenta=0
-                for i in position:
-                    if i==True:
-                        loc=cuenta #location of time index
-                        break
-                    cuenta=cuenta+1
-                for index in v.index_set().data():                
-                    if len(position)==1: # variables only have time index
-                        v[index].value=np.interp(index,[old_index for old_index in old_v.index_set().data()],[old_v[old_index].value or 0 for old_index in old_v.index_set().data()]) 
-                    else: # variables also have other indexes
-                        # print([old_index[loc] for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])],[old_v[old_index].value for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])])
-                        v[index].value=np.interp(index[loc],[old_index[loc] for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])],[old_v[old_index].value or 0 for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])])
+        # time_index=init_new.t
+        # old_time_index=init_old.t
+        # for v in init_new.component_objects(ctype=pe.Var):
+        #     for c in init_old.component_objects(ctype=pe.Var):
+        #         if v.name==c.name:
+        #             old_v=c
+        #     # Check if variable has time index. If it does, initialize this variable with its final state value
+        #     try: # If variable is defined over multiple sets
+        #         position=[v.index_set()._sets[j].name==time_index.name for j in range(len(v.index_set()._sets))] # returns tru for the position of the index that corresponds to time
+        #     except: # If only defined over a single set
+        #         position=[v.index_set().name==time_index.name]
+        #     if any(position): # If the variable has time index
+        #         # itentify location of time index
+        #         cuenta=0
+        #         for i in position:
+        #             if i==True:
+        #                 loc=cuenta #location of time index
+        #                 break
+        #             cuenta=cuenta+1
+        #         for index in v.index_set().data():                
+        #             if len(position)==1: # variables only have time index
+        #                 v[index].value=np.interp(index,[old_index for old_index in old_v.index_set().data()],[old_v[old_index].value or 0 for old_index in old_v.index_set().data()]) 
+        #             else: # variables also have other indexes
+        #                 # print([old_index[loc] for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])],[old_v[old_index].value for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])])
+        #                 v[index].value=np.interp(index[loc],[old_index[loc] for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])],[old_v[old_index].value or 0 for old_index in old_v.index_set().data() if all([old_index[location]==index[location] for location in [a for a in range(len(position)) if a!=loc]])])
                         
 
-            else:
-                for index in v.index_set().data(): 
-                    v[index].value=old_v[index].value
+        #     else:
+        #         for index in v.index_set().data(): 
+        #             v[index].value=old_v[index].value
+
+        # generate_initialization(m=init_new,model_name='good_ferm_init')  
 
 
-        opt1 = SolverFactory('gams') # Solve problem
-        init_new.results = opt1.solve(init_new, solver='conopt4', tee=True)   
-        generate_initialization(m=init_new,model_name='validation_fermentation_updated_col')        
+
+
+
+        # init_new.Diff_mass.deactivate()
+        # init_new.Diff_comp.deactivate()
+        # init_new.Feed_constraint.deactivate()
+        # init_new.Feed_concentration_constraint.deactivate()
+
+        # current=0
+        # for t in init_new.t:
+        #     current=current+1
+
+        #     init_new=initialize_model(init_new,from_feasible=True,feasible_model='good_ferm_init')
+            
+
+        #     init_new.Diff_mass[t].activate()
+        #     init_new.Feed_constraint[t].activate()
+        #     for j in init_new.j:
+        #         init_new.Diff_comp[t,j].activate()
+        #         init_new.Feed_concentration_constraint[t,j].activate()
+
+        #     opt1 = SolverFactory('gams') # Solve problem
+        #     init_new.results = opt1.solve(init_new, solver='conopt', tee=True)   
+
+
+
+        # generate_initialization(m=init_new,model_name='validation_fermentation_updated_col')        
 
 
 
@@ -14703,10 +14722,6 @@ if __name__ == '__main__':
             # Define optimization model
             mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)  
 
-            if keep_Ph_FIXED:
-                mad.pH.fix(pHval)
-            if keep_Yeast_FIXED:
-                mad.M0_yeast.fix(Yeastval)
             #Decrease number of finite elements in control horizon once we are approaching the end of the batch
             if disc_time+control_horizon>=total_elements+1:
                 count_last_elements=count_last_elements+1
@@ -14764,6 +14779,10 @@ if __name__ == '__main__':
             else: 
                 mad=initialize_model(mad,from_feasible=True,feasible_model='validation_fermentation_updated')
 
+                if keep_Ph_FIXED:
+                    mad.pH.fix(pHval)
+                if keep_Yeast_FIXED:
+                    mad.M0_yeast.fix(Yeastval)
             if current_start_time<=70*60*60:
 
                 if robust:
@@ -14808,13 +14827,15 @@ if __name__ == '__main__':
             # Simulate optimal control action using one time step
             # --1) retrieve optimal control action 
             optimal_F=pe.value(mad.F_liquified_fibers[round((current_start_time+step)/total_sim_time,6)])
-            print(optimal_F)
+            # print(optimal_F)
             optimal_C5=pe.value(mad.F_C5liquid[round((current_start_time+step)/total_sim_time,6)])
-            print(optimal_C5)
+            # print(optimal_C5)
+            print('calculated added mass',(optimal_F+optimal_C5)*step)
             optimal_pH=pe.value(mad.pH)
             optimal_yeast=pe.value(mad.M0_yeast)
             # --2) retrieve current initial state
             M0_prev=pe.value(mad.M[round(current_start_time/total_sim_time,6)]) 
+            print('Plant initial state',M0_prev)
             for j in mad.j:
                 C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
             # --3) perform one time step simulation
@@ -14991,6 +15012,8 @@ if __name__ == '__main__':
             # --5): Update original model miwth new states
             # print(mad_sim.final_time.value,round((current_start_time+step),6))
             # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
+            print('Plant final state',pe.value(mad_sim.M[mad_sim.t.last()]))
+            print('Plant added mass',pe.value(mad_sim.M[mad_sim.t.last()])-M0_prev)
             mad.M[round((current_start_time+step)/total_sim_time,6)].value=pe.value(mad_sim.M[mad_sim.t.last()])
             # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
             for j in mad.j:
@@ -15031,13 +15054,18 @@ if __name__ == '__main__':
                 for j in mad_sim.j:
                     Concentration_dict[j].append(pe.value(mad_sim.C[t,j])) 
         final_objective=(50*yeast_list[0]-5*Concentration_dict['Eth'][-1]*Hold_up_list[-1])
-        print('Evaluated objective function: ',final_objective)           
+        final_hold_up=Hold_up_list[-1]
+        final_ethanol_concentration=Concentration_dict['Eth'][-1]
+        yeast_mass=yeast_list[0]
+        print('Evaluated economic objective function: ',final_objective) 
+        print('Final hold up [kg]', final_hold_up)
+        print('Final ethanol concentration [g/kg]',final_ethanol_concentration)
+        print('Yeast mass [kg]',yeast_mass)
+        print('*************************************\n\n')          
  
             # save objective function
             # objective_list.append()
     
-
-
 
 
 
@@ -15061,10 +15089,7 @@ if __name__ == '__main__':
 
             # Define optimization model
             mad=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)  
-            if keep_Ph_FIXED:
-                mad.pH.fix(pHval)
-            if keep_Yeast_FIXED:
-                mad.M0_yeast.fix(Yeastval)
+
             #Decrease number of finite elements in control horizon once we are approaching the end of the batch
             if disc_time+control_horizon>=total_elements+1:
                 count_last_elements=count_last_elements+1
@@ -15114,6 +15139,10 @@ if __name__ == '__main__':
             else: 
                 mad=initialize_model(mad,from_feasible=True,feasible_model='validation_fermentation_updated')
 
+                if keep_Ph_FIXED:
+                    mad.pH.fix(pHval)
+                if keep_Yeast_FIXED:
+                    mad.M0_yeast.fix(Yeastval)
             if current_start_time==0:
                 opt1 = SolverFactory('gams') # Solve problem
 
@@ -15139,13 +15168,15 @@ if __name__ == '__main__':
             # Simulate optimal control action using one time step
             # --1) retrieve optimal control action 
             optimal_F=pe.value(mad.F_liquified_fibers[round((current_start_time+step)/total_sim_time,6)])
-            print(optimal_F)
+            # print(optimal_F)
             optimal_C5=pe.value(mad.F_C5liquid[round((current_start_time+step)/total_sim_time,6)])
-            print(optimal_C5)
+            # print(optimal_C5)
+            print('calculated added mass',(optimal_F+optimal_C5)*step)
             optimal_pH=pe.value(mad.pH)
             optimal_yeast=pe.value(mad.M0_yeast)
             # --2) retrieve current initial state
             M0_prev=pe.value(mad.M[round(current_start_time/total_sim_time,6)]) 
+            print('Plant initial state',M0_prev)
             for j in mad.j:
                 C0_prev[j]=pe.value(mad.C[round(current_start_time/total_sim_time,6),j]) 
             # --3) perform one time step simulation
@@ -15319,6 +15350,8 @@ if __name__ == '__main__':
             # print(mad_sim.final_time.value,round((current_start_time+step),6))
             # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
             mad.M[round((current_start_time+step)/total_sim_time,6)].value=pe.value(mad_sim.M[mad_sim.t.last()])
+            print('Plant final state',pe.value(mad_sim.M[mad_sim.t.last()]))
+            print('Plant added mass',pe.value(mad_sim.M[mad_sim.t.last()])-M0_prev)
             # print(mad.M[round((current_start_time+step)/total_sim_time,6)].value)
             for j in mad.j:
                 mad.C[round((current_start_time+step)/total_sim_time,6),j].value=pe.value(mad_sim.C[mad_sim.t.last(),j])
@@ -15362,7 +15395,14 @@ if __name__ == '__main__':
             # objective_list_open.append()
 
         final_objective_open=(50*yeast_list_open[0]-5*Concentration_dict_open['Eth'][-1]*Hold_up_list_open[-1])
-        print('Evaluated objective function: ',final_objective_open)  
+        final_hold_up_open=Hold_up_list_open[-1]
+        final_ethanol_concentration_open=Concentration_dict_open['Eth'][-1]
+        yeast_mass_open=yeast_list_open[0]
+        print('Evaluated economic objective function: ',final_objective_open) 
+        print('Final hold up [kg]', final_hold_up_open)
+        print('Final ethanol concentration [g/kg]',final_ethanol_concentration_open)
+        print('Yeast mass [kg]',yeast_mass_open)
+        print('*************************************\n\n')    
 
         colors=['b','g','m','r','k','y','c']
         contador=-1
