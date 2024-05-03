@@ -34,13 +34,16 @@ def dummy_logic(m):
     logic_expr = []
     for n in m.set1:
         logic_expr.append([m.Y1[n],m.Y1_disjunct[n].indicator_var])
+    for n in m.set2:
+        logic_expr.append([m.Y2[n],m.Y2_disjunct[n].indicator_var])
     return logic_expr
 def dummy_logic_v2(m):
     logic_expr = []
-    for n in m.set1:
-        logic_expr.append([m.Y1[n],m.Y1_disjunct[n].indicator_var])
-    for n in m.set2:
-        logic_expr.append([m.Y2[n],m.Y2_disjunct[n].indicator_var])
+    for r in m.react_set:
+        for n in m.set1[r]:
+            logic_expr.append([m.Y1[r][n],m.Y1_disjunct[r][n].indicator_var])
+        for n in m.set2[r]:
+            logic_expr.append([m.Y2[r][n],m.Y2_disjunct[r][n].indicator_var])
     return logic_expr
 def get_external_information(
     m: pe.ConcreteModel(),
@@ -115,6 +118,7 @@ def get_external_information(
                 Boolean_name_list = Boolean_name_list + \
                     [c.body.args[1:][k]._component()._name for k in range(
                         len(c.body.args[1:]))]
+
                 if all(x == expected_Boolean for x in Boolean_name_list):
                     # expected ordered set index where the reformulation is going to be applied
                     expected_ordered_set_index = ref_index[possible_Boolean]
@@ -332,7 +336,7 @@ def preprocess_problem(m, simple: bool = True):
         pe.TransformationFactory('contrib.propagate_zero_sum').apply_to(m)
         pe.TransformationFactory('contrib.deactivate_trivial_constraints').apply_to(
             m, tmp=False, ignore_infeasible=True)
-    fbbt(m)
+    # fbbt(m)
 
 def solve_subproblem(
     m: pe.ConcreteModel(),
@@ -1447,7 +1451,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_pessimization
     m.M0_yeast=pe.Var(initialize=147,within=pe.NonNegativeReals,bounds=(10,1000),doc='Initial yeast hold up in the reactor [kg]')
     # m.M0_yeast.fix(147)
     m.M0_water=pe.Param(initialize=2400,doc='Initial water hold up in the reactor [kg]') #TODO: Adjust to complete 220 tons, which should also agree if adjusting to guarantee initial yeast concentration in plot
-    m.M0=pe.Var(initialize=m.M0_fibers+m.M0_water+pe.value(m.M0_yeast),within=pe.NonNegativeReals,bounds=(m.M0_fibers+m.M0_water+10,m.M0_fibers+m.M0_water+1000),doc='Initial hold up in the reactor [kg]')
+    m.M0=pe.Var(initialize=m.M0_fibers+m.M0_water+pe.value(m.M0_yeast),within=pe.NonNegativeReals,bounds=(m.M0_fibers+m.M0_water+m.M0_yeast.lb,m.M0_fibers+m.M0_water+m.M0_yeast.ub),doc='Initial hold up in the reactor [kg]')
 
     def _M0_def(m):
         return m.M0==m.M0_fibers+m.M0_water+m.M0_yeast
@@ -2144,7 +2148,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(
     m.F_liquified_fibers=pe.Var(m.t,initialize=2487*(1/60)*(1/60),within=pe.NonNegativeReals,bounds=(0,2*2487*(1/60)*(1/60)),doc='Liquified fibers flow [kg/s]')
 
     m.pH=pe.Var(initialize=5.39,bounds=(5.36,5.4),within=pe.NonNegativeReals,doc='pH')     #bounds=(5.36,5.4)
-    # m.pH.fix(5.41)
+
 
 
 
@@ -2207,7 +2211,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(
     m.M0_yeast=pe.Var(initialize=147,within=pe.NonNegativeReals,bounds=(10,1000),doc='Initial yeast hold up in the reactor [kg]')
     # m.M0_yeast.fix(147)
     m.M0_water=pe.Param(initialize=2400,doc='Initial water hold up in the reactor [kg]') #TODO: Adjust to complete 220 tons, which should also agree if adjusting to guarantee initial yeast concentration in plot
-    m.M0=pe.Var(initialize=m.M0_fibers+m.M0_water+pe.value(m.M0_yeast),within=pe.NonNegativeReals,bounds=(m.M0_fibers+m.M0_water+10,m.M0_fibers+m.M0_water+1000),doc='Initial hold up in the reactor [kg]')
+    m.M0=pe.Var(initialize=m.M0_fibers+m.M0_water+pe.value(m.M0_yeast),within=pe.NonNegativeReals,bounds=(m.M0_fibers+m.M0_water+m.M0_yeast.lb,m.M0_fibers+m.M0_water+m.M0_yeast.ub),doc='Initial hold up in the reactor [kg]')
 
     def _M0_def(m):
         return m.M0==m.M0_fibers+m.M0_water+m.M0_yeast
@@ -3582,10 +3586,204 @@ def dsda_model(m_fer,keep_constant_flows: bool=False)-> pe.ConcreteModel():
 def complete_dsda_model_optimization(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,keep_constant_flows: bool=False):
 
     m=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization=discretization,n_f_elements_t=n_f_elements_t,total_f_elements_t=total_f_elements_t,current_start_time_sconds=current_start_time_sconds,keep_constant_flows=keep_constant_flows)
+    # m.pH.fix(5.4)
     # m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_updated')
     mdsda=dsda_model(m,keep_constant_flows=keep_constant_flows)
 
     return mdsda
+
+
+
+def reactors_5_complete_dsda_model_optimization(total_sim_time: float=190*60*60,discretization: str='collocation',n_f_elements_t: int=1,total_f_elements_t:int=50,current_start_time_sconds: float=0,keep_constant_flows: bool=False):
+
+
+
+    # ------------pyomo model------------------------------------------------
+    m = pe.ConcreteModel(name='5_reactor_model')
+    m.react_set=pe.Set(initialize=[1,2,3,4,5],doc='Set of reactors')
+    m.reactor={}
+    m.set1={}
+    m.set2={}
+    m.Y1={}
+    m.Y2={}
+    m.oneY1={}
+    m.oneY2={}
+    m.logic1={}
+    m.obj_term={}
+    m.tau_p={}
+    m.Y1_disjunct={}
+    m.Y2_disjunct={}
+    m.Disjunction1={}
+    m.Disjunction2={}
+
+    for r in m.react_set:
+        # Fermentation model
+        m_r=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization=discretization,n_f_elements_t=n_f_elements_t,total_f_elements_t=total_f_elements_t,current_start_time_sconds=current_start_time_sconds,keep_constant_flows=keep_constant_flows)
+        # Initialize model
+        if keep_constant_flows:
+            m_r=initialize_model(m_r,from_feasible=True,feasible_model='validation_fermentation_updated')
+        else:
+            m_r=initialize_model(m_r,from_feasible=True,feasible_model='validation_fermentation_updated')
+        
+        # Fermentation model update
+        # Deleting curent objective function
+        m_r.del_component(m_r.obj)
+        # Updating input flow constraints
+        m_r.del_component(m_r.Feed_constraint)
+        m_r.del_component(m_r.Feed_concentration_constraint)
+        m_r.del_component(m_r.ingegral_F_rq)
+        m_r.del_component(m_r.ingegral_C5_rq)
+        
+        m.reactor[r]=m_r
+        setattr(m,'reactor_%r' %r,m.reactor[r])
+    #-------Ordered sets 
+        m.set1[r]=pe.Set(initialize=m_r.t)
+        setattr(m,'set1_%r' %r,m.set1[r])
+        m.set2[r]=pe.Set(initialize=m_r.t)#pe.RangeSet(1,x_up[0]+1,doc= "set of second group of Boolean variables") #Processing time
+        setattr(m,'set2_%r' %r,m.set2[r])
+        #-----Variables
+        m.Y1[r]=pe.BooleanVar(m.set1[r],doc="Boolean variable associated to set 1")
+        setattr(m,'Y1_%r' %r,m.Y1[r])
+        m.Y2[r]=pe.BooleanVar(m.set2[r],doc="Boolean variable associated to set 2")
+        setattr(m,'Y2_%r' %r,m.Y2[r])
+        #-----Logical constraints
+
+        #Constraint that allow to apply the reformulation over Y1
+        def select_one_Y1(m):
+            return pe.exactly(1,m.Y1[r])
+        m.oneY1[r]=pe.LogicalConstraint(rule=select_one_Y1)
+        setattr(m,'oneY1_%r' %r,m.oneY1[r])
+
+        #Constraint that allow to apply the reformulation over Y2
+        def select_one_Y2(m):
+            return pe.exactly(1,m.Y2[r])
+        m.oneY2[r]=pe.LogicalConstraint(rule=select_one_Y2)
+        setattr(m,'oneY2_%r' %r,m.oneY2[r])
+        #Constraint that indicates that fed batch time is less than total processing time
+        def _logic1(m,set2):
+            return m.Y2[r][set2].implies(pe.lor([m.Y1[r][set1] for set1 in m.set1[r] if set1<=set2]))
+        m.logic1[r]=pe.LogicalConstraint(m.set2[r],rule=_logic1)
+        setattr(m,'logic1_%r' %r,m.logic1[r])
+
+        # new variable that will incorporate objective function
+        m.obj_term[r]=pe.Var(within=pe.Reals,initialize=0)
+        setattr(m,'obj_term_%r' %r,m.obj_term[r])
+
+
+        # Disjunctive section
+        # m.delta=pe.Param(initialize=m.fer.final_time /(m.fer.t.__len__()-1),doc='lenght of time periods of discretized time grid for dynamcis [seconds]')    
+        m.tau_p[r]=pe.Param(initialize=70*60*60,mutable=True,doc='Time required for the fed batch phase [seconds]')
+        setattr(m,'tau_p_%r' %r,m.tau_p[r])
+        # m.tau_p_batch=pe.Param(initialize=m.fer.final_time,mutable=True,doc='Time required for batch operation [seconds]')
+        #-----First disjunction
+        def build_disjuncts1(m,set1):  #Disjuncts for first Boolean variable
+
+            # m.model().reactor[r].tau_p.value=(set1-1)*m.model().reactor[r].delta
+            m.model().tau_p[r].value=m.model().reactor[r].current_starting_time+set1*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time)
+
+            def _Feed_constraint_new(m,t):
+
+                if (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))<=10*60*60: # Inoculum phase
+                    return m.model().reactor[r].Fin[t]==m.model().reactor[r].F_liquified_fibers[t]
+                elif (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))> 10*60*60 and (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time)) <=pe.value(m.model().tau_p[r]) : #Fed-batch phase
+                    return m.model().reactor[r].Fin[t]==m.model().reactor[r].F_C5liquid[t] + m.model().reactor[r].F_liquified_fibers[t]       #(m.model().reactor[r].Mmax-m.model().reactor[r].M0)/(70*60*60-10*60*60)
+                elif (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))>pe.value(m.model().tau_p[r])  and t*m.model().reactor[r].final_time<=190*60*60: #Batch phase
+                    return m.model().reactor[r].Fin[t]==0
+
+            m.Feed_constraint_new=pe.Constraint(m.model().reactor[r].t,rule=_Feed_constraint_new)
+
+            def _Feed_concentration_constraint_new(m,t,j):
+                if (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))<=10*60*60: # Inoculum phase
+                    return m.model().reactor[r].Cin[t,j]==m.model().reactor[r].C_liquified_fibers[j]
+                elif (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))> 10*60*60 and (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time)) <=pe.value(m.model().tau_p[r]) : #Fed-batch phase
+                    return m.model().reactor[r].Cin[t,j]*(m.model().reactor[r].F_C5liquid[t] + m.model().reactor[r].F_liquified_fibers[t])==(m.model().reactor[r].F_C5liquid[t]*m.model().reactor[r].C_C5liquid[j]+m.model().reactor[r].F_liquified_fibers[t]*m.model().reactor[r].C_liquified_fibers[j])
+                elif (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))>pe.value(m.model().tau_p[r])  and (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))<=190*60*60: #Batch phase
+                    return m.model().reactor[r].Cin[t,j]== 0  
+            m.Feed_concentration_constraint_new=pe.Constraint(m.model().reactor[r].t,m.model().reactor[r].j,rule=_Feed_concentration_constraint_new)
+
+
+            def _ingegral_F_rq_new(m,t):
+                if  (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time)) >pe.value(m.model().tau_p[r]):
+                    return m.model().reactor[r].F_liquified_fibers[t]==0
+                elif t!=m.model().reactor[r].t.first():
+                    if keep_constant_flows:
+                        return m.model().reactor[r].F_liquified_fibers[t]==2487*(1/60)*(1/60)
+                    else:
+                        return pe.Constraint.Skip
+                else:
+                    return pe.Constraint.Skip
+            m.ingegral_F_rq_new=pe.Constraint(m.model().reactor[r].t,rule=_ingegral_F_rq_new)
+
+            def _ingegral_C5_rq_new(m,t):
+                if (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time))<= 10*60*60 or (m.model().reactor[r].current_starting_time+t*(m.model().reactor[r].current_final_time-m.model().reactor[r].current_starting_time)) >pe.value(m.model().tau_p[r]):
+                    return  m.model().reactor[r].F_C5liquid[t]==0
+                elif t!=m.model().reactor[r].t.first():
+                    if keep_constant_flows:
+                        return m.model().reactor[r].F_C5liquid[t]==628*(1/60)*(1/60)
+                    else:
+                        return pe.Constraint.Skip
+                else:
+                    return pe.Constraint.Skip
+            m.ingegral_C5_rq_new=pe.Constraint(m.model().reactor[r].t,rule=_ingegral_C5_rq_new)
+
+            # def _deff_F(m,t):
+            #     if t*m.model().reactor[r].final_time<=10*60*60: # Inoculum phase
+            #         return m.model().reactor[r].F_liquified_fibers[t]==2487*(1/60)*(1/60)
+            #     elif t*m.model().reactor[r].final_time> 10*60*60 and t*m.model().reactor[r].final_time <=pe.value(m.model().reactor[r].tau_p) : #Fed-batch phase
+            #         return m.model().reactor[r].F_liquified_fibers[t]==2487*(1/60)*(1/60)
+            #     elif t*m.model().reactor[r].final_time>pe.value(m.model().reactor[r].tau_p) and t*m.model().reactor[r].final_time<=190*60*60: #Batch phase
+            #         return m.model().reactor[r].F_liquified_fibers[t]==0#pe.Constraint.Skip#m.model().reactor[r].F_liquified_fibers_new[t]==0
+            # m.deff_F=pe.Constraint(m.model().reactor[r].t,rule=_deff_F)
+
+            # def _deff_C5(m,t):
+            #     if t*m.model().reactor[r].final_time<=10*60*60: # Inoculum phase
+            #         return m.model().reactor[r].F_C5liquid[t]==0#pe.Constraint.Skip#m.model().reactor[r].F_C5liquid_new[t]==0
+            #     elif t*m.model().reactor[r].final_time> 10*60*60 and t*m.model().reactor[r].final_time <=pe.value(m.model().reactor[r].tau_p) : #Fed-batch phase
+            #         return m.model().reactor[r].F_C5liquid[t]==628*(1/60)*(1/60)
+            #     elif t*m.model().reactor[r].final_time>pe.value(m.model().reactor[r].tau_p) and t*m.model().reactor[r].final_time<=190*60*60: #Batch phase
+            #         return m.model().reactor[r].F_C5liquid[t]==0#pe.Constraint.Skip#m.model().reactor[r].F_C5liquid_new[t]==0
+            # m.deff_C5=pe.Constraint(m.model().reactor[r].t,rule=_deff_C5)
+        m.Y1_disjunct[r]=Disjunct(m.set1[r],rule=build_disjuncts1,doc="each disjunct is defined over set 1")
+        setattr(m,'Y1_disjunct_%r' %r,m.Y1_disjunct[r])
+        # m.Y1_disjunct.pprint()
+
+
+        def build_disjuncts2(m,set2):  #Disjuncts for first Boolean variable
+            # def _ethanol_concentration_Requirement(m):
+            #     return m.model().reactor[r].C[set2,'Eth']>=0
+            # m.ethanol_concentration_Requirement=pe.Constraint(rule=_ethanol_concentration_Requirement)
+
+            def _batch_time(m):
+                return m.model().obj_term[r]==objective_function(m.model().reactor[r],final_time=set2)
+            m.batch_time=pe.Constraint(rule=_batch_time)
+        m.Y2_disjunct[r]=Disjunct(m.set2[r],rule=build_disjuncts2,doc="each disjunct is defined over set 2")
+        setattr(m,'Y2_disjunct_%r' %r,m.Y2_disjunct[r])
+
+        def Disjunction1(m):    #Disjunction for first Boolean variable
+            return [m.Y1_disjunct[r][j] for j in m.set1[r]]
+        m.Disjunction1[r]=Disjunction(rule=Disjunction1,xor=True)
+        setattr(m,'Disjunction1_%r' %r,m.Disjunction1[r])
+
+        def Disjunction2(m):    #Disjunction for second Boolean variable
+            return [m.Y2_disjunct[r][j] for j in m.set2[r]]
+        m.Disjunction2[r]=Disjunction(rule=Disjunction2,xor=True)
+        setattr(m,'Disjunction2_%r' %r,m.Disjunction2[r])
+
+        #Associate boolean variables to disjuncts
+        for n1 in m.set1[r]:
+            m.Y1[r][n1].associate_binary_var(m.Y1_disjunct[r][n1].indicator_var)
+
+        for n2 in m.set2[r]:
+            m.Y2[r][n2].associate_binary_var(m.Y2_disjunct[r][n2].indicator_var)
+ 
+
+    # Declare new objective function
+    def _global_objective(m):
+        return  sum(m.obj_term[r] for r in m.react_set)
+    m.obj=pe.Objective(rule=_global_objective)
+
+    return m
+
 
 
 # ROBUST OPTIMIZATION
@@ -3837,33 +4035,114 @@ if __name__ == '__main__':
     Concentration_dict={'CS':[], 'XS':[], 'LS':[],'C':[],'G':[], 'X':[], 'F':[], 'E':[],'AC':[],'Cell':[],'Eth':[],'CO2':[],'ACT':[],'HMF':[],'Base':[]} #Simulated concentrations
 
 
-    # INITIALIZE FINITE FIFFERENCES VERSION
+    # ################################  INITIALIZE D-SDA version
+   
+    # m=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)    
+    # m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_updated')
+
+    # # m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_updated')
+    # # m.pH.fix(5.4) # NOTE: IF FIXING VARIABLES, MUST BE DONE AFTER INITIALIZING MODEL, OTHERWHISE THEY WILL BE AUTOMATICALLY FIXED AT INITIALZIATION VALUE
+    # mdsda=dsda_model(m,keep_constant_flows=constant_flows)
+    # ext_ref={mdsda.Y1:mdsda.set1,mdsda.Y2:mdsda.set2}
+    # [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(mdsda,ext_ref,tee=True)
 
 
-    # init=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows) 
-    # init=initialize_model(init,from_feasible=True,feasible_model='validation_fermentation')
-    # opt1 = SolverFactory('gams') # Solve problem
-    # init.results = opt1.solve(init, solver='conopt4', tee=False)   
-    # generate_initialization(m=init,model_name='validation_fermentation_updated')
+    # x_init=[round((70*60*60-mdsda.fer.final_time)*((upper_bounds[1]-lower_bounds[1])/(mdsda.fer.final_time))+upper_bounds[1]),51]
+    # # x_init=[18,32]
+    # mdsda=external_ref(mdsda,x_init,dummy_logic,reformulation_dict,tee =False)
+    # sub_options={}
+    # mdsda=solve_subproblem(mdsda,subproblem_solver='conopt4',subproblem_solver_options=sub_options,tee=True)
+    # if not constant_flows:
+    #     generate_initialization(m=mdsda,model_name='validation_fermentation_updated_dsda_variable_flows')
+    # else:
+    #     generate_initialization(m=mdsda,model_name='validation_fermentation_updated_dsda_constant_flows')
+
+
+    # mdsda.fer.M0_yeast.pprint()
+    # mdsda.fer.pH.pprint()
+    # mdsda.fer.F_C5liquid.pprint()
+    # mdsda.fer.F_liquified_fibers.pprint()
+
+    # yeast_used=pe.value(mdsda.fer.M0_yeast)
+    # pH_used=pe.value(mdsda.fer.pH)
+    # ethanol_concentration=pe.value(mdsda.fer.C[mdsda.fer.t[x_init[1]],'Eth'])
+    # Final_hold_up=pe.value(mdsda.fer.M[mdsda.fer.t[x_init[1]]])
+    # optimized_time=mdsda.fer.t[x_init[1]]*(mdsda.fer.current_final_time-mdsda.fer.current_starting_time)
+
+
+    # print('\n ****RELEVANT VARIABLES:')
+    # print('Optimal pH [kg]:',pH_used)
+    # print('Yeast [kg]:',yeast_used)
+    # print('Ethanol concentration [g/kg]:',ethanol_concentration)
+    # print('Final hold-up [kg]',Final_hold_up)
+    # print('Optimized processing time [s]',optimized_time)
+
+
+    # print('\n ****COST BREAKDOWN:')
+    # print('Yeast cost $:',yeast_used*50)
+    # print('Ethanol revenue $:',5*ethanol_concentration*Final_hold_up)
+    # print('Operation cost $:',5*optimized_time)
+    # print('Profit $:',5*ethanol_concentration*Final_hold_up-yeast_used*50-5*optimized_time)
 
 
 
-    # INITIALIZE D-SDA version
+    ############################### INITIAL DSDA TEST
+    # start=time.time()
+    # neighdef='2'
+    # sub_options={'add_options':['GAMS_MODEL.optfile = 1;','GAMS_MODEL.threads=0;','$onecho > conopt4.opt \n','$offecho \n']}
+    # arguments_dict={'total_sim_time':total_sim_time,
+    #                 'discretization':discretization_type_fer,
+    #                 'n_f_elements_t':total_elements,
+    #                 'total_f_elements_t':total_elements,
+    #                 'current_start_time_sconds':start_time,
+    #                 'keep_constant_flows':constant_flows}
+    # D_SDAsol,routeDSDA,obj_route=solve_with_dsda(complete_dsda_model_optimization,arguments_dict,x_init,ext_ref,dummy_logic,k = neighdef,provide_starting_initialization= True,feasible_model='validation_fermentation_updated_dsda',subproblem_solver = 'conopt4',subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = tee,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
 
-    m=build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(total_sim_time=total_sim_time,discretization='differences',n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)
-    m=initialize_model(m,from_feasible=True,feasible_model='validation_fermentation_updated')
-    mdsda=dsda_model(m,keep_constant_flows=constant_flows)
-    ext_ref={mdsda.Y1:mdsda.set1,mdsda.Y2:mdsda.set2}
-    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(mdsda,ext_ref,tee=True)
+    # end=time.time()
+    # print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
+    # D_SDAsol.fer.M0_yeast.pprint()
+    # D_SDAsol.fer.pH.pprint()
+    # yeast_used=pe.value(D_SDAsol.fer.M0_yeast)
+    # pH_used=pe.value(D_SDAsol.fer.pH)
+    # ethanol_concentration=pe.value(D_SDAsol.fer.C[D_SDAsol.fer.t[routeDSDA[-1][1]],'Eth'])
+    # Final_hold_up=pe.value(D_SDAsol.fer.M[D_SDAsol.fer.t[routeDSDA[-1][1]]])
+    # optimized_time=D_SDAsol.fer.t[routeDSDA[-1][1]]*(D_SDAsol.fer.current_final_time-D_SDAsol.fer.current_starting_time)
 
 
-    x_init=[round((70*60*60-mdsda.fer.final_time)*((upper_bounds[1]-lower_bounds[1])/(mdsda.fer.final_time))+upper_bounds[1]),51]
-    # x_init=[32,33]
-    mdsda=external_ref(mdsda,x_init,dummy_logic_v2,reformulation_dict,tee =False)
+    # print('\n ****RELEVANT VARIABLES:')
+    # print('Optimal pH [kg]:',pH_used)
+    # print('Yeast [kg]:',yeast_used)
+    # print('Ethanol concentration [g/kg]:',ethanol_concentration)
+    # print('Final hold-up [kg]',Final_hold_up)
+    # print('Optimized processing time [s]',optimized_time)
+
+
+    # print('\n ****COST BREAKDOWN:')
+    # print('Yeast cost $:',yeast_used*50)
+    # print('Ethanol revenue $:',5*ethanol_concentration*Final_hold_up)
+    # print('Operation cost $:',5*optimized_time)
+    # print('Profit $:',5*ethanol_concentration*Final_hold_up-yeast_used*50-5*optimized_time)
+
+
+
+    ######## 5 REACTORS MODEL##################
+    m5=reactors_5_complete_dsda_model_optimization(total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=total_elements,total_f_elements_t=total_elements,current_start_time_sconds=start_time,keep_constant_flows=constant_flows)
+    ext_ref={}
+
+    for r in m5.react_set:
+        ext_ref[m5.Y1[r]]=m5.set1[r]
+        ext_ref[m5.Y2[r]]=m5.set2[r]
+
+    [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m5,ext_ref,tee=True)
+
+    x_init=[]
+    for r in m5.react_set:
+        x_init.append(round((70*60*60-m5.reactor[r].final_time)*((upper_bounds[1]-lower_bounds[1])/(m5.reactor[r].final_time))+upper_bounds[1]))
+        x_init.append(51)
+
+    mdsda=external_ref(m5,x_init,dummy_logic_v2,reformulation_dict,tee =False)
     sub_options={}
     mdsda=solve_subproblem(mdsda,subproblem_solver='conopt4',subproblem_solver_options=sub_options,tee=True)
-    generate_initialization(m=mdsda,model_name='validation_fermentation_updated_dsda')
-
 
 
     start=time.time()
@@ -3875,35 +4154,40 @@ if __name__ == '__main__':
                     'total_f_elements_t':total_elements,
                     'current_start_time_sconds':start_time,
                     'keep_constant_flows':constant_flows}
-    D_SDAsol,routeDSDA,obj_route=solve_with_dsda(complete_dsda_model_optimization,arguments_dict,x_init,ext_ref,dummy_logic_v2,k = neighdef,provide_starting_initialization= True,feasible_model='validation_fermentation_updated_dsda',subproblem_solver = 'conopt4',subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = tee,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=False)
+    D_SDAsol,routeDSDA,obj_route=solve_with_dsda(reactors_5_complete_dsda_model_optimization,arguments_dict,x_init,ext_ref,dummy_logic_v2,k = neighdef,provide_starting_initialization= True,feasible_model='validation_fermentation_updated_dsda',subproblem_solver = 'conopt4',subproblem_solver_options=sub_options,iter_timelimit= 86400,timelimit = 86400,gams_output = False,tee= False,global_tee = tee,rel_tol = 0,scaling=False,scale_factor=1,stop_neigh_verif_when_improv=True)
 
     end=time.time()
     print('Objective D-SDA='+str(pe.value(D_SDAsol.obj))+', best D-SDA='+str(routeDSDA[-1]),'cputime D-SDA= '+str(end-start))  
-    
-    yeast_used=pe.value(D_SDAsol.fer.M0_yeast)
-    pH_used=pe.value(D_SDAsol.fer.pH)
-    ethanol_concentration=pe.value(D_SDAsol.fer.C[D_SDAsol.fer.t[routeDSDA[-1][1]],'Eth'])
-    Final_hold_up=pe.value(D_SDAsol.fer.M[D_SDAsol.fer.t[routeDSDA[-1][1]]])
-    optimized_time=D_SDAsol.fer.t[routeDSDA[-1][1]]*(D_SDAsol.fer.current_final_time-D_SDAsol.fer.current_starting_time)
+    for r in m5.react_set:
+        print('/n /n !!!!!!!!!!!!!! REACTOR',r,'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        D_SDAsol.reactor[r].M0_yeast.pprint()
+        D_SDAsol.reactor[r].pH.pprint()
+        yeast_used=pe.value(D_SDAsol.reactor[r].M0_yeast)
+        pH_used=pe.value(D_SDAsol.reactor[r].pH)
+        ethanol_concentration=pe.value(D_SDAsol.reactor[r].C[D_SDAsol.reactor[r].t[routeDSDA[-1][1]],'Eth'])
+        Final_hold_up=pe.value(D_SDAsol.reactor[r].M[D_SDAsol.reactor[r].t[routeDSDA[-1][1]]])
+        optimized_time=D_SDAsol.reactor[r].t[routeDSDA[-1][1]]*(D_SDAsol.reactor[r].current_final_time-D_SDAsol.reactor[r].current_starting_time)
 
 
-    print('\n ****RELEVANT VARIABLES:')
-    print('Optimal pH [kg]:',pH_used)
-    print('Yeast [kg]:',yeast_used)
-    print('Ethanol concentration [g/kg]:',ethanol_concentration)
-    print('Final hold-up [kg]',Final_hold_up)
-    print('Optimized processing time [s]',optimized_time)
+        print('\n ****RELEVANT VARIABLES:')
+        print('Optimal pH [kg]:',pH_used)
+        print('Yeast [kg]:',yeast_used)
+        print('Ethanol concentration [g/kg]:',ethanol_concentration)
+        print('Final hold-up [kg]',Final_hold_up)
+        print('Optimized processing time [s]',optimized_time)
 
 
-    print('\n ****COST BREAKDOWN:')
-    print('Yeast cost $:',yeast_used*50)
-    print('Ethanol revenue $:',5*ethanol_concentration*Final_hold_up)
-    print('Operation cost $:',5*optimized_time)
-    print('Profit $:',5*ethanol_concentration*Final_hold_up-yeast_used*50-5*optimized_time)
+        print('\n ****COST BREAKDOWN:')
+        print('Yeast cost $:',yeast_used*50)
+        print('Ethanol revenue $:',5*ethanol_concentration*Final_hold_up)
+        print('Operation cost $:',5*optimized_time)
+        print('Profit $:',5*ethanol_concentration*Final_hold_up-yeast_used*50-5*optimized_time)
 
 
 
-    # # INITIALIZE COLLOCATION MODEL VERSION
+
+
+
     # C0_prev={}
     # count_last_elements=0
     # for disc_time in range(total_elements):
