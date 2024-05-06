@@ -1054,9 +1054,9 @@ if __name__ == '__main__':
 
 
     # THREE REACTORS MODEL TEST # NOTE: I CAN DELETE THIS
-    m3=three_reactors_model(react_list=reactors_list,total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer)
-    opt1 = SolverFactory('gams') # Solve problem
-    m3.results = opt1.solve(m3, solver='conopt4', tee=False)   
+    # m3=three_reactors_model(react_list=reactors_list,total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer)
+    # opt1 = SolverFactory('gams') # Solve problem
+    # m3.results = opt1.solve(m3, solver='conopt4', tee=False)   
 
 
     time_list=[] #Simulated time points
@@ -1078,4 +1078,40 @@ if __name__ == '__main__':
 
 
     # MODEL PREDICTIVE CONTROL LOOP
-    for 
+    disc_time=-1
+    transcurred_points_since_last_restart={} # TO KNOW FROM WHERE TO START FIXING VARIABLES
+    contador={}
+    for reactors in reactors_list:
+        contador[reactors]=0    
+    for reactors in reactors_list:
+        transcurred_points_since_last_restart[reactors]=[]
+
+
+    for current_start_time in pe.RangeSet(start_time,end_time,step):
+        disc_time=disc_time+1
+
+        # Define optimization model
+        mad=three_reactors_model(react_list=reactors_list,total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer)
+
+        for r in reactors_list:
+            if r_operation_mode[r][disc_time]>1:
+                contador[r]=contador[r]+1
+            elif r_operation_mode[r][disc_time]==1:
+                contador[r]=0
+            elif r_operation_mode[r][disc_time]==0:
+                contador[r]=finite_elem_t_fer
+
+            transcurred_points_since_last_restart[r].append(contador[r])
+            # 0: do not fix anything, else: fix and deactivate equations for as many points dictated by  contador[r]
+            for t in mad.reactor[r].t:
+                
+
+
+
+
+
+
+
+
+
+        print(current_start_time,'  |  ',r_operation_mode[1][disc_time],'  |  ',r_operation_mode[2][disc_time],'  |  ',r_operation_mode[3][disc_time],'  |  ',transcurred_points_since_last_restart[1][disc_time],'  |  ',transcurred_points_since_last_restart[2][disc_time],'  |  ',transcurred_points_since_last_restart[3][disc_time])
