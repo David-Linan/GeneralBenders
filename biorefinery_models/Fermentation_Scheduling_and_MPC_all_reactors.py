@@ -1091,20 +1091,32 @@ if __name__ == '__main__':
         disc_time=disc_time+1
 
         # Define optimization model
-        mad=three_reactors_model(react_list=reactors_list,total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer)
+        # mad=three_reactors_model(react_list=reactors_list,total_sim_time=total_sim_time,discretization=discretization_type_fer,n_f_elements_t=finite_elem_t_fer)
 
+        # Initialize model from previously updated model whenever discrete time is not 0
+        # if disc_time!=0: 
+        #     mad=initialize_model(mad,from_feasible=True,feasible_model='prev_init') 
+
+        # Fix unused variables and deactivate unused constraints
         for r in reactors_list:
             if r_operation_mode[r][disc_time]>1:
                 contador[r]=contador[r]+1
             elif r_operation_mode[r][disc_time]==1:
                 contador[r]=0
             elif r_operation_mode[r][disc_time]==0:
-                contador[r]=finite_elem_t_fer
-
+                contador[r]=finite_elem_t_fer+1
             transcurred_points_since_last_restart[r].append(contador[r])
+
             # 0: do not fix anything, else: fix and deactivate equations for as many points dictated by  contador[r]
-            for t in mad.reactor[r].t:
+            # if contador[r]!=0: # If this is not a re-start scheduling point-> fix pH and yeast mass
+            #     mad.reactor[r].pH.fix(pe.value(mad.reactor[r].pH))
+            #     mad.reactor[r].M0_yeast.fix(pe.value(mad.reactor[r].M0_yeast))
+
+            # for t in mad.reactor[r].t:
+            #     if mad.reactor[r].t.ord(t)<=
                 
+
+
 
 
 
