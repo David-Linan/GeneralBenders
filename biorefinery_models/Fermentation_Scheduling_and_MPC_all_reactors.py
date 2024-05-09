@@ -960,7 +960,7 @@ def three_reactors_model(nominal_flow_F,nominal_flow_C5,constant_flows,include_f
 # For simulation
 def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,
                                          discretization: str='collocation',
-                                         n_f_elements_t: int=1,total_f_elements_t:int=50,
+                                         n_f_elements_t: int=1,
                                          current_start_time_sconds: float=0,
                                          M0_prev_input: float=0,
                                          C0_prev_input: dict={'CS':0, 'XS':0, 'LS':0,'C':0,'G':0, 'X':0, 'F':0, 'E':0,'AC':0,'Cell':0,'Eth':0,'CO2':0,'ACT':0,'HMF':0,'Base':0},
@@ -993,7 +993,7 @@ def build_fermentation_one_time_step_new(total_sim_time: float=190*60*60,
     # ------------pyomo model------------------------------------------------
     m = pe.ConcreteModel(name='fermentation_model')
     # ------------shared scalars with hydrolisis model ----------------------
-    m.final_time = pe.Param(initialize=(total_sim_time)/(total_f_elements_t),doc='final simulation time with respect to 0 seconds [s]')  
+    m.final_time = pe.Param(initialize=(total_sim_time),doc='final simulation time with respect to 0 seconds [s]')  
     m.current_starting_time=pe.Param(initialize=current_start_time_sconds,doc='Current start time [s]')
     m.current_final_time=pe.Param(initialize=m.current_starting_time+m.final_time,doc='final simulation time with respect to the current start time [s]')
     m.Boltzmann=pe.Param(initialize=1.380649E-23, doc='[J/K]')
@@ -1589,7 +1589,7 @@ if __name__ == '__main__':
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     # NUMBER OF CYCLES TO BE SIMULATED IN THE SOM
-    Number_cycles_som=1
+    Number_cycles_som=3
 
     step=190*60*60/50     #NOTE: We assume this is the sampling time of the system Sampling_time
 
@@ -1597,6 +1597,10 @@ if __name__ == '__main__':
     include_fed_batch_op_time=False # If fed batch operation time will be included
     constant_flows=False # If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
 
+
+
+    disturbance=False
+    variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
     # Available reactors
     reactors_list=[1,2,3]
 
@@ -1686,8 +1690,11 @@ if __name__ == '__main__':
 
     # NONLINEAR ECONOMIC MODEL PREDICTIVE CONTROL
     solver_list=['conopt','conopt4','knitro','ipopth']
+    simulation_solvers=solver_list
     tee=False
     discretization_type_fer='differences'
+    sim_discretization='differences'
+    sim_n_finite_elements=1
     # discretization_type_fer='collocation'
     finite_elem_t_fer=37
     total_sim_time=Reaction_end_time_wrt_0
@@ -1780,7 +1787,9 @@ if __name__ == '__main__':
     init_new.results = opt1.solve(init_new, solver='conopt4', tee=False)   
     generate_initialization(m=init_new,model_name='validation_fermentation_one_reactor')
     # init_new.M0_yeast.pprint()
-
+    print('original step',step)
+    step_updated=init_new.final_time*(init_new.t.next(init_new.t.first())-init_new.t.first())
+    print('updated step',step_updated)
 
     # CALCULATE AVAILABLE SUBSTRATE PER CYCLE
     nominal_available_F_per_batch=init_new.final_time*sum(  ((pe.value(init_new.F_liquified_fibers[t])))*(t-init_new.t.prev(t))    for t in init_new.t if t!=init_new.t.first())
@@ -1823,9 +1832,11 @@ if __name__ == '__main__':
 
     # MODEL PREDICTIVE CONTROL LOOP
     disc_time=-1
+    current_cycle=-1
+    first_shut_down_has_occured=False # Becomes True once a reactor is shut down for the first time, meaning that from now on two reactors will always be operating at a time
     New_cycle=False # Through the MPC, will take the value of one if at the current time point we are starting a new cycle
     transcurred_points_since_last_restart={} # TO KNOW FROM WHERE TO START FIXING VARIABLES
-    contador={}
+    contador={} 
     for reactors in reactors_list:
         contador[reactors]=0    
     for reactors in reactors_list:
@@ -1836,13 +1847,23 @@ if __name__ == '__main__':
     current_available_F=nominal_available_F_per_cycle
     current_available_C5=nominal_available_C5_per_cycle
 
-    for current_start_time in pe.RangeSet(start_time,end_time,step):
+    used_F_previous_reactor=0
+    used_C5_previous_reactor=0
+    used_F_previous_reactor_next=0
+    used_C5_previous_reactor_next=0
+
+    C0_prev={} 
+    breaker=False 
+    for current_start_time in pe.RangeSet(start_time,end_time-step_updated,step_updated):
         disc_time=disc_time+1
         # Chek if we are starting a new cycle based on operation mode of reactor 1. Depending on the case, update the available ammount of substrate. NOTE: We could update this more often to see what happens, but I will not do that for the moment.
         if r_operation_mode[1][disc_time]==1:
             New_cycle=True
+            current_cycle=current_cycle+1
             current_available_F=nominal_available_F_per_cycle # TODO: update randomly every new cycle to see variations in yeast mass every new cycle
             current_available_C5=nominal_available_C5_per_cycle # TODO: update randomly every new cycle to see variations in yeast mass every new cycle
+        # TODO: ALSO EVERY NEW CYCLE UPDATE THE PERTURBATIONS IN COMPOSITIONS!!!!
+        
         else:
             New_cycle=False
 
@@ -1884,8 +1905,35 @@ if __name__ == '__main__':
                         for j in mad.reactor[r].j:
                             mad.reactor[r].C[t,j].fix(pe.value(mad.reactor[r].C[t,j]))
                             mad.reactor[r].Diff_comp[t,j].deactivate()
-                        
+
+            # If I am turning off a reactor, then I must include a constraint to guarantee that I am not using more than the available substrate per cycle
+            if contador[r]==finite_elem_t_fer:
+                used_F_previous_reactor_next=pe.value(mad.share_F[r]) 
+                used_C5_previous_reactor_next=pe.value(mad.share_C5[r])
+        if r_operation_mode[1][disc_time]==0:
+            first_shut_down_has_occured=True 
+        if first_shut_down_has_occured and max(contador[r] for r in reactors_list)!=finite_elem_t_fer:
+            def _Integral_past_F(mad):
+                return sum(mad.share_F[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_F_previous_reactor_next == available_Fibers[disc_time]
+            mad.Integral_past_F=pe.Constraint(rule=_Integral_past_F)
+
+            def _Integral_past_C5(mad):
+                return sum(mad.share_C5[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_C5_previous_reactor_next == available_C5[disc_time]
+            mad.Integral_past_C5=pe.Constraint(rule=_Integral_past_C5)
+
+            used_F_previous_reactor=used_F_previous_reactor_next
+            used_C5_previous_reactor=used_C5_previous_reactor_next
+        elif first_shut_down_has_occured and max(contador[r] for r in reactors_list)==finite_elem_t_fer:
+            def _Integral_past_F(mad):
+                return sum(mad.share_F[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_F_previous_reactor == available_Fibers[disc_time]
+            mad.Integral_past_F=pe.Constraint(rule=_Integral_past_F)
+
+            def _Integral_past_C5(mad):
+                return sum(mad.share_C5[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_C5_previous_reactor == available_C5[disc_time]
+            mad.Integral_past_C5=pe.Constraint(rule=_Integral_past_C5)
+
         # Solve open-loop optimal control problem
+
         opt1 = SolverFactory('gams') # Solve problem
 
         for solver_used in solver_list:
@@ -1909,30 +1957,140 @@ if __name__ == '__main__':
         print('Share F (optimization)','  |  ',        pe.value(mad.share_F[1])     ,'  |  ',        pe.value(mad.share_F[2])     ,'  |  ',        pe.value(mad.share_F[3]) )
         print('Share C5 (optimization)','  |  ',        pe.value(mad.share_C5[1])     ,'  |  ',        pe.value(mad.share_C5[2])     ,'  |  ',        pe.value(mad.share_C5[3]) )
         print('Yest Mass (optimization)','  |  ',        pe.value(mad.reactor[1].M0_yeast)     ,'  |  ',        pe.value(mad.reactor[2].M0_yeast)     ,'  |  ',        pe.value(mad.reactor[3].M0_yeast) )
+
         print(current_start_time,'  |  ',r_operation_mode[1][disc_time],'  |  ',r_operation_mode[2][disc_time],'  |  ',r_operation_mode[3][disc_time],'  |  ',transcurred_points_since_last_restart[1][disc_time],'  |  ',transcurred_points_since_last_restart[2][disc_time],'  |  ',transcurred_points_since_last_restart[3][disc_time])
 
 
         # Simulate optimal control action using one time step
         # --1) retrieve optimal control actions
-        for r in reactors_list:
+        if disturbance:
+            g_disturbance_F=-variation_param_sim
+            x_disturbance_F=-variation_param_sim
+            cs_disturbance_F=-variation_param_sim
+            xs_disturbance_F=-variation_param_sim
+            ls_disturbance_F=-variation_param_sim
+            f_disturbance_F=-variation_param_sim
+            e_disturbance_F=-variation_param_sim
+            ac_disturbance_F=-variation_param_sim
+            act_disturbance_F=-variation_param_sim
+            hmf_disturbance_F=-variation_param_sim
+            base_disturbance_F=-variation_param_sim
+
             
+            g_disturbance_C5=-variation_param_sim
+            x_disturbance_C5=-variation_param_sim
+            cs_disturbance_C5=-variation_param_sim
+            xs_disturbance_C5=-variation_param_sim
+            ls_disturbance_C5=-variation_param_sim
+            f_disturbance_C5=-variation_param_sim
+            ac_disturbance_C5=-variation_param_sim
+            act_disturbance_C5=-variation_param_sim
+            hmf_disturbance_C5=-variation_param_sim
+
+        else:
+            g_disturbance_F=0
+            x_disturbance_F=0
+            cs_disturbance_F=0
+            xs_disturbance_F=0
+            ls_disturbance_F=0
+            f_disturbance_F=0
+            e_disturbance_F=0
+            ac_disturbance_F=0
+            act_disturbance_F=0
+            hmf_disturbance_F=0
+            base_disturbance_F=0
+
+            
+            g_disturbance_C5=0
+            x_disturbance_C5=0
+            cs_disturbance_C5=0
+            xs_disturbance_C5=0
+            ls_disturbance_C5=0
+            f_disturbance_C5=0
+            ac_disturbance_C5=0
+            act_disturbance_C5=0
+            hmf_disturbance_C5=0 
+        for r in reactors_list:
+            # if reactor is on and will keep on for next time interval
+            if disc_time+1<len(r_operation_mode[r]):
+                condition=r_operation_mode[r][disc_time]>=1 and r_operation_mode[r][disc_time+1]>=1
+            else:
+                condition= r_operation_mode[r][disc_time]>=1
+            if condition:
+                position_to_take_control_action=contador[r]+2
+                position_to_take_state=contador[r]+1
+                posotion_to_update_state_inCOM=position_to_take_control_action
 
 
+                optimal_pH=pe.value(mad.reactor[r].pH)
+                optimal_yeast=pe.value(mad.reactor[r].M0_yeast)
 
+                optimal_F=pe.value(mad.reactor[r].F_liquified_fibers[mad.reactor[r].t[position_to_take_control_action]])
+                optimal_C5=pe.value(mad.reactor[r].F_C5liquid[mad.reactor[r].t[position_to_take_control_action]])
 
+                M0_prev=pe.value(mad.reactor[r].M[mad.reactor[r].t[position_to_take_state]])
+                for j in mad.reactor[r].j:
+                    C0_prev[j]=pe.value(mad.reactor[r].C[mad.reactor[r].t[position_to_take_state],j])
+            
+                mad_sim=build_fermentation_one_time_step_new(total_sim_time=step_updated,
+                                                            discretization=sim_discretization,
+                                                            n_f_elements_t=sim_n_finite_elements,
+                                                            current_start_time_sconds=current_start_time,
+                                                            M0_prev_input=M0_prev,
+                                                            C0_prev_input=C0_prev,
+                                                            pH_val=optimal_pH,
+                                                            M_yeast=optimal_yeast,
+                                                            F_fibers=optimal_F,
+                                                            F_C5=optimal_C5,
+                                                            glucose_disturbance_F=g_disturbance_F,
+                                                            xylose_disturbance_F=x_disturbance_F,
+                                                            cs_disturbance_F=cs_disturbance_F,
+                                                            xs_disturbance_F=xs_disturbance_F,
+                                                            ls_disturbance_F=ls_disturbance_F,
+                                                            f_disturbance_F=f_disturbance_F,
+                                                            e_disturbance_F=e_disturbance_F,
+                                                            ac_disturbance_F=ac_disturbance_F,
+                                                            act_disturbance_F=act_disturbance_F,
+                                                            hmf_disturbance_F=hmf_disturbance_F,
+                                                            base_disturbance_F=base_disturbance_F,
+                                                            glucose_disturbance_C5=g_disturbance_C5,
+                                                            xylose_disturbance_C5=x_disturbance_C5,
+                                                            cs_disturbance_C5=cs_disturbance_C5,
+                                                            xs_disturbance_C5=xs_disturbance_C5,
+                                                            ls_disturbance_C5=ls_disturbance_C5,
+                                                            f_disturbance_C5=f_disturbance_C5,
+                                                            ac_disturbance_C5=ac_disturbance_C5,
+                                                            act_disturbance_C5=act_disturbance_C5,
+                                                            hmf_disturbance_C5=hmf_disturbance_C5) 
 
+                if contador[r]!=0:
+                    mad_sim=initialize_model(mad_sim,from_feasible=True,feasible_model='prev_init_sim_'+str(r))  
+                
+                # Solve simulation
 
+                opt2 = SolverFactory('gams') # Solve problem
 
+                for solver_used in simulation_solvers:
+                    mad_sim.results = opt2.solve(mad_sim, solver=solver_used, tee=tee)
 
+                    if mad_sim.results.solver.termination_condition == 'infeasible' or mad_sim.results.solver.termination_condition == 'other' or mad_sim.results.solver.termination_condition == 'unbounded' or mad_sim.results.solver.termination_condition == 'invalidProblem' or mad_sim.results.solver.termination_condition == 'solverFailure' or mad_sim.results.solver.termination_condition == 'internalSolverError' or mad_sim.results.solver.termination_condition == 'error'  or mad_sim.results.solver.termination_condition == 'resourceInterrupt' or mad_sim.results.solver.termination_condition == 'licensingProblem' or mad_sim.results.solver.termination_condition == 'noSolution' or mad_sim.results.solver.termination_condition == 'noSolution' or mad_sim.results.solver.termination_condition == 'intermediateNonInteger':
+                        mad_sim.dsda_status = 'Evaluated_Infeasible'
 
+                    else:  # Considering locallyOptimal, optimal, globallyOptimal, and maxtime TODO Fix this
+                        mad_sim.dsda_status = 'Optimal'
+                        break
+                print('reactor ',r,' simulation')
+                print('Iteration:',disc_time,'--Simulation Status:',mad_sim.dsda_status,'--last solver used:',solver_used)
+                if mad_sim.dsda_status=='Evaluated_Infeasible':
+                    breaker=True  
+                
+                # Update original model with new states
+                mad.reactor[r].M[mad.reactor[r].t[posotion_to_update_state_inCOM]].value=pe.value(mad_sim.M[mad_sim.t.last()])
+                for j in mad.reactor[r].j:
+                    mad.reactor[r].C[mad.reactor[r].t[posotion_to_update_state_inCOM],j].value=pe.value(mad_sim.C[mad_sim.t.last(),j])
 
+        if breaker:
+                break
 
-
-
-
-
-
-
-
-
+                generate_initialization(m=mad_sim,model_name='prev_init_sim_'+str(r))
         generate_initialization(m=mad,model_name='prev_init')
