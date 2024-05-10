@@ -1,12 +1,12 @@
 {
   "__metadata__": {
     "format_version": 4,
-    "date": "2024-05-09",
-    "time": "15:20:25.449980",
+    "date": "2024-05-10",
+    "time": "16:01:34.869831",
     "other": {},
     "__performance__": {
-      "n_components": 633,
-      "etime_make_dict": 0.0019674301147460938
+      "n_components": 1009,
+      "etime_make_dict": 0.0039882659912109375
     }
   },
   "fermentation_model": {
@@ -547,7 +547,7 @@
                 "__type__": "<class 'int'>"
               },
               "'G'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'X'": {
                 "__type__": "<class 'float'>"
@@ -585,22 +585,22 @@
             "__type__": "<class 'pyomo.core.base.param.IndexedParam'>",
             "data": {
               "'CS'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'XS'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'LS'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'C'": {
                 "__type__": "<class 'int'>"
               },
               "'G'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'X'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'F'": {
                 "__type__": "<class 'float'>"
@@ -609,7 +609,7 @@
                 "__type__": "<class 'float'>"
               },
               "'AC'": {
-                "__type__": "<class 'int'>"
+                "__type__": "<class 'float'>"
               },
               "'Cell'": {
                 "__type__": "<class 'int'>"
@@ -826,11 +826,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 0.140091043165676
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.140091043165676
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.140091043165676
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 0.140091043165676
               }
             }
           },
@@ -839,15 +847,15 @@
             "data": {
               "(0, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 38.41893013725059
+                "value": 45.696329463363774
               },
               "(0, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.881341497307895
+                "value": 1.23607876201826
               },
               "(0, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 59.65539548380063
+                "value": 58.60977470356424
               },
               "(0, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -855,23 +863,23 @@
               },
               "(0, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 77.11610352618959
+                "value": 94.35923452428437
               },
               "(0, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 52.04661174224267
+                "value": 72.28331388979136
               },
               "(0, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.271195101615263
+                "value": 0.250236891538692
               },
               "(0, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.737146673617375
+                "value": 6.279304716406466
               },
               "(0, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 13.175927635927911
+                "value": 17.510903247230228
               },
               "(0, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -887,27 +895,147 @@
               },
               "(0, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.1
+                "value": 0.081881766097762
               },
               "(0, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.147463401076842
+                "value": 0.127733679488018
               },
               "(0, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 6.559073753695801
+                "value": 7.409368190002159
+              },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 45.696329463363774
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.23607876201826
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 58.60977470356424
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 94.35923452428437
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 72.28331388979136
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.250236891538692
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 6.279304716406466
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 17.510903247230228
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.081881766097762
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.127733679488018
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7.409368190002159
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 45.696329463363774
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.23607876201826
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 58.60977470356424
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 94.35923452428437
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 72.28331388979136
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.250236891538692
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 6.279304716406466
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 17.510903247230228
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.081881766097762
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.127733679488018
+              },
+              "(0.666667, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7.409368190002159
               },
               "(1, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 38.41893013725059
+                "value": 45.696329463363774
               },
               "(1, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.881341497307895
+                "value": 1.23607876201826
               },
               "(1, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 59.65539548380063
+                "value": 58.60977470356424
               },
               "(1, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -915,23 +1043,23 @@
               },
               "(1, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 77.11610352618959
+                "value": 94.35923452428437
               },
               "(1, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 52.04661174224267
+                "value": 72.28331388979136
               },
               "(1, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.271195101615263
+                "value": 0.250236891538692
               },
               "(1, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.737146673617375
+                "value": 6.279304716406466
               },
               "(1, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 13.175927635927911
+                "value": 17.510903247230228
               },
               "(1, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -947,15 +1075,15 @@
               },
               "(1, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.1
+                "value": 0.081881766097762
               },
               "(1, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.147463401076842
+                "value": 0.127733679488018
               },
               "(1, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 6.559073753695801
+                "value": 7.409368190002159
               }
             }
           },
@@ -964,27 +1092,51 @@
             "data": {
               "(0, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.99747117962377
+                "value": 1.536871764229059
               },
               "(0, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.198482707774262
+                "value": 0.922123058537435
               },
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.798988471849508
+                "value": 0.614748705691624
+              },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.666100612342697
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.999660367405618
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.666440244937079
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.776045671621405
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.065627402972843
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.710418268648562
               },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.99747117962377
+                "value": 1.870723115992456
               },
               "(1, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.198482707774262
+                "value": 1.122433869595473
               },
               "(1, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.798988471849508
+                "value": 0.748289246396982
               }
             }
           },
@@ -993,27 +1145,51 @@
             "data": {
               "(0, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.364981077310988
+                "value": 1.028065745530332
               },
               "(0, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.119035057026732
+                "value": 0.863913829361123
               },
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.744302525580282
+                "value": 0.574950813514437
+              },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.118371341846466
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.9351903782026
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.622278042159875
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.195742813820174
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.995716011365476
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.662452272835344
               },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.394522831234604
+                "value": 1.263068437859184
               },
               "(1, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.123239927757809
+                "value": 1.047800113514936
               },
               "(1, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.747185206377908
+                "value": 0.697013575050918
               }
             }
           },
@@ -1022,27 +1198,51 @@
             "data": {
               "(0, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.632490102312782
+                "value": 0.508806018698727
               },
               "(0, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.079447650747529
+                "value": 0.058209229176312
               },
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.054685946269226
+                "value": 0.039797892177186
+              },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.547729270496231
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.064469989203018
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.044162202777204
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.580302857801232
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.069911391607367
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.047965995813218
               },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.602948348389166
+                "value": 0.607654678133272
               },
               "(1, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.075242780016453
+                "value": 0.074633756080537
               },
               "(1, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0518032654716
+                "value": 0.051275671346065
               }
             }
           },
@@ -1051,23 +1251,47 @@
             "data": {
               "(0, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.11585205071874
+                "value": 0.21406851076151
               },
               "(0, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.014552280312737
+                "value": 0.024490203622624
               },
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
                 "value": 1
               },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.229437854791156
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.027005779712573
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.242048426592083
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.029160535937292
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.08131362883415
+                "value": 0.252222864433927
               },
               "(1, '2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0101472431776
+                "value": 0.030978679864565
               },
               "(1, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1088,7 +1312,31 @@
               },
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000541248925882
+                "value": 0.000311267785151
+              },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.00036559915882
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.00041463401383
               },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1100,7 +1348,7 @@
               },
               "(1, '3')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000530077501881
+                "value": 0.000458701939908
               }
             }
           },
@@ -1109,11 +1357,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.46080482e-07
+                "value": 2.217510774e-06
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.215322699e-06
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.268654828e-06
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.6478837e-07
+                "value": 2.318847932e-06
               }
             }
           },
@@ -1122,11 +1378,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000494490276916
+                "value": 0.000174701212189
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 9.8065041451e-05
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 9.9453421305e-05
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000322270454995
+                "value": 0.000109776663673
               }
             }
           },
@@ -1135,11 +1399,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.86879147e-07
+                "value": 2.104456376e-06
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.117196648e-06
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.215225558e-06
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.8303371e-07
+                "value": 2.294427725e-06
               }
             }
           },
@@ -1148,11 +1420,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.03468582e-07
+                "value": 2.73043324e-07
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 3.07446529e-07
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 3.74263219e-07
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.19787644e-07
+                "value": 4.5421708e-07
               }
             }
           },
@@ -1161,11 +1441,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 4.51734291e-07
+                "value": 1.36521662e-07
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.53723264e-07
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.8713161e-07
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 4.59893822e-07
+                "value": 2.2710854e-07
               }
             }
           },
@@ -1174,123 +1462,243 @@
             "data": {
               "(0, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 14.459539398785928
+                "value": 30.796990715665686
               },
               "(0, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.781314317963053
+                "value": 0.572508367747414
               },
               "(0, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 63.70048134806418
+                "value": 41.82993682706911
               },
               "(0, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000456103988468
+                "value": 0.004032450056824
               },
               "(0, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.468779635827848
+                "value": 1.568376280243929
               },
               "(0, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.005988757061752
+                "value": 0.664067352986227
               },
               "(0, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.1190891e-08
+                "value": 0.000438722618967
               },
               "(0, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.99494235924754
+                "value": 3.073743528458118
               },
               "(0, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 13.71149714525496
+                "value": 10.006156874457693
               },
               "(0, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.010543260420835
+                "value": 7.456325638524332
               },
               "(0, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 71.59716100886703
+                "value": 39.90066805178189
               },
               "(0, 'CO2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 71.60876665148342
+                "value": 39.90408255767141
               },
               "(0, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.010682665142288
+                "value": 0.039657274637042
               },
               "(0, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.620338699e-06
+                "value": 0.001156820299952
               },
               "(0, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 7.011529762388992
+                "value": 5.457442966269878
+              },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 31.577885033031013
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.624077286012889
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 43.18286007087774
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.004118698667659
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.096432554909473
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.415772524879106
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.000678459509007
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 3.332201224685394
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 10.611893341572234
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7.59181628149447
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 42.158730674035894
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 42.16247481111197
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.039263905180143
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001737299658964
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 5.61482261587084
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 32.202050408526645
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.667371154790471
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 44.33389738500191
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.004036852504937
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.07866948449655
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.520264806846023
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.000617733749922
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 3.552091343242811
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 11.127433871036475
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7.766696207019722
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 44.532480297507455
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 44.536556749538775
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.038543977438984
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001660611899867
+              },
+              "(0.666667, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 5.748717757375348
               },
               "(1, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 10.04862968047258
+                "value": 32.66331607621147
               },
               "(1, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.762440294382533
+                "value": 0.703966329169906
               },
               "(1, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 63.70048134806418
+                "value": 45.32509491576806
               },
               "(1, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000206507985937
+                "value": 0.003860191524222
               },
               "(1, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.29679561985484
+                "value": 1.908665762943414
               },
               "(1, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.001755975338056
+                "value": 1.464965491639906
               },
               "(1, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.79756e-10
+                "value": 0.000559221074838
               },
               "(1, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 3.99494235924754
+                "value": 3.741446231984912
               },
               "(1, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 13.717788486448466
+                "value": 11.571612307659276
               },
               "(1, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.146861775133162
+                "value": 7.932881733600544
               },
               "(1, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 73.7579645597471
+                "value": 46.743480569968696
               },
               "(1, 'CO2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 73.76997644713987
+                "value": 46.747885746425474
               },
               "(1, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.006620579868483
+                "value": 0.037516609913955
               },
               "(1, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 7.0705793e-08
+                "value": 0.001516967660382
               },
               "(1, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 7.011529762388992
+                "value": 5.864019435272592
               }
             }
           },
@@ -1299,11 +1707,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 194371.87742803758
+                "value": 6645.3592812320285
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7284.1731604378365
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7922.988956087198
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 194371.87742803758
+                "value": 8561.802835293005
               }
             }
           },
@@ -1312,11 +1728,11 @@
             "data": {
               "(0, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.000494836357398
+                "value": -0.000176918722963
               },
               "(0, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.355202872e-06
+                "value": -4.09564986e-07
               },
               "(0, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1324,19 +1740,19 @@
               },
               "(0, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -4.0798665e-08
+                "value": 1.13054398e-07
               },
               "(0, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -8.28467881e-06
+                "value": -0.001395775310483
               },
               "(0, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -3.495516995e-06
+                "value": -0.000686973100013
               },
               "(0, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.78362e-10
+                "value": -3.02916889e-06
               },
               "(0, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1344,39 +1760,159 @@
               },
               "(0, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 4.51734291e-07
+                "value": 1.36521662e-07
               },
               "(0, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.9232495682e-05
+                "value": 0.000137250850312
               },
               "(0, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000238245656621
+                "value": 0.001014011517487
               },
               "(0, 'CO2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000238292782701
+                "value": 0.001014154635788
               },
               "(0, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -4.70662615e-07
+                "value": -1.079211008e-06
               },
               "(0, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -2.557234e-09
+                "value": -1.504668248e-06
               },
               "(0, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
                 "value": 0.0
               },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.00010028036415
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -4.61169793e-07
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 9.8126052e-08
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.001658619276361
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.001198094355256
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -4.746996304e-06
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.53723264e-07
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.000175720632472
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001305997432509
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001306141728377
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -9.05902783e-07
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -2.295895584e-06
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.000101722076133
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -5.61394829e-07
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 5.3429269e-08
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.001635562532413
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.001228288277601
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -4.426980671e-06
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.8713161e-07
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.00017567836135
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001307963670588
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001308108624756
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -9.24159748e-07
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -2.245989779e-06
+              },
+              "(0.666667, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.0
+              },
               "(1, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.000322435243365
+                "value": -0.000112095511605
               },
               "(1, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.379681466e-06
+                "value": -6.8132562e-07
               },
               "(1, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1384,19 +1920,19 @@
               },
               "(1, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.824534e-08
+                "value": 2.4420207e-08
               },
               "(1, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.2571943564e-05
+                "value": -0.001549988304829
               },
               "(1, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -3.09414178e-07
+                "value": -0.001170880251786
               },
               "(1, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": -4.098140184e-06
               },
               "(1, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1404,27 +1940,27 @@
               },
               "(1, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 4.59893822e-07
+                "value": 2.2710854e-07
               },
               "(1, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.964813672e-06
+                "value": 0.000166244695886
               },
               "(1, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000157953633895
+                "value": 0.001249701703773
               },
               "(1, 'CO2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.00015798333018
+                "value": 0.001249845871558
               },
               "(1, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -2.96936355e-07
+                "value": -9.51217671e-07
               },
               "(1, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.13277e-10
+                "value": -2.09670048e-06
               },
               "(1, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1453,15 +1989,15 @@
               },
               "(0, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000503161834872
+                "value": 0.001572580979048
               },
               "(0, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 4.398985577e-06
+                "value": 0.000687246143337
               },
               "(0, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.78362e-10
+                "value": 3.02916889e-06
               },
               "(0, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1473,7 +2009,7 @@
               },
               "(0, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.9232495682e-05
+                "value": 0.000137250850312
               },
               "(0, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1485,13 +2021,133 @@
               },
               "(0, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 4.71260803e-07
+                "value": 1.431183005e-06
               },
               "(0, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.557234e-09
+                "value": 1.504668248e-06
               },
               "(0, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001758801514459
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001198401801784
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 4.746996304e-06
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.000175720632472
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.442958678e-06
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.295895584e-06
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001737231179277
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.00122866254082
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 4.426980671e-06
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.00017567836135
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.449541677e-06
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.245989779e-06
+              },
+              "(0.666667, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
                 "value": 1
               },
@@ -1513,15 +2169,15 @@
               },
               "(1, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.000335025432269
+                "value": 0.001662059396227
               },
               "(1, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.229201822e-06
+                "value": 0.001171334468865
               },
               "(1, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 4.098140184e-06
               },
               "(1, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1533,7 +2189,7 @@
               },
               "(1, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 9.964813672e-06
+                "value": 0.000166244695886
               },
               "(1, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1545,11 +2201,11 @@
               },
               "(1, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.96962853e-07
+                "value": 1.441677848e-06
               },
               "(1, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 1.13277e-10
+                "value": 2.09670048e-06
               },
               "(1, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
@@ -1620,65 +2276,185 @@
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
                 "value": 0
               },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.342685294781292
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.154706909503335
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 4.058773790199675
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.000258746091252
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.584170408167041
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 2.255117770796408
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.000719211389331
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.775373864055692
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.81721121855484
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.40647233538275
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 6.774194640956646
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 6.7751835355052
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.001180109550807
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.001741439818477
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.472139420942308
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.872492381502129
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.129881346570053
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 3.453105036162439
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.000245537997091
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.05328910466056
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.313476218948313
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.000182176912902
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.659669036334179
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1.546618495155739
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.524638727298302
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7.121234627945443
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 7.122231570817284
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.002159778903918
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": -0.000230062817167
+              },
+              "(0.666667, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.401684621144283
+              },
               "(1, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -4.410909718313349
+                "value": 1.383798386852864
               },
               "(1, 'XS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.01887402358052
+                "value": 0.109785632923937
               },
               "(1, 'LS')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 2.973595565894021
               },
               "(1, 'C')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.000249596002531
+                "value": -0.000529983472128
               },
               "(1, 'G')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.171984015973008
+                "value": -0.510011674671085
               },
               "(1, 'X')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.004232781723696
+                "value": -0.165898111516463
               },
               "(1, 'F')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -2.1011135e-08
+                "value": -0.000175538200789
               },
               "(1, 'E')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 0.568065234291535
               },
               "(1, 'AC')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.006291341193507
+                "value": 1.33253664240504
               },
               "(1, 'Cell')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.136318514712327
+                "value": 0.498557078299545
               },
               "(1, 'Eth')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.16080355088006
+                "value": 6.633007450391168
               },
               "(1, 'CO2')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 2.161209795656454
+                "value": 6.633993624653746
               },
               "(1, 'ACT')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -0.004062085273805
+                "value": -0.003082105657195
               },
               "(1, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": -1.549632906e-06
+                "value": -0.000430933149387
               },
               "(1, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 0.34590537959711
               }
             }
           },
@@ -1689,9 +2465,17 @@
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
                 "value": 0
               },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1916.4435540609772
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 1916.4435540609772
+              },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.0
+                "value": 1916.4435540609772
               }
             }
           },
@@ -1699,6 +2483,12 @@
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
               "0": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "1": {
@@ -1754,6 +2544,96 @@
               "(0, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "(1, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
@@ -1804,6 +2684,96 @@
           "dCdt_disc_eq": {
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "(1, 'CS')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
@@ -1854,6 +2824,12 @@
           "dMdt_disc_eq": {
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "1": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               }
@@ -1863,6 +2839,12 @@
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
               "0": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "1": {
@@ -1916,6 +2898,96 @@
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(0, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(1, 'CS')": {
@@ -1994,11 +3066,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.98258266626975
+                "value": 0.982580637165076
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.982580637165076
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.982580637165076
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.98258266626975
+                "value": 0.982580637165076
               }
             }
           },
@@ -2006,6 +3086,12 @@
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
               "0": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "1": {
@@ -2018,11 +3104,19 @@
             "data": {
               "0": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.294774799880925
+                "value": 0.294774191149523
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.294774191149523
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
+                "value": 0.294774191149523
               },
               "1": {
                 "__type__": "<class 'pyomo.core.base.var._GeneralVarData'>",
-                "value": 0.294774799880925
+                "value": 0.294774191149523
               }
             }
           },
@@ -2030,6 +3124,12 @@
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
               "0": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "1": {
@@ -2047,6 +3147,24 @@
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(0, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '3')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(1, '1')": {
@@ -2072,6 +3190,24 @@
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
@@ -2093,6 +3229,24 @@
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(0, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '3')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(1, '1')": {
@@ -2118,6 +3272,24 @@
               "(0, '3')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
+              "(0.333333, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '1')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, '3')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "(1, '1')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
@@ -2135,6 +3307,12 @@
               "0": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "1": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               }
@@ -2144,6 +3322,12 @@
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
               "0": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "1": {
@@ -2157,6 +3341,12 @@
               "0": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "1": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               }
@@ -2168,6 +3358,12 @@
               "0": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
               "1": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               }
@@ -2177,6 +3373,12 @@
             "__type__": "<class 'pyomo.core.base.constraint.IndexedConstraint'>",
             "data": {
               "0": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.333333": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "0.666667": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "1": {
@@ -2203,6 +3405,42 @@
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(0, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'HMF')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(1, 'G')": {
@@ -2271,6 +3509,96 @@
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(0, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.333333, 'Base')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'XS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'LS')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'C')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'G')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'X')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'F')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'E')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'AC')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Cell')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Eth')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'CO2')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'ACT')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'HMF')": {
+                "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
+              },
+              "(0.666667, 'Base')": {
                 "__type__": "<class 'pyomo.core.base.constraint._GeneralConstraintData'>"
               },
               "(1, 'CS')": {

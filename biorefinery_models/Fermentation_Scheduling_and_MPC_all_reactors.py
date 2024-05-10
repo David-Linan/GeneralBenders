@@ -5,7 +5,8 @@ import pyomo.dae as dae
 from model_serializer import StoreSpec, from_json, to_json
 import os
 from pyomo.opt.base.solvers import SolverFactory
-
+import random
+import pickle
 
 
 
@@ -1594,12 +1595,12 @@ if __name__ == '__main__':
     step=190*60*60/50     #NOTE: We assume this is the sampling time of the system Sampling_time
 
 
-    include_fed_batch_op_time=False # If fed batch operation time will be included
+    include_fed_batch_op_time=False# If fed batch operation time will be included
     constant_flows=False # If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
 
 
 
-    disturbance=False
+    disturbance=True
     variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
     # Available reactors
     reactors_list=[1,2,3]
@@ -1694,7 +1695,7 @@ if __name__ == '__main__':
     tee=False
     discretization_type_fer='differences'
     sim_discretization='differences'
-    sim_n_finite_elements=1
+    sim_n_finite_elements=3
     # discretization_type_fer='collocation'
     finite_elem_t_fer=37
     total_sim_time=Reaction_end_time_wrt_0
@@ -1813,12 +1814,13 @@ if __name__ == '__main__':
 
 
     time_list=[] #Simulated time points
+    time_point_obj_evaluation_dict={}
     Hold_up_dict={} #Simulated hold ups
     pH_dict={} # Simulated pH
     yeast_dict={} # Simulated yeast
     C5_dict={} # Simulated C5 flow
     fiber_dict={} #Simulated fibers flow
-    objective_dict={}
+    objective_dict={} #Simulated objective function
     Concentration_dict={}
     for reactors in reactors_list:
         Hold_up_dict.update({reactors:[]})
@@ -1827,6 +1829,7 @@ if __name__ == '__main__':
         C5_dict.update({reactors:[]})
         fiber_dict.update({reactors:[]})
         objective_dict.update({reactors:[]})
+        time_point_obj_evaluation_dict.update({reactors:[]})
         Concentration_dict.update({('CS',reactors):[], ('XS',reactors):[], ('LS',reactors):[],('C',reactors):[],('G',reactors):[], ('X',reactors):[], ('F',reactors):[], ('E',reactors):[],('AC',reactors):[],('Cell',reactors):[],('Eth',reactors):[],('CO2',reactors):[],('ACT',reactors):[],('HMF',reactors):[],('Base',reactors):[]}) #Simulated concentrations
 
 
@@ -1854,6 +1857,7 @@ if __name__ == '__main__':
 
     C0_prev={} 
     breaker=False 
+    random.seed(10)
     for current_start_time in pe.RangeSet(start_time,end_time-step_updated,step_updated):
         disc_time=disc_time+1
         # Chek if we are starting a new cycle based on operation mode of reactor 1. Depending on the case, update the available ammount of substrate. NOTE: We could update this more often to see what happens, but I will not do that for the moment.
@@ -1964,28 +1968,28 @@ if __name__ == '__main__':
         # Simulate optimal control action using one time step
         # --1) retrieve optimal control actions
         if disturbance:
-            g_disturbance_F=-variation_param_sim
-            x_disturbance_F=-variation_param_sim
-            cs_disturbance_F=-variation_param_sim
-            xs_disturbance_F=-variation_param_sim
-            ls_disturbance_F=-variation_param_sim
-            f_disturbance_F=-variation_param_sim
-            e_disturbance_F=-variation_param_sim
-            ac_disturbance_F=-variation_param_sim
-            act_disturbance_F=-variation_param_sim
-            hmf_disturbance_F=-variation_param_sim
-            base_disturbance_F=-variation_param_sim
+            g_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            x_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            cs_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            xs_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            ls_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            f_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            e_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            ac_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            act_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            hmf_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+            base_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
 
             
-            g_disturbance_C5=-variation_param_sim
-            x_disturbance_C5=-variation_param_sim
-            cs_disturbance_C5=-variation_param_sim
-            xs_disturbance_C5=-variation_param_sim
-            ls_disturbance_C5=-variation_param_sim
-            f_disturbance_C5=-variation_param_sim
-            ac_disturbance_C5=-variation_param_sim
-            act_disturbance_C5=-variation_param_sim
-            hmf_disturbance_C5=-variation_param_sim
+            g_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            x_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            cs_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            xs_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            ls_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            f_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            ac_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            act_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+            hmf_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
 
         else:
             g_disturbance_F=0
@@ -2010,6 +2014,8 @@ if __name__ == '__main__':
             ac_disturbance_C5=0
             act_disturbance_C5=0
             hmf_disturbance_C5=0 
+
+        reactors_evalauted=0
         for r in reactors_list:
             # if reactor is on and will keep on for next time interval
             if disc_time+1<len(r_operation_mode[r]):
@@ -2017,6 +2023,7 @@ if __name__ == '__main__':
             else:
                 condition= r_operation_mode[r][disc_time]>=1
             if condition:
+                reactors_evalauted=reactors_evalauted+1
                 position_to_take_control_action=contador[r]+2
                 position_to_take_state=contador[r]+1
                 posotion_to_update_state_inCOM=position_to_take_control_action
@@ -2088,9 +2095,47 @@ if __name__ == '__main__':
                 mad.reactor[r].M[mad.reactor[r].t[posotion_to_update_state_inCOM]].value=pe.value(mad_sim.M[mad_sim.t.last()])
                 for j in mad.reactor[r].j:
                     mad.reactor[r].C[mad.reactor[r].t[posotion_to_update_state_inCOM],j].value=pe.value(mad_sim.C[mad_sim.t.last(),j])
+            
+                #save reletant information
+                for t in mad_sim.t:
+                    if reactors_evalauted==1:
+                        time_list.append((mad_sim.current_starting_time+t*(mad_sim.current_final_time-mad_sim.current_starting_time))*(1/(60*60)))
+                    if contador[r]==finite_elem_t_fer-1 and t== mad_sim.t.last():
+                        time_point_obj_evaluation_dict[r].append(1)
+                    else:
+                        time_point_obj_evaluation_dict[r].append(0)
+                    Hold_up_dict[r].append(pe.value(mad_sim.M[t]))
+                    pH_dict[r].append(pe.value(mad_sim.pH))
+                    yeast_dict[r].append(pe.value(mad_sim.M0_yeast))
+                    C5_dict[r].append(pe.value(mad_sim.F_C5liquid))
+                    fiber_dict[r].append(pe.value(mad_sim.F_liquified_fibers))
+                    for j in mad_sim.j:
+                        Concentration_dict[(j,r)].append(pe.value(mad_sim.C[t,j]))                      
+
+                if contador[r]==finite_elem_t_fer-1:
+                    objective_dict[r].append(50*yeast_dict[r][0]-5*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
+
+                generate_initialization(m=mad_sim,model_name='prev_init_sim_'+str(r))                
+
+            # If reactor is off
+            else:
+                #save reletant information
+
+                for t in mad_sim.t:
+                    Hold_up_dict[r].append(0)
+                    pH_dict[r].append(0)
+                    yeast_dict[r].append(0)
+                    C5_dict[r].append(0)
+                    fiber_dict[r].append(0)
+                    for j in mad_sim.j:
+                        Concentration_dict[(j,r)].append(0)   
 
         if breaker:
-                break
+            break
 
-                generate_initialization(m=mad_sim,model_name='prev_init_sim_'+str(r))
+
         generate_initialization(m=mad,model_name='prev_init')
+
+    with open('saved_ENMPC_test','wb') as save_file:
+        pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict],save_file)
+        print('data saved successfully to file')
