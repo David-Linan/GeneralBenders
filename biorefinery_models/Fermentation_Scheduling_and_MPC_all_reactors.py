@@ -2113,7 +2113,7 @@ if __name__ == '__main__':
                         Concentration_dict[(j,r)].append(pe.value(mad_sim.C[t,j]))                      
 
                 if contador[r]==finite_elem_t_fer-1:
-                    objective_dict[r].append(50*yeast_dict[r][0]-5*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
+                    objective_dict[r].append(50*yeast_dict[r][]-5*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
 
                 generate_initialization(m=mad_sim,model_name='prev_init_sim_'+str(r))                
 
@@ -2136,6 +2136,7 @@ if __name__ == '__main__':
 
         generate_initialization(m=mad,model_name='prev_init')
 
-    with open('saved_ENMPC_test','wb') as save_file:
+
+    with open('saved_Traditional_test','wb') as save_file:
         pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict],save_file)
         print('data saved successfully to file')

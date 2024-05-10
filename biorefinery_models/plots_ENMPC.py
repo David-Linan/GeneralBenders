@@ -1,7 +1,7 @@
 import pickle
 import matplotlib.pyplot as plt
 
-with open('C:/Users/dlinanro/Desktop/GeneralBenders/saved_ENMPC_test_porp', 'rb') as loaded_data:
+with open('C:/Users/dlinanro/Desktop/GeneralBenders/saved_ENMPC_test', 'rb') as loaded_data:
     data = pickle.load(loaded_data)
 
 time_list=data[0]
@@ -12,12 +12,19 @@ C5_dict=data[4]
 fiber_dict=data[5]
 Concentration_dict=data[6]
 objective_dict=data[7]
+objective_evaluation=data[8]
 
-
-step=13679.98632*(1/60)*(1/60)
 time_dict={1:time_list,2:time_list,3:time_list}
 
 print('\n OBJECTIVE FUNCTION VALUES',objective_dict)
+for r in [1,2,3]:
+    print('reactor ',r)
+    pos=-1
+    for is_objective in objective_evaluation[r]:
+        pos=pos+1
+        if is_objective==1:
+            print(50*yeast_dict[r][pos]-5*Concentration_dict[('Eth',r)][pos]*Hold_up_dict[r][pos])
+
 
 
 fig = plt.figure()
