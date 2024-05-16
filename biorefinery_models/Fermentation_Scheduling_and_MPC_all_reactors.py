@@ -1590,18 +1590,24 @@ if __name__ == '__main__':
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     # NUMBER OF CYCLES TO BE SIMULATED IN THE SOM
-    Number_cycles_som=3
+    Number_cycles_som=4
 
     step=190*60*60/50     #NOTE: We assume this is the sampling time of the system Sampling_time
 
 
-    include_fed_batch_op_time=False# If fed batch operation time will be included
-    constant_flows=False # If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
+    include_fed_batch_op_time=True# If fed batch operation time will be included
+    constant_flows=True # If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
 
 
 
     disturbance=True
     variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
+
+
+    # Include control actions constraint
+    include_control_actions_constraint=True
+    control_actions_val=0.04 #kg/s 0.04
+
     # Available reactors
     reactors_list=[1,2,3]
 
@@ -1822,6 +1828,8 @@ if __name__ == '__main__':
     fiber_dict={} #Simulated fibers flow
     objective_dict={} #Simulated objective function
     Concentration_dict={}
+    Concentration_disturbance_dict_C5={}
+    Concentration_disturbance_dict_F={}
     for reactors in reactors_list:
         Hold_up_dict.update({reactors:[]})
         pH_dict.update({reactors:[]})
@@ -1831,7 +1839,8 @@ if __name__ == '__main__':
         objective_dict.update({reactors:[]})
         time_point_obj_evaluation_dict.update({reactors:[]})
         Concentration_dict.update({('CS',reactors):[], ('XS',reactors):[], ('LS',reactors):[],('C',reactors):[],('G',reactors):[], ('X',reactors):[], ('F',reactors):[], ('E',reactors):[],('AC',reactors):[],('Cell',reactors):[],('Eth',reactors):[],('CO2',reactors):[],('ACT',reactors):[],('HMF',reactors):[],('Base',reactors):[]}) #Simulated concentrations
-
+        Concentration_disturbance_dict_C5.update({('CS',reactors):[], ('XS',reactors):[], ('LS',reactors):[],('C',reactors):[],('G',reactors):[], ('X',reactors):[], ('F',reactors):[], ('E',reactors):[],('AC',reactors):[],('Cell',reactors):[],('Eth',reactors):[],('CO2',reactors):[],('ACT',reactors):[],('HMF',reactors):[],('Base',reactors):[]})
+        Concentration_disturbance_dict_F.update({('CS',reactors):[], ('XS',reactors):[], ('LS',reactors):[],('C',reactors):[],('G',reactors):[], ('X',reactors):[], ('F',reactors):[], ('E',reactors):[],('AC',reactors):[],('Cell',reactors):[],('Eth',reactors):[],('CO2',reactors):[],('ACT',reactors):[],('HMF',reactors):[],('Base',reactors):[]})
 
     # MODEL PREDICTIVE CONTROL LOOP
     disc_time=-1
@@ -1860,6 +1869,81 @@ if __name__ == '__main__':
     random.seed(10)
     for current_start_time in pe.RangeSet(start_time,end_time-step_updated,step_updated):
         disc_time=disc_time+1
+        # DISTURBANCE
+        if disturbance:
+            if disc_time==0:
+                g_disturbance_F=0
+                x_disturbance_F=0
+                cs_disturbance_F=0
+                xs_disturbance_F=0
+                ls_disturbance_F=0
+                f_disturbance_F=0
+                e_disturbance_F=0
+                ac_disturbance_F=0
+                act_disturbance_F=0
+                hmf_disturbance_F=0
+                base_disturbance_F=0
+
+                
+                g_disturbance_C5=0
+                x_disturbance_C5=0
+                cs_disturbance_C5=0
+                xs_disturbance_C5=0
+                ls_disturbance_C5=0
+                f_disturbance_C5=0
+                ac_disturbance_C5=0
+                act_disturbance_C5=0
+                hmf_disturbance_C5=0            
+            
+            elif disc_time!=0 and disc_time%25==0: 
+            
+                g_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                x_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                cs_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                xs_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                ls_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                f_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                e_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                ac_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                act_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                hmf_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+                base_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
+
+                
+                g_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                x_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                cs_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                xs_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                ls_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                f_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                ac_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                act_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+                hmf_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
+
+        else:
+            g_disturbance_F=0
+            x_disturbance_F=0
+            cs_disturbance_F=0
+            xs_disturbance_F=0
+            ls_disturbance_F=0
+            f_disturbance_F=0
+            e_disturbance_F=0
+            ac_disturbance_F=0
+            act_disturbance_F=0
+            hmf_disturbance_F=0
+            base_disturbance_F=0
+
+            
+            g_disturbance_C5=0
+            x_disturbance_C5=0
+            cs_disturbance_C5=0
+            xs_disturbance_C5=0
+            ls_disturbance_C5=0
+            f_disturbance_C5=0
+            ac_disturbance_C5=0
+            act_disturbance_C5=0
+            hmf_disturbance_C5=0
+        
         # Chek if we are starting a new cycle based on operation mode of reactor 1. Depending on the case, update the available ammount of substrate. NOTE: We could update this more often to see what happens, but I will not do that for the moment.
         if r_operation_mode[1][disc_time]==1:
             New_cycle=True
@@ -1904,16 +1988,21 @@ if __name__ == '__main__':
                         mad.reactor[r].M[t].fix(pe.value(mad.reactor[r].M[t]))
 
                         mad.reactor[r].Diff_mass[t].deactivate()
+                        
 
 
                         for j in mad.reactor[r].j:
                             mad.reactor[r].C[t,j].fix(pe.value(mad.reactor[r].C[t,j]))
                             mad.reactor[r].Diff_comp[t,j].deactivate()
+            else:
+                mad.reactor[r].F_C5liquid[mad.reactor[r].t.first()].fix(0)
+                mad.reactor[r].F_liquified_fibers[mad.reactor[r].t.first()].fix(0)            
 
             # If I am turning off a reactor, then I must include a constraint to guarantee that I am not using more than the available substrate per cycle
             if contador[r]==finite_elem_t_fer:
                 used_F_previous_reactor_next=pe.value(mad.share_F[r]) 
                 used_C5_previous_reactor_next=pe.value(mad.share_C5[r])
+
         if r_operation_mode[1][disc_time]==0:
             first_shut_down_has_occured=True 
         if first_shut_down_has_occured and max(contador[r] for r in reactors_list)!=finite_elem_t_fer:
@@ -1936,6 +2025,49 @@ if __name__ == '__main__':
                 return sum(mad.share_C5[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_C5_previous_reactor == available_C5[disc_time]
             mad.Integral_past_C5=pe.Constraint(rule=_Integral_past_C5)
 
+        if (not constant_flows) and (include_control_actions_constraint):
+            mad.control_act_C5={}
+            mad.control_act_F={}
+            mad.control_act_2_C5={}
+            mad.control_act_2_F={}
+
+            for r in reactors_list:
+
+
+                def _control_act_C5(mad,t):
+                    if t==mad.reactor[r].t.first() or t==mad.reactor[r].t.next(mad.reactor[r].t.first())  or mad.reactor[r].t.ord(t)<=contador[r]+1:
+                        return pe.Constraint.Skip
+                    else:
+                        return  mad.reactor[r].F_C5liquid[t]-mad.reactor[r].F_C5liquid[mad.reactor[r].t.prev(t)]  <=control_actions_val
+
+                mad.control_act_C5[r]=pe.Constraint(mad.reactor[r].t,rule=_control_act_C5)
+                setattr(mad,'control_act_C5_%r' %r,mad.control_act_C5[r])
+                def _control_act_F(mad,t):
+                    if t==mad.reactor[r].t.first() or t==mad.reactor[r].t.next(mad.reactor[r].t.first()) or mad.reactor[r].t.ord(t)<=contador[r]+1:
+                        return pe.Constraint.Skip
+                    else:
+                        return      mad.reactor[r].F_liquified_fibers[t]-mad.reactor[r].F_liquified_fibers[mad.reactor[r].t.prev(t)]  <=control_actions_val
+
+                mad.control_act_F[r]=pe.Constraint(mad.reactor[r].t,rule=_control_act_F)
+                setattr(mad,'control_act_F_%r' %r,mad.control_act_F[r])   
+
+
+                def _control_act_C5_2(mad,t):
+                    if t==mad.reactor[r].t.first() or t==mad.reactor[r].t.next(mad.reactor[r].t.first()) or mad.reactor[r].t.ord(t)<=contador[r]+1:
+                        return pe.Constraint.Skip
+                    else:
+                        return mad.reactor[r].F_C5liquid[t]-mad.reactor[r].F_C5liquid[mad.reactor[r].t.prev(t)] >=-control_actions_val 
+                mad.control_act_2_C5[r]=pe.Constraint(mad.reactor[r].t,rule=_control_act_C5_2)
+                setattr(mad,'control_act_C5_2_%r' %r,mad.control_act_2_C5[r])
+
+                def _control_act_F_2(mad,t):
+                    if t==mad.reactor[r].t.first() or t==mad.reactor[r].t.next(mad.reactor[r].t.first()) or mad.reactor[r].t.ord(t)<=contador[r]+1:
+                        return pe.Constraint.Skip
+                    else:
+                        return  mad.reactor[r].F_liquified_fibers[t]-mad.reactor[r].F_liquified_fibers[mad.reactor[r].t.prev(t)]  >= -control_actions_val
+
+                mad.control_act_2_F[r]=pe.Constraint(mad.reactor[r].t,rule=_control_act_F_2)
+                setattr(mad,'control_act_F_2_%r' %r,mad.control_act_2_F[r])  
         # Solve open-loop optimal control problem
 
         opt1 = SolverFactory('gams') # Solve problem
@@ -1967,53 +2099,7 @@ if __name__ == '__main__':
 
         # Simulate optimal control action using one time step
         # --1) retrieve optimal control actions
-        if disturbance:
-            g_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            x_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            cs_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            xs_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            ls_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            f_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            e_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            ac_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            act_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            hmf_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-            base_disturbance_F=random.uniform(-variation_param_sim,variation_param_sim)
-
-            
-            g_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            x_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            cs_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            xs_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            ls_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            f_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            ac_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            act_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-            hmf_disturbance_C5=random.uniform(-variation_param_sim,variation_param_sim)
-
-        else:
-            g_disturbance_F=0
-            x_disturbance_F=0
-            cs_disturbance_F=0
-            xs_disturbance_F=0
-            ls_disturbance_F=0
-            f_disturbance_F=0
-            e_disturbance_F=0
-            ac_disturbance_F=0
-            act_disturbance_F=0
-            hmf_disturbance_F=0
-            base_disturbance_F=0
-
-            
-            g_disturbance_C5=0
-            x_disturbance_C5=0
-            cs_disturbance_C5=0
-            xs_disturbance_C5=0
-            ls_disturbance_C5=0
-            f_disturbance_C5=0
-            ac_disturbance_C5=0
-            act_disturbance_C5=0
-            hmf_disturbance_C5=0 
+ 
 
         reactors_evalauted=0
         for r in reactors_list:
@@ -2100,7 +2186,7 @@ if __name__ == '__main__':
                 for t in mad_sim.t:
                     if reactors_evalauted==1:
                         time_list.append((mad_sim.current_starting_time+t*(mad_sim.current_final_time-mad_sim.current_starting_time))*(1/(60*60)))
-                    if contador[r]==finite_elem_t_fer-1 and t== mad_sim.t.last():
+                    if contador[r]==finite_elem_t_fer-1 and t == mad_sim.t.last():
                         time_point_obj_evaluation_dict[r].append(1)
                     else:
                         time_point_obj_evaluation_dict[r].append(0)
@@ -2110,10 +2196,12 @@ if __name__ == '__main__':
                     C5_dict[r].append(pe.value(mad_sim.F_C5liquid))
                     fiber_dict[r].append(pe.value(mad_sim.F_liquified_fibers))
                     for j in mad_sim.j:
-                        Concentration_dict[(j,r)].append(pe.value(mad_sim.C[t,j]))                      
+                        Concentration_dict[(j,r)].append(pe.value(mad_sim.C[t,j]))  
+                        Concentration_disturbance_dict_C5[(j,r)].append(mad_sim.C_C5liquid[j])     
+                        Concentration_disturbance_dict_F[(j,r)].append(mad_sim.C_liquified_fibers[j])                
 
                 if contador[r]==finite_elem_t_fer-1:
-                    objective_dict[r].append(50*yeast_dict[r][]-5*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
+                    objective_dict[r].append(50*yeast_dict[r][-1]-5*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
 
                 generate_initialization(m=mad_sim,model_name='prev_init_sim_'+str(r))                
 
@@ -2127,8 +2215,11 @@ if __name__ == '__main__':
                     yeast_dict[r].append(0)
                     C5_dict[r].append(0)
                     fiber_dict[r].append(0)
+                    time_point_obj_evaluation_dict[r].append(0)
                     for j in mad_sim.j:
-                        Concentration_dict[(j,r)].append(0)   
+                        Concentration_dict[(j,r)].append(0)
+                        Concentration_disturbance_dict_C5[(j,r)].append(0)     
+                        Concentration_disturbance_dict_F[(j,r)].append(0) 
 
         if breaker:
             break
@@ -2137,6 +2228,9 @@ if __name__ == '__main__':
         generate_initialization(m=mad,model_name='prev_init')
 
 
-    with open('saved_Traditional_test','wb') as save_file:
-        pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict],save_file)
+
+
+    test_name='Traditional_final'
+    with open('saved_'+test_name,'wb') as save_file:
+        pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict,Concentration_disturbance_dict_C5,Concentration_disturbance_dict_F],save_file)
         print('data saved successfully to file')
