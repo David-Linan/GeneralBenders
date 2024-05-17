@@ -7,6 +7,7 @@ import logging
 logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
 test_name='ENMPC_constrained_final_0_045'
+# test_name='ENMPC_constrained_final'
 print('------------',test_name,'----------------------')
 with open('C:/Users/dlinanro/Desktop/GeneralBenders/saved_'+test_name, 'rb') as loaded_data:
     data = pickle.load(loaded_data)
@@ -47,6 +48,12 @@ df = pd.DataFrame(data=data_excel)
 df.to_excel('data_'+test_name+'.xlsx')
 
 print('\n OBJECTIVE FUNCTION VALUES',objective_dict)
+total_obj=0
+for r in [1,2,3]:
+    current_obj=sum(i for i in objective_dict[r] )
+    total_obj=total_obj+current_obj
+    print('Total objective function for reactor ',str(r),':',current_obj)
+print('Total objective: ',total_obj)
 # for r in [1,2,3]:
 #     print('reactor ',r)
 #     pos=-1
