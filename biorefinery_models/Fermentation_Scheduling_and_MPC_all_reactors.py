@@ -941,16 +941,6 @@ def three_reactors_model(nominal_flow_F,nominal_flow_C5,constant_flows,include_f
         m.ingegral_C5_rq[r]=pe.Constraint(m.reactor[r].t,rule=_ingegral_C5_rq)
         setattr(m,'ingegral_C5_rq_%r' %r,m.ingegral_C5_rq[r])
 
-    # COnstraints that links operation of different reactors: shared use of resources
-    def _share_F_constraint(m):
-        return Total_F==sum( m.share_F[r] for r in m.react_set)
-    m.share_F_constraint=pe.Constraint(rule=_share_F_constraint)
-    
-    def _share_C5_constraint(m):
-        return Total_C5==sum(m.share_C5[r] for r in m.react_set)
-    m.share_C5_constraint=pe.Constraint(rule=_share_C5_constraint)
-
-
     # Declare new objective function
     def _global_objective(m):
         return  sum(objective_function(m.reactor[r]) for r in m.react_set)
@@ -1595,8 +1585,8 @@ if __name__ == '__main__':
     step=190*60*60/50     #NOTE: We assume this is the sampling time of the system Sampling_time
 
 
-    include_fed_batch_op_time=True# If fed batch operation time will be included
-    constant_flows=True # If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
+    include_fed_batch_op_time=False# If fed batch operation time will be included
+    constant_flows=False# If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
 
 
 
@@ -1606,7 +1596,7 @@ if __name__ == '__main__':
 
     # Include control actions constraint
     include_control_actions_constraint=True
-    control_actions_val=0.04 #kg/s 0.04
+    control_actions_val=0.045 #kg/s 0.04
 
     # Available reactors
     reactors_list=[1,2,3]
@@ -1845,8 +1835,8 @@ if __name__ == '__main__':
     # MODEL PREDICTIVE CONTROL LOOP
     disc_time=-1
     current_cycle=-1
-    first_shut_down_has_occured=False # Becomes True once a reactor is shut down for the first time, meaning that from now on two reactors will always be operating at a time
     New_cycle=False # Through the MPC, will take the value of one if at the current time point we are starting a new cycle
+
     transcurred_points_since_last_restart={} # TO KNOW FROM WHERE TO START FIXING VARIABLES
     contador={} 
     for reactors in reactors_list:
@@ -1858,11 +1848,15 @@ if __name__ == '__main__':
     available_C5=[] # Available ammount of C5. NOTE: May change every new cycle
     current_available_F=nominal_available_F_per_cycle
     current_available_C5=nominal_available_C5_per_cycle
+    prev_cycle_available_F=0 # Available fibers from previous cycle
+    prev_cycle_available_C5=0 # Available C5 from previous cycle
 
-    used_F_previous_reactor=0
-    used_C5_previous_reactor=0
-    used_F_previous_reactor_next=0
-    used_C5_previous_reactor_next=0
+    used_F_previous_reactor={}
+    used_C5_previous_reactor={}
+    for r in reactors_list:
+        used_F_previous_reactor[r]=0
+        used_C5_previous_reactor[r]=0
+
 
     C0_prev={} 
     breaker=False 
@@ -1948,13 +1942,19 @@ if __name__ == '__main__':
         if r_operation_mode[1][disc_time]==1:
             New_cycle=True
             current_cycle=current_cycle+1
+            if current_cycle>=1:
+                prev_cycle_available_F=available_Fibers[-1]
+                prev_cycle_available_C5=available_C5[-1]
+            # Note, I can even introduce perturbation every time step!!!
             current_available_F=nominal_available_F_per_cycle # TODO: update randomly every new cycle to see variations in yeast mass every new cycle
             current_available_C5=nominal_available_C5_per_cycle # TODO: update randomly every new cycle to see variations in yeast mass every new cycle
+            
+
         # TODO: ALSO EVERY NEW CYCLE UPDATE THE PERTURBATIONS IN COMPOSITIONS!!!!
         
         else:
             New_cycle=False
-
+                
         available_Fibers.append(current_available_F) # NOTE: this is the total ammount in the in the cycle and is not updated based on previous consumption
         available_C5.append(current_available_C5) # NOTE: this is the total ammount in the in the cycle and is not updated based on previous consumption
 
@@ -2000,30 +2000,74 @@ if __name__ == '__main__':
 
             # If I am turning off a reactor, then I must include a constraint to guarantee that I am not using more than the available substrate per cycle
             if contador[r]==finite_elem_t_fer:
-                used_F_previous_reactor_next=pe.value(mad.share_F[r]) 
-                used_C5_previous_reactor_next=pe.value(mad.share_C5[r])
+                used_F_previous_reactor[r]=pe.value(mad.share_F[r]) 
+                used_C5_previous_reactor[r]=pe.value(mad.share_C5[r])
 
-        if r_operation_mode[1][disc_time]==0:
-            first_shut_down_has_occured=True 
-        if first_shut_down_has_occured and max(contador[r] for r in reactors_list)!=finite_elem_t_fer:
+        # COnstraints that links operation of different reactors: shared use of resources
+
+
+        if r_operation_mode[1][disc_time]>1 and r_operation_mode[3][disc_time]>1:
+
+            def _share_F_constraint(mad): # NOTE: this preduction of the future assumes that 
+                return available_Fibers[disc_time]*(2/3)== mad.share_F[1] + mad.share_F[2] 
+            mad.share_F_constraint=pe.Constraint(rule=_share_F_constraint)
+            
+            def _share_C5_constraint(mad):
+                return available_C5[disc_time]*(2/3)== mad.share_C5[1] +  mad.share_C5[2]
+            mad.share_C5_constraint=pe.Constraint(rule=_share_C5_constraint)
+
+
             def _Integral_past_F(mad):
-                return sum(mad.share_F[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_F_previous_reactor_next == available_Fibers[disc_time]
+                return mad.share_F[3] + used_F_previous_reactor[1] + used_F_previous_reactor[2] == prev_cycle_available_F
             mad.Integral_past_F=pe.Constraint(rule=_Integral_past_F)
 
             def _Integral_past_C5(mad):
-                return sum(mad.share_C5[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_C5_previous_reactor_next == available_C5[disc_time]
+                return mad.share_C5[3] + used_C5_previous_reactor[1] + used_C5_previous_reactor[2] == prev_cycle_available_C5
             mad.Integral_past_C5=pe.Constraint(rule=_Integral_past_C5)
 
-            used_F_previous_reactor=used_F_previous_reactor_next
-            used_C5_previous_reactor=used_C5_previous_reactor_next
-        elif first_shut_down_has_occured and max(contador[r] for r in reactors_list)==finite_elem_t_fer:
+
+        elif  r_operation_mode[1][disc_time]>1 and r_operation_mode[2][disc_time]>1:
+
+            def _share_F_constraint(mad):
+                return available_Fibers[disc_time]==sum( mad.share_F[r] for r in mad.react_set)
+            mad.share_F_constraint=pe.Constraint(rule=_share_F_constraint)
+            
+            def _share_C5_constraint(mad):
+                return available_C5[disc_time]==sum(mad.share_C5[r] for r in mad.react_set)
+            mad.share_C5_constraint=pe.Constraint(rule=_share_C5_constraint)
+        
+        elif  r_operation_mode[2][disc_time]>1 and r_operation_mode[3][disc_time]>1:
+
             def _Integral_past_F(mad):
-                return sum(mad.share_F[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_F_previous_reactor == available_Fibers[disc_time]
+                return mad.share_F[2]+mad.share_F[3] + used_F_previous_reactor[1] == available_Fibers[disc_time]
             mad.Integral_past_F=pe.Constraint(rule=_Integral_past_F)
 
             def _Integral_past_C5(mad):
-                return sum(mad.share_C5[r] for r in reactors_list if r_operation_mode[r][disc_time]>=1) + used_C5_previous_reactor == available_C5[disc_time]
+                return mad.share_C5[2] + mad.share_C5[3] + used_C5_previous_reactor[1]  == available_C5[disc_time]
             mad.Integral_past_C5=pe.Constraint(rule=_Integral_past_C5)
+
+
+            # PREDICTION FIRST REACTOR NEXT CYCLE
+            def _share_F_constraint(mad):
+                return (1/3)*available_Fibers[disc_time] == mad.share_F[1] 
+            mad.share_F_constraint=pe.Constraint(rule=_share_F_constraint)
+            
+            def _share_C5_constraint(mad):
+                return (1/3)*available_C5[disc_time] == mad.share_C5[1]
+            mad.share_C5_constraint=pe.Constraint(rule=_share_C5_constraint)            
+
+        else: #Start-up: only reactor 1 is on
+        
+            def _share_F_constraint(mad):
+                return available_Fibers[disc_time]==sum( mad.share_F[r] for r in mad.react_set)
+            mad.share_F_constraint=pe.Constraint(rule=_share_F_constraint)
+            
+            def _share_C5_constraint(mad):
+                return available_C5[disc_time]==sum(mad.share_C5[r] for r in mad.react_set)
+            mad.share_C5_constraint=pe.Constraint(rule=_share_C5_constraint)
+
+
+
 
         if (not constant_flows) and (include_control_actions_constraint):
             mad.control_act_C5={}
@@ -2032,7 +2076,6 @@ if __name__ == '__main__':
             mad.control_act_2_F={}
 
             for r in reactors_list:
-
 
                 def _control_act_C5(mad,t):
                     if t==mad.reactor[r].t.first() or t==mad.reactor[r].t.next(mad.reactor[r].t.first())  or mad.reactor[r].t.ord(t)<=contador[r]+1:
@@ -2230,7 +2273,7 @@ if __name__ == '__main__':
 
 
 
-    test_name='Traditional_final'
+    test_name='ENMPC_constrained_final_0_045'
     with open('saved_'+test_name,'wb') as save_file:
         pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict,Concentration_disturbance_dict_C5,Concentration_disturbance_dict_F],save_file)
         print('data saved successfully to file')

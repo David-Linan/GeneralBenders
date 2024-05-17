@@ -2,7 +2,12 @@ import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-test_name='ENMPC_Standard_final'
+import logging
+#Do not show warnings
+logging.getLogger('matplotlib').setLevel(logging.ERROR)
+
+test_name='ENMPC_constrained_final_0_045'
+print('------------',test_name,'----------------------')
 with open('C:/Users/dlinanro/Desktop/GeneralBenders/saved_'+test_name, 'rb') as loaded_data:
     data = pickle.load(loaded_data)
 
