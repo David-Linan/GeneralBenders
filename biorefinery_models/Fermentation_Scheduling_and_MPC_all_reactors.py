@@ -2068,7 +2068,7 @@ if __name__ == '__main__':
 
 
 
-
+        # Delta u control actions constraints to avoid abrupt flow changes
         if (not constant_flows) and (include_control_actions_constraint):
             mad.control_act_C5={}
             mad.control_act_F={}
