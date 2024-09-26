@@ -15,11 +15,79 @@ from functions.dsda_functions import neighborhood_k_eq_all,neighborhood_k_eq_l_n
 import logging
 from scheduling_formulation_variable_proc_time import scheduling_gdp_var_proc_time,problem_logic_scheduling
 import os
+import matplotlib.pyplot as plt
 
+def generate_plot(m):
 
+    #--------------------------------- Gantt plot--------------------------------------------
+    fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
+    # Setting Y-axis limits
+    gnt.set_ylim(8, 52) #TODO: change depending case study
+    
+    # Setting X-axis limits
+    gnt.set_xlim(0, m.lastT.value*m.delta.value*60*60)
+    
+    # Setting labels for x-axis and y-axis
+    gnt.set_xlabel('Time [s]')
+    gnt.set_ylabel('Units')
+    
+    # Setting ticks on y-axis
+    gnt.set_yticks([15, 25, 35, 45]) #TODO: change depending case study
+    # Labelling tickes of y-axis
+    gnt.set_yticklabels(['U4', 'U3', 'U2', 'U1']) #TODO: change depending case study
+    
+    
+    # Setting graph attribute
+    gnt.grid(False)
+    
+    # Declaring bars in schedule
+    height=9
+    already_used=[]
+    for j in m.J:
 
+        if j=='U1':
+            lower_y_position=40    
+        elif j=='U2':
+            lower_y_position=30    
+        elif j=='U3':
+            lower_y_position=20
+        elif j=='U4':
+            lower_y_position=10
+        for i in m.I:
+            if i=='T1':
+                bar_color='tab:red'
+            elif i=='T2':
+                bar_color='tab:green'    
+            elif i=='T3':
+                bar_color='tab:blue'    
+            elif i=='T4':
+                bar_color='tab:orange' 
+            elif i=='T5':
+                bar_color='tab:olive'
+            for t in m.T:
+                try:
 
-# def solve_wit_CG_DSDA()
+                    if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
+                        gnt.broken_barh([(m.t_p[t]*60*60, m.varTime[i,j,t].value*60*60)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
+                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                        already_used.append(i)
+                    elif round(pe.value(m.X[i,j,t]))==1:
+                        gnt.broken_barh([(m.t_p[t]*60*60, m.varTime[i,j,t].value*60*60)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
+                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+
+                except:
+                    pass 
+    gnt.tick_params(axis='both', which='major', labelsize=15)
+    gnt.tick_params(axis='both', which='minor', labelsize=15) 
+    gnt.yaxis.label.set_size(15)
+    gnt.xaxis.label.set_size(15)
+    plt.legend()
+    # plt.show()
+    plt.savefig("Scheduling/CSCHE2024/figure_"+str(param)+".svg")   
+    plt.clf()
+    plt.cla()
+    plt.close()
+
     
 
 
@@ -48,9 +116,13 @@ if __name__ == "__main__":
 
 
     # EXPERIMENTS
-    Naive_cplex_experiment=True
+    Naive_cplex_experiment=False
     D_SDA_and_DSDSA_experiments=False
     CG_DSDA_experiment=True
+
+    #GENERATE PLOT
+    generate_CG_DSDA_plot=True
+
     first=2
     last=20#500
 
@@ -255,10 +327,12 @@ if __name__ == "__main__":
 
 
                     print('   SEARCH DIRECTION: ', direction)                
-                
+                # incumbent remains unchanged or objective stops improving?. First one is necessary to finish in the first iteration if it returns central incumbent solution
                 if round(sum(abs(j) for j in direction))==0 or old_obj<=round(pe.value(m.obj)):    
                     end=time.time()
-                    print('Objective CG-DSDA='+str(pe.value(m.obj))+', best D-SDSA='+str(Sol_found),'cputime LG-DSDA= '+str(end-start))  
+                    print('Objective CG-DSDA='+str(pe.value(m.obj))+', best CG-SDSA='+str(Sol_found),'cputime CG-DSDA= '+str(end-start))  
+                    if generate_CG_DSDA_plot:
+                        generate_plot(m)
                     break
                 else:
                     # update objective and variables
@@ -267,6 +341,8 @@ if __name__ == "__main__":
                     # delete most recently solved mip
                     del m
                     #update
+
+
 
 
 
