@@ -81,7 +81,7 @@ def generate_plot(m):
     gnt.tick_params(axis='both', which='minor', labelsize=15) 
     gnt.yaxis.label.set_size(15)
     gnt.xaxis.label.set_size(15)
-    plt.legend()
+    # plt.legend()
     # plt.show()
     plt.savefig("Scheduling/CSCHE2024/figure_"+str(param)+".svg")   
     plt.clf()
@@ -112,11 +112,12 @@ if __name__ == "__main__":
     sub_options={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
 
     LO_PROC_TIME={('T1','U1'):0.1,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):0.1,('T3','U3'):0.1,('T4','U2'):0.1,('T4','U3'):0.1,('T5','U4'):0.1}
-    UP_PROC_TIME={('T1','U1'):2,('T2','U2'):2,('T2','U3'):2,('T3','U2'):2,('T3','U3'):2,('T4','U2'):2,('T4','U3'):2,('T5','U4'):2}
+    UP_PROC_TIME={('T1','U1'):20,('T2','U2'):20,('T2','U3'):20,('T3','U2'):20,('T3','U3'):20,('T4','U2'):20,('T4','U3'):20,('T5','U4'):20}
+    last_time_hours_=20
 
 
     # EXPERIMENTS
-    Naive_cplex_experiment=False
+    Naive_cplex_experiment=True
     D_SDA_and_DSDSA_experiments=False
     CG_DSDA_experiment=True
 
@@ -128,7 +129,7 @@ if __name__ == "__main__":
 
     for param in range(first,last):
         print('\n------------ num discrete points: ',param,' -------------------------------')
-        m=scheduling_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=param,last_time_hours=5,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
+        m=scheduling_gdp_var_proc_time(x_initial=initialization,obj_type=obj_Selected,last_disc_point=param,last_time_hours=last_time_hours_,lower_t_h=LO_PROC_TIME,upper_t_h=UP_PROC_TIME)
         ext_ref={m.YR[I,J]:m.ordered_set[I,J] for I in m.I for J in m.J if m.I_i_j_prod[I,J]==1}
         # ext_ref.update({m.YR2[I_J]:m.ordered_set2[I_J] for I_J in m.I_J})
         [reformulation_dict, number_of_external_variables, lower_bounds, upper_bounds]=get_external_information(m,ext_ref,tee=True)
@@ -182,7 +183,7 @@ if __name__ == "__main__":
         # neigh=neighborhood_k_eq_l_natural(len(initialization))
         logic_fun=problem_logic_scheduling
         model_fun=scheduling_gdp_var_proc_time
-        kwargs={'obj_type':obj_Selected,'last_disc_point':par_points,'last_time_hours':5,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME}
+        kwargs={'obj_type':obj_Selected,'last_disc_point':par_points,'last_time_hours':last_time_hours_,'lower_t_h':LO_PROC_TIME,'upper_t_h':UP_PROC_TIME}
 
 
         if D_SDA_and_DSDSA_experiments:
