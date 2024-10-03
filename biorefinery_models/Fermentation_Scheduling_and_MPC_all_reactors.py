@@ -114,6 +114,23 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(
                             # Solid part of the slurry       # Liquid part of the slurry 
     
     m.j = pe.Set(initialize=['CS', 'XS', 'LS','C','G', 'X', 'F', 'E','AC','Cell','Eth','CO2','ACT','HMF','Base']) #Cell is cell biomass, ACT is acetate
+    #CS: Cellulose
+    #XS: Xylan
+    #LS: Lignin
+    #C: Cellobiose
+    #G: Glucose
+    #X: Xylose
+    #F: Furfural
+    #E: Enzymes
+    #AC: Acetic acid (representing organic acids)
+    # Cell: cell biomass
+    #Eth: Ethanol
+    #CO2
+    #ACT: Acetate
+    #HMF: 5 hydroxymetil furfural
+    # Base: NaOH
+    
+    
     # enzime types
     m.e = pe.Set(initialize=['1','2','3']) #NOTE: Enzyme type 4 was not included because, according to Prunescu's hydrolisis paper, their concentration is negligible
     
@@ -810,7 +827,8 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(
 
 def objective_function(m):
     wight=0
-    return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+wight*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+    # return (50*m.M0_yeast-5*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+wight*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
+    return (50*m.M0_yeast-(5/1000)*m.C[m.t.last(),'Eth']*m.M[m.t.last()])+wight*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
 
     # return (50*m.M0_yeast-5*m.C[m.t[20],'Eth']*m.M[m.t[20]])+1e+8*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
     # return (-5*m.C[m.t.last(),'Eth'])+0*(sum( (m.F_C5liquid[t]-m.F_C5liquid[m.t.prev(t)])**2 for t in m.t if t !=m.t.first())+sum((m.F_liquified_fibers[t]-m.F_liquified_fibers[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()))#+0*sum((m.pH[t]-m.pH[m.t.prev(t)])**2 for t in m.t if t !=m.t.first()) #maximize concentration of ethanol at the end of the prediction horizon
@@ -1587,15 +1605,17 @@ if __name__ == '__main__':
 
     include_fed_batch_op_time=False# If fed batch operation time will be included
     constant_flows=False# If include_fed_batch_op_time is true, then we also allow the option to have constant flows (for comparison purposes)
-
-
+    use_yeast_prunescu=False
+    prunescu_yeast_val=142
+    use_fixed_pH=False
+    fixed_pH_val=5.37
 
     disturbance=True
     variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
 
 
     # Include control actions constraint
-    include_control_actions_constraint=True
+    include_control_actions_constraint=False
     control_actions_val=0.045 #kg/s 0.04
 
     # Available reactors
@@ -1996,7 +2016,11 @@ if __name__ == '__main__':
                             mad.reactor[r].Diff_comp[t,j].deactivate()
             else:
                 mad.reactor[r].F_C5liquid[mad.reactor[r].t.first()].fix(0)
-                mad.reactor[r].F_liquified_fibers[mad.reactor[r].t.first()].fix(0)            
+                mad.reactor[r].F_liquified_fibers[mad.reactor[r].t.first()].fix(0)    
+                if use_yeast_prunescu:
+                    mad.reactor[r].M0_yeast.fix(prunescu_yeast_val)
+                if use_fixed_pH:
+                    mad.reactor[r].pH.fix(fixed_pH_val)
 
             # If I am turning off a reactor, then I must include a constraint to guarantee that I am not using more than the available substrate per cycle
             if contador[r]==finite_elem_t_fer:
@@ -2244,7 +2268,7 @@ if __name__ == '__main__':
                         Concentration_disturbance_dict_F[(j,r)].append(mad_sim.C_liquified_fibers[j])                
 
                 if contador[r]==finite_elem_t_fer-1:
-                    objective_dict[r].append(50*yeast_dict[r][-1]-5*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
+                    objective_dict[r].append(50*yeast_dict[r][-1]-5*(1/1000)*Concentration_dict[('Eth',r)][-1]*Hold_up_dict[r][-1])
 
                 generate_initialization(m=mad_sim,model_name='prev_init_sim_'+str(r))                
 
@@ -2273,7 +2297,7 @@ if __name__ == '__main__':
 
 
 
-    test_name='ENMPC_constrained_final_0_045'
+    test_name='ENMPC_standard_final_fixed_obj'
     with open('saved_'+test_name,'wb') as save_file:
         pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict,Concentration_disturbance_dict_C5,Concentration_disturbance_dict_F],save_file)
         print('data saved successfully to file')

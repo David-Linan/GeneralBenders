@@ -6,8 +6,10 @@ import logging
 #Do not show warnings
 logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
-test_name='ENMPC_constrained_final_0_045'
-# test_name='ENMPC_constrained_final'
+test_name='ENMPC_standard_final_fixed_obj'
+#'Traditional_final_fixed_obj_const_ph_const_yeast'
+# ENMPC_standard_final_fixed_obj
+
 print('------------',test_name,'----------------------')
 with open('C:/Users/dlinanro/Desktop/GeneralBenders/saved_'+test_name, 'rb') as loaded_data:
     data = pickle.load(loaded_data)
