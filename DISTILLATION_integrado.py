@@ -7,9 +7,10 @@ from pyomo.opt.base.solvers import SolverFactory
 import os
 from decimal import Decimal
 from gdp_column import build_column
-from cuts_functions import convex_clousure
-from dsda_functions import neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem
+from functions.cuts_functions import convex_clousure
+from functions.dsda_functions import neighborhood_k_eq_inf, get_external_information,external_ref,initialize_model,generate_initialization, solve_subproblem
 import copy
+import logging
 
 def problem_logic_column(m):
     logic_expr = []
@@ -143,7 +144,8 @@ def build_master():
 
 
 if __name__ == "__main__":
-
+    #Do not show warnings
+    logging.getLogger('pyomo').setLevel(logging.ERROR)
 
     model =build_column(8, 17, 0.95, 0.95)
     ext_ref = {model.YB: model.intTrays, model.YR: model.intTrays} #reformulation sets and variables

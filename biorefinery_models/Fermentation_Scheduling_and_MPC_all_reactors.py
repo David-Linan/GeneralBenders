@@ -9,7 +9,6 @@ import random
 import pickle
 
 
-
 def initialize_model(
     m: pe.ConcreteModel(),
     json_path=None,
