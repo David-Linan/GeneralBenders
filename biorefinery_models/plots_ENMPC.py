@@ -6,7 +6,10 @@ import logging
 #Do not show warnings
 logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
-test_name='ENMPC_standard_final_fixed_obj'
+
+
+test_name='Traditional_final_fixed_obj_const_ph_const_yeast'
+# test_name='ENMPC_standard_final_fixed_obj_0_05'
 #'Traditional_final_fixed_obj_const_ph_const_yeast'
 # ENMPC_standard_final_fixed_obj
 
@@ -101,7 +104,7 @@ for r in [1,2,3]:
     for j in ['CS', 'XS', 'LS','C','G', 'X', 'F', 'E','AC','Cell','Eth','CO2','ACT','HMF','Base']:
         if j=='CS' or j=='XS' or j=='E':
             contador=contador+1
-            plt.plot(time_dict[r],Concentration_dict[(j,r)],colors[contador],label=j+' '+test_name)
+            plt.plot(time_dict[r],Concentration_dict[(j,r)],colors[contador],label=j+'')
 
         plt.xlabel('time [h]')
         plt.ylabel('Concentration [g/kg]')
@@ -114,11 +117,10 @@ plt.show()
 fig = plt.figure()
 for r in [1,2,3]:
     plt.subplot(3,1,r)
-    plt.plot(time_dict[r],pH_dict[r],label=test_name)
+    plt.plot(time_dict[r],pH_dict[r])
 
     plt.xlabel('time [h]')
     plt.ylabel('pH')
-    plt.legend()
 
 plt.show()
 
@@ -128,17 +130,16 @@ plt.show()
 fig = plt.figure()
 for r in [1,2,3]:
     plt.subplot(3,1,r)
-    plt.plot(time_dict[r],C5_dict[r],label=test_name)
+    plt.plot(time_dict[r],C5_dict[r])
 
     plt.xlabel('time [h]')
     plt.ylabel('C5 flow [kg/s]')
-    plt.legend()
 plt.show()
 
 colors=['b','g','m']
 for r in [1,2,3]:
     contador=contador+1
-    plt.plot(time_dict[r],C5_dict[r],colors[r-1],label='Reactor '+str(r)+' '+test_name)
+    plt.plot(time_dict[r],C5_dict[r],colors[r-1],label='Reactor '+str(r)+'')
     plt.xlabel('time [h]')
     plt.ylabel('C5 flow [kg/s]')
     plt.legend()
@@ -151,30 +152,29 @@ plt.show()
 fig = plt.figure()
 for r in [1,2,3]:
     plt.subplot(3,1,r)
-    plt.plot(time_dict[r],fiber_dict[r],label=test_name)
+    plt.plot(time_dict[r],fiber_dict[r])
+    plt.xlabel('time [h]')
+    plt.ylabel('Liquified fibers flow [kg/s]')
+
+plt.show()
+
+colors=['b','g','m']
+for r in [1,2,3]:
+    contador=contador+1
+    plt.plot(time_dict[r],fiber_dict[r],colors[r-1],label='Reactor '+str(r)+'')
     plt.xlabel('time [h]')
     plt.ylabel('Liquified fibers flow [kg/s]')
     plt.legend()
 
 plt.show()
 
-colors=['b','g','m']
-for r in [1,2,3]:
-    contador=contador+1
-    plt.plot(time_dict[r],fiber_dict[r],colors[r-1],label='Reactor '+str(r)+' '+test_name)
-    plt.xlabel('time [h]')
-    plt.ylabel('Liquified fibers flow [kg/s]')
-    plt.legend()
-
-plt.show()
-
 fig = plt.figure()
 for r in [1,2,3]:
     plt.subplot(3,1,r)
-    plt.plot(time_dict[r],Hold_up_dict[r],label=test_name)
+    plt.plot(time_dict[r],Hold_up_dict[r])
     plt.xlabel('time [h]')
     plt.ylabel('Hold-up [kg]')
-    plt.legend()
+
 
 
 plt.show()
@@ -182,9 +182,8 @@ plt.show()
 fig = plt.figure()
 for r in [1,2,3]:
     plt.subplot(3,1,r)
-    plt.plot(time_dict[r],yeast_dict[r],label=test_name)
+    plt.plot(time_dict[r],yeast_dict[r])
 
     plt.xlabel('time [h]')
     plt.ylabel('yeast [kg]')
-    plt.legend()
 plt.show()

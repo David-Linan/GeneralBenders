@@ -1,12 +1,12 @@
 {
   "__metadata__": {
     "format_version": 4,
-    "date": "2024-10-03",
-    "time": "12:12:05.549247",
+    "date": "2024-10-06",
+    "time": "11:56:13.752173",
     "other": {},
     "__performance__": {
       "n_components": 7471,
-      "etime_make_dict": 0.0418851375579834
+      "etime_make_dict": 0.04188895225524902
     }
   },
   "fermentation_model": {

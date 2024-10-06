@@ -1614,8 +1614,8 @@ if __name__ == '__main__':
 
 
     # Include control actions constraint
-    include_control_actions_constraint=False
-    control_actions_val=0.045 #kg/s 0.04
+    include_control_actions_constraint=True
+    control_actions_val=0.05 #kg/s 0.04
 
     # Available reactors
     reactors_list=[1,2,3]
@@ -2295,8 +2295,7 @@ if __name__ == '__main__':
 
 
 
-
-    test_name='ENMPC_standard_final_fixed_obj'
+    test_name='ENMPC_standard_final_fixed_obj_0_05'
     with open('saved_'+test_name,'wb') as save_file:
         pickle.dump([time_list,Hold_up_dict,pH_dict,yeast_dict,C5_dict,fiber_dict,Concentration_dict,objective_dict,time_point_obj_evaluation_dict,Concentration_disturbance_dict_C5,Concentration_disturbance_dict_F],save_file)
         print('data saved successfully to file')
