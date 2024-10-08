@@ -716,7 +716,7 @@ def build_fermentation_one_time_step_optimizing_flows_pH_open_loop_optimization(
             # qEthGI=qEthG*IEthG*IFG*IAG*IHMFG
             # return m.q[t,j] == (1/m.Y_Eth_G)*qEthGI        
             return m.q[t,j] == (1/m.Y_Eth_G)*(   (   m.qmax_G*(m.K0G*pe.exp(-(((m.pH-m.K1G)**2)/(2*(m.K2G**2)))))   )*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )*(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )*(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )*(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )*(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
-            return m.q[t,j] == (1/m.Y_Eth_G)*(   (   m.qmax_G*(m.K0G/(1+((10**m.pH[t])/m.K1G)+(m.K2G/(10**m.pH[t]))))   )*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )*(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )*(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )*(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )*(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
+            # return m.q[t,j] == (1/m.Y_Eth_G)*(   (   m.qmax_G*(m.K0G/(1+((10**m.pH[t])/m.K1G)+(m.K2G/(10**m.pH[t]))))   )*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )*(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )*(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )*(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )*(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
 
             # return m.q[t,j] == (1/m.Y_Eth_G)*(   (   m.qmax_G*0.1   )*m.C[t,'Cell']*(m.C[t,'G']/(m.KSP_G+m.C[t,'G']+(((m.C[t,'G'])**2)/(m.KIP_G))))   )*(   1-(m.C[t,'Eth']/m.PMP_G)**m.gamma_G   )*(   (m.KI_F_G)/(m.KI_F_G+m.C[t,'F'])   )*(   (m.KI_ACT_G)/(m.KI_ACT_G+m.C[t,'ACT'])   )*(   (m.KI_HMF_G)/(m.KI_HMF_G+m.C[t,'HMF'])   )
             
@@ -1596,6 +1596,20 @@ if __name__ == '__main__':
     #Do not show warnings
     logging.getLogger('pyomo').setLevel(logging.ERROR)
 
+
+    # Experimento 1
+    # E-NMPC
+    # include_fed_batch_op_time: False
+    # constant_flows: False
+    # use_yeast_prunescu: False
+    # use_fixed_pH: False
+
+    # Standar
+    # include_fed_batch_op_time: True
+    # constant_flows: True
+    # use_yeast_prunescu: Ture
+    # use_fixed_pH: True
+
     # NUMBER OF CYCLES TO BE SIMULATED IN THE SOM
     Number_cycles_som=4
 
@@ -1609,13 +1623,18 @@ if __name__ == '__main__':
     use_fixed_pH=False
     fixed_pH_val=5.37
 
+
+
     disturbance=True
     variation_param_sim=0.3 # parameter to define uncertainty range (for simulation)
 
 
     # Include control actions constraint
+
+    # Experimento computacional 2
     include_control_actions_constraint=True
     control_actions_val=0.05 #kg/s 0.04
+
 
     # Available reactors
     reactors_list=[1,2,3]
