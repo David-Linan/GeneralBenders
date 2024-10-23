@@ -17,8 +17,11 @@ from scheduling_formulation_variable_proc_time import scheduling_gdp_var_proc_ti
 import os
 import matplotlib.pyplot as plt
 
-def generate_plot(m):
-
+def generate_plot(m,batch_sizes):
+    '''
+    m: solved model
+    batch_sizes: True if batch size is included in plot
+    '''
     #--------------------------------- Gantt plot--------------------------------------------
     fig, gnt = plt.subplots(figsize=(11, 5), sharex=True, sharey=False)
     # Setting Y-axis limits
@@ -69,11 +72,13 @@ def generate_plot(m):
 
                     if round(pe.value(m.X[i,j,t]))==1 and all(i!=already_used[kkk] for kkk in range(len(already_used))):
                         gnt.broken_barh([(m.t_p[t]*60*60, m.varTime[i,j,t].value*60*60)], (lower_y_position, height),facecolors =bar_color,edgecolor="black",label=i)
-                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
+                        if batch_sizes:
+                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')
                         already_used.append(i)
                     elif round(pe.value(m.X[i,j,t]))==1:
                         gnt.broken_barh([(m.t_p[t]*60*60, m.varTime[i,j,t].value*60*60)], (lower_y_position, height),facecolors =bar_color,edgecolor="black")
-                        gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
+                        if batch_sizes:
+                            gnt.annotate("{:.2f}".format(m.B[i,j,t].value),xy=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),xytext=((2*m.t_p[t]*60*60+m.varTime[i,j,t].value*60*60)/2,(2*lower_y_position+height)/2),fontsize = 15,horizontalalignment='center')                                              
 
                 except:
                     pass 
@@ -117,14 +122,15 @@ if __name__ == "__main__":
 
 
     # EXPERIMENTS
-    Naive_cplex_experiment=True
+    Naive_cplex_experiment=False
     D_SDA_and_DSDSA_experiments=False
     CG_DSDA_experiment=True
 
     #GENERATE PLOT
     generate_CG_DSDA_plot=True
+    batch_sizes=False
 
-    first=2
+    first=19
     last=20#500
 
     for param in range(first,last):
@@ -333,7 +339,7 @@ if __name__ == "__main__":
                     end=time.time()
                     print('Objective CG-DSDA='+str(pe.value(m.obj))+', best CG-SDSA='+str(Sol_found),'cputime CG-DSDA= '+str(end-start))  
                     if generate_CG_DSDA_plot:
-                        generate_plot(m)
+                        generate_plot(m,batch_sizes)
                     break
                 else:
                     # update objective and variables
