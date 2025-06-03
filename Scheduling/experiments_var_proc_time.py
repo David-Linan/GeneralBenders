@@ -116,9 +116,16 @@ if __name__ == "__main__":
     mip_solver='CPLEX'
     sub_options={'add_options':['GAMS_MODEL.optfile = 0;','GAMS_MODEL.threads=0;','option mip='+mip_solver+';\n']}
 
+
+    # Instance 1
     LO_PROC_TIME={('T1','U1'):0.1,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):0.1,('T3','U3'):0.1,('T4','U2'):0.1,('T4','U3'):0.1,('T5','U4'):0.1}
-    UP_PROC_TIME={('T1','U1'):20,('T2','U2'):20,('T2','U3'):20,('T3','U2'):20,('T3','U3'):20,('T4','U2'):20,('T4','U3'):20,('T5','U4'):20}
-    last_time_hours_=20
+    UP_PROC_TIME={('T1','U1'):2,('T2','U2'):2,('T2','U3'):2,('T3','U2'):2,('T3','U3'):2,('T4','U2'):2,('T4','U3'):2,('T5','U4'):2}
+    last_time_hours_=5
+
+    # Instance 2
+    # LO_PROC_TIME={('T1','U1'):0.1,('T2','U2'):0.1,('T2','U3'):0.1,('T3','U2'):0.1,('T3','U3'):0.1,('T4','U2'):0.1,('T4','U3'):0.1,('T5','U4'):0.1}
+    # UP_PROC_TIME={('T1','U1'):20,('T2','U2'):20,('T2','U3'):20,('T3','U2'):20,('T3','U3'):20,('T4','U2'):20,('T4','U3'):20,('T5','U4'):20}
+    # last_time_hours_=20
 
 
     # EXPERIMENTS
@@ -130,8 +137,8 @@ if __name__ == "__main__":
     generate_CG_DSDA_plot=True
     batch_sizes=False
 
-    first=19
-    last=20#500
+    first=2
+    last=20
 
     for param in range(first,last):
         print('\n------------ num discrete points: ',param,' -------------------------------')
